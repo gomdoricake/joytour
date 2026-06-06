@@ -1,0 +1,9 @@
+{% if latest_guides_list %}
+<ul>
+  {% for guide in latest_guides_list %}
+  <li><a href="{% url 'guide_detail' guide.id %}">{{ guide.name }}</a></li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>No guides are available.</p>
+{% endif %}

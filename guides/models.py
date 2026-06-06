@@ -1,32 +1,21 @@
 from django.db import models
+from django.contrib.auth.models import User # 장고 내장 유저 모델
 
 class Guide(models.Model):
-    name = models.CharField(max_length=100)
-    init_training_date = models.DateField()
-    init_super_date = models.DateField()
-    birth_date = models.DateField()
-    grade = models.IntegerField()
-    abn = models.CharField(max_length=20)
-    contact_info = models.TextField()
-    address = models.TextField()
-    bank_account_name = models.CharField(max_length=100)
-    bsb = models.CharField(max_length=6)
-    account_number = models.CharField(max_length=20)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='guide_profile', null=True, blank=True)
+    name = models.CharField(max_length=100, null=True, blank=True)
+    init_training_date = models.DateField(null=True, blank=True)
+    init_super_date = models.DateField(null=True, blank=True)
+    birth_date = models.DateField(null=True, blank=True)
+    grade = models.IntegerField(null=True, blank=True)
+    abn = models.CharField(max_length=20, null=True, blank=True)
+    contact_info = models.TextField(null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    bank_account_name = models.CharField(max_length=100, null=True, blank=True)
+    bsb = models.CharField(max_length=6, null=True, blank=True)
+    account_number = models.CharField(max_length=20, null=True, blank=True)
 
     def __str__(self):
         return self.name
 
-class GuideReport(models.Model):
-    guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='reports')
-    group_code = models.CharField(max_length=100)
-    report_date = models.DateField()
-    guide_fee = models.TextField()
-    guide_exp = models.TextField()
-    attraction_exp = models.TextField()
-    restaurant_exp = models.TextField()
-    fuel_exp = models.TextField()
-    other_exp = models.TextField()
-
-    def __str__(self):
-        return f"{self.guide_name} - {self.group_code}"
     

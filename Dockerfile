@@ -1,32 +1,22 @@
 # Use the official Python runtime image
 FROM python:3.13
-
-# Create the app directory
-RUN mkdir /joyapp
-
 # Set the working directory inside the container
 WORKDIR /joyapp
 
-# Set environment variables 
-# Prevents Python from writing pyc files to disk
-ENV PYTHONDONTWRITEBYTECODE=1
-#Prevents Python from buffering stdout and stderr
-ENV PYTHONUNBUFFERED=1 
- 
-# Upgrade pip
-RUN pip install --upgrade pip 
- 
+
+# docker run --name my-django-container \
+#   --network my-network \
+#   -p 8000:8000 \
+#   -v "$(pwd)":/app \
+#   -d my-django-app
+
 # Copy the Django project  and install dependencies
-COPY requirements.txt  /joyapp/
- 
-# run this command to install all dependencies 
+COPY requirements.txt  ./
 RUN pip install --no-cache-dir -r requirements.txt
- 
-# Copy the Django project to the container
-COPY . /joyapp/
- 
-# Expose the Django port
+
+# Copy in the source code
+COPY . .
 EXPOSE 8000
- 
-# Run Django’s development server
+
+
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

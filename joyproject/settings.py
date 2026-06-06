@@ -35,6 +35,8 @@ ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    'mypage.apps.MypageConfig',
+    'guidereports.apps.GuidereportsConfig',
     'guides.apps.GuidesConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -59,7 +61,7 @@ ROOT_URLCONF = 'joyproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,6 +87,7 @@ db_name = os.getenv('DB_NAME')
 db_user = os.getenv('DB_USER')
 db_pass = os.getenv('DB_PASS')
 
+print("dbhost: ", db_host)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -98,12 +101,13 @@ DATABASES = {
             'connect_timeout': 10,
             'keepalives': 1,
             'keepalives_idle': 30,
-            'sslmode': 'require',
+            'sslmode': 'disable',
         },
     }
 }
 
-
+LOGIN_REDIRECT_URL='/mypage/'
+LOGOUT_REDIRECT_URL='/accounts/login/'
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
