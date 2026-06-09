@@ -5,11 +5,25 @@ from guides.models import Guide
 from guides.forms import GuideProfileForm
 
 @login_required
+def login_redirect_view(request): 
+    if request.user.username == 'admin': 
+        return redirect('mypage:admin')
+    else: 
+        return redirect('mypage:mypage')
+
+@login_required
+def admin(request): 
+    return render(request, 'mypage/admin.html')
+
+@login_required
 def mypage(request): 
+
+    if request.user.username == 'admin': 
+        return redirect('mypage:admin')
     try: 
         current_guide = request.user.guide_profile
-
-        context = {"guide": current_guide}
+        print("user: ", request.user)
+        context = {"guide": current_guide, "user": request.user}
         return render(request, "mypage/index.html", context)
     except Guide.DoesNotExist: 
         if request.method == "POST": 
@@ -19,7 +33,7 @@ def mypage(request):
                 new_guide.user = request.user
                 new_guide.save()
 
-                return redirect('mypage')
+                return redirect('mypage:mypage')
         else: 
             form = GuideProfileForm()
         

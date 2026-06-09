@@ -1,4 +1,7 @@
-<h2>{{ guide.name }} 가이드님의 마이페이지</h2>
+{% if user.username == 'admin' %}
+<a href="{% url 'guides:index' %}">Guide List</a>
+{% endif %}
+<h2>{{ guide.name }} 's MyPage</h2>
 <p>첫 트레이닝 날짜: {{ guide.init_training_date }}</p>
 <p>생년월일: {{ guide.birth_date }}</p>
 <p>abn: {{ guide.abn }}</p>
