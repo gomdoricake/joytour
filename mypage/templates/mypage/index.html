@@ -11,5 +11,7 @@
 <p>bsb: {{ guide.bsb }}</p>
 <p>계좌번호: {{ guide.account_number }}</p>
 
+<a href="{% url 'guidereports:index' %}">Create Report</a>
+
 <hr />
 <a href="{% url 'logout' %}">로그아웃</a>

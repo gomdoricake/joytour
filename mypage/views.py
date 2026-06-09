@@ -1,5 +1,4 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from guides.models import Guide
 from guides.forms import GuideProfileForm
@@ -17,12 +16,10 @@ def admin(request):
 
 @login_required
 def mypage(request): 
-
     if request.user.username == 'admin': 
         return redirect('mypage:admin')
     try: 
         current_guide = request.user.guide_profile
-        print("user: ", request.user)
         context = {"guide": current_guide, "user": request.user}
         return render(request, "mypage/index.html", context)
     except Guide.DoesNotExist: 
