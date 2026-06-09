@@ -1,4 +1,4 @@
-<form action="{% url 'create_guide' %}" method="post">
+<form action="{% url 'guides:create_guide' %}" method="post">
   {% csrf_token %}
   <fieldset>
     <legend><h1>Create Guide</h1></legend>

@@ -1,4 +1,6 @@
-Guide Name: {{ guide.name }} <br />
+<a href="{% url 'guides:index' %}">Guide List</a> <br />
+
+Guide Name: {{ guide.name }}<br />
 Initial Training Date: {{ guide.init_training_date }} <br />
 Initial Super Date: {{ guide.init_super_date }} <br />
 Birth Date: {{guide.birth_date }} <br />
