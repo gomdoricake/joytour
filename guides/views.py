@@ -8,6 +8,15 @@ def index(request):
     context = {"latest_guides_list": latest_guides_list}
     return render(request, "guides/index.html", context)
 
+def create_guide(request):
+    if request.method == "POST":
+        name = request.POST.get("name")
+        init_training_date = request.POST.get("init_training_date")
+        guide = Guide.objects.create(name=name, init_training_date=init_training_date)
+        return render(request, "guides/detail.html", {"guide": guide})
+    else:
+        return render(request, "guides/create.html")
+
 def guide_detail(request, guide_id):
     print("guide_id: ", guide_id)
     try:
