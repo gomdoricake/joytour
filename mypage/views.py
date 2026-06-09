@@ -7,9 +7,9 @@ from guides.forms import GuideProfileForm
 @login_required
 def login_redirect_view(request): 
     if request.user.username == 'admin': 
-        return redirect('admin')
+        return redirect('mypage:admin')
     else: 
-        return redirect('mypage')
+        return redirect('mypage:mypage')
 
 @login_required
 def admin(request): 
@@ -19,7 +19,7 @@ def admin(request):
 def mypage(request): 
 
     if request.user.username == 'admin': 
-        return redirect('admin')
+        return redirect('mypage:admin')
     try: 
         current_guide = request.user.guide_profile
         print("user: ", request.user)
@@ -33,7 +33,7 @@ def mypage(request):
                 new_guide.user = request.user
                 new_guide.save()
 
-                return redirect('mypage')
+                return redirect('mypage:mypage')
         else: 
             form = GuideProfileForm()
         
