@@ -1,6 +1,9 @@
 {% if user.username == 'admin' %}
 <a href="{% url 'guides:index' %}">Guide List</a>
 {% endif %}
+
+<a href="{% url 'mypage:create_report' %}">Create Guide Report</a>
+
 <h2>{{ guide.name }} 's MyPage</h2>
 <p>첫 트레이닝 날짜: {{ guide.init_training_date }}</p>
 <p>생년월일: {{ guide.birth_date }}</p>
@@ -12,4 +15,17 @@
 <p>계좌번호: {{ guide.account_number }}</p>
 
 <hr />
-<a href="{% url 'logout' %}">로그아웃</a>
+
+<h3>가이드 리포트</h3>
+{% if guide_reports %}
+<ul>
+  {% for report in guide_reports %}
+  <li>
+    {{ report.report_date }} - {{ report.group_code }} - {{ report.guide_fee }} AUD
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>등록된 가이드 리포트가 없습니다.</p>
+{% endif %}
+<a href="{% url 'logout' %}">Log out</a>
