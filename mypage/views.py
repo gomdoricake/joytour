@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from guides.models import Guide
-from guides.forms import GuideProfileForm
+from .forms import GuideProfileForm
 
 @login_required
 def login_redirect_view(request): 
@@ -17,12 +17,10 @@ def admin(request):
 
 @login_required
 def mypage(request): 
-
     if request.user.username == 'admin': 
         return redirect('mypage:admin')
     try: 
         current_guide = request.user.guide_profile
-        print("user: ", request.user)
         context = {"guide": current_guide, "user": request.user}
         return render(request, "mypage/index.html", context)
     except Guide.DoesNotExist: 
@@ -37,5 +35,5 @@ def mypage(request):
         else: 
             form = GuideProfileForm()
         
-        return render(request, "mypage/create_profile.html", {"form": form})
-
+        return render(request, "mypage/create.html", {"form": form})
+       

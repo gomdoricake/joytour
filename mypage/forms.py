@@ -1,6 +1,6 @@
 from django import apps
 from django import forms
-from .models import Guide
+from guides.models import Guide
 
 class GuideProfileForm(forms.ModelForm):
     class Meta:
@@ -18,4 +18,8 @@ class GuideProfileForm(forms.ModelForm):
             'bank_account_name': '은행명', 
             'bsb': 'bsb', 
             'account_number': '계좌번호'
+        }
+        widgets = {
+            'init_training_date': forms.DateInput(attrs={'type': 'date'}),
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
         }

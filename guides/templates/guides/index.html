@@ -1,14 +1,15 @@
-<button onclick="window.location.href='{% url 'guides:create_guide' %}'">
-  Create Guide
-</button>
-{% if latest_guides_list %}
-<ul>
-  {% for guide in latest_guides_list %}
-  <li>
-    <a href="{% url 'guides:guide_detail' guide.id %}">{{ guide.name }}</a>
-  </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>No guides are available.</p>
+{% if request.user.username == 'admin' %}
+  <a href="{% url 'mypage:admin' %}" %>Admin Page</a> <br />
+  GUIDE LIST <br />
+  {% if latest_guides_list %}
+  <ul>
+    {% for guide in latest_guides_list %}
+    <li>
+      <a href="{% url 'guides:guide_detail' guide.id %}">{{ guide.name }}</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No guides are available.</p>
+  {% endif %}
 {% endif %}
