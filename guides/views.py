@@ -3,32 +3,19 @@ from django.contrib.auth.decorators import login_required
 
 from django.shortcuts import render
 from django.urls import reverse
+from django.views import generic
+
 from .models import Guide
 
-from .forms import GuideProfileForm
+class IndexView(generic.ListView):
+    template_name = "guides/index.html"
+    context_object_name = "latest_guides_list"
 
-@login_required
-def index(request):
-    latest_guides_list = Guide.objects.order_by("-init_training_date")
-    context = {"latest_guides_list": latest_guides_list}
-    return render(request, "guides/index.html", context)
+    def get_queryset(self):
+        return Guide.objects.order_by("-init_training_date")
 
-@login_required
-def create_guide(request):
-    if request.method == "POST":
-        form = GuideProfileForm(request.POST)
-        if form.is_valid(): 
-            form.save(commit=False)
-        return HttpResponseRedirect(reverse("guides:guide_detail"), args=guide.id)
-    else:
-        return render(request, "guides/create.html")
+class DetailView(generic.DetailView):
+    model = Guide
+    template_name = "guides/detail.html"
 
-@login_required
-def guide_detail(request, guide_id):
-    try:
-        guide = Guide.objects.get(id=guide_id)
-        context = {"guide": guide}
-    except Guide.DoesNotExist:
-        raise Http404("Guide does not exist")
-    return render(request, "guides/detail.html", context)
 
