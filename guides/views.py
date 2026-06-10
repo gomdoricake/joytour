@@ -1,6 +1,7 @@
 from django.http import Http404, HttpResponseRedirect
+from django.contrib.auth.decorators import login_required
 
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.urls import reverse
 from django.views import generic
 

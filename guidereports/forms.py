@@ -47,4 +47,3 @@ class GuideReportForm(forms.ModelForm):
                 'step': 'any',
                 'placeholder': 'Enter decimal value'
             }),
-        }

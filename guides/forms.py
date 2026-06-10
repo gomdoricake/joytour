@@ -8,18 +8,13 @@ class GuideProfileForm(forms.ModelForm):
         fields = ['name', 'init_training_date', 'birth_date', 'abn', 'contact_info', 'address',
                   'bank_account_name', 'bsb', 'account_number'] 
         labels = {
-            'name': '성함', 
-            'init_training_date': '첫 트레이닝 날짜', 
-            'birth_date': '생일',
+            'name': 'Name', 
+            'init_training_date': 'Initial Training Date', 
+            'birth_date': 'Birthday',
             'abn': 'ABN', 
-            'contact_info': '연락처', 
-            'address': '주소', 
-            'bank_account_name': '은행명', 
-            'bsb': 'bsb', 
-            'account_number': '계좌번호'
+            'contact_info': 'Contact Info', 
+            'address': 'Address', 
+            'bank_account_name': 'Bank Account Name', 
+            'bsb': 'BSB', 
+            'account_number': 'Account Number'
         }
-        widgets = {
-            'init_training_date': forms.DateInput(attrs={'type': 'date'}),
-            'birth_date': forms.DateInput(attrs={'type': 'date'}),
-        }
-        
