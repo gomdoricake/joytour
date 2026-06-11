@@ -1,15 +1,7 @@
-<h2>가이드 프로필 등록</h2>
-{% if user.username == 'admin' %}
-어드민 가이드 등록
-{% endif %}
-{% if user.username != 'admin' %}
-<p>
-  안녕하세요, {{ user.username }}님! 마이페이지를 이용하려면 먼저 가이드
-  프로필을 등록해 주세요.
-</p>
-{% endif %}
+<h2>Register Guide Profile</h2>
+<p>Hi, {{ user.username }}! Please register your profile first.</p>
+
 <form method="post">
   {% csrf_token %} {{ form.as_p }}
-
-  <button type="submit">프로필 저장하기</button>
+  <button type="submit">Save Profile</button>
 </form>

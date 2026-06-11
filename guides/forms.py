@@ -18,3 +18,8 @@ class GuideProfileForm(forms.ModelForm):
             'bsb': 'BSB', 
             'account_number': 'Account Number'
         }
+        widgets = {
+            'init_training_date': forms.DateInput(attrs={'type': 'date'}),
+            'birth_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+

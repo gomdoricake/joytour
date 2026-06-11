@@ -1,7 +1,7 @@
 from django import apps
 from django import forms
 from .models import GuideReport
-from .rate import DAY_EVENTCODE_12SEAT
+from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_OTHERS, INBOUND_EVENTCODE
 
 class GuideReportStep1Form(forms.ModelForm):
     class Meta:
@@ -17,13 +17,11 @@ class GuideReportStep1Form(forms.ModelForm):
         }
 
 class GuideReportStep2Form(forms.ModelForm): 
-    eventcode = forms.ChoiceField(choices=[], label='Event Code')
-
+    eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
     class Meta: 
         model = GuideReport
-        fields = ['guide_fee', 'guide_exp', 'attraction_exp', 'restaurant_exp', 'fuel_exp', 'other_exp']
+        fields = ['guide_exp', 'attraction_exp', 'restaurant_exp', 'fuel_exp', 'other_exp']
         labels = {
-            'guide_fee': 'Guide Fee', 
             'guide_exp': 'Guide Expense', 
             'attraction_exp': 'Attraction Expense', 
             'restaurant_exp': 'Restaurant Expense',
@@ -31,10 +29,6 @@ class GuideReportStep2Form(forms.ModelForm):
             'other_exp': 'Other Expense'
         }
         widgets = {
-            'guide_fee': forms.NumberInput(attrs={
-                'step': 'any',
-                'placeholder': 'Enter decimal value'
-            }),
             'guide_exp': forms.NumberInput(attrs={
                 'step': 'any',
                 'placeholder': 'Enter decimal value'
@@ -57,19 +51,26 @@ class GuideReportStep2Form(forms.ModelForm):
             }),
         }
 
-        def __init__(self, *args, **kwargs): 
-            super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs)
 
-            if self.instance and self.instance.pk:
-                role = self.instance.role
-                day_inbound = self.instance.day_inbound
 
-                if day_inbound == 'DAY' and role == '12 SEAT': 
-                    self.fields['eventcode'].choices = DAY_EVENTCODE_12SEAT
-                elif day_inbound == 'DAY' and role == 'GUIDE ONLY': 
-                    self.fields['eventcode'].choices = DAY_EVENTCODE_GUIDE_ONLY
-                elif day_inbound == 'DAY': 
-                    self.fields['eventcode'].choices = DAY_EVENTCODE_OTHERS
-                
-                if day_inbound == 'INBOUND': 
-                    self.fileds['eventcode'].choices = INBOUND_EVENTCODE
+        self.field_order=['eventcode']
+
+
+        if self.instance:
+            role = self.instance.role
+            day_inbound = self.instance.day_inbound
+            print('role' + role + 'day_inbound' + day_inbound)
+
+            if day_inbound == 'DAY' and role == '12 SEAT':
+                print("DAY 12 SEAT !!!") 
+                self.fields['eventcode'].choices = DAY_EVENTCODE_12SEAT
+            elif day_inbound == 'DAY' and role == 'GUIDE ONLY': 
+                self.fields['eventcode'].choices = DAY_EVENTCODE_GUIDE_ONLY
+            elif day_inbound == 'DAY': 
+                self.fields['eventcode'].choices = DAY_EVENTCODE_OTHERS
+            
+            if day_inbound == 'INBOUND': 
+                self.fields['eventcode'].choices = INBOUND_EVENTCODE 
+
