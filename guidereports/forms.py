@@ -1,7 +1,7 @@
 from django import apps
 from django import forms
 from .models import GuideReport
-from .rate import *
+from .rate import DAY_EVENTCODE_12SEAT
 
 class GuideReportStep1Form(forms.ModelForm):
     class Meta:
@@ -56,3 +56,20 @@ class GuideReportStep2Form(forms.ModelForm):
                 'placeholder': 'Enter decimal value'
             }),
         }
+
+        def __init__(self, *args, **kwargs): 
+            super().__init__(*args, **kwargs)
+
+            if self.instance and self.instance.pk:
+                role = self.instance.role
+                day_inbound = self.instance.day_inbound
+
+                if day_inbound == 'DAY' and role == '12 SEAT': 
+                    self.fields['eventcode'].choices = DAY_EVENTCODE_12SEAT
+                elif day_inbound == 'DAY' and role == 'GUIDE ONLY': 
+                    self.fields['eventcode'].choices = DAY_EVENTCODE_GUIDE_ONLY
+                elif day_inbound == 'DAY': 
+                    self.fields['eventcode'].choices = DAY_EVENTCODE_OTHERS
+                
+                if day_inbound == 'INBOUND': 
+                    self.fileds['eventcode'].choices = INBOUND_EVENTCODE

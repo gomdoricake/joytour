@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from django.http import HttpResponse
@@ -26,7 +26,7 @@ def guidereport_step1(request):
             guide_report.guide = request.user.guide_profile
             guide_report.save()
 
-            return redirect('guidereport_step2', pk=guide_report.pk)
+            return redirect('guidereports:guidereport_step2', pk=guide_report.pk)
     else: 
         form = GuideReportStep1Form()
     

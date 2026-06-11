@@ -17,7 +17,7 @@ class GuideReport(models.Model):
     other_exp = models.TextField()
 
     def save(self, *args, **kwargs): 
-        if not self.group_code: 
+        if self.pk and not self.group_code: 
             today_str = timezone.now().strftime('%d%m%y')
             if self.day_inbound == "DAY": 
                 self.group_code = 'J' + today_str + self.eventcodes.first().eventcode
