@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from guides.models import Guide
 from guides.forms import GuideProfileForm
-from guidereports.forms import GuideReportForm
+from guidereports.forms import GuideReportStep1Form
 from django.views import generic
 from guidereports.models import GuideReport
 
@@ -26,7 +26,7 @@ def mypage(request):
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-report_date')
         context = {"guide": current_guide, "user": request.user, "guide_reports": guide_reports}
         return render(request, "mypage/index.html", context)
-    except Guide.DoesNotExist: 
+    except AttributeError: 
         if request.method == "POST": 
             form = GuideProfileForm(request.POST)
             if form.is_valid(): 
@@ -44,7 +44,7 @@ def mypage(request):
 def create_report(request): 
     if request.method == "POST": 
         guide = Guide.objects.get(user=request.user)
-        form = GuideReportForm(request.POST)
+        form = GuideReportStep1Form(request.POST)
         if form.is_valid(): 
             new_report = form.save(commit=False)
             new_report.guide = guide
@@ -52,5 +52,5 @@ def create_report(request):
             return redirect('mypage:mypage')
     else: 
         guide = Guide.objects.get(user=request.user)
-        form = GuideReportForm(initial={'guide': guide})
+        form = GuideReportStep1Form(initial={'guide': guide})
         return render(request, "mypage/create_report.html", {"form": form})

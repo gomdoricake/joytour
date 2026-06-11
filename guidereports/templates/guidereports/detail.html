@@ -1,0 +1,15 @@
+<a href="{% url 'mypage:mypage' %}">Back to Guide Reports List</a>
+
+<h2> {{ guide_report.guide.name }}'s Guide Report Detail </h2>
+
+Report Date: {{ guide_report.report_date }} </br>
+Day Inbound: {{ guide_report.day_inbound }} </br>
+Role: {{ guide_report.role }} </br>
+
+Group Code: {{ guide_report.group_code }} </br>
+Guide Fee: {{ guide_report.guide_fee }} </br>
+Guide Expense: {{ guide_report.guide_exp }} </br>
+Attraction Expense: {{ guide_report.attraction_exp }} </br>
+Restaurant Expense: {{ guide_report.restaurant_exp }} </br>
+Fuel Expense: {{ guide_report.fuel_exp }} </br>
+Other Expense: {{ guide_report.other_exp }} </br>

@@ -1,18 +1,28 @@
 from django import apps
 from django import forms
-from guidereports.models import GuideReport
+from .models import GuideReport
+from .rate import *
 
-class GuideReportForm(forms.ModelForm):
+class GuideReportStep1Form(forms.ModelForm):
     class Meta:
         model = GuideReport
-        fields = ['guide', 'day_inbound', 'role', 'group_code', 'report_date', 'guide_fee', 'guide_exp', 
-                'attraction_exp', 'restaurant_exp', 'fuel_exp', 'other_exp']
+        fields = ['day_inbound', 'role', 'report_date']
         labels = {
-            'guide': 'Guide', 
             'day_inbound': 'Day Inbound', 
             'role': 'Role', 
-            'group_code': 'Group Code', 
             'report_date': 'Report Date', 
+        }
+        widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class GuideReportStep2Form(forms.ModelForm): 
+    eventcode = forms.ChoiceField(choices=[], label='Event Code')
+
+    class Meta: 
+        model = GuideReport
+        fields = ['guide_fee', 'guide_exp', 'attraction_exp', 'restaurant_exp', 'fuel_exp', 'other_exp']
+        labels = {
             'guide_fee': 'Guide Fee', 
             'guide_exp': 'Guide Expense', 
             'attraction_exp': 'Attraction Expense', 
@@ -21,8 +31,6 @@ class GuideReportForm(forms.ModelForm):
             'other_exp': 'Other Expense'
         }
         widgets = {
-            'guide': forms.HiddenInput(),
-            'report_date': forms.DateInput(attrs={'type': 'date'}),
             'guide_fee': forms.NumberInput(attrs={
                 'step': 'any',
                 'placeholder': 'Enter decimal value'
@@ -47,3 +55,4 @@ class GuideReportForm(forms.ModelForm):
                 'step': 'any',
                 'placeholder': 'Enter decimal value'
             }),
+        }

@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import GuideReport
-# Register your models here.
+from .models import GuideReport, EventCode
+
 admin.site.register(GuideReport)
+admin.site.register(EventCode)
