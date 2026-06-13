@@ -2,7 +2,7 @@
 <a href="{% url 'guides:index' %}">Guide List</a>
 {% endif %}
 
-<a href="{% url 'guidereports:guidereport_step1' %}">Create Guide Report</a>
+<a href="{% url 'guidereports:guidereport_main' %}">Create Guide Report</a>
 
 <h2>{{ guide.name }} 's MyPage</h2>
 <p>첫 트레이닝 날짜: {{ guide.init_training_date }}</p>
@@ -21,7 +21,9 @@
 <ul>
   {% for report in guide_reports %}
   <li>
-    <a href="{% url 'guidereports:detail' report.pk %}">{{ report.group_code}}</a>
+    <a href="{% url 'guidereports:detail' report.pk %}"
+      >{{ report.group_code}}</a
+    >
   </li>
   {% endfor %}
 </ul>

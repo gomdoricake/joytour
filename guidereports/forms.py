@@ -1,76 +1,79 @@
 from django import apps
 from django import forms
-from .models import GuideReport
-from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_OTHERS, INBOUND_EVENTCODE
+from .models import GuideReport, GuideExp
+from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_21SEAT, DAY_EVENTCODE_53SEAT, INBOUND_EVENTCODE
 
-class GuideReportStep1Form(forms.ModelForm):
+class GuideReportMainForm(forms.ModelForm):
     class Meta:
         model = GuideReport
-        fields = ['day_inbound', 'role', 'report_date']
+        fields = ['day_inbound', 'role']
         labels = {
             'day_inbound': 'Day Inbound', 
             'role': 'Role', 
+        }
+
+class GuideReportDayForm(forms.ModelForm): 
+
+    eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
+    class Meta: 
+        model = GuideReport
+        fields = ['report_date']
+        labels = {
             'report_date': 'Report Date', 
         }
         widgets = {
             'report_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-class GuideReportStep2Form(forms.ModelForm): 
-    eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
-    class Meta: 
-        model = GuideReport
-        fields = ['guide_exp', 'attraction_exp', 'restaurant_exp', 'fuel_exp', 'other_exp']
-        labels = {
-            'guide_exp': 'Guide Expense', 
-            'attraction_exp': 'Attraction Expense', 
-            'restaurant_exp': 'Restaurant Expense',
-            'fuel_exp': 'Fuel Expense', 
-            'other_exp': 'Other Expense'
-        }
-        widgets = {
-            'guide_exp': forms.NumberInput(attrs={
-                'step': 'any',
-                'placeholder': 'Enter decimal value'
-            }),
-            'attraction_exp': forms.NumberInput(attrs={
-                'step': 'any',
-                'placeholder': 'Enter decimal value'
-            }),
-            'restaurant_exp': forms.NumberInput(attrs={
-                'step': 'any',
-                'placeholder': 'Enter decimal value'
-            }),
-            'fuel_exp': forms.NumberInput(attrs={
-                'step': 'any',
-                'placeholder': 'Enter decimal value'
-            }),
-            'other_exp': forms.NumberInput(attrs={
-                'step': 'any',
-                'placeholder': 'Enter decimal value'
-            }),
-        }
-
     def __init__(self, *args, **kwargs): 
         super().__init__(*args, **kwargs)
 
-
         self.field_order=['eventcode']
-
 
         if self.instance:
             role = self.instance.role
             day_inbound = self.instance.day_inbound
             print('role' + role + 'day_inbound' + day_inbound)
 
-            if day_inbound == 'DAY' and role == '12 SEAT':
-                print("DAY 12 SEAT !!!") 
+            if role == '12 SEAT':
                 self.fields['eventcode'].choices = DAY_EVENTCODE_12SEAT
-            elif day_inbound == 'DAY' and role == 'GUIDE ONLY': 
+            if role == '21 SEAT': 
+                self.fields['eventcode'].choices = DAY_EVENTCODE_21SEAT
+            if role == '53 SEAT': 
+                self.fields['eventcode'].choices = DAY_EVENTCODE_53SEAT
+            elif role == 'GUIDE ONLY': 
                 self.fields['eventcode'].choices = DAY_EVENTCODE_GUIDE_ONLY
-            elif day_inbound == 'DAY': 
-                self.fields['eventcode'].choices = DAY_EVENTCODE_OTHERS
-            
-            if day_inbound == 'INBOUND': 
-                self.fields['eventcode'].choices = INBOUND_EVENTCODE 
 
+class GuideExpForm(forms.ModelForm): # 👈 이게 바로 원하시던 GuideExpForm 입니다!
+    class Meta:
+        model = GuideExp
+        fields = ['expense_type', 'expense']
+        widgets = {
+            'expense': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'}),
+        }
+
+
+class GuideReportInboundForm(forms.ModelForm): 
+
+    eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
+    class Meta: 
+        model = GuideReport
+        fields = ['report_date']
+        labels = {
+            'report_date': 'Report Date', 
+        }
+        widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs)
+
+        self.field_order=['eventcode']
+
+        if self.instance:
+            role = self.instance.role
+            day_inbound = self.instance.day_inbound
+            print('role' + role + 'day_inbound' + day_inbound)
+
+            self.fields['eventcode'].choices = INBOUND_EVENTCODE

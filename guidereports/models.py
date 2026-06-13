@@ -2,6 +2,7 @@ from django.db import models
 from guides.models import Guide
 from .rate import *
 from datetime import datetime
+from django.core.exceptions import ValidationError
 class GuideReport(models.Model):
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='reports')
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)
@@ -10,7 +11,6 @@ class GuideReport(models.Model):
     group_code = models.CharField(max_length=100, blank=True, null=True)
     report_date = models.DateField()
     guide_fee = models.TextField()
-    guide_exp = models.TextField(null=True, blank=True)
     attraction_exp = models.TextField(null=True, blank=True)
     restaurant_exp = models.TextField(null=True, blank=True)
     fuel_exp = models.TextField(null=True, blank=True)
@@ -77,3 +77,19 @@ class EventCode(models.Model):
 
     def __str__(self): 
         return self.eventcode
+    
+class GuideExp(models.Model): 
+    EXPENSE_CHOICES = [
+        ('WASH', 'Car Wash'),
+        ('FUEL', 'Fuel'),
+        ('PARK', 'Parking'),
+        ('OTHER', 'ETC'),
+    ]
+    guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='expenses')
+    expense_type = models.CharField(max_length=10, choices=EXPENSE_CHOICES, default='WASH') 
+    expense = models.DecimalField(max_digits=10, decimal_places=2) 
+
+    def __str__(self): 
+        return self.expense_type + " " + self.expense
+    
+    

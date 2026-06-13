@@ -6,7 +6,9 @@ app_name='guidereports'
 
 urlpatterns = [
     path('', views.index, name='index'),
-    path('guidereport_step1/', views.guidereport_step1, name='guidereport_step1'), 
-    path('guidereport_step2/', views.guidereport_step2, name='guidereport_step2'),
+    path('guidereport_main/', views.guidereport_main, name='guidereport_main'), 
+    path('guidereport_day/', views.guidereport_day, name='guidereport_day'),
+    path('guidereport_day_guide_exp', views.guidereport_day_guide_exp, name='guidereport_day_guide_exp'),
+    path('guidereport_inbound/', views.guidereport_inbound, name='guidereport_inbound'),
     path('detail/<int:pk>/', views.DetailView, name='detail'),
 ]
