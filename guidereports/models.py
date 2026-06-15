@@ -1,79 +1,61 @@
 from django.db import models
+from django.apps import apps
 from guides.models import Guide
 from .rate import *
 from datetime import datetime
 from django.core.exceptions import ValidationError
 class GuideReport(models.Model):
-    guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='reports')
+    guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='guidereports')
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)
     role = models.CharField(max_length=100, choices=ROLE)
-    eventcode = models.CharField(max_length=100, null=True, blank=True)
     group_code = models.CharField(max_length=100, blank=True, null=True)
-    report_date = models.DateField()
-    guide_fee = models.TextField()
-    attraction_exp = models.TextField(null=True, blank=True)
-    restaurant_exp = models.TextField(null=True, blank=True)
-    fuel_exp = models.TextField(null=True, blank=True)
-    other_exp = models.TextField(null=True, blank=True)
+    final_guide_fee = models.TextField()
 
     def calculate_fee(self): 
-        target_rate_dict = None
+        rate_mapping = {
+            ('DAY', '12 SEAT'): DAY_RATE_12SEAT,
+            ('DAY', '21 SEAT'): DAY_RATE_21SEAT,
+            ('DAY', '53 SEAT'): DAY_RATE_53SEAT,
+            ('DAY', 'GUIDE ONLY'): DAY_RATE_GUIDE_ONLY,
+            ('INBOUND', '12 SEAT'): INBOUND_RATE_12SEAT,
+            ('INBOUND', 'GUIDE ONLY'): INBOUND_RATE_GUIDE_ONLY,
+        }
+        target_rate_dict = rate_mapping.get((self.day_inbound, self.role))
+        if not target_rate_dict:
+            return 0.00
+        
+        if self.pk: 
+            Event = apps.get_model('guidereports', 'Event')
+            related_events = Event.objects.filter(guidereport=self)
 
-        if self.day_inbound == 'DAY' and self.role == '12 SEAT':
-            target_rate_dict = DAY_RATE_12SEAT
-        elif self.day_inbound == 'DAY' and self.role == '21 SEAT': 
-            target_rate_dict = DAY_RATE_21SEAT
-        elif self.day_inbound == 'DAY' and self.role == '53 SEAT':
-            target_rate_dict = DAY_RATE_53SEAT
-        elif self.day_inbound == 'DAY' and self.role == 'GUIDE ONLY':
-            target_rate_dict = DAY_RATE_GUIDE_ONLY
-        elif self.day_inbound == 'INBOUND'and self.role == '12 SEAT':
-            target_rate_dict = INBOUND_RATE_12SEAT
-        elif self.day_inbound == 'INBOUND' and self.role == 'GUIDE ONLY':
-            target_rate_dict = INBOUND_RATE_GUIDE_ONLY
-
-        today_str = ""
-        if self.report_date:
-            if isinstance(self.report_date, str):
-                date_obj = datetime.strptime(self.report_date, '%Y-%m-%d').date()
-                today_str = date_obj.strftime('%d%m%y')
-            else:
-                today_str = self.report_date.strftime('%d%m%y')
-
-        if target_rate_dict and self.eventcode in target_rate_dict:
-            rate_list = target_rate_dict[self.eventcode]
-            
-            final_rate = rate_list[self.guide.grade - 1] 
-            print('guide grade: ' + str(self.guide.grade))
-            print("final_rate: " + str(final_rate))
-            return final_rate
-
-        return 0.00      
-
-    def save(self, *args, **kwargs): 
-        if not self.group_code: 
-            today_str = ""
-            if self.report_date:
-                if isinstance(self.report_date, str):
-                    date_obj = datetime.strptime(self.report_date, '%Y-%m-%d').date()
-                    today_str = date_obj.strftime('%d%m%y')
-                else:
-                    today_str = self.report_date.strftime('%d%m%y')
-
-            day_inbound = str(self.day_inbound).upper().strip() if self.day_inbound else ""
-            eventcode = str(self.eventcode).strip() if self.eventcode else ""
-
-            if day_inbound == "DAY" and today_str and eventcode: 
-                self.group_code = 'J' + today_str + eventcode
+            if related_events.exists(): 
+                representative_event = related_events.first()
                 
-        super().save(*args, **kwargs)                
+                if representative_event.report_date:
+                    if isinstance(representative_event.report_date, str):
+                        date_obj = datetime.strptime(representative_event.report_date, '%Y-%m-%d').date()
+                        today_str = date_obj.strftime('%d%m%y')
+                    else:
+                        today_str = representative_event.report_date.strftime('%d%m%y')
+                
+                eventcode = representative_event.eventcode
+                
+                if eventcode in target_rate_dict:
+                    rate_list = target_rate_dict[eventcode]
+                    
+                    if self.guide and hasattr(self.guide, 'grade') and self.guide.grade:
+                        grade_index = self.guide.grade - 1
+                        if 0 <= grade_index < len(rate_list):
+                            return rate_list[grade_index]
+        else:
+            print("가이드 리포트의 PK가 없어 이벤트를 조회할 수 없습니다. (0.00 반환)")
 
-    def __str__(self):
-        return f"{self.guide.name} - {self.group_code}"
-
-class EventCode(models.Model): 
+        return 0.00
+class Event(models.Model): 
     eventcode = models.CharField(max_length=10)
-    guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='eventcodes')
+    report_date = models.DateField()
+    guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
+    guide_fee = models.TextField()
 
     def __str__(self): 
         return self.eventcode
@@ -92,4 +74,27 @@ class GuideExp(models.Model):
     def __str__(self): 
         return self.expense_type + " " + self.expense
     
+class RestaurantExp(models.Model): 
+    EXPENSE_CHOICES = [
+        ('40', 'BANG POP'), 
+        ('30', 'LA PORCHETTA'), 
+        ('25', '홍대'),
+        ('25', '대장금'),
+        ('OTHERS', 'OTHERS')
+    ]
+    guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
+    expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='홍대'),
     
+    def __str__(self): 
+        return self.expense_type
+
+class AttractionExp(models.Model): 
+    EXPENSE_CHOICES = [
+        ('34', 'EUREKA'), 
+        ('40', 'PENGUINE PARADE'), 
+    ]
+    guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='attractions')
+    expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='EUREKA')
+
+    def __str__(self): 
+        return self.expense_type

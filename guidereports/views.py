@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from django.http import HttpResponse
-from .models import Guide, GuideReport, GuideExp
+from .models import Guide, GuideReport, GuideExp, Event
 from django.forms import inlineformset_factory
 from .forms import GuideReportMainForm, GuideReportDayForm, GuideReportInboundForm
 
@@ -13,9 +13,19 @@ def index(request):
     user = Guide.objects.get(name=request.user.username)
     return render(request, 'guidereports/index.html')
 
-def DetailView(request, pk): 
-    guide_report = GuideReport.objects.get(pk=pk)
-    return render(request, 'guidereports/detail.html', {'guide_report': guide_report})
+@login_required
+def DetailView(request, pk):
+    guide_report = get_object_or_404(GuideReport, pk=pk)
+    events = guide_report.events.all() 
+    
+    for event in events: 
+        print("event: ", event.eventcode)
+        print('reportdate: ', event.report_date)
+        
+    return render(request, 'guidereports/detail.html', {
+        'guide_report': guide_report,
+        'events': events,                           
+    })
 
 @login_required
 def guidereport_main(request): 
@@ -56,19 +66,27 @@ def guidereport_day(request):
 
             guide_report = form.save(commit=False)
 
-            guide_report.eventcode = form.cleaned_data.get('eventcode')
-            print("eventcode: " + guide_report.eventcode)
+            eventcode = form.cleaned_data['eventcode']
+            report_date = form.cleaned_data['report_date'].strftime('%Y-%m-%d')
+            today_str = form.cleaned_data['report_date'].strftime('%d%m%y')
 
             guide_report.day_inbound = main_data['day_inbound']
             guide_report.role = main_data['role']
             guide_report.guide = request.user.guide_profile
 
+            guide_report.save()
+
+            event = Event.objects.create(eventcode=eventcode, report_date=report_date, guidereport=guide_report)
+
+            
             request.session['day_data'] = {
+                'event_id': event.id,
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
-                'eventcode': form.cleaned_data['eventcode'], 
-                'report_date': form.cleaned_data['report_date'].strftime('%Y-%m-%d')            
+                'today_str': today_str     
             }
+
+
 
             return redirect('guidereports:guidereport_day_guide_exp')
     else: 
@@ -88,48 +106,67 @@ ExpenseFormSet = inlineformset_factory(
 @login_required
 def guidereport_day_guide_exp(request):
 
+
     day_data = request.session.get('day_data')
     if not day_data:
         return redirect('guidereports:guidereport_main')
+    
+    event = Event.objects.get(id=day_data['event_id'])
+
 
     final_instance = GuideReport(
         role=day_data['role'],
         day_inbound=day_data.get('day_inbound'), 
-        eventcode=day_data['eventcode'],
-        report_date=day_data['report_date'], 
-        guide=request.user.guide_profile
+        guide=request.user.guide_profile,
     )
 
     if request.method == 'POST':
         formset = ExpenseFormSet(request.POST, instance=final_instance)
         
         if formset.is_valid():
-            final_instance.guide_fee = final_instance.calculate_fee()
-            final_instance.save()
+            final_instance.final_guide_fee = final_instance.calculate_fee()
             
-            instances = formset.save(commit=False)
+            today_str = day_data.get('today_str')
+            if not today_str and event.report_date:
+                from datetime import datetime
+                today_str = datetime.strptime(day_data['report_date'], '%Y-%m-%d').strftime('%d%m%y')
 
-            for instance in instances: 
-                if instance.expense and instance.expense > 0: 
-                    print('exp: ' , instance.expense)
-                    instance.guide_report = final_instance
-                    instance.id = None
-                    instance.save()
+            day_inbound_check = str(final_instance.day_inbound).upper().strip()
+            if day_inbound_check == "DAY" and today_str and event.eventcode:
+                final_instance.group_code = 'J' + today_str + event.eventcode
+            
+            
+            final_instance.save()
 
-            formset.save()
+            event.guidereport = final_instance
+
+            event.save()
+
+            expenses = formset.save(commit=False)
+            for expense in expenses:
+                if expense.expense and expense.expense > 0:
+                    expense.guide_report = final_instance
+                    expense.save()
+            
+            formset.save_m2m()
+            for deleted_obj in formset.deleted_objects:
+                deleted_obj.delete()
 
             if 'main_data' in request.session: del request.session['main_data']
             if 'day_data' in request.session: del request.session['day_data']
+            
+            return redirect('mypage:mypage') 
 
-            return redirect('mypage:mypage')
-    
+
     else:
         formset = ExpenseFormSet(instance=final_instance)
 
-    return render(request, 'guidereports/guidereport_day_guide_exp.html', {
-        'formset': formset, 'final_instance': final_instance
-    })
 
+    return render(request, 'guidereports/guidereport_day_guide_exp.html', {
+        'formset': formset, 
+        'final_instance': final_instance,
+        'combined_eventcode': day_data.get('eventcode', ''),
+    })
 
 @login_required
 def guidereport_inbound(request): 
@@ -157,7 +194,7 @@ def guidereport_inbound(request):
             guide_report.role = main_data['role']
             guide_report.guide = request.user.guide_profile
 
-            guide_report.guide_fee = guide_report.calculate_fee()
+            guide_report.final_guide_fee = guide_report.calculate_fee()
 
             guide_report.save()
             del request.session['main_data']
@@ -167,3 +204,5 @@ def guidereport_inbound(request):
         form = GuideReportDayForm(instance=dummy_instance)
     
     return render(request, 'guidereports/guidereport_day.html', {'form': form})
+
+

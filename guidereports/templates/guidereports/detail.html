@@ -3,12 +3,14 @@
 
 <h2> {{ guide_report.guide.name }}, {{ guide_report.group_code}} </h2>
 
-Report Date: {{ guide_report.report_date }} </br>
+
 Day Inbound: {{ guide_report.day_inbound }} </br>
 Role: {{ guide_report.role }} </br>
 
-Event Code: {{ guide_report.eventcode }} </br>
-Guide Fee: {{ guide_report.guide_fee }} </br>
+Events: 
+{% for event in events %}
+{{ event.report_date }} {{ event.eventcode }} </br>
+{% endfor %}
 
 
 {% if guide_report.expenses.all %}

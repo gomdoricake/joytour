@@ -1,6 +1,6 @@
 from django import apps
 from django import forms
-from .models import GuideReport, GuideExp
+from .models import GuideReport, GuideExp, Event
 from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_21SEAT, DAY_EVENTCODE_53SEAT, INBOUND_EVENTCODE
 
 class GuideReportMainForm(forms.ModelForm):
@@ -16,7 +16,7 @@ class GuideReportDayForm(forms.ModelForm):
 
     eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
     class Meta: 
-        model = GuideReport
+        model = Event
         fields = ['report_date']
         labels = {
             'report_date': 'Report Date', 
@@ -44,7 +44,7 @@ class GuideReportDayForm(forms.ModelForm):
             elif role == 'GUIDE ONLY': 
                 self.fields['eventcode'].choices = DAY_EVENTCODE_GUIDE_ONLY
 
-class GuideExpForm(forms.ModelForm): # 👈 이게 바로 원하시던 GuideExpForm 입니다!
+class GuideExpForm(forms.ModelForm): 
     class Meta:
         model = GuideExp
         fields = ['expense_type', 'expense']
@@ -55,9 +55,9 @@ class GuideExpForm(forms.ModelForm): # 👈 이게 바로 원하시던 GuideExpF
 
 class GuideReportInboundForm(forms.ModelForm): 
 
-    eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
+    event = forms.ChoiceField(choices=[], label='Event', required=True)
     class Meta: 
-        model = GuideReport
+        model = Event
         fields = ['report_date']
         labels = {
             'report_date': 'Report Date', 
@@ -77,3 +77,4 @@ class GuideReportInboundForm(forms.ModelForm):
             print('role' + role + 'day_inbound' + day_inbound)
 
             self.fields['eventcode'].choices = INBOUND_EVENTCODE
+
