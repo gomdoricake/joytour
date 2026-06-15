@@ -78,3 +78,23 @@ class GuideReportInboundForm(forms.ModelForm):
 
             self.fields['eventcode'].choices = INBOUND_EVENTCODE
 
+class AgencyForm(forms.ModelForm): 
+    class Meta: 
+        model = GuideReport
+        fields = ['agency_code']
+        labels = {
+            'agency_code': 'Agency Code',
+        }
+
+class InboundEventForm(forms.ModelForm): 
+    eventcode = forms.ChoiceField(
+        choices=INBOUND_EVENTCODE,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Event
+        fields = ['report_date', 'eventcode']
+        widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
+        }

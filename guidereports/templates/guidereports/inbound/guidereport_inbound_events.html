@@ -1,0 +1,23 @@
+{% if user.username != 'admin' %}
+<p>Guide Report - Inbound - Events</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
+  <div style="color: red">{{ formset.errors }}</div>
+  {% endif %}
+
+  <div class="event-forms">
+    {% for form in formset %}
+    <div
+      class="event-form-row"
+      style="margin-bottom: 15px; padding: 10px; border: 1px solid #ccc"
+    >
+      <h5>이벤트 #{{ forloop.counter }}</h5>
+      {{ form.as_p }}
+    </div>
+    {% endfor %}
+  </div>
+
+  <button type="submit">Next</button>
+</form>
