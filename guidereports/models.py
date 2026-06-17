@@ -73,7 +73,7 @@ class GuideExp(models.Model):
     expense = models.DecimalField(max_digits=10, decimal_places=2) 
 
     def __str__(self): 
-        return self.expense_type + " " + self.expense
+        return str(self.expense_type) + " " + str(self.expense)
     
 class RestaurantExp(models.Model): 
     EXPENSE_CHOICES = [

@@ -1,54 +1,18 @@
-<div
-  style="
-    background-color: #f8f9fa;
-    padding: 15px;
-    margin-bottom: 25px;
-    border: 1px solid #e3e6f0;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  "
->
-  <h4
-    style="
-      margin-top: 0;
-      color: #4e73df;
-      border-bottom: 2px solid #4e73df;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-    "
-  >
-    현재 작성 중인 리포트 정보
-  </h4>
+<div style="background-color: #f8f9fa; padding: 15px; margin-bottom: 25px; border: 1px solid #e3e6f0; border-radius: 6px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);">
+  <h4 style="margin-top: 0; color: #4e73df; border-bottom: 2px solid #4e73df; padding-bottom: 8px; margin-bottom: 12px;">현재 작성 중인 리포트 정보</h4>
   <div style="display: flex; gap: 20px; font-size: 15px; color: #333">
-    <div>
-      <strong>차종 (Role):</strong>
-      <span style="color: #e74a3b">{{ formset.instance.role }}</span>
-    </div>
-    <div>
-      <strong>구분 (Inbound):</strong> {{ formset.instance.day_inbound }}
-    </div>
-
-    <div>
-      <strong>이벤트 코드 (Event Code):</strong>
-      <span
-        style="
-          background-color: #f6c23e;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-weight: bold;
-        "
-        >{{ eventcode }}</span
-      >
-    </div>
-    <div>
-      <strong>리포트 날짜 (Date):</strong>
-      <span>{{ report_date }}</span>
-    </div>
+    <div><strong>차종 (Role):</strong> <span style="color: #e74a3b">{{ formset.instance.role }}</span></div>
+    <div><strong>구분 (Inbound):</strong> {{ formset.instance.day_inbound }}</div>
+    <div><strong>이벤트 코드 (Event Code):</strong> <span style="background-color: #f6c23e; padding: 2px 6px; border-radius: 4px; font-weight: bold;">{{ eventcode }}</span></div>
+    <div><strong>리포트 날짜 (Date):</strong> <span>{{ report_date }}</span></div>
   </div>
 </div>
 
-<form method="post">
-  {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
+<form method="post" id="real-expense-form">
+  {% csrf_token %} 
+  {{ formset.management_form }} 
+  
+  {% if formset.errors %}
   <div style="color: red; margin-bottom: 15px">
     {% for form in formset %} {{ form.errors }} {% endfor %}
   </div>
@@ -58,84 +22,47 @@
 
   <div id="expense-form-list">
     {% for form in formset %}
-    <div
-      class="expense-form-row"
-      style="
-        margin-bottom: 12px;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-      "
-    >
+    <div class="expense-form-row" style="margin-bottom: 12px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center;">
       {{ form.id }}
-
       <label>항목:</label> {{ form.expense_type }}
       <label style="margin-left: 10px">금액:</label> {{ form.expense }}
       <label style="margin-left: 10px">메모:</label> {{ form.memo }}
-
-      <button
-        type="button"
-        class="remove-form-btn"
-        style="
-          margin-left: 15px;
-          padding: 3px 8px;
-          background-color: #dc3545;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        "
-      >
-        ❌ 삭제
-      </button>
+      <button type="button" class="remove-form-btn" style="margin-left: 15px; padding: 3px 8px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">❌ 삭제</button>
     </div>
     {% endfor %}
   </div>
 
-  <button
-    type="button"
-    id="add-form-btn"
-    style="
-      margin-top: 10px;
-      padding: 6px 12px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    "
-  >
+  <button type="button" id="add-form-btn" style="margin-top: 10px; padding: 6px 12px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
     ➕ Expense 항목 추가
   </button>
 
   <hr style="margin: 20px 0" />
 
-  <button
-    type="submit"
-    name="submit_final"
-    style="
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    "
-  >
+  <button type="submit" id="submit-final-btn" name="submit_final" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
     Submit
   </button>
 </form>
+
+<div id="empty-form-template" style="display: none;">
+  <div class="expense-form-row" style="margin-bottom: 12px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; display: flex; align-items: center;">
+    {{ formset.empty_form.id }}
+    <label>항목:</label> {{ formset.empty_form.expense_type }}
+    <label style="margin-left: 10px">금액:</label> {{ formset.empty_form.expense }}
+    <label style="margin-left: 10px">메모:</label> {{ formset.empty_form.memo }}
+    <button type="button" class="remove-form-btn" style="margin-left: 15px; padding: 3px 8px; background-color: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">❌ 삭제</button>
+  </div>
+</div>
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const formContainer = document.getElementById("expense-form-list");
     const addButton = document.getElementById("add-form-btn");
     const totalForms = document.getElementById("id_form-TOTAL_FORMS");
-
     const currentRole = "{{ formset.instance.role }}".trim().toUpperCase();
+    const mainForm = document.getElementById("real-expense-form");
+    const submitBtn = document.getElementById("submit-final-btn");
 
+    // 1. 실시간 세차비 한도 검증
     function checkExpenseRealtime(inputElement) {
       const row = inputElement.closest(".expense-form-row");
       if (!row) return;
@@ -149,101 +76,96 @@
       if (expenseType === "WASH") {
         if (currentRole.includes("12") && expenseValue > 8) {
           alert("🛑 12인승 차량의 세차비는 $8을 넘을 수 없습니다.");
-          inputElement.value = ""; // 입력했던 잘못된 금액을 싹 지워버립니다.
-          inputElement.focus();
+          inputElement.value = ""; inputElement.focus();
         } else if (currentRole.includes("21") && expenseValue > 12) {
           alert("🛑 21인승 차량의 세차비는 $12을 넘을 수 없습니다.");
-          inputElement.value = "";
-          inputElement.focus();
+          inputElement.value = ""; inputElement.focus();
         } else if (currentRole.includes("53") && expenseValue > 25) {
           alert("🛑 53인승 차량의 세차비는 $25를 넘을 수 없습니다.");
-          inputElement.value = "";
-          inputElement.focus();
+          inputElement.value = ""; inputElement.focus();
         }
       }
     }
 
     formContainer.addEventListener("change", function (event) {
-      if (event.target.matches('input[name$="-expense"]')) {
-        checkExpenseRealtime(event.target);
-      }
+      if (event.target.matches('input[name$="-expense"]')) checkExpenseRealtime(event.target);
       if (event.target.matches('select[name$="-expense_type"]')) {
-        const expenseInput = event.target
-          .closest(".expense-form-row")
-          .querySelector('input[name$="-expense"]');
+        const expenseInput = event.target.closest(".expense-form-row").querySelector('input[name$="-expense"]');
         if (expenseInput) checkExpenseRealtime(expenseInput);
       }
     });
 
+// ➕ Expense 항목 추가 버튼 (TOTAL_FORMS 동기화 버그 전면 수정)
     addButton.addEventListener("click", function () {
-      const formRows = document.getElementsByClassName("expense-form-row");
-      const currentFormCount = formRows.length;
+      const template = document.getElementById("empty-form-template").firstElementChild;
+      
+      // 1. 진짜 깨끗한 새 행 객체 복제
+      const newRow = template.cloneNode(true);
+      
+      // 2. 현재 화면에 렌더링되어 있는 '실제 행 개수'를 직관적으로 카운트합니다.
+      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
 
-      if (currentFormCount === 0) return;
-
-      const newRow = formRows[0].cloneNode(true);
-      const formRegex = new RegExp(`form-(\\d+)-`, "g");
-      newRow.innerHTML = newRow.innerHTML.replace(
-        formRegex,
-        `form-${currentFormCount}-`,
-      );
-
+      // 3. 내부 인풋들의 name과 id 속성만 정확하게 고유 인덱스 번호로 치환
       const inputs = newRow.querySelectorAll("input, select, textarea");
       inputs.forEach((input) => {
-        if (input.type === "hidden" && input.id.endsWith("-id")) {
-          input.value = "";
-        } else if (input.tagName === "SELECT") {
-          input.selectedIndex = 0;
-        } else {
-          input.value = "";
+        if (input.name) {
+          input.name = input.name.replace(/__prefix__/g, currentFormCount);
+        }
+        if (input.id) {
+          input.id = input.id.replace(/__prefix__/g, currentFormCount);
+        }
+        if (input.type !== "hidden") {
+          if (input.tagName === "SELECT") input.selectedIndex = 0;
+          else input.value = "";
         }
       });
 
+      // 4. 리스트 컨테이너에 새 행 추가
       formContainer.appendChild(newRow);
-      totalForms.setAttribute("value", currentFormCount + 1);
-    });
+      
+      // 🌟 [버그 원천 차단] 장고 폼셋이 심어놓은 TOTAL_FORMS 엘리먼트를 '모든 수단'을 동원해 동기화합니다.
+      // 장고의 prefix 설정에 따라 name이 form-TOTAL_FORMS이거나 expense_set-TOTAL_FORMS 일 수 있습니다.
+      const realTotalFormsInputs = document.querySelectorAll('input[name$="-TOTAL_FORMS"]');
+      
+      realTotalFormsInputs.forEach(input => {
+        // 새 행이 추가되었으므로 기존 개수 + 1 값을 강제로 주입합니다.
+        input.value = currentFormCount + 1;
+        input.setAttribute("value", currentFormCount + 1);
+      });
 
+      // 디버깅용 콘솔 로그 (브라우저 F12 개발자 도구 콘솔 탭에서 확인 가능)
+      console.log(`[프론트엔드] 행 추가 완료! 현재 총 행 개수: ${currentFormCount + 1}, TOTAL_FORMS 세팅값:`, realTotalFormsInputs[0]?.value);
+    });
+    // 3. ❌ Expense 항목 삭제 및 인덱스 정렬
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const formRows = document.getElementsByClassName("expense-form-row");
-
         if (formRows.length <= 1) {
-          const inputs = formRows[0].querySelectorAll(
-            "input, select, textarea",
-          );
-          inputs.forEach((input) => {
-            if (input.tagName === "SELECT") input.selectedIndex = 0;
-            else input.value = "";
-          });
-          alert(
-            "최소 한 개의 항목은 유지되어야 합니다. 데이터만 초기화되었습니다.",
-          );
-          return;
+          const inputs = formRows[0].querySelectorAll("input, select, textarea");
+          inputs.forEach((input) => { if (input.tagName === "SELECT") input.selectedIndex = 0; else input.value = ""; });
+          alert("최소 한 개의 항목은 유지되어야 합니다."); return;
         }
 
-        const rowToDelete = event.target.closest(".expense-form-row");
-        rowToDelete.remove();
+        event.target.closest(".expense-form-row").remove();
+        
+        const remainingRows = document.getElementsByClassName("expense-form-row");
+        totalForms.value = remainingRows.length;
 
-        const remainingRows =
-          document.getElementsByClassName("expense-form-row");
-        totalForms.setAttribute("value", remainingRows.length);
-
+        // 남아있는 행들의 번호 재정렬
         for (let i = 0; i < remainingRows.length; i++) {
-          const rowInputs = remainingRows[i].querySelectorAll(
-            "input, select, textarea",
-          );
+          const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
           rowInputs.forEach((input) => {
-            if (input.name)
-              input.name = input.name.replace(/form-\d+-/, `form-${i}-`);
-            if (input.id)
-              input.id = input.id.replace(/id_form-\d+-/, `id_form-${i}-`);
+            if (input.name) input.name = input.name.replace(/form-\d+-/, `form-${i}-`);
+            if (input.id) input.id = input.id.replace(/id_form-\d+-/, `id_form-${i}-`);
           });
         }
       }
     });
 
-    document.querySelector("form").addEventListener("submit", function (event) {
+    // 4. 최종 Submit 제어
+    mainForm.addEventListener("submit", function (event) {
       const formRows = document.getElementsByClassName("expense-form-row");
+      
       for (let row of formRows) {
         const typeSelect = row.querySelector('select[name$="-expense_type"]');
         const expenseInput = row.querySelector('input[name$="-expense"]');
@@ -266,6 +188,10 @@
           }
         }
       }
+
+      // 더블서브밋 방지
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Submitting...";
     });
   });
 </script>

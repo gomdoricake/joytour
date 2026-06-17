@@ -13,7 +13,7 @@ class Guide(models.Model):
     contact_info = models.TextField(null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     bank_account_name = models.CharField(max_length=100, null=True, blank=True)
-    bsb = models.CharField(max_length=6, null=True, blank=True)
+    bsb = models.CharField(max_length=20, null=True, blank=True)
     account_number = models.CharField(max_length=20, null=True, blank=True)
     
     def save(self, *args, **kwargs):

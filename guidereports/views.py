@@ -98,28 +98,28 @@ def guidereport_day(request):
 GuideExpFormSet = inlineformset_factory(
     GuideReport, 
     GuideExp, 
-    fields=['expense_type', 'expense'], 
+    fields=['id', 'expense_type', 'expense'], 
     extra=1,             
     can_delete=True  
 )
 
 @login_required
 def guidereport_day_guide_exp(request):
-
     day_data = request.session.get('day_data')
     if not day_data:
         return redirect('guidereports:guidereport_main')
     
-    event = Event.objects.get(id=day_data['event_id'])
-
-
-    final_instance = GuideReport(
-        role=day_data['role'],
-        day_inbound=day_data.get('day_inbound'), 
-        guide=request.user.guide_profile,
-    )
+    event = get_object_or_404(Event, id=day_data['event_id'])
 
     if request.method == 'POST':
+        if event.guidereport:
+            final_instance = event.guidereport
+        else:
+            final_instance = GuideReport(guide=request.user.guide_profile)
+            
+        final_instance.role = day_data['role']
+        final_instance.day_inbound = day_data.get('day_inbound')
+
         formset = GuideExpFormSet(request.POST, instance=final_instance)
         
         if formset.is_valid():
@@ -127,45 +127,58 @@ def guidereport_day_guide_exp(request):
             
             today_str = day_data.get('today_str')
             if not today_str and event.report_date:
-                from datetime import datetime
                 today_str = datetime.strptime(day_data['report_date'], '%Y-%m-%d').strftime('%d%m%y')
 
             day_inbound_check = str(final_instance.day_inbound).upper().strip()
             if day_inbound_check == "DAY" and today_str and event.eventcode:
                 final_instance.group_code = 'J' + today_str + event.eventcode
             
-            
             final_instance.save()
 
+            GuideExp.objects.filter(guide_report=final_instance).delete()
+
+            prefix = formset.prefix
+            total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+
+            for i in range(total_forms_count):
+                exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
+                exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
+                is_delete = request.POST.get(f'form-{i}-DELETE') 
+
+                print(f"--- [Form Row {i}] Type: {exp_type}, Value: {exp_val_raw}, Delete: {is_delete} ---")
+
+                if exp_type and exp_val_raw and not is_delete:
+                    try:
+                        exp_val = float(exp_val_raw)
+                        if exp_val > 0:
+                            GuideExp.objects.create(
+                                guide_report=final_instance,
+                                expense_type=exp_type,
+                                expense=exp_val,
+                            )
+                    except ValueError:
+                        pass 
+
             event.guidereport = final_instance
-
             event.save()
-
-            expenses = formset.save(commit=False)
-            for expense in expenses:
-                if expense.expense and expense.expense > 0:
-                    expense.guide_report = final_instance
-                    expense.save()
-            
-            formset.save_m2m()
-            for deleted_obj in formset.deleted_objects:
-                deleted_obj.delete()
 
             if 'main_data' in request.session: del request.session['main_data']
             if 'day_data' in request.session: del request.session['day_data']
             
             return redirect('mypage:mypage') 
-
-
     else:
+        final_instance = event.guidereport if event.guidereport else GuideReport(
+            role=day_data['role'],
+            day_inbound=day_data.get('day_inbound'),
+            guide=request.user.guide_profile
+        )
         formset = GuideExpFormSet(instance=final_instance)
-
 
     return render(request, 'guidereports/day/guidereport_day_guide_exp.html', {
         'formset': formset, 
         'final_instance': final_instance,
         'eventcode': event.eventcode,
-        'report_date': event.report_date.strftime("%Y-%m-%d")
+        'report_date': event.report_date.strftime("%Y-%m-%d") if event.report_date else day_data.get('report_date')
     })
 
 
