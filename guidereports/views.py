@@ -123,8 +123,6 @@ def guidereport_day_guide_exp(request):
         formset = GuideExpFormSet(request.POST, instance=final_instance)
         
         if formset.is_valid():
-            final_instance.final_guide_fee = final_instance.calculate_fee()
-            
             today_str = day_data.get('today_str')
             if not today_str and event.report_date:
                 today_str = datetime.strptime(day_data['report_date'], '%Y-%m-%d').strftime('%d%m%y')
@@ -156,6 +154,7 @@ def guidereport_day_guide_exp(request):
                                 expense_type=exp_type,
                                 expense=exp_val,
                             )
+
                     except ValueError:
                         pass 
 
@@ -227,18 +226,24 @@ EventFormSet = inlineformset_factory(
     can_delete=True  
 )
 
+
 @login_required
 def guidereport_inbound_events(request): 
     inbound_data = request.session.get('inbound_data')
+
     if not inbound_data:
         return redirect('guidereports:guidereport_main')
     
-    guide_report = GuideReport(
-        role=inbound_data['role'],
-        day_inbound=inbound_data.get('day_inbound'), 
-        agency_code=inbound_data['agency_code'],
-        guide=request.user.guide_profile,
-    )
+    report_id = inbound_data.get('guide_report_id')
+    if report_id:
+        guide_report = get_object_or_404(GuideReport, id=report_id)
+    else:
+        guide_report = GuideReport(
+            role=inbound_data['role'],
+            day_inbound=inbound_data.get('day_inbound'), 
+            agency_code=inbound_data['agency_code'],
+            guide=request.user.guide_profile,
+        )
 
     if request.method == 'POST':
         formset = EventFormSet(request.POST, instance=guide_report)
@@ -246,38 +251,48 @@ def guidereport_inbound_events(request):
         if formset.is_valid():            
             guide_report.save()
 
-            events = formset.save(commit=False)
+            inbound_data['guide_report_id'] = guide_report.id
+            request.session['inbound_data'] = inbound_data 
+
+            Event.objects.filter(guidereport_id=guide_report.id).delete()
             
             representative_date_str = ""
             representative_code = ""
 
-            for idx, event in enumerate(events):
-                if isinstance(event.report_date, str):
-                    current_year = datetime.now().year
-                    full_date_str = f"{event.report_date} {current_year}"
-                    event.report_date = datetime.strptime(full_date_str, "%B %d %Y").date()
+            prefix = formset.prefix
+            total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
 
-                event.guidereport = guide_report
-                event.save()
+            for i in range(total_forms_count): 
+                report_date = request.POST.get(f'{prefix}-{i}-report_date')
+                eventcode = request.POST.get(f'{prefix}-{i}-eventcode')
+                is_delete = request.POST.get(f'{prefix}-{i}-DELETE')
 
-                if idx == 0:
-                    representative_date_str = event.report_date.strftime('%d%m%y') if event.report_date else ""
-                    representative_code = str(event.eventcode).strip()
+                print(f'---- EVENT [Form Row {i}] Date: {report_date}, Code: {eventcode}, Delete: {is_delete} ----')
 
+                if report_date and eventcode and not is_delete: 
+                    if not representative_date_str and not representative_code:
+                        try:
+                            representative_date_str = datetime.strptime(report_date, '%Y-%m-%d').strftime('%d%m%y')
+                            representative_code = str(eventcode).strip()
+                        except Exception:
+                            pass
+
+                    try: 
+                        Event.objects.create(
+                            guidereport_id=guide_report.id,
+                            report_date=report_date, 
+                            eventcode=eventcode
+                        )
+                    except ValueError: 
+                        pass
+                
             day_inbound_check = str(guide_report.day_inbound).upper().strip()
-            if day_inbound_check == "INBOUND" and representative_date_str and representative_code:
-                guide_report.group_code = guide_report.agency_code + representative_date_str + representative_code
+            if day_inbound_check == "INBOUND" and representative_date_str:
+                guide_report.group_code = f"{guide_report.agency_code}{representative_date_str}{representative_code}"
             
-            guide_report.final_guide_fee = guide_report.calculate_fee()
             guide_report.save()
 
-            for deleted_obj in formset.deleted_objects:
-                deleted_obj.delete()
-
-            if 'main_data' in request.session: del request.session['main_data']
-            if 'inbound_data' in request.session: del request.session['inbound_data']
-            
-            return redirect('mypage:mypage') 
+            return redirect('guidereports:guidereport_inbound_restaurant_exp') 
 
     else:
         formset = EventFormSet(instance=guide_report)
@@ -286,3 +301,6 @@ def guidereport_inbound_events(request):
         'formset': formset, 
         'guide_report': guide_report,
     })
+
+def guidereport_inbound_restaurant_exp(request): 
+    return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html')
