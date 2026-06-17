@@ -161,7 +161,6 @@
     const submitBtn = document.getElementById("submit-final-btn");
     const prefix = "{{ formset.prefix }}";
 
-    // 1. ➕ 항목 추가 로직 (동적 싱크 장치 완료)
     addButton.addEventListener("click", function () {
       const noDataAlert = document.getElementById("no-data-alert");
       if (noDataAlert) noDataAlert.remove();
@@ -191,7 +190,6 @@
 
       formContainer.appendChild(newRow);
 
-      // 하이픈 및 언더바 매니지먼트폼 동 동시 갱신 보장
       const totalFormsInputHyphen = document.getElementById(
         `id_${prefix}-TOTAL_FORMS`,
       );
@@ -208,7 +206,6 @@
       }
     });
 
-    // 2. ❌ 항목 삭제 및 다이내믹 리인덱싱 정렬 추가
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const row = event.target.closest(".expense-form-row");
@@ -238,7 +235,6 @@
       }
     });
 
-    // 3. 더블서브밋 방어
     mainForm.addEventListener("submit", function () {
       submitBtn.disabled = true;
       submitBtn.innerText = "Processing to Next Step...";

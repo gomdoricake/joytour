@@ -357,9 +357,9 @@ def guidereport_inbound_restaurant_exp(request):
                         report_date=report_date if report_date else None,
                         expense_type=expense_type, 
                     )
-                    print(f"✅ Restaurant 행 {i} 저장 성공")
+                    print(f"Restaurant 행 {i} 저장 성공")
                 except Exception as e: 
-                    print(f"❌ Restaurant 행 {i} 저장 실패: {e}")
+                    print(f"Restaurant 행 {i} 저장 실패: {e}")
             
         request.session['inbound_restaurant'] = inbound_events
         return redirect('guidereports:guidereport_inbound_attraction_exp') 
@@ -414,9 +414,9 @@ def guidereport_inbound_attraction_exp(request):
                         report_date=report_date if report_date else None,
                         expense_type=expense_type, 
                     )
-                    print(f"✅ Attraction 행 {i} 저장 성공")
+                    print(f"Attraction 행 {i} 저장 성공")
                 except Exception as e:
-                    print(f"❌ Attraction 행 {i} 저장 실패: {e}")
+                    print(f"Attraction 행 {i} 저장 실패: {e}")
             
         request.session['inbound_attraction'] = inbound_restaurant
         return redirect('guidereports:guidereport_inbound_guide_exp') 
@@ -440,7 +440,6 @@ GuideExpFormSet = inlineformset_factory(
 
 @login_required
 def guidereport_inbound_guide_exp(request): 
-    print(">>> Guide Exp 뷰 호출됨! 메서드:", request.method)
 
     inbound_attraction = request.session.get('inbound_attraction')
     if not inbound_attraction: 

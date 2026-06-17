@@ -83,7 +83,7 @@
           cursor: pointer;
         "
       >
-        ❌ 삭제
+        삭제
       </button>
     </div>
     {% endfor %}
@@ -153,7 +153,7 @@
         cursor: pointer;
       "
     >
-      ❌ 삭제
+      삭제
     </button>
   </div>
 </div>
@@ -164,13 +164,11 @@
     const addButton = document.getElementById("add-form-btn");
     const totalForms = document.getElementById("id_form-TOTAL_FORMS");
 
-    // 🌟 차종(Role) 텍스트 공백 제거 및 대문자 정형화
     const currentRole = "{{ formset.instance.role }}".trim().toUpperCase();
 
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
 
-    // 💡 [핵심 방어 함수] GUIDE ONLY일 때 ETC 외의 옵션을 잠그고 고정하는 기능
     function enforceGuideOnlyRule(selectElement) {
       if (currentRole.includes("GUIDE") && currentRole.includes("ONLY")) {
         const options = selectElement.querySelectorAll("option");
@@ -179,25 +177,21 @@
           const optVal = option.value.toUpperCase();
           const optText = option.text.toUpperCase();
 
-          // 값이나 글자에 'ETC'가 들어간 옵션만 찾아서 선택하고, 나머지는 전부 비활성화(disabled)
           if (optVal === "ETC" || optText.includes("ETC")) {
             option.selected = true;
             selectElement.value = option.value;
           } else if (option.value) {
-            // 빈 선택지('')가 아니라면 전부 잠금
             option.disabled = true;
           }
         });
       }
     }
 
-    // 🔥 [초기화 공정] 처음 페이지가 열릴 때 기존에 그려진 첫 행도 GUIDE ONLY 검사를 태웁니다.
     const initialSelects = formContainer.querySelectorAll(
       'select[name$="-expense_type"]',
     );
     initialSelects.forEach((select) => enforceGuideOnlyRule(select));
 
-    // 1. 실시간 세차비 금액 한도 검증 (GUIDE ONLY가 아닐 때 작동)
     function checkExpenseRealtime(inputElement) {
       const row = inputElement.closest(".expense-form-row");
       if (!row) return;
@@ -236,7 +230,6 @@
       }
     });
 
-    // 2. ➕ Expense 항목 추가 버튼 (TOTAL_FORMS 버그 수정 및 GUIDE ONLY 잠금 적용)
     addButton.addEventListener("click", function () {
       const template = document.getElementById(
         "empty-form-template",
@@ -245,7 +238,6 @@
       const currentFormCount =
         formContainer.getElementsByClassName("expense-form-row").length;
 
-      // 내부 인풋들의 name과 id 속성 정밀 인덱스 치환
       const inputs = newRow.querySelectorAll("input, select, textarea");
       inputs.forEach((input) => {
         if (input.name)
@@ -256,7 +248,6 @@
         if (input.type !== "hidden") {
           if (input.tagName === "SELECT") {
             input.selectedIndex = 0;
-            // 🌟 새 행이 추가될 때 해당 세렉트 박스에 GUIDE ONLY 필터를 실시간으로 꽂아버립니다.
             enforceGuideOnlyRule(input);
           } else {
             input.value = "";
@@ -264,10 +255,8 @@
         }
       });
 
-      // 리스트 컨테이너에 안전하게 안착
       formContainer.appendChild(newRow);
 
-      // 장고 매니지먼트 폼 완벽 동기화 장치
       const realTotalFormsInputs = document.querySelectorAll(
         'input[name$="-TOTAL_FORMS"]',
       );
@@ -277,7 +266,6 @@
       });
     });
 
-    // 3. ❌ Expense 항목 삭제 및 인덱스 리오더링
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const formRows = document.getElementsByClassName("expense-form-row");
@@ -288,7 +276,7 @@
           inputs.forEach((input) => {
             if (input.tagName === "SELECT") {
               input.selectedIndex = 0;
-              enforceGuideOnlyRule(input); // 삭제 초기화 시에도 규칙 유지
+              enforceGuideOnlyRule(input);
             } else {
               input.value = "";
             }
@@ -317,7 +305,6 @@
       }
     });
 
-    // 4. 최종 Submit 제어 (더블 클릭 및 한도 위반 락커)
     mainForm.addEventListener("submit", function (event) {
       const formRows = document.getElementsByClassName("expense-form-row");
 

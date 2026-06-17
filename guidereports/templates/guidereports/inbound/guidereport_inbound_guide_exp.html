@@ -157,7 +157,7 @@
         cursor: pointer;
       "
     >
-      ❌ 삭제
+      삭제
     </button>
   </div>
 </div>
@@ -169,7 +169,6 @@
       .trim()
       .toUpperCase();
 
-    // GUIDE ONLY 규칙 함수
     function enforceGuideOnlyRule(selectElement) {
       if (currentRole.includes("GUIDE") && currentRole.includes("ONLY")) {
         const options = selectElement.querySelectorAll("option");
@@ -187,12 +186,10 @@
       }
     }
 
-    // 초기 로드 시 기존 행 검사
     formContainer
       .querySelectorAll('select[name$="-expense_type"]')
       .forEach(enforceGuideOnlyRule);
 
-    // 행 추가 시 규칙 적용
     document
       .getElementById("add-form-btn")
       .addEventListener("click", function () {
@@ -211,11 +208,9 @@
         });
         formContainer.appendChild(newRow);
 
-        // TOTAL_FORMS 갱신
         document.querySelector('input[name$="-TOTAL_FORMS"]').value = count + 1;
       });
 
-    // 삭제 로직: 인덱스 재정렬
     formContainer.addEventListener("click", function (e) {
       if (e.target.classList.contains("remove-form-btn")) {
         e.target.closest(".expense-form-row").remove();

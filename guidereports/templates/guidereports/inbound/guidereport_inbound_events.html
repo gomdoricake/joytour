@@ -132,7 +132,7 @@
         z-index: 10;
       "
     >
-      ❌ 삭제
+      삭제
     </button>
   </div>
 </div>
@@ -211,7 +211,6 @@
           totalFormsInput.value = remainingRows.length;
         }
 
-        // 삭제 후 인덱스 및 정렬 순서 복구 공정
         for (let i = 0; i < remainingRows.length; i++) {
           const title = remainingRows[i].querySelector("h5");
           if (title) title.innerText = `이벤트 #${i + 1}`;
@@ -235,7 +234,6 @@
       }
     });
 
-    // 3. Next 버튼 클릭 시 중복 전송 방지
     mainForm.addEventListener("submit", function () {
       submitBtn.disabled = true;
       submitBtn.innerText = "Processing to Next Step...";

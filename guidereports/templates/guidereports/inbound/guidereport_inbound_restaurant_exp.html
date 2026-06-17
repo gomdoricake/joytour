@@ -47,7 +47,7 @@
       background-color: #fff5f5;
     "
   >
-    <strong>⚠️ 폼셋 에러 발생:</strong>
+    <strong>폼셋 에러 발생:</strong>
     {% for form in formset %} {{ form.errors }} {% endfor %}
     {{formset.non_form_errors }}
   </div>
@@ -87,7 +87,7 @@
           cursor: pointer;
         "
       >
-        ❌ 삭제
+        삭제
       </button>
     </div>
     {% empty %}
@@ -162,7 +162,7 @@
         cursor: pointer;
       "
     >
-      ❌ 삭제
+      삭제
     </button>
   </div>
 </div>
@@ -174,12 +174,9 @@
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
 
-    // 🌟 뷰에서 정의된 formset prefix를 동적으로 가져옵니다 (대부분 'restaurantexp_set' 형태)
     const prefix = "{{ formset.prefix }}";
 
-    // 1. ➕ 항목 추가 버튼 로직 (가이드 경비 검증 성공 공식 완벽 반영)
     addButton.addEventListener("click", function () {
-      // 안내 문구가 있으면 삭제
       const noDataAlert = document.getElementById("no-data-alert");
       if (noDataAlert) noDataAlert.remove();
 
@@ -190,7 +187,6 @@
       const currentFormCount =
         formContainer.getElementsByClassName("expense-form-row").length;
 
-      // 내부 인풋들의 name과 id 속성 정밀 인덱스 치환 regex
       const prefixRegex = new RegExp(`__prefix__`, "g");
       const inputs = newRow.querySelectorAll("input, select, textarea");
 
@@ -211,7 +207,6 @@
 
       formContainer.appendChild(newRow);
 
-      // 🌟 매니지먼트 폼 개수 강제 동기화 (가장 중요)
       const totalFormsInput = document.getElementById(
         `id_${prefix}-TOTAL_FORMS`,
       );
@@ -221,12 +216,10 @@
       }
     });
 
-    // 2. ❌ 항목 삭제 및 인덱스 정렬
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const row = event.target.closest(".expense-form-row");
 
-        // 새로 추가한 행인 경우 브라우저상에서 바로 삭제
         row.remove();
 
         const remainingRows =
@@ -236,7 +229,6 @@
         );
         if (totalFormsInput) totalFormsInput.value = remainingRows.length;
 
-        // 남은 행들의 인덱스 번호를 다시 0, 1, 2 순서대로 정렬해 줍니다.
         const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
         const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
 
@@ -254,7 +246,6 @@
       }
     });
 
-    // 3. 최종 Submit 제어 (더블 클릭 락커)
     mainForm.addEventListener("submit", function () {
       submitBtn.disabled = true;
       submitBtn.innerText = "Processing to Next Step...";
