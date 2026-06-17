@@ -199,12 +199,13 @@ def guidereport_inbound_agency(request):
             guide_report = form.save(commit=False)
             
             request.session['inbound_data'] = {
+                'guidereport_id': guide_report.id,
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
                 'agency_code': form.cleaned_data['agency_code'],
                 'adt': form.cleaned_data['adt'],
-                'tc': form.cleaned_data['chd'], 
-                'chd': guide_report.chd
+                'tc': form.cleaned_data['tc'], 
+                'chd': form.cleaned_data['chd']
             }
 
             return redirect('guidereports:guidereport_inbound_events')
@@ -230,7 +231,7 @@ def guidereport_inbound_events(request):
     if not inbound_data:
         return redirect('guidereports:guidereport_main')
     
-    report_id = inbound_data.get('guide_report_id')
+    report_id = inbound_data.get('guidereport_id')
     if report_id:
         guide_report = get_object_or_404(GuideReport, id=report_id)
     else:
@@ -250,7 +251,7 @@ def guidereport_inbound_events(request):
         if formset.is_valid():            
             guide_report.save()
 
-            inbound_data['guide_report_id'] = guide_report.id
+            inbound_data['guidereport_id'] = guide_report.id
             request.session['inbound_data'] = inbound_data 
 
             Event.objects.filter(guidereport_id=guide_report.id).delete()
@@ -294,6 +295,16 @@ def guidereport_inbound_events(request):
 
             guide_report.save()
 
+            request.session['inbound_events'] = {
+                'guidereport_id': guide_report.id,
+                'role': inbound_data['role'],
+                'day_inbound': inbound_data.get('day_inbound'), 
+                'agency_code': inbound_data['agency_code'],
+                'adt': inbound_data['adt'],
+                'tc': inbound_data['tc'],
+                'chd': inbound_data['chd']
+            }
+
             return redirect('guidereports:guidereport_inbound_restaurant_exp') 
 
     else:
@@ -304,14 +315,164 @@ def guidereport_inbound_events(request):
         'guide_report': guide_report,
     })
 
-# RestaurantFormSet = inlineformset_factory(
-#     GuideReport, 
-#     RestaurantExp, 
-#     form=RestaurantExpForm, 
-#     extra=1,             
-#     can_delete=True  
-# )
+
+RestaurantFormSet = inlineformset_factory(
+    GuideReport, 
+    RestaurantExp, 
+    form=RestaurantExpForm, 
+    extra=1,             
+    can_delete=True  
+)
 
 
-# def guidereport_inbound_restaurant_exp(request): 
-#     return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html')
+@login_required
+def guidereport_inbound_restaurant_exp(request): 
+    inbound_events = request.session.get('inbound_events')
+    if not inbound_events: 
+        return redirect('guidereports:guidereport_inbound_events')
+    
+    report_id = inbound_events.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+
+    if request.method == "POST": 
+        formset = RestaurantFormSet(request.POST, instance=guide_report)
+
+        guide_report.save()
+        RestaurantExp.objects.filter(guide_report_id=guide_report.id).delete()
+        
+        prefix = formset.prefix
+        total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+
+        for i in range(total_forms_count): 
+            report_date = request.POST.get(f'{prefix}-{i}-report_date')
+            expense_type = request.POST.get(f'{prefix}-{i}-expense_type')  
+            is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
+
+            print(f'---- RESTAURANT [Row {i}] Report Date: {report_date} ,Type: {expense_type}, Delete: {is_delete} ----')
+
+            if expense_type and report_date and not is_delete: 
+                try: 
+                    RestaurantExp.objects.create(
+                        guide_report_id=guide_report.id,
+                        report_date=report_date if report_date else None,
+                        expense_type=expense_type, 
+                    )
+                    print(f"✅ Restaurant 행 {i} 저장 성공")
+                except Exception as e: 
+                    print(f"❌ Restaurant 행 {i} 저장 실패: {e}")
+            
+        request.session['inbound_restaurant'] = inbound_events
+        return redirect('guidereports:guidereport_inbound_attraction_exp') 
+
+    else:
+        formset = RestaurantFormSet(instance=guide_report)
+
+    return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html', {
+        'formset': formset, 
+        'guide_report': guide_report,
+    })
+
+
+
+AttractionFormSet = inlineformset_factory(
+    GuideReport, 
+    AttractionExp, 
+    form=AttractionExpForm,
+    extra=1,             
+    can_delete=True  
+)
+
+@login_required
+def guidereport_inbound_attraction_exp(request): 
+    inbound_restaurant = request.session.get('inbound_restaurant')
+    if not inbound_restaurant: 
+        return redirect('guidereports:guidereport_inbound_restaurant_exp')
+    
+    report_id = inbound_restaurant.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+
+    if request.method == "POST": 
+        formset = AttractionFormSet(request.POST, instance=guide_report)
+
+        guide_report.save()
+        AttractionExp.objects.filter(guide_report_id=guide_report.id).delete()
+        
+        prefix = formset.prefix
+        total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+
+        for i in range(total_forms_count): 
+            report_date = request.POST.get(f'{prefix}-{i}-report_date')
+            expense_type = request.POST.get(f'{prefix}-{i}-expense_type')  
+            is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
+
+            print(f'---- ATTRACTION [Row {i}] Name: {expense_type},  Delete: {is_delete} ----')
+
+            if report_date and expense_type and not is_delete: 
+                try: 
+                    AttractionExp.objects.create(
+                        guide_report_id=guide_report.id,
+                        report_date=report_date if report_date else None,
+                        expense_type=expense_type, 
+                    )
+                    print(f"✅ Attraction 행 {i} 저장 성공")
+                except Exception as e:
+                    print(f"❌ Attraction 행 {i} 저장 실패: {e}")
+            
+        request.session['inbound_attraction'] = inbound_restaurant
+        return redirect('guidereports:guidereport_inbound_guide_exp') 
+
+    else:
+        formset = AttractionFormSet(instance=guide_report)
+
+    return render(request, 'guidereports/inbound/guidereport_inbound_attraction_exp.html', {
+        'formset': formset, 
+        'guide_report': guide_report,
+    })
+
+
+GuideExpFormSet = inlineformset_factory(
+    GuideReport, 
+    GuideExp, 
+    form=GuideExpForm,  
+    extra=1,             
+    can_delete=True  
+)
+
+@login_required
+def guidereport_inbound_guide_exp(request): 
+    print(">>> Guide Exp 뷰 호출됨! 메서드:", request.method)
+
+    inbound_attraction = request.session.get('inbound_attraction')
+    if not inbound_attraction: 
+        return redirect('guidereports:guidereport_inbound_attraction_exp')
+    
+    report_id = inbound_attraction.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+    if request.method == "POST":
+            prefix = 'expenses'
+            
+            total_forms_raw = request.POST.get(f'{prefix}-TOTAL_FORMS', '0')
+            total_forms = int(total_forms_raw)
+
+            if total_forms > 0:
+                GuideExp.objects.filter(guide_report=guide_report).delete()
+                
+                for i in range(total_forms):
+                    e_type = request.POST.get(f'{prefix}-{i}-expense_type')
+                    e_val = request.POST.get(f'{prefix}-{i}-expense')
+                                        
+                    if e_type:
+                        GuideExp.objects.create(
+                            guide_report=guide_report,
+                            expense_type=e_type,
+                            expense=float(e_val) if e_val else 0.0
+                        )
+            
+            return redirect('mypage:mypage')   
+    else:
+        formset = GuideExpFormSet(instance=guide_report)
+
+    return render(request, 'guidereports/inbound/guidereport_inbound_guide_exp.html', {
+        'formset': formset, 
+        'guide_report': guide_report,
+    })

@@ -1,0 +1,235 @@
+<style>
+  input[id$="-DELETE"],
+  label[for$="-DELETE"] {
+    display: none !important;
+  }
+</style>
+
+<div
+  style="
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid #e3e6f0;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  "
+>
+  <h4
+    style="
+      margin-top: 0;
+      color: #4e73df;
+      border-bottom: 2px solid #4e73df;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    "
+  >
+    현재 작성 중인 리포트 정보 (Inbound)
+  </h4>
+  <div style="display: flex; gap: 20px; font-size: 15px; color: #333">
+    <div>
+      <strong>차종 (Role):</strong>
+      <span style="color: #e74a3b">{{ guide_report.role }}</span>
+    </div>
+    <div><strong>구분 (Inbound):</strong> {{ guide_report.day_inbound }}</div>
+    <div>
+      <strong>그룹 코드 (Group Code):</strong>
+      <span
+        style="
+          background-color: #f6c23e;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: bold;
+        "
+        >{{ guide_report.group_code }}</span
+      >
+    </div>
+  </div>
+</div>
+
+<form method="post" id="real-expense-form">
+  {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
+  <div style="color: red; margin-bottom: 15px">
+    {% for form in formset %} {{ form.errors }} {% endfor %}
+  </div>
+  {% endif %}
+
+  <h3>Expense 내역 추가</h3>
+
+  <div id="expense-form-list">
+    {% for form in formset %}
+    <div
+      class="expense-form-row"
+      style="
+        margin-bottom: 12px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        position: relative;
+      "
+    >
+      {{ form.id }}
+
+      <div style="display: none">{{ form.DELETE }}</div>
+
+      <label>Expense Type:</label> {{ form.expense_type }}
+      <label style="margin-left: 10px">Expense:</label> {{ form.expense }}
+
+      <button
+        type="button"
+        class="remove-form-btn"
+        style="
+          margin-left: 15px;
+          padding: 3px 8px;
+          background-color: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        "
+      >
+        ❌ 삭제
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <button
+    type="button"
+    id="add-form-btn"
+    style="
+      margin-top: 10px;
+      padding: 6px 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    "
+  >
+    ➕ Expense 항목 추가
+  </button>
+
+  <hr style="margin: 20px 0" />
+
+  <button
+    type="submit"
+    id="submit-final-btn"
+    name="submit_final"
+    style="
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    "
+  >
+    Submit
+  </button>
+</form>
+
+<div id="empty-form-template" style="display: none">
+  <div
+    class="expense-form-row"
+    style="
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    "
+  >
+    {{ formset.empty_form.as_p }}
+    <button
+      type="button"
+      class="remove-form-btn"
+      style="
+        margin-left: 15px;
+        padding: 3px 8px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      "
+    >
+      ❌ 삭제
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const formContainer = document.getElementById("expense-form-list");
+    const currentRole = "{{ guide_report.role|default:formset.instance.role }}"
+      .trim()
+      .toUpperCase();
+
+    // GUIDE ONLY 규칙 함수
+    function enforceGuideOnlyRule(selectElement) {
+      if (currentRole.includes("GUIDE") && currentRole.includes("ONLY")) {
+        const options = selectElement.querySelectorAll("option");
+        options.forEach((option) => {
+          if (
+            option.value.toUpperCase() === "ETC" ||
+            option.text.toUpperCase().includes("ETC")
+          ) {
+            option.selected = true;
+            selectElement.value = option.value;
+          } else if (option.value) {
+            option.disabled = true;
+          }
+        });
+      }
+    }
+
+    // 초기 로드 시 기존 행 검사
+    formContainer
+      .querySelectorAll('select[name$="-expense_type"]')
+      .forEach(enforceGuideOnlyRule);
+
+    // 행 추가 시 규칙 적용
+    document
+      .getElementById("add-form-btn")
+      .addEventListener("click", function () {
+        const template = document.getElementById(
+          "empty-form-template",
+        ).firstElementChild;
+        const newRow = template.cloneNode(true);
+        const count =
+          formContainer.getElementsByClassName("expense-form-row").length;
+
+        newRow.querySelectorAll("input, select").forEach((el) => {
+          if (el.name) el.name = el.name.replace(/__prefix__/g, count);
+          if (el.id) el.id = el.id.replace(/__prefix__/g, count);
+          if (el.tagName === "SELECT") enforceGuideOnlyRule(el);
+          else if (el.type !== "hidden") el.value = "";
+        });
+        formContainer.appendChild(newRow);
+
+        // TOTAL_FORMS 갱신
+        document.querySelector('input[name$="-TOTAL_FORMS"]').value = count + 1;
+      });
+
+    // 삭제 로직: 인덱스 재정렬
+    formContainer.addEventListener("click", function (e) {
+      if (e.target.classList.contains("remove-form-btn")) {
+        e.target.closest(".expense-form-row").remove();
+        const rows = formContainer.getElementsByClassName("expense-form-row");
+        document.querySelector('input[name$="-TOTAL_FORMS"]').value =
+          rows.length;
+
+        Array.from(rows).forEach((row, i) => {
+          row.querySelectorAll("input, select").forEach((el) => {
+            el.name = el.name.replace(/-\d+-/, `-${i}-`);
+            el.id = el.id.replace(/-\d+-/, `-${i}-`);
+          });
+        });
+      }
+    });
+  });
+</script>

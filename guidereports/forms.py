@@ -106,7 +106,25 @@ class InboundEventForm(forms.ModelForm):
 class RestaurantExpForm(forms.ModelForm): 
     class Meta: 
         model = RestaurantExp
-        fiels = ['expense_type']
+        fields = ['report_date','expense_type']
+        labels = {
+            'report_date': 'Report Date',
+            'expense_type': 'Expense Type'
+        }
         widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
+            'expense_type': forms.Select(attrs={'class': 'form-control'})
+        }
+    
+class AttractionExpForm(forms.ModelForm):
+    class Meta: 
+        model: AttractionExp
+        fields = ['report_date', 'expense_type']
+        labels = {
+            'report_date': 'Report Date', 
+            'expense_type': 'Expense Type'
+        }
+        widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
             'expense_type': forms.Select(attrs={'class': 'form-control'})
         }

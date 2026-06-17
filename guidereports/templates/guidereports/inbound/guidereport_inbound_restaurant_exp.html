@@ -1,1 +1,263 @@
-RESTAURANT EXP
+<div
+  style="
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid #e3e6f0;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  "
+>
+  <h4
+    style="
+      margin-top: 0;
+      color: #4e73df;
+      border-bottom: 2px solid #4e73df;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    "
+  >
+    현재 작성 중인 리포트 정보
+  </h4>
+  <div style="display: flex; gap: 20px; font-size: 15px; color: #333">
+    <div><strong>구분 (Inbound):</strong> {{ guide_report.day_inbound }}</div>
+    <div>
+      <strong>리포트 ID:</strong>
+      <span
+        style="
+          background-color: #f6c23e;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: bold;
+        "
+        >{{ guide_report.id }}</span
+      >
+    </div>
+  </div>
+</div>
+
+<form method="post" id="real-expense-form">
+  {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
+  <div
+    style="
+      color: red;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid red;
+      background-color: #fff5f5;
+    "
+  >
+    <strong>⚠️ 폼셋 에러 발생:</strong>
+    {% for form in formset %} {{ form.errors }} {% endfor %}
+    {{formset.non_form_errors }}
+  </div>
+  {% endif %}
+
+  <h3>Restaurant 경비 내역 추가</h3>
+
+  <div id="expense-form-list">
+    {% for form in formset %}
+    <div
+      class="expense-form-row"
+      style="
+        margin-bottom: 12px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+      "
+    >
+      {{ form.id }}
+      <div style="display: none">{{ form.DELETE }}</div>
+      <label>날짜:</label> {{ form.report_date }}
+      <label style="margin-left: 10px">식당명/타입:</label>
+      {{form.expense_type}}
+
+      <button
+        type="button"
+        class="remove-form-btn"
+        style="
+          margin-left: 15px;
+          padding: 3px 8px;
+          background-color: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        "
+      >
+        ❌ 삭제
+      </button>
+    </div>
+    {% empty %}
+    <p id="no-data-alert" style="color: #666">
+      등록된 내역이 없습니다. 아래 버튼을 눌러 추가해 주세요.
+    </p>
+    {% endfor %}
+  </div>
+
+  <button
+    type="button"
+    id="add-form-btn"
+    style="
+      margin-top: 10px;
+      padding: 6px 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    "
+  >
+    ➕ Restaurant 항목 추가
+  </button>
+
+  <hr style="margin: 20px 0" />
+
+  <button
+    type="submit"
+    id="submit-final-btn"
+    style="
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    "
+  >
+    Next Step (Attraction)
+  </button>
+</form>
+
+<div id="empty-form-template" style="display: none">
+  <div
+    class="expense-form-row"
+    style="
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    "
+  >
+    {{ formset.empty_form.id }}
+    <div style="display: none">{{ formset.empty_form.DELETE }}</div>
+
+    <label>날짜:</label> {{ formset.empty_form.report_date }}
+    <label style="margin-left: 10px">식당명/타입:</label>
+    {{formset.empty_form.expense_type }}
+    <button
+      type="button"
+      class="remove-form-btn"
+      style="
+        margin-left: 15px;
+        padding: 3px 8px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      "
+    >
+      ❌ 삭제
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const formContainer = document.getElementById("expense-form-list");
+    const addButton = document.getElementById("add-form-btn");
+    const mainForm = document.getElementById("real-expense-form");
+    const submitBtn = document.getElementById("submit-final-btn");
+
+    // 🌟 뷰에서 정의된 formset prefix를 동적으로 가져옵니다 (대부분 'restaurantexp_set' 형태)
+    const prefix = "{{ formset.prefix }}";
+
+    // 1. ➕ 항목 추가 버튼 로직 (가이드 경비 검증 성공 공식 완벽 반영)
+    addButton.addEventListener("click", function () {
+      // 안내 문구가 있으면 삭제
+      const noDataAlert = document.getElementById("no-data-alert");
+      if (noDataAlert) noDataAlert.remove();
+
+      const template = document.getElementById(
+        "empty-form-template",
+      ).firstElementChild;
+      const newRow = template.cloneNode(true);
+      const currentFormCount =
+        formContainer.getElementsByClassName("expense-form-row").length;
+
+      // 내부 인풋들의 name과 id 속성 정밀 인덱스 치환 regex
+      const prefixRegex = new RegExp(`__prefix__`, "g");
+      const inputs = newRow.querySelectorAll("input, select, textarea");
+
+      inputs.forEach((input) => {
+        if (input.name)
+          input.name = input.name.replace(prefixRegex, currentFormCount);
+        if (input.id)
+          input.id = input.id.replace(prefixRegex, currentFormCount);
+
+        if (input.type !== "hidden") {
+          if (input.tagName === "SELECT") {
+            input.selectedIndex = 0;
+          } else {
+            input.value = "";
+          }
+        }
+      });
+
+      formContainer.appendChild(newRow);
+
+      // 🌟 매니지먼트 폼 개수 강제 동기화 (가장 중요)
+      const totalFormsInput = document.getElementById(
+        `id_${prefix}-TOTAL_FORMS`,
+      );
+      if (totalFormsInput) {
+        totalFormsInput.value = currentFormCount + 1;
+        totalFormsInput.setAttribute("value", currentFormCount + 1);
+      }
+    });
+
+    // 2. ❌ 항목 삭제 및 인덱스 정렬
+    formContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-form-btn")) {
+        const row = event.target.closest(".expense-form-row");
+
+        // 새로 추가한 행인 경우 브라우저상에서 바로 삭제
+        row.remove();
+
+        const remainingRows =
+          formContainer.getElementsByClassName("expense-form-row");
+        const totalFormsInput = document.getElementById(
+          `id_${prefix}-TOTAL_FORMS`,
+        );
+        if (totalFormsInput) totalFormsInput.value = remainingRows.length;
+
+        // 남은 행들의 인덱스 번호를 다시 0, 1, 2 순서대로 정렬해 줍니다.
+        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
+        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+
+        for (let i = 0; i < remainingRows.length; i++) {
+          const rowInputs = remainingRows[i].querySelectorAll(
+            "input, select, textarea",
+          );
+          rowInputs.forEach((input) => {
+            if (input.name)
+              input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
+            if (input.id)
+              input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
+          });
+        }
+      }
+    });
+
+    // 3. 최종 Submit 제어 (더블 클릭 락커)
+    mainForm.addEventListener("submit", function () {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing to Next Step...";
+    });
+  });
+</script>

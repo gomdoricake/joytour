@@ -17,6 +17,9 @@ class GuideReport(models.Model):
     chd = models.PositiveIntegerField(default=0)
     final_guide_fee = models.TextField()
 
+    def __str__(self): 
+        return str(self.guide.name) + ': ' + str(self.group_code)
+
 class Event(models.Model): 
     eventcode = models.CharField(max_length=10)
     report_date = models.DateField()
@@ -85,6 +88,7 @@ class RestaurantExp(models.Model):
         ('OTHERS', 'OTHERS')
     ]
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
+    report_date = models.DateField(null=True, blank=True)
     expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='홍대')
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
@@ -110,7 +114,9 @@ class AttractionExp(models.Model):
         ('40', 'PENGUINE PARADE'), 
     ]
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='attractions')
+    report_date = models.DateField(null=True, blank=True)
     expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='EUREKA')
+    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
 
     def __str__(self): 
         return self.expense_type

@@ -1,0 +1,247 @@
+<div
+  style="
+    background-color: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 25px;
+    border: 1px solid #e3e6f0;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  "
+>
+  <h4
+    style="
+      margin-top: 0;
+      color: #4e73df;
+      border-bottom: 2px solid #4e73df;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    "
+  >
+    현재 작성 중인 리포트 정보
+  </h4>
+  <div style="display: flex; gap: 20px; font-size: 15px; color: #333">
+    <div><strong>구분 (Inbound):</strong> {{ guide_report.day_inbound }}</div>
+    <div>
+      <strong>리포트 ID:</strong>
+      <span
+        style="
+          background-color: #f6c23e;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-weight: bold;
+        "
+        >{{ guide_report.id }}</span
+      >
+    </div>
+  </div>
+</div>
+
+<form method="post" id="real-expense-form">
+  {% csrf_token %} {{ formset.management_form }}
+
+  <h3>Attraction 경비 내역 추가</h3>
+
+  <div id="expense-form-list">
+    {% for form in formset %}
+    <div
+      class="expense-form-row"
+      style="
+        margin-bottom: 12px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+      "
+    >
+      {{ form.id }}
+      <div style="display: none">{{ form.DELETE }}</div>
+
+      <label>날짜:</label> {{ form.report_date }}
+      <label style="margin-left: 10px">관광지명:</label>
+      {{form.expense_type}}
+
+      <button
+        type="button"
+        class="remove-form-btn"
+        style="
+          margin-left: 15px;
+          padding: 3px 8px;
+          background-color: #dc3545;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        "
+      >
+        ❌ 삭제
+      </button>
+    </div>
+    {% empty %}
+    <p id="no-data-alert" style="color: #666">
+      등록된 내역이 없습니다. 아래 버튼을 눌러 추가해 주세요.
+    </p>
+    {% endfor %}
+  </div>
+
+  <button
+    type="button"
+    id="add-form-btn"
+    style="
+      margin-top: 10px;
+      padding: 6px 12px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    "
+  >
+    ➕ Attraction 항목 추가
+  </button>
+
+  <hr style="margin: 20px 0" />
+
+  <button
+    type="submit"
+    id="submit-final-btn"
+    style="
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    "
+  >
+    Next Step (Guide Exp)
+  </button>
+</form>
+
+<div id="empty-form-template" style="display: none">
+  <div
+    class="expense-form-row"
+    style="
+      margin-bottom: 12px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+    "
+  >
+    {{ formset.empty_form.id }}
+    <div style="display: none">{{ formset.empty_form.DELETE }}</div>
+    <label>날짜:</label> {{ formset.empty_form.report_date }}
+    <label style="margin-left: 10px">관광지명:</label>
+    {{formset.empty_form.expense_type }}
+    <button
+      type="button"
+      class="remove-form-btn"
+      style="
+        margin-left: 15px;
+        padding: 3px 8px;
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      "
+    >
+      ❌ 삭제
+    </button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const formContainer = document.getElementById("expense-form-list");
+    const addButton = document.getElementById("add-form-btn");
+    const mainForm = document.getElementById("real-expense-form");
+    const submitBtn = document.getElementById("submit-final-btn");
+    const prefix = "{{ formset.prefix }}";
+
+    // 1. ➕ 항목 추가 로직 (동적 싱크 장치 완료)
+    addButton.addEventListener("click", function () {
+      const noDataAlert = document.getElementById("no-data-alert");
+      if (noDataAlert) noDataAlert.remove();
+
+      const templateRow = document
+        .getElementById("empty-form-template")
+        .querySelector(".expense-form-row");
+      const newRow = templateRow.cloneNode(true);
+      const currentFormCount =
+        formContainer.getElementsByClassName("expense-form-row").length;
+
+      const prefixRegex = new RegExp("__prefix__", "g");
+      const inputs = newRow.querySelectorAll("input, select, textarea");
+
+      inputs.forEach((input) => {
+        if (input.name)
+          input.name = input.name.replace(prefixRegex, currentFormCount);
+        if (input.id)
+          input.id = input.id.replace(prefixRegex, currentFormCount);
+
+        if (input.type === "checkbox") {
+          input.checked = false;
+        } else if (input.type !== "hidden") {
+          input.value = "";
+        }
+      });
+
+      formContainer.appendChild(newRow);
+
+      // 하이픈 및 언더바 매니지먼트폼 동 동시 갱신 보장
+      const totalFormsInputHyphen = document.getElementById(
+        `id_${prefix}-TOTAL_FORMS`,
+      );
+      const totalFormsInputUnder = document.getElementById(
+        `id_${prefix}_TOTAL_FORMS`,
+      );
+      if (totalFormsInputHyphen) {
+        totalFormsInputHyphen.value = currentFormCount + 1;
+        totalFormsInputHyphen.setAttribute("value", currentFormCount + 1);
+      }
+      if (totalFormsInputUnder) {
+        totalFormsInputUnder.value = currentFormCount + 1;
+        totalFormsInputUnder.setAttribute("value", currentFormCount + 1);
+      }
+    });
+
+    // 2. ❌ 항목 삭제 및 다이내믹 리인덱싱 정렬 추가
+    formContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-form-btn")) {
+        const row = event.target.closest(".expense-form-row");
+        row.remove();
+
+        const remainingRows =
+          formContainer.getElementsByClassName("expense-form-row");
+        const totalFormsInput = document.getElementById(
+          `id_${prefix}-TOTAL_FORMS`,
+        );
+        if (totalFormsInput) totalFormsInput.value = remainingRows.length;
+
+        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
+        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+
+        for (let i = 0; i < remainingRows.length; i++) {
+          const rowInputs = remainingRows[i].querySelectorAll(
+            "input, select, textarea",
+          );
+          rowInputs.forEach((input) => {
+            if (input.name)
+              input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
+            if (input.id)
+              input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
+          });
+        }
+      }
+    });
+
+    // 3. 더블서브밋 방어
+    mainForm.addEventListener("submit", function () {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing to Next Step...";
+    });
+  });
+</script>

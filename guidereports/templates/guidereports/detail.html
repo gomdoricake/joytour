@@ -10,9 +10,13 @@ Role: {{ guide_report.role }} </br>
 <br>
 <br>
 
+{% if guide_report.day_inbound == 'INBOUND' %}
+
 ADT: {{ guide_report.adt }} <br>
 TC: {{ guide_report.tc }} <br>
 CHD: {{ guide_report.chd }} <br>
+
+{% endif %}
 
 <br>
 <br>
@@ -23,6 +27,23 @@ Events: <br>
 {% endfor %}
 
 <br><br>
+{% if guide_report.day_inbound == 'INBOUND' %}
+Restaurants: <br>
+{% for restaurant in guide_report.restaurants.all %}
+{{ restaurant.report_date }}, {{ restaurant.expense_type}} <br>
+{% endfor %}
+
+<br><br>
+
+Attractions: <br>
+{% for attraction in guide_report.attractions.all %}
+{{ attraction.report_date }}, {{ attraction.expense_type }} <br>
+{% endfor %}
+
+<br><br>
+{% endif %}
+
+
 
 
 {% if guide_report.expenses.all %}
@@ -34,9 +55,4 @@ Guide Expense <br>
 
 {% endfor %}
 
-{% if guide_report.day_inbound == 'INBOUND' %}
-Attraction Expense: {{ guide_report.attraction_exp }} </br>
-Restaurant Expense: {{ guide_report.restaurant_exp }} </br>
-Other Expense: {{ guide_report.other_exp }} </br>
-{% endif %}
 
