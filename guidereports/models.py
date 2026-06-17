@@ -4,6 +4,8 @@ from guides.models import Guide
 from .rate import *
 from datetime import datetime
 from django.core.exceptions import ValidationError
+
+
 class GuideReport(models.Model):
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='guidereports')
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)

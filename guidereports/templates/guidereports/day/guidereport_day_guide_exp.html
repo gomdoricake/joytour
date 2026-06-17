@@ -58,11 +58,39 @@
     const formContainer = document.getElementById("expense-form-list");
     const addButton = document.getElementById("add-form-btn");
     const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+    
+    // 🌟 차종(Role) 텍스트 공백 제거 및 대문자 정형화
     const currentRole = "{{ formset.instance.role }}".trim().toUpperCase();
+    
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
 
-    // 1. 실시간 세차비 한도 검증
+    // 💡 [핵심 방어 함수] GUIDE ONLY일 때 ETC 외의 옵션을 잠그고 고정하는 기능
+    function enforceGuideOnlyRule(selectElement) {
+      if (currentRole.includes("GUIDE") && currentRole.includes("ONLY")) {
+        const options = selectElement.querySelectorAll("option");
+        
+        options.forEach(option => {
+          const optVal = option.value.toUpperCase();
+          const optText = option.text.toUpperCase();
+          
+          // 값이나 글자에 'ETC'가 들어간 옵션만 찾아서 선택하고, 나머지는 전부 비활성화(disabled)
+          if (optVal === "ETC" || optText.includes("ETC")) {
+            option.selected = true;
+            selectElement.value = option.value;
+          } else if (option.value) { // 빈 선택지('')가 아니라면 전부 잠금
+            option.disabled = true;
+          }
+        });
+      }
+    }
+
+    // 🔥 [초기화 공정] 처음 페이지가 열릴 때 기존에 그려진 첫 행도 GUIDE ONLY 검사를 태웁니다.
+    const initialSelects = formContainer.querySelectorAll('select[name$="-expense_type"]');
+    initialSelects.forEach(select => enforceGuideOnlyRule(select));
+
+
+    // 1. 실시간 세차비 금액 한도 검증 (GUIDE ONLY가 아닐 때 작동)
     function checkExpenseRealtime(inputElement) {
       const row = inputElement.closest(".expense-form-row");
       if (!row) return;
@@ -95,54 +123,56 @@
       }
     });
 
-// ➕ Expense 항목 추가 버튼 (TOTAL_FORMS 동기화 버그 전면 수정)
+
+    // 2. ➕ Expense 항목 추가 버튼 (TOTAL_FORMS 버그 수정 및 GUIDE ONLY 잠금 적용)
     addButton.addEventListener("click", function () {
       const template = document.getElementById("empty-form-template").firstElementChild;
-      
-      // 1. 진짜 깨끗한 새 행 객체 복제
       const newRow = template.cloneNode(true);
-      
-      // 2. 현재 화면에 렌더링되어 있는 '실제 행 개수'를 직관적으로 카운트합니다.
       const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
 
-      // 3. 내부 인풋들의 name과 id 속성만 정확하게 고유 인덱스 번호로 치환
+      // 내부 인풋들의 name과 id 속성 정밀 인덱스 치환
       const inputs = newRow.querySelectorAll("input, select, textarea");
       inputs.forEach((input) => {
-        if (input.name) {
-          input.name = input.name.replace(/__prefix__/g, currentFormCount);
-        }
-        if (input.id) {
-          input.id = input.id.replace(/__prefix__/g, currentFormCount);
-        }
+        if (input.name) input.name = input.name.replace(/__prefix__/g, currentFormCount);
+        if (input.id) input.id = input.id.replace(/__prefix__/g, currentFormCount);
+        
         if (input.type !== "hidden") {
-          if (input.tagName === "SELECT") input.selectedIndex = 0;
-          else input.value = "";
+          if (input.tagName === "SELECT") {
+            input.selectedIndex = 0;
+            // 🌟 새 행이 추가될 때 해당 세렉트 박스에 GUIDE ONLY 필터를 실시간으로 꽂아버립니다.
+            enforceGuideOnlyRule(input);
+          } else {
+            input.value = "";
+          }
         }
       });
 
-      // 4. 리스트 컨테이너에 새 행 추가
+      // 리스트 컨테이너에 안전하게 안착
       formContainer.appendChild(newRow);
       
-      // 🌟 [버그 원천 차단] 장고 폼셋이 심어놓은 TOTAL_FORMS 엘리먼트를 '모든 수단'을 동원해 동기화합니다.
-      // 장고의 prefix 설정에 따라 name이 form-TOTAL_FORMS이거나 expense_set-TOTAL_FORMS 일 수 있습니다.
+      // 장고 매니지먼트 폼 완벽 동기화 장치
       const realTotalFormsInputs = document.querySelectorAll('input[name$="-TOTAL_FORMS"]');
-      
       realTotalFormsInputs.forEach(input => {
-        // 새 행이 추가되었으므로 기존 개수 + 1 값을 강제로 주입합니다.
         input.value = currentFormCount + 1;
         input.setAttribute("value", currentFormCount + 1);
       });
-
-      // 디버깅용 콘솔 로그 (브라우저 F12 개발자 도구 콘솔 탭에서 확인 가능)
-      console.log(`[프론트엔드] 행 추가 완료! 현재 총 행 개수: ${currentFormCount + 1}, TOTAL_FORMS 세팅값:`, realTotalFormsInputs[0]?.value);
     });
-    // 3. ❌ Expense 항목 삭제 및 인덱스 정렬
+
+
+    // 3. ❌ Expense 항목 삭제 및 인덱스 리오더링
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const formRows = document.getElementsByClassName("expense-form-row");
         if (formRows.length <= 1) {
           const inputs = formRows[0].querySelectorAll("input, select, textarea");
-          inputs.forEach((input) => { if (input.tagName === "SELECT") input.selectedIndex = 0; else input.value = ""; });
+          inputs.forEach((input) => { 
+            if (input.tagName === "SELECT") {
+              input.selectedIndex = 0;
+              enforceGuideOnlyRule(input); // 삭제 초기화 시에도 규칙 유지
+            } else {
+              input.value = "";
+            }
+          });
           alert("최소 한 개의 항목은 유지되어야 합니다."); return;
         }
 
@@ -151,7 +181,6 @@
         const remainingRows = document.getElementsByClassName("expense-form-row");
         totalForms.value = remainingRows.length;
 
-        // 남아있는 행들의 번호 재정렬
         for (let i = 0; i < remainingRows.length; i++) {
           const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
           rowInputs.forEach((input) => {
@@ -162,7 +191,8 @@
       }
     });
 
-    // 4. 최종 Submit 제어
+
+    // 4. 최종 Submit 제어 (더블 클릭 및 한도 위반 락커)
     mainForm.addEventListener("submit", function (event) {
       const formRows = document.getElementsByClassName("expense-form-row");
       
@@ -189,7 +219,6 @@
         }
       }
 
-      // 더블서브밋 방지
       submitBtn.disabled = true;
       submitBtn.innerText = "Submitting...";
     });
