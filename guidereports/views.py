@@ -193,27 +193,23 @@ def guidereport_inbound_agency(request):
         return redirect('mypage:guidereport_main')
 
     if request.method == 'POST': 
-        form = AgencyForm(request.POST, instance=dummy_instance)
+        form = AgencyPaxForm(request.POST, instance=dummy_instance)
         if form.is_valid(): 
 
             guide_report = form.save(commit=False)
-
-            guide_report.day_inbound = main_data['day_inbound']
-            guide_report.role = main_data['role']
-            guide_report.agency_code = form.cleaned_data['agency_code']
-            guide_report.guide = request.user.guide_profile
-
-            guide_report.save()
             
             request.session['inbound_data'] = {
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
-                'agency_code': guide_report.agency_code
+                'agency_code': form.cleaned_data['agency_code'],
+                'adt': form.cleaned_data['adt'],
+                'tc': form.cleaned_data['chd'], 
+                'chd': guide_report.chd
             }
 
             return redirect('guidereports:guidereport_inbound_events')
     else: 
-        form = AgencyForm(instance=dummy_instance)
+        form = AgencyPaxForm(instance=dummy_instance)
     
     return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form})
 
@@ -243,6 +239,9 @@ def guidereport_inbound_events(request):
             day_inbound=inbound_data.get('day_inbound'), 
             agency_code=inbound_data['agency_code'],
             guide=request.user.guide_profile,
+            adt=inbound_data['adt'],
+            tc=inbound_data['tc'],
+            chd=inbound_data['chd']
         )
 
     if request.method == 'POST':
@@ -288,8 +287,11 @@ def guidereport_inbound_events(request):
                 
             day_inbound_check = str(guide_report.day_inbound).upper().strip()
             if day_inbound_check == "INBOUND" and representative_date_str:
-                guide_report.group_code = f"{guide_report.agency_code}{representative_date_str}{representative_code}"
-            
+                if guide_report.adt + guide_report.tc + guide_report.chd > 9: 
+                    guide_report.group_code = f"{guide_report.agency_code}{representative_date_str}G"
+                else: 
+                    guide_report.group_code = f"{guide_report.agency_code}{representative_date_str}F"
+
             guide_report.save()
 
             return redirect('guidereports:guidereport_inbound_restaurant_exp') 
@@ -302,5 +304,14 @@ def guidereport_inbound_events(request):
         'guide_report': guide_report,
     })
 
-def guidereport_inbound_restaurant_exp(request): 
-    return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html')
+# RestaurantFormSet = inlineformset_factory(
+#     GuideReport, 
+#     RestaurantExp, 
+#     form=RestaurantExpForm, 
+#     extra=1,             
+#     can_delete=True  
+# )
+
+
+# def guidereport_inbound_restaurant_exp(request): 
+#     return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html')

@@ -1,6 +1,6 @@
 from django import apps
 from django import forms
-from .models import GuideReport, GuideExp, Event
+from .models import *
 from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_21SEAT, DAY_EVENTCODE_53SEAT, INBOUND_EVENTCODE
 
 class GuideReportMainForm(forms.ModelForm):
@@ -78,12 +78,15 @@ class GuideReportInboundForm(forms.ModelForm):
 
             self.fields['eventcode'].choices = INBOUND_EVENTCODE
 
-class AgencyForm(forms.ModelForm): 
+class AgencyPaxForm(forms.ModelForm): 
     class Meta: 
         model = GuideReport
-        fields = ['agency_code']
+        fields = ['agency_code', 'adt', 'tc', 'chd']
         labels = {
             'agency_code': 'Agency Code',
+            'adt': 'ADT', 
+            'tc': 'TC', 
+            'chd': 'CHD'
         }
 
 class InboundEventForm(forms.ModelForm): 
@@ -97,4 +100,13 @@ class InboundEventForm(forms.ModelForm):
         fields = ['report_date', 'eventcode']
         widgets = {
             'report_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+class RestaurantExpForm(forms.ModelForm): 
+    class Meta: 
+        model = RestaurantExp
+        fiels = ['expense_type']
+        widgets = {
+            'expense_type': forms.Select(attrs={'class': 'form-control'})
         }

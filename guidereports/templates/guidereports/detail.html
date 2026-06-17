@@ -7,10 +7,22 @@
 Day Inbound: {{ guide_report.day_inbound }} </br>
 Role: {{ guide_report.role }} </br>
 
-Events: 
+<br>
+<br>
+
+ADT: {{ guide_report.adt }} <br>
+TC: {{ guide_report.tc }} <br>
+CHD: {{ guide_report.chd }} <br>
+
+<br>
+<br>
+
+Events: <br>
 {% for event in events %}
 {{ event.report_date }} {{ event.eventcode }} </br>
 {% endfor %}
+
+<br><br>
 
 
 {% if guide_report.expenses.all %}

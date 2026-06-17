@@ -85,10 +85,24 @@ class RestaurantExp(models.Model):
         ('OTHERS', 'OTHERS')
     ]
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
-    expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='홍대'),
+    expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='홍대')
+    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+
+    def save(self, *args, **kwargs):
+        price_mapping = {
+            'BANG POP': 40,
+            'LA PORCHETTA': 30,
+            '홍대': 25,
+            '대장금': 25,
+            'OTHERS': 0.00,
+        }
+        
+        self.expense = price_mapping.get(self.expense_type, 0.00)
+        
+        super().save(*args, **kwargs)
     
     def __str__(self): 
-        return self.expense_type
+        return str(self.expense_type)
 
 class AttractionExp(models.Model): 
     EXPENSE_CHOICES = [
