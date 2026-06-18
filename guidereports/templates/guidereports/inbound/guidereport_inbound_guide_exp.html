@@ -166,10 +166,52 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const formContainer = document.getElementById("expense-form-list");
+    const addButton = document.getElementById("add-form-btn");
     const currentRole = "{{ guide_report.role|default:formset.instance.role }}"
       .trim()
       .toUpperCase();
 
+    // 1. 세차비 금액 한도 검증 로직
+    function checkExpenseRealtime(inputElement) {
+      const row = inputElement.closest(".expense-form-row");
+      const typeSelect = row.querySelector('select[name$="-expense_type"]');
+      if (!typeSelect || typeSelect.value !== "WASH") return;
+
+      const expenseValue = parseFloat(inputElement.value) || 0;
+      let limit = 0;
+
+      if (currentRole.includes("12")) limit = 8;
+      else if (currentRole.includes("21")) limit = 12;
+      else if (currentRole.includes("53")) limit = 25;
+
+      if (limit > 0 && expenseValue > limit) {
+        alert(
+          `🛑 ${currentRole} 차량의 세차비는 $${limit}를 넘을 수 없습니다.`,
+        );
+        inputElement.value = "";
+        inputElement.focus();
+      }
+    }
+
+    // 2. WASH 옵션 제어 (옵션 숨기기/보이기)
+    function refreshWashOptions() {
+      const allSelects = formContainer.querySelectorAll(
+        'select[name$="-expense_type"]',
+      );
+      const isWashUsed = Array.from(allSelects).some((s) => s.value === "WASH");
+
+      allSelects.forEach((select) => {
+        Array.from(select.options).forEach((opt) => {
+          if (opt.value === "WASH" && isWashUsed && select.value !== "WASH") {
+            opt.disabled = true;
+          } else {
+            opt.disabled = false;
+          }
+        });
+      });
+    }
+
+    // 3. GUIDE ONLY 규칙
     function enforceGuideOnlyRule(selectElement) {
       if (currentRole.includes("GUIDE") && currentRole.includes("ONLY")) {
         const options = selectElement.querySelectorAll("option");
@@ -187,45 +229,55 @@
       }
     }
 
-    formContainer
-      .querySelectorAll('select[name$="-expense_type"]')
-      .forEach(enforceGuideOnlyRule);
+    // 4. 행 추가 로직
+    addButton.addEventListener("click", function () {
+      const template = document.getElementById(
+        "empty-form-template",
+      ).firstElementChild;
+      const newRow = template.cloneNode(true);
+      const count =
+        formContainer.getElementsByClassName("expense-form-row").length;
+      const isWashUsed = Array.from(
+        formContainer.querySelectorAll('select[name$="-expense_type"]'),
+      ).some((s) => s.value === "WASH");
 
-    document
-      .getElementById("add-form-btn")
-      .addEventListener("click", function () {
-        const template = document.getElementById(
-          "empty-form-template",
-        ).firstElementChild;
-        const newRow = template.cloneNode(true);
-        const count =
-          formContainer.getElementsByClassName("expense-form-row").length;
+      newRow.querySelectorAll("input, select").forEach((el) => {
+        if (el.name) el.name = el.name.replace(/__prefix__/g, count);
+        if (el.id) el.id = el.id.replace(/__prefix__/g, count);
 
-        newRow.querySelectorAll("input, select").forEach((el) => {
-          if (el.name) el.name = el.name.replace(/__prefix__/g, count);
-          if (el.id) el.id = el.id.replace(/__prefix__/g, count);
-          if (el.tagName === "SELECT") enforceGuideOnlyRule(el);
-          else if (el.type !== "hidden") el.value = "";
-        });
-        formContainer.appendChild(newRow);
-
-        document.querySelector('input[name$="-TOTAL_FORMS"]').value = count + 1;
+        if (el.tagName === "SELECT") {
+          el.value = isWashUsed ? "FUEL" : ""; // WASH가 이미 있으면 FUEL을 기본값으로
+          enforceGuideOnlyRule(el);
+        } else if (el.type !== "hidden") {
+          el.value = "";
+        }
       });
+
+      formContainer.appendChild(newRow);
+      document.querySelector('input[name$="-TOTAL_FORMS"]').value = count + 1;
+      refreshWashOptions();
+    });
+
+    // 5. 이벤트 핸들러
+    formContainer.addEventListener("change", function (event) {
+      if (event.target.matches('input[name$="-expense"]'))
+        checkExpenseRealtime(event.target);
+      if (event.target.matches('select[name$="-expense_type"]')) {
+        refreshWashOptions();
+        enforceGuideOnlyRule(event.target);
+        const row = event.target.closest(".expense-form-row");
+        const expInput = row.querySelector('input[name$="-expense"]');
+        if (expInput.value) checkExpenseRealtime(expInput);
+      }
+    });
 
     formContainer.addEventListener("click", function (e) {
       if (e.target.classList.contains("remove-form-btn")) {
         e.target.closest(".expense-form-row").remove();
-        const rows = formContainer.getElementsByClassName("expense-form-row");
-        document.querySelector('input[name$="-TOTAL_FORMS"]').value =
-          rows.length;
-
-        Array.from(rows).forEach((row, i) => {
-          row.querySelectorAll("input, select").forEach((el) => {
-            el.name = el.name.replace(/-\d+-/, `-${i}-`);
-            el.id = el.id.replace(/-\d+-/, `-${i}-`);
-          });
-        });
+        refreshWashOptions();
       }
     });
+
+    refreshWashOptions();
   });
 </script>

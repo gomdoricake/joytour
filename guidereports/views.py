@@ -138,14 +138,23 @@ def guidereport_day_guide_exp(request):
             prefix = formset.prefix
             total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
 
+            wash_added = False
+
             for i in range(total_forms_count):
                 exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
                 exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
                 memo = request.POST.get(f'{prefix}-{i}-memo')
                 is_delete = request.POST.get(f'form-{i}-DELETE') 
 
+                print(f"DEBUG: 저장 시도 - Row {i}, Type: {exp_type}, Val: {exp_val_raw}")
+
                 if exp_type and exp_val_raw and not is_delete:
                     try:
+                        if exp_type == 'WASH':
+                            if wash_added:
+                                continue
+                            wash_added = True
+
                         exp_val = float(exp_val_raw)
                         if exp_val > 0:
                             GuideExp.objects.create(
@@ -457,13 +466,22 @@ def guidereport_inbound_guide_exp(request):
             total_forms_raw = request.POST.get(f'{prefix}-TOTAL_FORMS', '0')
             total_forms = int(total_forms_raw)
 
+            GuideExp.objects.filter(guide_report=guide_report).delete()
+
+            wash_added = False
+
+
             if total_forms > 0:
-                GuideExp.objects.filter(guide_report=guide_report).delete()
                 
                 for i in range(total_forms):
                     e_type = request.POST.get(f'{prefix}-{i}-expense_type')
                     e_val = request.POST.get(f'{prefix}-{i}-expense')
                     memo = request.POST.get(f'{prefix}-{i}-memo')
+
+                    if e_type == "WASH": 
+                        if wash_added: 
+                            continue
+                        wash_added = True
                                         
                     if e_type:
                         GuideExp.objects.create(
