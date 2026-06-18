@@ -60,6 +60,8 @@
       <label>날짜:</label> {{ form.report_date }}
       <label style="margin-left: 10px">관광지명:</label>
       {{form.expense_type}}
+      <label style="margin-left: 10px">Memo:</label>
+      {{form.memo}}
 
       <button
         type="button"
@@ -135,6 +137,9 @@
     <label>날짜:</label> {{ formset.empty_form.report_date }}
     <label style="margin-left: 10px">관광지명:</label>
     {{formset.empty_form.expense_type }}
+    <label style="margin-left: 10px">Memo:</label>
+    {{formset.empty_form.memo }}
+
     <button
       type="button"
       class="remove-form-btn"

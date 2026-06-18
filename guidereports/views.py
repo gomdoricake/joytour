@@ -141,9 +141,8 @@ def guidereport_day_guide_exp(request):
             for i in range(total_forms_count):
                 exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
                 exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
+                memo = request.POST.get(f'{prefix}-{i}-memo')
                 is_delete = request.POST.get(f'form-{i}-DELETE') 
-
-                print(f"--- [Form Row {i}] Type: {exp_type}, Value: {exp_val_raw}, Delete: {is_delete} ---")
 
                 if exp_type and exp_val_raw and not is_delete:
                     try:
@@ -153,6 +152,7 @@ def guidereport_day_guide_exp(request):
                                 guide_report=final_instance,
                                 expense_type=exp_type,
                                 expense=exp_val,
+                                memo=memo
                             )
 
                     except ValueError:
@@ -346,6 +346,7 @@ def guidereport_inbound_restaurant_exp(request):
         for i in range(total_forms_count): 
             report_date = request.POST.get(f'{prefix}-{i}-report_date')
             expense_type = request.POST.get(f'{prefix}-{i}-expense_type')  
+            memo = request.POST.get(f'{prefix}-{i}-memo')
             is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
 
             print(f'---- RESTAURANT [Row {i}] Report Date: {report_date} ,Type: {expense_type}, Delete: {is_delete} ----')
@@ -356,6 +357,7 @@ def guidereport_inbound_restaurant_exp(request):
                         guide_report_id=guide_report.id,
                         report_date=report_date if report_date else None,
                         expense_type=expense_type, 
+                        memo=memo
                     )
                     print(f"Restaurant 행 {i} 저장 성공")
                 except Exception as e: 
@@ -402,7 +404,8 @@ def guidereport_inbound_attraction_exp(request):
 
         for i in range(total_forms_count): 
             report_date = request.POST.get(f'{prefix}-{i}-report_date')
-            expense_type = request.POST.get(f'{prefix}-{i}-expense_type')  
+            expense_type = request.POST.get(f'{prefix}-{i}-expense_type')
+            memo = request.POST.get(f'{prefix}-{i}-memo') 
             is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
 
             print(f'---- ATTRACTION [Row {i}] Name: {expense_type},  Delete: {is_delete} ----')
@@ -413,6 +416,7 @@ def guidereport_inbound_attraction_exp(request):
                         guide_report_id=guide_report.id,
                         report_date=report_date if report_date else None,
                         expense_type=expense_type, 
+                        memo = memo
                     )
                     print(f"Attraction 행 {i} 저장 성공")
                 except Exception as e:
@@ -459,12 +463,14 @@ def guidereport_inbound_guide_exp(request):
                 for i in range(total_forms):
                     e_type = request.POST.get(f'{prefix}-{i}-expense_type')
                     e_val = request.POST.get(f'{prefix}-{i}-expense')
+                    memo = request.POST.get(f'{prefix}-{i}-memo')
                                         
                     if e_type:
                         GuideExp.objects.create(
                             guide_report=guide_report,
                             expense_type=e_type,
-                            expense=float(e_val) if e_val else 0.0
+                            expense=float(e_val) if e_val else 0.0, 
+                            memo=memo
                         )
             
             return redirect('mypage:mypage')   

@@ -47,7 +47,7 @@ class GuideReportDayForm(forms.ModelForm):
 class GuideExpForm(forms.ModelForm): 
     class Meta:
         model = GuideExp
-        fields = ['expense_type', 'expense']
+        fields = ['expense_type', 'expense', 'memo']
         widgets = {
             'expense': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'}),
         }
@@ -106,7 +106,7 @@ class InboundEventForm(forms.ModelForm):
 class RestaurantExpForm(forms.ModelForm): 
     class Meta: 
         model = RestaurantExp
-        fields = ['report_date','expense_type']
+        fields = ['report_date','expense_type', 'memo']
         labels = {
             'report_date': 'Report Date',
             'expense_type': 'Expense Type'
@@ -119,7 +119,7 @@ class RestaurantExpForm(forms.ModelForm):
 class AttractionExpForm(forms.ModelForm):
     class Meta: 
         model: AttractionExp
-        fields = ['report_date', 'expense_type']
+        fields = ['report_date', 'expense_type', 'memo']
         labels = {
             'report_date': 'Report Date', 
             'expense_type': 'Expense Type'

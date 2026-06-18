@@ -30,14 +30,15 @@ Events: <br>
 {% if guide_report.day_inbound == 'INBOUND' %}
 Restaurants: <br>
 {% for restaurant in guide_report.restaurants.all %}
-{{ restaurant.report_date }}, {{ restaurant.expense_type}} <br>
+{{ restaurant.report_date }}, {{ restaurant.expense_type}}, {{ restaurant.memo }} <br>
 {% endfor %}
+
 
 <br><br>
 
 Attractions: <br>
 {% for attraction in guide_report.attractions.all %}
-{{ attraction.report_date }}, {{ attraction.expense_type }} <br>
+{{ attraction.report_date }}, {{ attraction.expense_type }}, {{ attraction.memo }} <br>
 {% endfor %}
 
 <br><br>
@@ -51,7 +52,7 @@ Guide Expense <br>
 {% endif %}
 {% for exp in guide_report.expenses.all %} 
 
-{{ exp.expense_type }} - $ {{ exp.expense }} <br>
+{{ exp.expense_type }} - $ {{ exp.expense }}, {{ exp.memo }} <br>
 
 {% endfor %}
 
