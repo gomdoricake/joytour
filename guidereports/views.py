@@ -10,8 +10,8 @@ from django.shortcuts import redirect
 
 @login_required
 def index(request): 
-    user = Guide.objects.get(name=request.user.username)
-    return render(request, 'guidereports/index.html')
+    guidereports = GuideReport.objects.all().order_by('-id')
+    return render(request, 'guidereports/index.html', {'guidereports': guidereports})
 
 @login_required
 def DetailView(request, pk):
@@ -173,7 +173,7 @@ def guidereport_day_guide_exp(request):
             if 'main_data' in request.session: del request.session['main_data']
             if 'day_data' in request.session: del request.session['day_data']
             
-            return redirect('mypage:mypage') 
+            return redirect('guidereports:detail', pk=final_instance.id) 
     else:
         final_instance = event.guidereport if event.guidereport else GuideReport(
             role=day_data['role'],
@@ -491,7 +491,7 @@ def guidereport_inbound_guide_exp(request):
                             memo=memo
                         )
             
-            return redirect('mypage:mypage')   
+            return redirect('guidereports:detail', pk=guide_report.id)   
     else:
         formset = GuideExpFormSet(instance=guide_report)
 

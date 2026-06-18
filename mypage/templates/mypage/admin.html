@@ -1,3 +1,39 @@
-ADMIN PAGE <br />
+<style>
+  .admin-container { 
+    max-width: 500px; margin: 60px auto; padding: 40px; 
+    font-family: "Pretendard", sans-serif; background: #ffffff; 
+    border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+    display: flex; flex-direction: column; align-items: center; /* 대칭 핵심 */
+  }
+  .title { font-size: 24px; font-weight: 700; color: #2d3436; margin-bottom: 40px; width: 100%; }
+  
+  .menu-wrapper { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; } /* 버튼 너비 제한 */
+  
+  .menu-link { 
+    padding: 18px; background: #4e73df; color: #fff; 
+    border-radius: 12px; text-decoration: none; 
+    font-size: 16px; font-weight: 700; text-align: center;
+    transition: background 0.3s ease;
+  }
+  .menu-link.secondary { background: #858796; } /* 대칭용 서브 버튼 색상 */
+  .menu-link:hover { opacity: 0.9; }
+</style>
 
-<a href="{% url 'guides:index' %}">TOUR GUIDES</a>
+<div class="admin-container">
+  <h2 class="title">Admin Dashboard</h2>
+
+  <div class="menu-wrapper">
+    <a href="{% url 'guides:index' %}" class="menu-link">
+      TOUR GUIDES
+    </a>
+
+    <a href="{% url 'guidereports:index' %}" class="menu-link">
+      Guide Reports
+    </a>
+
+    
+    <a href="{% url 'logout' %}" class="menu-link secondary">
+      LOGOUT
+    </a>
+  </div>
+</div>

@@ -1,59 +1,152 @@
-<a href="{% url 'mypage:mypage' %}">Back to Guide Reports List</a>
+<style>
+  .report-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
 
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #636e72;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .back-link:hover {
+    color: #2d3436;
+    text-decoration: underline;
+  }
 
-<h2> {{ guide_report.guide.name }}, {{ guide_report.group_code}} </h2>
+  .header-section {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f1f2f6;
+    padding-bottom: 20px;
+  }
+  .title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 10px 0;
+  }
+  .meta-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #636e72;
+    font-weight: 600;
+  }
 
+  .info-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  .info-item {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+  .info-item strong {
+    color: #2d3436;
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
 
-Day Inbound: {{ guide_report.day_inbound }} </br>
-Role: {{ guide_report.role }} </br>
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3436;
+    margin: 25px 0 15px;
+  }
+  .data-list {
+    list-style: none;
+    padding: 0;
+  }
+  .data-item {
+    padding: 12px;
+    border-bottom: 1px solid #f1f2f6;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .data-item:last-child {
+    border-bottom: none;
+  }
+</style>
 
-<br>
-<br>
+<div class="report-container">
+  <a href="{% url 'mypage:mypage' %}" class="back-link">← 목록으로 돌아가기</a>
 
-{% if guide_report.day_inbound == 'INBOUND' %}
+  <div class="header-section">
+    <h2 class="title">{{ guide_report.group_code }}</h2>
+    <span class="meta-tag">Guide: {{guide_report.guide.name }}</span>
+  </div>
 
-ADT: {{ guide_report.adt }} <br>
-TC: {{ guide_report.tc }} <br>
-CHD: {{ guide_report.chd }} <br>
+  <div class="info-box">
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>구분</strong>{{ guide_report.day_inbound }}
+      </div>
+      <div class="info-item"><strong>역할</strong>{{ guide_report.role }}</div>
+      {% if guide_report.day_inbound == 'INBOUND' %}
+      <div class="info-item"><strong>ADT</strong>{{ guide_report.adt }}</div>
+      <div class="info-item"><strong>TC</strong>{{ guide_report.tc }}</div>
+      <div class="info-item"><strong>CHD</strong>{{ guide_report.chd }}</div>
+      {% endif %}
+    </div>
+  </div>
 
-{% endif %}
+  <h3 class="section-title">Events</h3>
+  <ul class="data-list">
+    {% for event in events %}
+    <li class="data-item">
+      <span>{{ event.report_date|date:"y-m-d" }}</span>
+      <span style="font-weight: 600">{{ event.eventcode }}</span>
+    </li>
+    {% empty %}
+    <li class="data-item" style="color: #b2bec3">기록된 이벤트가 없습니다.</li>
+    {% endfor %}
+  </ul>
 
-<br>
-<br>
+  {% if guide_report.day_inbound == 'INBOUND' %}
+  <h3 class="section-title">Restaurants & Attractions</h3>
+  <ul class="data-list">
+    {% for r in guide_report.restaurants.all %}
+    <li class="data-item">
+      <span>{{ r.report_date|date:"y-m-d" }} | {{ r.expense_type }}</span>
+      <span>{{ r.memo }}</span>
+    </li>
+    {% endfor %} {% for a in guide_report.attractions.all %}
+    <li class="data-item">
+      <span>{{ a.report_date|date:"y-m-d" }} | {{ a.expense_type }}</span>
+      <span>{{ a.memo }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
-Events: <br>
-{% for event in events %}
-{{ event.report_date }} {{ event.eventcode }} </br>
-{% endfor %}
-
-<br><br>
-{% if guide_report.day_inbound == 'INBOUND' %}
-Restaurants: <br>
-{% for restaurant in guide_report.restaurants.all %}
-{{ restaurant.report_date }}, {{ restaurant.expense_type}}, {{ restaurant.memo }} <br>
-{% endfor %}
-
-
-<br><br>
-
-Attractions: <br>
-{% for attraction in guide_report.attractions.all %}
-{{ attraction.report_date }}, {{ attraction.expense_type }}, {{ attraction.memo }} <br>
-{% endfor %}
-
-<br><br>
-{% endif %}
-
-
-
-
-{% if guide_report.expenses.all %}
-Guide Expense <br>
-{% endif %}
-{% for exp in guide_report.expenses.all %} 
-
-{{ exp.expense_type }} - $ {{ exp.expense }}, {{ exp.memo }} <br>
-
-{% endfor %}
-
-
+  <h3 class="section-title">Guide Expenses</h3>
+  <ul class="data-list">
+    {% for exp in guide_report.expenses.all %}
+    <li class="data-item">
+      <span>{{ exp.expense_type }}</span>
+      <span style="font-weight: 700">${{ exp.expense }}</span>
+    </li>
+    {% empty %}
+    <li class="data-item" style="color: #b2bec3">기록된 경비가 없습니다.</li>
+    {% endfor %}
+  </ul>
+</div>

@@ -1,160 +1,172 @@
-<div
-  style="
-    background-color: #f8f9fa;
-    padding: 15px;
-    margin-bottom: 25px;
-    border: 1px solid #e3e6f0;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  "
->
-  <h4
-    style="
-      margin-top: 0;
-      color: #4e73df;
-      border-bottom: 2px solid #4e73df;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-    "
-  >
-    현재 작성 중인 리포트 정보
-  </h4>
-  <div style="display: flex; gap: 20px; font-size: 15px; color: #333">
-    <div>
-      <strong>차종 (Role):</strong>
-      <span style="color: #e74a3b">{{ formset.instance.role }}</span>
-    </div>
-    <div>
-      <strong>구분 (Inbound):</strong> {{ formset.instance.day_inbound }}
-    </div>
-    <div>
-      <strong>이벤트 코드 (Event Code):</strong>
-      <span
-        style="
-          background-color: #f6c23e;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-weight: bold;
-        "
-        >{{ eventcode }}</span
-      >
-    </div>
-    <div>
-      <strong>리포트 날짜 (Date):</strong> <span>{{ report_date }}</span>
-    </div>
-  </div>
-</div>
+<style>
+  .report-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
 
-<form method="post" id="real-expense-form">
-  {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
-  <div style="color: red; margin-bottom: 15px">
-    {% for form in formset %} {{ form.errors }} {% endfor %}
+  /* 정보 요약 섹션 */
+  .info-summary {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+    margin-bottom: 30px;
+  }
+  .info-summary h4 {
+    margin: 0 0 15px 0;
+    color: #2d3436;
+    font-size: 16px;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+  .info-grid span {
+    font-weight: 600;
+    color: #2d3436;
+  }
+
+  /* 폼 스타일 */
+  .expense-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #edf2f7;
+  }
+  .expense-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #718096;
+    white-space: nowrap;
+  }
+
+  input,
+  select {
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  select {
+    flex-grow: 1;
+    min-width: 120px;
+    cursor: pointer;
+  }
+  input {
+    width: 100px;
+  }
+
+  /* 버튼 스타일 */
+  .btn-add {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .btn-add:hover {
+    background: #c8e6c9;
+  }
+  .btn-remove {
+    background: #fff5f5;
+    color: #e53e3e;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: #2d3436;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 30px;
+  }
+</style>
+
+<div class="report-container">
+  <div class="info-summary">
+    <h4>현재 작성 중인 리포트</h4>
+    <div class="info-grid">
+      <div>차종: <span>{{ formset.instance.role }}</span></div>
+      <div>구분: <span>{{ formset.instance.day_inbound }}</span></div>
+      <div>이벤트 코드: <span>{{ eventcode }}</span></div>
+      <div>날짜: <span>{{ report_date }}</span></div>
+    </div>
   </div>
-  {% endif %}
 
   <h3>Expense 내역 추가</h3>
 
-  <div id="expense-form-list">
-    {% for form in formset %}
+  <form method="post" id="real-expense-form">
+    {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
     <div
-      class="expense-form-row"
       style="
-        margin-bottom: 12px;
+        background: #fff5f5;
+        color: #c53030;
         padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
+        border-radius: 8px;
+        margin-bottom: 20px;
       "
     >
-      {{ form.id }}
-      <label>항목:</label> {{ form.expense_type }}
-      <label style="margin-left: 10px">금액:</label> {{ form.expense }}
-      <button
-        type="button"
-        class="remove-form-btn"
-        style="
-          margin-left: 15px;
-          padding: 3px 8px;
-          background-color: #dc3545;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-        "
-      >
-        삭제
-      </button>
+      데이터를 다시 확인해주세요.
     </div>
-    {% endfor %}
-  </div>
+    {% endif %}
 
-  <button
-    type="button"
-    id="add-form-btn"
-    style="
-      margin-top: 10px;
-      padding: 6px 12px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    "
-  >
-    ➕ Expense 항목 추가
-  </button>
+    <div id="expense-form-list">
+      {% for form in formset %}
+      <div class="expense-form-row expense-row">
+        {{ form.id }}
+        <label>항목</label> {{ form.expense_type }}
+        <label>금액</label> {{form.expense }} <label>메모</label> {{form.memo}}
+        <button type="button" class="remove-form-btn btn-remove">삭제</button>
+      </div>
+      {% endfor %}
+    </div>
 
-  <hr style="margin: 20px 0" />
+    <button type="button" id="add-form-btn" class="btn-add">+ 항목 추가</button>
 
-  <button
-    type="submit"
-    id="submit-final-btn"
-    name="submit_final"
-    style="
-      padding: 10px 20px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    "
-  >
-    Submit
-  </button>
-</form>
+    <button
+      type="submit"
+      id="submit-final-btn"
+      name="submit_final"
+      class="btn-submit"
+    >
+      Submit
+    </button>
+  </form>
+</div>
 
 <div id="empty-form-template" style="display: none">
-  <div
-    class="expense-form-row"
-    style="
-      margin-bottom: 12px;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-    "
-  >
+  <div class="expense-form-row expense-row">
     {{ formset.empty_form.id }}
-    <label>항목:</label> {{ formset.empty_form.expense_type }}
-    <label style="margin-left: 10px">금액:</label>
-    {{formset.empty_form.expense}}
-    <button
-      type="button"
-      class="remove-form-btn"
-      style="
-        margin-left: 15px;
-        padding: 3px 8px;
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      "
-    >
-      삭제
-    </button>
+    <label>항목</label> {{ formset.empty_form.expense_type }}
+    <label>금액</label> {{ formset.empty_form.expense }}
+    <label>메모</label>{{formset.empty_form.memo}}
+    <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
 

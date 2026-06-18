@@ -1,7 +1,28 @@
-<h2>Login</h2>
+<style>
+  .report-container { max-width: 400px; margin: 80px auto; padding: 40px; font-family: "Pretendard", sans-serif; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
+  .title { font-size: 24px; font-weight: 700; color: #2d3436; margin-bottom: 30px; text-align: center; }
+  
+  /* Django form.as_p 스타일링 */
+  p { margin-bottom: 20px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #718096; margin-bottom: 8px; }
+  input { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; background: #f8f9fa; }
+  
+  .btn-login { 
+    display: block; width: 100%; padding: 16px; background: #2d3436; color: #fff; 
+    border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; 
+  }
+</style>
 
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
+<div class="report-container">
+  <h2 class="title">Login</h2>
 
-  <button type="submit">Login</button>
-</form>
+  <form method="post">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      {{ form.as_p }}
+    </div>
+
+    <button type="submit" class="btn-login">Login</button>
+  </form>
+</div>

@@ -88,6 +88,19 @@ class AgencyPaxForm(forms.ModelForm):
             'tc': 'TC', 
             'chd': 'CHD'
         }
+        widgets = {
+            'adt': forms.NumberInput(attrs={'placeholder': '0'}),
+            'tc': forms.NumberInput(attrs={'placeholder': '0'}),
+            'chd': forms.NumberInput(attrs={'placeholder': '0'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name in ['adt', 'tc', 'chd']:
+            if self.instance and getattr(self.instance, field_name) == 0:
+                self.fields[field_name].initial = None
+            
+            self.fields[field_name].widget.attrs['placeholder'] = ''
 
 class InboundEventForm(forms.ModelForm): 
     eventcode = forms.ChoiceField(

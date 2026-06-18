@@ -1,1 +1,46 @@
-<a href="{% url 'guidereports:guidereport_step1' %}">Create Report</a>
+<style>
+  .admin-container { 
+    max-width: 600px; margin: 40px auto; padding: 40px; 
+    font-family: "Pretendard", sans-serif; background: #ffffff; 
+    border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+  }
+  .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+  .title { font-size: 24px; font-weight: 700; color: #2d3436; }
+  
+  .admin-link { 
+    padding: 10px 20px; background: #4e73df; color: white; 
+    border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;
+  }
+  
+  .guide-list { list-style: none; padding: 0; }
+  .guide-item { 
+    padding: 15px; border-bottom: 1px solid #f1f2f6; 
+    transition: background 0.2s;
+  }
+  .guide-item a { text-decoration: none; color: #2d3436; font-weight: 500; font-size: 16px; }
+  .guide-item:hover { background: #f8f9fa; }
+  .no-data { color: #999; text-align: center; padding: 20px; }
+</style>
+
+{% if request.user.username == 'admin' %}
+<div class="admin-container">
+  <div class="admin-header">
+    <h2 class="title">Guidereport List</h2>
+    <a href="{% url 'mypage:admin' %}" class="admin-link">Admin Page</a>
+  </div>
+
+  {% if guidereports %}
+  <ul class="guide-list">
+    {% for guidereport in guidereports %}
+    <li class="guide-item">
+      <a href="{% url 'guidereports:detail' guidereport.id %}">
+        {{ guidereport.group_code }}: {{ guidereport.guide.name }}  
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="no-data">No guidereports are available.</p>
+  {% endif %}
+</div>
+{% endif %}

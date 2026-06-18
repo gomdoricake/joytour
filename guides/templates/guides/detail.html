@@ -1,13 +1,36 @@
-<a href="{% url 'guides:index' %}">Guide List</a> <br />
+<style>
+  .report-container { max-width: 600px; margin: 40px auto; padding: 30px; font-family: "Pretendard", sans-serif; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
+  .header-nav { margin-bottom: 25px; }
+  .header-nav a { text-decoration: none; color: #4e73df; font-weight: 600; font-size: 14px; }
+  
+  .title { font-size: 24px; font-weight: 700; color: #2d3436; margin-bottom: 25px; }
+  
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .info-item { display: flex; flex-direction: column; gap: 5px; }
+  .label { font-size: 12px; color: #718096; font-weight: 600; text-transform: uppercase; }
+  .value { font-size: 15px; color: #2d3436; font-weight: 500; }
+  
+  /* 긴 필드는 2열 차지 */
+  .full-width { grid-column: span 2; }
+</style>
 
-Guide Name: {{ guide.name }}<br />
-Initial Training Date: {{ guide.init_training_date }} <br />
-Initial Super Date: {{ guide.init_super_date }} <br />
-Birth Date: {{guide.birth_date }} <br />
-Grade: {{ guide.grade }} <br />
-ABN: {{ guide.abn }} <br />
-Contact Info: {{ guide.contact_info }} <br />
-Address: {{ guide.address }} <br />
-Bank Account: {{ guide.bank_account_number }} <br />
-BSB: {{ guide.bsb }} <br />
-Account Number: {{guide.account_number }}
+<div class="report-container">
+  <div class="header-nav">
+    <a href="{% url 'guides:index' %}">← Back to Guide List</a>
+  </div>
+
+  <h2 class="title">{{ guide.name }}</h2>
+
+  <div class="info-grid">
+    <div class="info-item"><span class="label">Initial Training</span><span class="value">{{ guide.init_training_date }}</span></div>
+    <div class="info-item"><span class="label">Initial Super</span><span class="value">{{ guide.init_super_date }}</span></div>
+    <div class="info-item"><span class="label">Birth Date</span><span class="value">{{ guide.birth_date }}</span></div>
+    <div class="info-item"><span class="label">Grade</span><span class="value">{{ guide.grade }}</span></div>
+    <div class="info-item"><span class="label">ABN</span><span class="value">{{ guide.abn }}</span></div>
+    <div class="info-item"><span class="label">Contact</span><span class="value">{{ guide.contact_info }}</span></div>
+    <div class="info-item full-width"><span class="label">Address</span><span class="value">{{ guide.address }}</span></div>
+    <div class="info-item"><span class="label">Bank Account</span><span class="value">{{ guide.bank_account_number }}</span></div>
+    <div class="info-item"><span class="label">BSB</span><span class="value">{{ guide.bsb }}</span></div>
+    <div class="info-item"><span class="label">Account Number</span><span class="value">{{ guide.account_number }}</span></div>
+  </div>
+</div>

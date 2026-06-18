@@ -1,33 +1,146 @@
-{% if user.username == 'admin' %}
-<a href="{% url 'guides:index' %}">Guide List</a>
-{% endif %}
+<style>
+  .mypage-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+  .header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+  }
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+  .btn-report {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #2d3436;
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    text-decoration: none;
+    transition: 0.3s;
+  }
+  .btn-report:hover {
+    background: #636e72;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+  .info-item label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .info-item span {
+    font-weight: 600;
+    color: #333;
+  }
+  .section-title {
+    font-size: 18px;
+    margin: 30px 0 15px;
+    color: #2d3436;
+  }
+  .report-list {
+    list-style: none;
+    padding: 0;
+  }
+  .report-item {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: 0.2s;
+  }
+  .report-item a {
+    text-decoration: none;
+    color: #0984e3;
+    font-weight: 500;
+  }
+  .report-item:hover {
+    background: #f1f7fe;
+  }
+  .logout-link {
+    font-size: 12px;
+    color: #b2bec3;
+    text-decoration: underline;
+  }
+</style>
 
-<a href="{% url 'guidereports:guidereport_main' %}">Create Guide Report</a>
-
-<h2>{{ guide.name }} 's MyPage</h2>
-<p>첫 트레이닝 날짜: {{ guide.init_training_date }}</p>
-<p>생년월일: {{ guide.birth_date }}</p>
-<p>abn: {{ guide.abn }}</p>
-<p>연락처: {{ guide.contact_info }}</p>
-<p>주소: {{ guide.address }}</p>
-<p>은행명: {{ guide.bank_account_name }}</p>
-<p>bsb: {{ guide.bsb }}</p>
-<p>계좌번호: {{ guide.account_number }}</p>
-
-<hr />
-
-<h3>가이드 리포트</h3>
-{% if guide_reports %}
-<ul>
-  {% for report in guide_reports %}
-  <li>
-    <a href="{% url 'guidereports:detail' report.pk %}"
-      >{{ report.group_code}}</a
+<div class="mypage-container">
+  <div class="header-box">
+    <h2 class="title">{{ guide.name }}님의 MyPage</h2>
+    {% if user.username == 'admin' %}
+    <a href="{% url 'guides:index' %}" style="color: #636e72; font-size: 13px"
+      >가이드 목록</a
     >
-  </li>
-  {% endfor %}
-</ul>
-{% else %}
-<p>등록된 가이드 리포트가 없습니다.</p>
-{% endif %}
-<a href="{% url 'logout' %}">Log out</a>
+    {% endif %}
+  </div>
+
+  <a href="{% url 'guidereports:guidereport_main' %}" class="btn-report"
+    >+ 가이드 리포트 생성</a
+  >
+
+  <div class="info-grid">
+    <div class="info-item">
+      <label>첫 트레이닝</label
+      ><span>{{ guide.init_training_date|date:"y-m-d" }}</span>
+    </div>
+    <div class="info-item">
+      <label>Grade</label><span>{{ guide.grade }}</span>
+    </div>
+    <div class="info-item">
+      <label>생년월일</label><span>{{ guide.birth_date|date:"y-m-d" }}</span>
+    </div>
+    <div class="info-item">
+      <label>연락처</label><span>{{ guide.contact_info }}</span>
+    </div>
+    <div class="info-item" style="grid-column: span 2">
+      <label>주소</label><span>{{ guide.address }}</span>
+    </div>
+    <div class="info-item"><label>ABN</label><span>{{ guide.abn }}</span></div>
+  </div>
+
+  <h3 class="section-title">계좌 정보</h3>
+  <div class="info-grid">
+    <div class="info-item">
+      <label>은행명</label><span>{{ guide.bank_account_name }}</span>
+    </div>
+    <div class="info-item"><label>BSB</label><span>{{ guide.bsb }}</span></div>
+    <div class="info-item">
+      <label>계좌번호</label><span>{{ guide.account_number }}</span>
+    </div>
+  </div>
+
+  <h3 class="section-title">가이드 리포트 목록</h3>
+  <ul class="report-list">
+    {% for report in guide_reports %}
+    <li class="report-item">
+      <a href="{% url 'guidereports:detail' report.pk %}"
+        >▷ {{ report.group_code }}</a
+      >
+    </li>
+    {% empty %}
+    <li class="report-item" style="color: #b2bec3; text-align: center">
+      등록된 리포트가 없습니다.
+    </li>
+    {% endfor %}
+  </ul>
+
+  <div style="text-align: right; margin-top: 30px">
+    <a href="{% url 'logout' %}" class="logout-link">로그아웃</a>
+  </div>
+</div>
