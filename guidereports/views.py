@@ -432,12 +432,48 @@ def guidereport_inbound_attraction_exp(request):
                     print(f"Attraction 행 {i} 저장 실패: {e}")
             
         request.session['inbound_attraction'] = inbound_restaurant
-        return redirect('guidereports:guidereport_inbound_guide_exp') 
+        return redirect('guidereports:guidereport_inbound_fuel_exp') 
 
     else:
         formset = AttractionFormSet(instance=guide_report)
 
     return render(request, 'guidereports/inbound/guidereport_inbound_attraction_exp.html', {
+        'formset': formset, 
+        'guide_report': guide_report,
+    })
+
+FuelFormSet = inlineformset_factory(
+    GuideReport, 
+    FuelExp, 
+    form=FuelExpForm,  
+    extra=1,             
+    can_delete=True  
+)
+
+@login_required
+def guidereport_inbound_fuel_exp(request): 
+    inbound_attraction = request.session.get('inbound_attraction')
+    if not inbound_attraction: 
+        return redirect('guidereports:guidereport_inbound_attraction_exp')
+    
+    report_id = inbound_attraction.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+
+    if request.method == "POST": 
+        formset = FuelFormSet(request.POST, instance=guide_report)
+
+        if formset.is_valid():
+            formset.save()
+            
+            request.session['inbound_fuel'] = inbound_attraction
+            return redirect('guidereports:guidereport_inbound_guide_exp') 
+        else:
+            print("폼셋 유효성 검사 실패:", formset.errors)
+
+    else:
+        formset = FuelFormSet(instance=guide_report)
+
+    return render(request, 'guidereports/inbound/guidereport_inbound_fuel_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
     })

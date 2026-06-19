@@ -31,7 +31,7 @@ class Event(models.Model):
         
         day_inbound_val = str(parent.day_inbound).upper().strip() if parent.day_inbound else ""
         role_val = str(parent.role).upper().strip() if parent.role else ""
-        guide_profile = parent.guide  # GuideReport에 연결된 가이드 프로필
+        guide_profile = parent.guide
 
         rate_mapping = {
             ('DAY', '12 SEAT'): DAY_RATE_12SEAT,
@@ -47,15 +47,21 @@ class Event(models.Model):
         calculated_fee = "0.00"
 
         if target_rate_dict:
-            current_code = self.eventcode
+            if self.eventcode == 'AM/AS':
+                current_code = 'AM/AS'
+            else: 
+                current_code = '10HRS'
+
             
             if current_code in target_rate_dict:
                 rate_list = target_rate_dict[current_code]
+
+                print("rate_list: " + str(rate_list))
                 
                 if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
                     grade_index = guide_profile.grade - 1
                     if 0 <= grade_index < len(rate_list):
-                        calculated_fee = str(rate_list[grade_index])
+                        calculated_fee = float(rate_list[grade_index])
 
         self.guide_fee = calculated_fee
 
@@ -135,3 +141,12 @@ class AttractionExp(models.Model):
 
     def __str__(self): 
         return self.expense_type
+
+class FuelExp(models.Model): 
+    guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='fuels')
+    report_date = models.DateField(null=True, blank=True)
+    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    memo = models.CharField(max_length=30, null=True, blank=True)
+
+    def __str__(self): 
+        return str(self.guide_report.report_date) + str(self.guide_report.group_code)

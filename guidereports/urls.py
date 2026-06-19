@@ -13,6 +13,7 @@ urlpatterns = [
     path('inbound/guidereport_inbound_events/', views.guidereport_inbound_events, name='guidereport_inbound_events'),
     path('inbound/guidereport_inbound_restaurant_exp/', views.guidereport_inbound_restaurant_exp, name='guidereport_inbound_restaurant_exp'), 
     path('inbound/guidereport_inbound_attraction_exp/', views.guidereport_inbound_attraction_exp, name='guidereport_inbound_attraction_exp'),
+    path('inbound/guidereport_inbound_fuel_exp/', views.guidereport_inbound_fuel_exp, name='guidereport_inbound_fuel_exp'),
     path('inbound/guidereport_inbound_guide_exp/', views.guidereport_inbound_guide_exp, name='guidereport_inbound_guide_exp'),
     path('detail/<int:pk>/', views.DetailView, name='detail'),
 ]

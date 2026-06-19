@@ -114,7 +114,7 @@
     {% for event in events %}
     <li class="data-item">
       <span>{{ event.report_date|date:"y-m-d" }}</span>
-      <span style="font-weight: 600">{{ event.eventcode }}</span>
+      <span style="font-weight: 600">{{ event.eventcode }} - {{ event.guide_fee }}</span>
     </li>
     {% empty %}
     <li class="data-item" style="color: #b2bec3">기록된 이벤트가 없습니다.</li>
@@ -137,6 +137,19 @@
     {% endfor %}
   </ul>
   {% endif %}
+
+  <h3 class="section-title">Fuel</h3>
+  <ul class="data-list">
+    {% for fuel in guide_report.fuels.all %}
+    <li class="data-item">
+      <span>{{ fuel.report_date|date:"y-m-d" }}</span>
+      <span style="font-weight: 600">{{ fuel.expense }} - {{ fuel.memo }}</span>
+    </li>
+    {% empty %}
+    <li class="data-item" style="color: #b2bec3">기록된 Fuel이 없습니다.</li>
+    {% endfor %}
+  </ul>
+
 
   <h3 class="section-title">Guide Expenses</h3>
   <ul class="data-list">

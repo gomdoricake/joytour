@@ -131,7 +131,7 @@ class RestaurantExpForm(forms.ModelForm):
     
 class AttractionExpForm(forms.ModelForm):
     class Meta: 
-        model: AttractionExp
+        model = AttractionExp
         fields = ['report_date', 'expense_type', 'memo']
         labels = {
             'report_date': 'Report Date', 
@@ -140,4 +140,17 @@ class AttractionExpForm(forms.ModelForm):
         widgets = {
             'report_date': forms.DateInput(attrs={'type': 'date'}),
             'expense_type': forms.Select(attrs={'class': 'form-control'})
+        }
+
+class FuelExpForm(forms.ModelForm): 
+    class Meta: 
+        model = FuelExp
+        fields = ['report_date', 'expense', 'memo']
+        labels = {
+            'report_date': 'Report Date', 
+            'expense': 'Expense',
+            'memo': 'Memo'
+        }
+        widgets = {
+            'report_date': forms.DateInput(attrs={'type': 'date'}),
         }
