@@ -30,6 +30,9 @@ def DetailView(request, pk):
     
     guide_report.final_events_fee = event_fee
 
+    super = event_fee * 0.12
+    guide_report.super = super
+
     expense_fee = 0
     for expense in expenses: 
         fee = float(expense.expense)
@@ -44,7 +47,6 @@ def DetailView(request, pk):
         fuel_fee += fee
 
     guide_report.final_fuels_fee = fuel_fee
-
     guide_report.final_amount_due = final_amount_due
         
     return render(request, 'guidereports/detail.html', {
@@ -53,8 +55,19 @@ def DetailView(request, pk):
         'event_fee': event_fee, 
         'expense_fee': expense_fee, 
         'fuel_fee': fuel_fee,
-        'final_amount_due': final_amount_due                           
+        'final_amount_due': final_amount_due, 
+        'super': super,                      
     })
+
+@login_required
+def guidereport_confirm(request, pk): 
+    if request.method == 'POST': 
+        guide_report = get_object_or_404(GuideReport, id=pk)
+        guide_report.is_confirmed = not guide_report.is_confirmed
+        guide_report.save()
+
+    return redirect('guidereports:detail', pk=pk)
+    
 
 @login_required
 def guidereport_main(request): 

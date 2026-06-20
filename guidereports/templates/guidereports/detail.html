@@ -1,5 +1,4 @@
 <style>
-
   /* 기존 스타일 유지 + 추가 */
   .info-group-compact {
     display: flex;
@@ -173,6 +172,81 @@
   .data-item:last-child {
     border-bottom: none;
   }
+
+  .super-label {
+    font-size: 12px;
+    color: #a0aec0; /* 조금 더 연한 회색 */
+    margin-top: 15px;
+    display: block;
+    text-transform: uppercase;
+  }
+  .super-amount {
+    font-size: 20px; /* TOTAL보다 작은 20px */
+    font-weight: 700;
+    color: #4a5568;
+  }
+
+/* 합계 나란히 배치용 컨테이너 */
+  .total-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* 두 항목 사이의 간격 */
+    margin-top: 10px;
+  }
+  .total-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* 기존 스타일 유지하면서 크기 조정 */
+  .total-amount {
+    font-size: 28px; /* 조금 더 균형 있게 조정 */
+    font-weight: 800;
+    color: #2d3436;
+  }
+  .super-amount {
+    font-size: 24px;
+    font-weight: 700;
+    color: #4a5568;
+  }
+
+  /* 상태 배지/버튼 스타일 */
+  .status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  /* 확인 완료 (초록색) */
+  .status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  /* 대기 중 (주황색) */
+  .status-waiting {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  /* 관리자 전용 확인 버튼 스타일 */
+  .status-confirm-btn:hover {
+    filter: brightness(0.9);
+  }
+
+  /* 버튼을 링크처럼 보이게 초기화 */
+  .status-confirm-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-block;
+  }
+
 </style>
 
 <div class="report-container">
@@ -238,6 +312,23 @@
       </li>
     </ul>
   </div>
+
+  <div class="total-section">
+    <div class="total-grid">
+      <div class="total-group">
+        <span class="total-label">TOTAL (inc. GST)</span>
+        <div class="total-amount">${{ final_amount_due }}</div>
+      </div>
+      
+      {% if request.user.username == 'admin' %}
+      <div class="total-group">
+        <span class="total-label">SUPER</span>
+        <div class="super-amount">${{ super }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
 <!-- 박스 끝 -->  
   <h3 class="section-title">Fuel</h3>
   <ul class="data-list">
@@ -282,10 +373,19 @@
   {% endif %}
 
 
-  <div class="total-section">
-    <span class="total-label">TOTAL (inc. GST)</span>
-    <div class="total-amount">${{ final_amount_due }}</div>
-  </div>
+  
+{% if request.user.username == 'admin' %}
+  <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}">
+    {% csrf_token %}
+    <button type="submit" class="status-badge status-confirm-btn {% if guide_report.is_confirmed %}status-confirmed{% else %}status-waiting{% endif %}">
+      {% if guide_report.is_confirmed %}CONFIRMED (Undo){% else %}CONFIRM REPORT{% endif %}
+    </button>
+  </form>
+{% else %}
+  <span class="status-badge {% if guide_report.is_confirmed %}status-confirmed{% else %}status-waiting{% endif %}">
+    {% if guide_report.is_confirmed %}CONFIRMED{% else %}WAITING FOR CONFIRMATION{% endif %}
+  </span>
+{% endif %}
 
 </div>
 

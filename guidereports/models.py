@@ -8,6 +8,8 @@ from django.core.exceptions import ValidationError
 
 class GuideReport(models.Model):
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='guidereports')
+    is_confirmed = models.BooleanField(default=False, null=True, blank=True)
+    is_paid = models.BooleanField(default=False, null=True, blank=True) 
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)
     role = models.CharField(max_length=100, choices=ROLE)
     group_code = models.CharField(max_length=100, blank=True, null=True)
@@ -21,6 +23,7 @@ class GuideReport(models.Model):
     final_expenses_fee = models.TextField(null=True, blank=True)
     final_fuels_fee = models.TextField(null=True, blank=True)
     final_amount_due = models.TextField(null=True, blank=True)
+    super = models.TextField(null=True, blank=True)
                     
     def __str__(self): 
         return str(self.guide.name) + ': ' + str(self.group_code)
