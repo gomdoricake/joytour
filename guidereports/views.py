@@ -18,21 +18,42 @@ def DetailView(request, pk):
     guide_report = get_object_or_404(GuideReport, pk=pk)
     events = guide_report.events.all()
     expenses = guide_report.expenses.all()
-    
-    final_guide_fee = 0 
-    
-    for event in events: 
-        final_guide_fee += float(event.guide_fee)
-    
-    for expense in expenses: 
-        final_guide_fee += float(expense.expense)
+    fuels = guide_report.fuels.all()
 
-    guide_report.final_guide_fee = final_guide_fee
+    final_amount_due = 0 
+
+    event_fee = 0
+    for event in events: 
+        fee = float(event.guide_fee)
+        event_fee += fee
+        final_amount_due += fee
+    
+    guide_report.final_events_fee = event_fee
+
+    expense_fee = 0
+    for expense in expenses: 
+        fee = float(expense.expense)
+        expense_fee += fee
+        final_amount_due += fee
+
+    guide_report.final_expenses_fee = expense_fee
+    
+    fuel_fee = 0
+    for fuel in fuels: 
+        fee = float(fuel.expense)
+        fuel_fee += fee
+
+    guide_report.final_fuels_fee = fuel_fee
+
+    guide_report.final_amount_due = final_amount_due
         
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,
         'events': events,
-        'final_guide_fee': final_guide_fee                           
+        'event_fee': event_fee, 
+        'expense_fee': expense_fee, 
+        'fuel_fee': fuel_fee,
+        'final_amount_due': final_amount_due                           
     })
 
 @login_required

@@ -93,17 +93,17 @@ class GuideReportInboundForm(forms.ModelForm):
 class AgencyPaxForm(forms.ModelForm): 
     class Meta: 
         model = GuideReport
-        fields = ['agency_code', 'adt', 'tc', 'chd']
+        fields = ['agency_code', 'adt', 'chd', 'tc']
         labels = {
             'agency_code': 'Agency Code',
             'adt': 'ADT', 
+            'chd': 'CHD',
             'tc': 'TC', 
-            'chd': 'CHD'
         }
         widgets = {
             'adt': forms.NumberInput(attrs={'placeholder': '0'}),
-            'tc': forms.NumberInput(attrs={'placeholder': '0'}),
             'chd': forms.NumberInput(attrs={'placeholder': '0'}),
+            'tc': forms.NumberInput(attrs={'placeholder': '0'}),
         }
 
     def __init__(self, *args, **kwargs):

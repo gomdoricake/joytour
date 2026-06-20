@@ -15,7 +15,12 @@ class GuideReport(models.Model):
     adt = models.PositiveIntegerField(default=0)
     tc = models.PositiveIntegerField(default=0)    
     chd = models.PositiveIntegerField(default=0)
-    final_guide_fee = models.TextField()
+    final_events_fee = models.TextField(null=True, blank=True)
+    final_retaurants_fee = models.TextField(null=True, blank=True)
+    final_attractions_fee = models.TextField(null=True, blank=True)
+    final_expenses_fee = models.TextField(null=True, blank=True)
+    final_fuels_fee = models.TextField(null=True, blank=True)
+    final_amount_due = models.TextField(null=True, blank=True)
                     
     def __str__(self): 
         return str(self.guide.name) + ': ' + str(self.group_code)
