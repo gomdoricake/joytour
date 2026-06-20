@@ -130,7 +130,7 @@
     {% for report in guide_reports %}
     <li class="report-item">
       <a href="{% url 'guidereports:detail' report.pk %}"
-        >▷ {{ report.group_code }}</a
+        >▷ {{ report.invoice_number }} {{ report.group_code }}</a
       >
     </li>
     {% empty %}

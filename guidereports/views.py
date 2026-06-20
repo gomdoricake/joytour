@@ -6,6 +6,7 @@ from .models import *
 from django.forms import inlineformset_factory
 from .forms import *
 
+import datetime
 from django.shortcuts import redirect
 
 @login_required
@@ -48,6 +49,12 @@ def DetailView(request, pk):
 
     guide_report.final_fuels_fee = fuel_fee
     guide_report.final_amount_due = final_amount_due
+
+    all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
+    invoice_number = list(all_reports.values_list('id', flat=True)).index(guide_report.id) + 1
+
+    guide_report.invoice_number = invoice_number
+    guide_report.save()
         
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,
@@ -56,7 +63,8 @@ def DetailView(request, pk):
         'expense_fee': expense_fee, 
         'fuel_fee': fuel_fee,
         'final_amount_due': final_amount_due, 
-        'super': super,                      
+        'super': super,         
+        'invoice_number': invoice_number       
     })
 
 @login_required
@@ -211,6 +219,10 @@ def guidereport_day_guide_exp(request):
 
             event.guidereport = final_instance
             event.save()
+
+            today = datetime.date.today()
+            final_instance.invoice_date = today
+            final_instance.save()
 
             if 'main_data' in request.session: del request.session['main_data']
             if 'day_data' in request.session: del request.session['day_data']
@@ -571,7 +583,10 @@ def guidereport_inbound_guide_exp(request):
                             expense=float(e_val) if e_val else 0.0, 
                             memo=memo
                         )
-            
+            today = datetime.date.today()
+            guide_report.invoice_date = today
+            guide_report.save()
+
             return redirect('guidereports:detail', pk=guide_report.id)   
     else:
         formset = GuideExpFormSet(instance=guide_report)

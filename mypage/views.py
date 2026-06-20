@@ -24,6 +24,7 @@ def mypage(request):
     try: 
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')
+        
         context = {"guide": current_guide, "user": request.user, "guide_reports": guide_reports}
         return render(request, "mypage/index.html", context)
     except AttributeError: 
