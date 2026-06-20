@@ -113,8 +113,8 @@
   <ul class="data-list">
     {% for event in events %}
     <li class="data-item">
-      <span>{{ event.report_date|date:"y-m-d" }}</span>
-      <span style="font-weight: 600">{{ event.eventcode }} - {{ event.guide_fee }}</span>
+      <span>{{ event.report_date|date:"y-m-d" }} <span style="font-weight:500">{{ event.eventcode }}</span></span>
+      <span style="font-weight: 600">   ${{ event.guide_fee }}</span>
     </li>
     {% empty %}
     <li class="data-item" style="color: #b2bec3">기록된 이벤트가 없습니다.</li>
@@ -122,33 +122,29 @@
   </ul>
 
   {% if guide_report.day_inbound == 'INBOUND' %}
-  <h3 class="section-title">Restaurants & Attractions</h3>
+  <h3 class="section-title">Restaurants</h3>
   <ul class="data-list">
     {% for r in guide_report.restaurants.all %}
     <li class="data-item">
       <span>{{ r.report_date|date:"y-m-d" }} | {{ r.expense_type }}</span>
       <span>{{ r.memo }}</span>
     </li>
-    {% endfor %} {% for a in guide_report.attractions.all %}
+    {% endfor %} 
+  </ul>
+  {% endif %}
+
+  
+  {% if guide_report.day_inbound == 'INBOUND' %}
+  <h3 class="section-title">Attractions</h3>
+  <ul class="data-list">
+    {% for a in guide_report.attractions.all %}
     <li class="data-item">
       <span>{{ a.report_date|date:"y-m-d" }} | {{ a.expense_type }}</span>
       <span>{{ a.memo }}</span>
     </li>
-    {% endfor %}
+    {% endfor %} 
   </ul>
   {% endif %}
-
-  <h3 class="section-title">Fuel</h3>
-  <ul class="data-list">
-    {% for fuel in guide_report.fuels.all %}
-    <li class="data-item">
-      <span>{{ fuel.report_date|date:"y-m-d" }}</span>
-      <span style="font-weight: 600">{{ fuel.expense }} - {{ fuel.memo }}</span>
-    </li>
-    {% empty %}
-    <li class="data-item" style="color: #b2bec3">기록된 Fuel이 없습니다.</li>
-    {% endfor %}
-  </ul>
 
 
   <h3 class="section-title">Guide Expenses</h3>
@@ -162,4 +158,22 @@
     <li class="data-item" style="color: #b2bec3">기록된 경비가 없습니다.</li>
     {% endfor %}
   </ul>
+
+  <h3 class="section-title">Fuel</h3>
+  <ul class="data-list">
+    {% for fuel in guide_report.fuels.all %}
+    <li class="data-item">
+      <span>{{ fuel.report_date|date:"y-m-d" }}</span>
+      {% if fuel.memo %}
+      <span style="font-weight: 600">{{ fuel.memo }}</span>
+      {% endif %}
+      <span style="font-weight: 600">${{ fuel.expense }} </span>
+    </li>
+    {% empty %}
+    <li class="data-item" style="color: #b2bec3">기록된 Fuel이 없습니다.</li>
+    {% endfor %}
+  </ul>
+
+  {{ final_guide_fee }}
 </div>
+

@@ -12,6 +12,18 @@ class GuideReportMainForm(forms.ModelForm):
             'role': 'Role', 
         }
 
+    def clean(self):
+        cleaned_data = super().clean()
+        report_type = cleaned_data.get("type")
+        role = cleaned_data.get("role")
+
+        if report_type == 'Inbound':
+            allowed_roles = ['12 SEAT', 'GUIDE ONLY']
+            if role not in allowed_roles:
+                raise forms.ValidationError(f"Inbound인 경우 Role은 {allowed_roles} 중 하나여야 합니다.")
+        
+        return cleaned_data
+
 class GuideReportDayForm(forms.ModelForm): 
 
     eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
@@ -108,13 +120,28 @@ class InboundEventForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
+    hours = forms.ChoiceField(
+        choices=INBOUND_HOURS,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
     class Meta:
         model = Event
-        fields = ['report_date', 'eventcode']
+        fields = ['report_date', 'eventcode', 'hours']
         widgets = {
             'report_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['hours'].required = True
+        
+        if self.data:
+            prefix = self.prefix
+            eventcode = self.data.get(f'{prefix}-eventcode')
+            if eventcode == 'AM/AS':
+                self.hours = None
+                self.fields['hours'].required = False
 
 class RestaurantExpForm(forms.ModelForm): 
     class Meta: 

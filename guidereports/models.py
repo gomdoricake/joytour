@@ -16,13 +16,14 @@ class GuideReport(models.Model):
     tc = models.PositiveIntegerField(default=0)    
     chd = models.PositiveIntegerField(default=0)
     final_guide_fee = models.TextField()
-
+                    
     def __str__(self): 
         return str(self.guide.name) + ': ' + str(self.group_code)
 
 class Event(models.Model): 
     eventcode = models.CharField(max_length=10)
     report_date = models.DateField()
+    hours = models.CharField(max_length=10, choices=INBOUND_HOURS,null=True,blank=True)
     guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
     guide_fee = models.TextField()
 
@@ -46,22 +47,28 @@ class Event(models.Model):
         
         calculated_fee = "0.00"
 
-        if target_rate_dict:
-            if self.eventcode == 'AM/AS':
+
+        if day_inbound_val == "DAY" and target_rate_dict: 
+            current_code = self.eventcode
+        
+
+        elif day_inbound_val == "INBOUND" and target_rate_dict:
+            if self.hours == None:
                 current_code = 'AM/AS'
             else: 
-                current_code = '10HRS'
+                current_code = self.hours
+        
+        print("current_code: " + str(current_code))
 
+        if current_code in target_rate_dict:
+            rate_list = target_rate_dict[current_code]
+
+            print("rate_list: " + str(rate_list))
             
-            if current_code in target_rate_dict:
-                rate_list = target_rate_dict[current_code]
-
-                print("rate_list: " + str(rate_list))
-                
-                if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
-                    grade_index = guide_profile.grade - 1
-                    if 0 <= grade_index < len(rate_list):
-                        calculated_fee = float(rate_list[grade_index])
+            if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
+                grade_index = guide_profile.grade - 1
+                if 0 <= grade_index < len(rate_list):
+                    calculated_fee = float(rate_list[grade_index])
 
         self.guide_fee = calculated_fee
 

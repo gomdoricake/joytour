@@ -135,3 +135,44 @@
     <button type="submit" class="btn-submit">Next</button>
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeField = document.querySelector('select[name="day_inbound"]'); // 실제 필드 이름 확인 필요
+    const roleField = document.querySelector('select[name="role"]');
+    
+    // 전체 옵션을 저장해두기 (나중에 복구할 경우 대비)
+    const allOptions = Array.from(roleField.options);
+
+    function updateRoleOptions() {
+        if (typeField.value === 'INBOUND') {
+            // 허용할 값들
+            const allowed = ['12 SEAT', 'GUIDE ONLY'];
+            
+            // 기존 옵션들을 순회하며 필터링
+            Array.from(roleField.options).forEach(option => {
+                if (allowed.includes(option.value) || option.value === "") {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            // 만약 현재 선택된 값이 허용되지 않는 값이라면 초기화
+            if (!allowed.includes(roleField.value) && roleField.value !== "") {
+                roleField.value = "";
+            }
+        } else {
+            // Inbound가 아닐 때는 모든 옵션 표시
+            Array.from(roleField.options).forEach(option => {
+                option.style.display = 'block';
+            });
+        }
+    }
+
+    // 변경될 때마다 실행
+    typeField.addEventListener('change', updateRoleOptions);
+    // 초기 로딩 시에도 실행
+    updateRoleOptions();
+});
+</script>

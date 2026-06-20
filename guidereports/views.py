@@ -16,15 +16,23 @@ def index(request):
 @login_required
 def DetailView(request, pk):
     guide_report = get_object_or_404(GuideReport, pk=pk)
-    events = guide_report.events.all() 
+    events = guide_report.events.all()
+    expenses = guide_report.expenses.all()
+    
+    final_guide_fee = 0 
     
     for event in events: 
-        print("event: ", event.eventcode)
-        print('reportdate: ', event.report_date)
+        final_guide_fee += float(event.guide_fee)
+    
+    for expense in expenses: 
+        final_guide_fee += float(expense.expense)
+
+    guide_report.final_guide_fee = final_guide_fee
         
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,
-        'events': events,                           
+        'events': events,
+        'final_guide_fee': final_guide_fee                           
     })
 
 @login_required
@@ -274,7 +282,9 @@ def guidereport_inbound_events(request):
             for i in range(total_forms_count): 
                 report_date = request.POST.get(f'{prefix}-{i}-report_date')
                 eventcode = request.POST.get(f'{prefix}-{i}-eventcode')
+                hours = request.POST.get(f'{prefix}-{i}-hours')
                 is_delete = request.POST.get(f'{prefix}-{i}-DELETE')
+                print("hours: " + str(hours))
 
                 print(f'---- EVENT [Form Row {i}] Date: {report_date}, Code: {eventcode}, Delete: {is_delete} ----')
 
@@ -290,7 +300,8 @@ def guidereport_inbound_events(request):
                         Event.objects.create(
                             guidereport_id=guide_report.id,
                             report_date=report_date, 
-                            eventcode=eventcode
+                            eventcode=eventcode,
+                            hours=hours
                         )
                     except ValueError: 
                         pass

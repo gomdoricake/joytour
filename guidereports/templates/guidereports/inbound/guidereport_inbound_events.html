@@ -149,31 +149,69 @@
     const addButton = document.getElementById("add-form-btn");
     const prefix = "{{ formset.prefix }}";
 
+    // Hours 필드를 제어하는 함수
+  function checkHoursControl(row) {
+      const eventCodeField = row.querySelector('[name$="-eventcode"]');
+      const hoursField = row.querySelector('[name$="-hours"]');
+      
+      if (!eventCodeField || !hoursField) return;
+
+      if (eventCodeField.value === 'AM/AS') {
+        hoursField.disabled = true; // 아예 클릭/선택 안 됨
+        hoursField.value = "0";     // 값은 0으로 강제
+        hoursField.style.backgroundColor = '#f1f3f4';
+      } else {
+        hoursField.disabled = false; // 다른 거 선택 시 다시 활성화
+        hoursField.style.backgroundColor = '#fff';
+      }
+    }
+    // 폼 변경 이벤트 리스너 (이벤트 위임)
+    formContainer.addEventListener("change", function (e) {
+      if (e.target.matches('[name$="-eventcode"]')) {
+        checkHoursControl(e.target.closest(".event-form-row"));
+      }
+    });
+
     addButton.addEventListener("click", function () {
-      const template = document.getElementById(
-        "empty-form-template",
-      ).firstElementChild;
+      const template = document.getElementById("empty-form-template").firstElementChild;
       const newRow = template.cloneNode(true);
-      const currentCount =
-        formContainer.querySelectorAll(".event-form-row").length;
+      const currentCount = formContainer.querySelectorAll(".event-form-row").length;
+      
       newRow.querySelectorAll("input, select, textarea").forEach((el) => {
         if (el.name) el.name = el.name.replace(/__prefix__/g, currentCount);
         if (el.id) el.id = el.id.replace(/__prefix__/g, currentCount);
-        if (el.type !== "hidden") el.value = "";
       });
-      newRow.querySelector(".event-title").innerText =
-        `이벤트 #${currentCount + 1}`;
+      
+      newRow.querySelector(".event-title").innerText = `이벤트 #${currentCount + 1}`;
       formContainer.appendChild(newRow);
-      document.getElementById("id_" + prefix + "-TOTAL_FORMS").value =
-        currentCount + 1;
+      document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = currentCount + 1;
     });
 
+    // 초기 로딩 시 기존 데이터 체크
+    formContainer.querySelectorAll(".event-form-row").forEach(row => {
+      checkHoursControl(row);
+    });
+
+    // 삭제 버튼 로직
     formContainer.addEventListener("click", function (e) {
       if (e.target.classList.contains("remove-form-btn")) {
         const rows = formContainer.querySelectorAll(".event-form-row");
-        if (rows.length > 1) e.target.closest(".event-form-row").remove();
-        else alert("최소 하나의 이벤트는 필요합니다.");
+        if (rows.length > 1) {
+            e.target.closest(".event-form-row").remove();
+            // 삭제 후에는 TOTAL_FORMS 업데이트 필요
+            document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = 
+                formContainer.querySelectorAll(".event-form-row").length;
+        } else {
+            alert("최소 하나의 이벤트는 필요합니다.");
+        }
       }
+    });
+  });
+
+  document.getElementById("real-event-form").addEventListener("submit", function() {
+    const disabledFields = this.querySelectorAll('[name$="-hours"][disabled]');
+    disabledFields.forEach(field => {
+      field.disabled = false; // 서버로 전송하기 위해 잠시 활성화
     });
   });
 </script>
