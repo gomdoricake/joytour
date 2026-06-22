@@ -1,0 +1,171 @@
+<style>
+  .report-container { max-width: 700px; margin: 40px auto; padding: 30px; font-family: "Pretendard", sans-serif; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
+  .title { font-size: 22px; font-weight: 700; color: #2d3436; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #f1f2f6; }
+  
+  .report-info-box { background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 30px; }
+  
+  .expense-form-row { 
+    background: #f8f9fa; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; 
+    margin-bottom: 20px; position: relative; display: flex; flex-wrap: wrap; gap: 15px; padding-right: 80px; 
+  }
+  
+  .form-group { flex: 1; min-width: 150px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: #718096; margin-bottom: 6px; }
+  .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; background: #fff; }
+
+  .btn-remove { position: absolute; top: 20px; right: 20px; background: #fff5f5; color: #e53e3e; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+  .btn-add { background: #e8f5e9; color: #2e7d32; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+  .btn-submit { display: block; width: 100%; padding: 16px; background: #2d3436; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 30px; }
+</style>
+
+<div class="report-container">
+  <h2 class="title">Fuel 경비 내역</h2>
+
+  <div class="report-info-box">
+    <div style="display: flex; gap: 20px; font-size: 14px;">
+      <div><strong>구분:</strong> {{ guide_report.day_inbound }}</div>
+      <div><strong>그룹 코드:</strong> {{ guide_report.group_code }}</div>
+    </div>
+  </div>
+
+  <form method="post" id="real-expense-form">
+    {% csrf_token %} {{ formset.management_form }}
+
+    <div id="expense-form-list">
+      {% for form in formset %}
+      <div class="expense-form-row" {% if form.DELETE.value %}style="display: none;"{% endif %}>
+        {{ form.id }}
+        <div style="display: none">{{ form.DELETE }}</div>
+        
+        <div class="form-group"><label>날짜</label>{{ form.report_date }}</div>
+        <div class="form-group"><label>Expense</label>{{ form.expense }}</div>
+        <div class="form-group"><label>Memo</label>{{ form.memo }}</div>
+        
+        <button type="button" class="remove-form-btn btn-remove">삭제</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" id="add-form-btn" class="btn-add">+ Fuel 항목 추가</button>
+    <button type="submit" id="submit-final-btn" class="btn-submit">Next Step (Guide Exp)</button>
+  </form>
+</div>
+
+<div id="empty-form-template" style="display: none">
+  <div class="expense-form-row">
+    {{ formset.empty_form.id }}
+    <div style="display: none">{{ formset.empty_form.DELETE }}</div>
+    <div class="form-group"><label>날짜</label>{{ formset.empty_form.report_date }}</div>
+    <div class="form-group"><label>Expense</label>{{ formset.empty_form.expense }}</div>
+    <div class="form-group"><label>Memo</label>{{ formset.empty_form.memo }}</div>
+    <button type="button" class="remove-form-btn btn-remove">삭제</button>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const formContainer = document.getElementById("expense-form-list");
+    const addButton = document.getElementById("add-form-btn");
+    const mainForm = document.getElementById("real-expense-form");
+    const submitBtn = document.getElementById("submit-final-btn");
+    const prefix = "{{ formset.prefix }}";
+
+    // TOTAL_FORMS input 요소 가져오기 함수 (하이픈, 언더바 둘 다 대응)
+    function getTotalFormsInputs() {
+      return [
+        document.getElementById(`id_${prefix}-TOTAL_FORMS`),
+        document.getElementById(`id_${prefix}_TOTAL_FORMS`)
+      ].filter(el => el !== null);
+    }
+
+    // 1. 항목 추가 (Add Form)
+    addButton.addEventListener("click", function () {
+      const noDataAlert = document.getElementById("no-data-alert");
+      if (noDataAlert) noDataAlert.remove();
+
+      const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
+      const newRow = templateRow.cloneNode(true);
+      
+      // 현재 전체 DOM에 존재하는 row 개수 (숨겨진 것 포함)
+      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
+
+      const prefixRegex = new RegExp("__prefix__", "g");
+      const inputs = newRow.querySelectorAll("input, select, textarea");
+
+      inputs.forEach((input) => {
+        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
+        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
+
+        if (input.type === "checkbox") {
+          input.checked = false;
+        } else if (input.type !== "hidden") {
+          input.value = "";
+        }
+      });
+
+      formContainer.appendChild(newRow);
+
+      // TOTAL_FORMS 갱신
+      getTotalFormsInputs().forEach(input => {
+        input.value = currentFormCount + 1;
+        input.setAttribute("value", currentFormCount + 1);
+      });
+    });
+
+    // 2. 항목 삭제 및 인덱스 재정렬 (Remove & Re-index)
+    formContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-form-btn")) {
+        const row = event.target.closest(".expense-form-row");
+        
+        // 중요: 기존 DB에 있던 데이터(id 값이 채워져 있는 경우)는 지우면 안 되고 DELETE 체크박스를 켜야 함
+        const idInput = row.querySelector('input[name$="-id"]');
+        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+
+        if (idInput && idInput.value) {
+          // 기존 데이터인 경우: 화면에서 숨기고 DELETE 체크박스를 True로 변환
+          if (deleteCheckbox) deleteCheckbox.checked = true;
+          row.style.display = "none";
+          row.classList.add("form-deleted"); // 재정렬 대상에서 제외하기 위한 클래스 추가
+        } else {
+          // 새로 추가했던 데이터인 경우: 그냥 DOM에서 삭제
+          row.remove();
+        }
+
+        // 인덱스 재정렬 (삭제되거나 숨겨지지 않은 '유효한' 행들만 대상으로 정렬)
+        const allRows = formContainer.getElementsByClassName("expense-form-row");
+        let validIndex = 0;
+
+        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
+        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+
+        for (let i = 0; i < allRows.length; i++) {
+          // 이미 삭제 예정(숨김)인 행은 인덱스 수정 없이 건너뜀 (단, name과 id는 유지해야 에러 안 남)
+          if (allRows[i].classList.contains("form-deleted")) {
+            continue; 
+          }
+
+          const rowInputs = allRows[i].querySelectorAll("input, select, textarea");
+          rowInputs.forEach((input) => {
+            if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${validIndex}-`);
+            if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${validIndex}-`);
+          });
+          
+          validIndex++;
+        }
+
+        // TOTAL_FORMS는 삭제된 것을 제외한 최종 유효 행의 개수로 업데이트하지 않고, 
+        // Django Formset 규칙에 따라 [전체 row 개수]를 전송해야 합니다. (DELETE가 체크된 것도 개수에 포함되어야 함)
+        getTotalFormsInputs().forEach(input => {
+          input.value = allRows.length;
+          input.setAttribute("value", allRows.length);
+        });
+      }
+    });
+
+    // 3. 서브밋 시 더블 클릭 방지
+    mainForm.addEventListener("submit", function () {
+      submitBtn.disabled = true;
+      submitBtn.innerText = "Processing to Next Step...";
+    });
+  });
+</script>

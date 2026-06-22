@@ -1,0 +1,434 @@
+<style>
+  /* 기존 스타일 유지 + 추가 */
+  .info-group-compact {
+    display: flex;
+    gap: 15px;
+    background: #ffffff;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #edf2f7;
+  }
+  .info-item-small {
+    font-size: 12px;
+    color: #718096;
+  }
+  .info-item-small strong {
+    font-size: 10px;
+    display: inline;
+    margin-right: 4px;
+    color: #a0aec0;
+  }
+  /* 구분/역할 강조 */
+  .info-highlight {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d3436;
+  }
+  .section-card {
+    background: #ffffff;
+    border: 5px solid #f1f2f6;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  }
+
+  /* 박스 안의 섹션 타이틀은 마진 조정 */
+  .section-card .section-title {
+    margin-top: 0;
+  }
+  /* 섹션 합계 스타일 */
+  .subtotal-item {
+    padding: 12px;
+    margin-top: 5px;
+    border-top: 2px solid #dfe6e9;
+    font-size: 14px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    color: #2d3436;
+  }
+  .subtotal-label {
+    font-size: 12px;
+    color: #636e72;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  .subtotal-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e53e3e;
+  }
+
+  /* 개별 항목 금액은 검정색으로 유지 */
+  .text-price-black {
+    color: #2d3436;
+    font-weight: 700;
+  }
+  .total-section {
+    text-align: center;
+    margin: 40px 0;
+    padding: 30px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    border: 2px dashed #cbd5e0;
+  }
+  .total-label {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 5px;
+    display: block;
+  }
+  .total-amount {
+    font-size: 32px;
+    font-weight: 800;
+    color: #2d3436;
+  }
+
+  .report-container {
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #636e72;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .back-link:hover {
+    color: #2d3436;
+    text-decoration: underline;
+  }
+
+  .header-section {
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f1f2f6;
+    padding-bottom: 20px;
+  }
+  .title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin: 0 0 10px 0;
+  }
+  .meta-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #636e72;
+    font-weight: 600;
+  }
+
+  .info-box {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+  }
+  .info-item {
+    font-size: 14px;
+    color: #4a4a4a;
+  }
+  .info-item strong {
+    color: #2d3436;
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2d3436;
+    margin: 25px 0 15px;
+  }
+  .data-list {
+    list-style: none;
+    padding: 0;
+  }
+  .data-item {
+    padding: 12px;
+    border-bottom: 1px solid #f1f2f6;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .data-item:last-child {
+    border-bottom: none;
+  }
+
+  .super-label {
+    font-size: 12px;
+    color: #a0aec0; /* 조금 더 연한 회색 */
+    margin-top: 15px;
+    display: block;
+    text-transform: uppercase;
+  }
+  .super-amount {
+    font-size: 20px; /* TOTAL보다 작은 20px */
+    font-weight: 700;
+    color: #4a5568;
+  }
+
+/* 합계 나란히 배치용 컨테이너 */
+  .total-grid {
+    display: flex;
+    justify-content: center;
+    gap: 40px; /* 두 항목 사이의 간격 */
+    margin-top: 10px;
+  }
+  .total-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* 기존 스타일 유지하면서 크기 조정 */
+  .total-amount {
+    font-size: 28px; /* 조금 더 균형 있게 조정 */
+    font-weight: 800;
+    color: #2d3436;
+  }
+  .super-amount {
+    font-size: 24px;
+    font-weight: 700;
+    color: #4a5568;
+  }
+
+  /* 상태 배지/버튼 스타일 */
+  .status-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  /* 확인 완료 (초록색) */
+  .status-confirmed {
+    background-color: #d1fae5;
+    color: #065f46;
+  }
+  
+  /* 대기 중 (주황색) */
+  .status-waiting {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  /* 관리자 전용 확인 버튼 스타일 */
+  .status-confirm-btn:hover {
+    filter: brightness(0.9);
+  }
+
+  /* 버튼을 링크처럼 보이게 초기화 */
+  .status-confirm-btn {
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    display: inline-block;
+  }
+
+  /* 좌우 2열 배치 컨테이너 */
+  .two-column-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+  }
+  .info-detail-box {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .info-detail-box strong {
+    color: #2d3436;
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 2px;
+  }
+  .bill-to-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d3436;
+  }
+
+</style>
+
+<div class="report-container">
+  <a href="{% url 'mypage:mypage' %}" class="back-link">← 목록으로 돌아가기</a>
+
+  <div class="header-section">
+    <h2 class="title">{{ guide_report.group_code }}</h2>
+  <div class="two-column-box">
+    <div class="info-detail-box">
+      <strong>Guide Payment Details</strong>
+      Name: {{guide_report.guide.name}}<br>
+      ABN: {{ guide_report.guide.abn }}<br>
+      Contact: {{ guide_report.guide.contact_info }}<br>
+      BSB: {{ guide_report.guide.bsb }} | Account: {{ guide_report.guide.account_number }}
+  </div>
+  </div>
+
+<strong>Invoice Date: {{ guide_report.invoice_date | date:"d-M-Y" }} #{{ invoice_number }}</strong>
+
+<div class="info-box">
+  <div class="info-grid">
+    <!-- 구분과 역할 강조 -->
+    <div class="info-item">
+      <strong>구분</strong>
+      <span class="info-highlight">{{ guide_report.day_inbound }}</span>
+    </div>
+    <div class="info-item">
+      <strong>역할</strong>
+      <span class="info-highlight">{{ guide_report.role }}</span>
+    </div>
+    
+    <!-- 인원수 정보 작게 그룹화 -->
+    {% if guide_report.day_inbound == 'INBOUND' %}
+    <div class="info-item">
+      <strong>PAX</strong>
+      <div class="info-group-compact">
+        <span class="info-item-small"><strong>ADT</strong>{{ guide_report.adt }}</span>
+        <span class="info-item-small"><strong>CHD</strong>{{ guide_report.chd }}</span>
+        <span class="info-item-small"><strong>TC</strong>{{ guide_report.tc }}</span>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+  <div class="info-detail-box">
+    <strong>Bill To</strong>
+    <div class="bill-to-text">Joy Study Tour Pty Ltd</div>
+    <div style="font-size: 12px; color: #636e72;">Australia</div>
+  </div>
+  <!-- Events 박스 시작 -->
+  <div class="section-card">
+    <h3 class="section-title">Events</h3>
+    <ul class="data-list">
+      {% for event in events %}
+      <li class="data-item">
+        <span>{{ event.report_date|date:"d-M-Y" }} <span style="font-weight:500">{{ event.eventcode }}</span></span>
+        <span class="text-price-black">${{ event.guide_fee }}</span>
+      </li>
+      {% endfor %}
+      <li class="subtotal-item">
+        <span class="subtotal-label">Event Subtotal (inc. GST)</span>
+        <span class="subtotal-value">${{ event_fee }}</span>
+      </li>
+    </ul>
+    <h3 class="section-title">Guide Expenses</h3>
+    <ul class="data-list">
+      {% for exp in guide_report.expenses.all %}
+      <li class="data-item">
+        <span>{{ exp.expense_type }}</span>
+        <span class="text-price-black">${{ exp.expense }}</span>
+      </li>
+      {% endfor %}
+      <li class="subtotal-item">
+        <span class="subtotal-label">Expense Subtotal (inc. GST)</span>
+        <span class="subtotal-value">${{ expense_fee }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="total-section">
+    <div class="total-grid">
+      <div class="total-group">
+        <span class="total-label">TOTAL (inc. GST)</span>
+        <div class="total-amount">${{ final_amount_due }}</div>
+      </div>
+      
+      {% if request.user.username == 'admin' %}
+      <div class="total-group">
+        <span class="total-label">SUPER</span>
+        <div class="super-amount">${{ super }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+<!-- 박스 끝 -->  
+  <h3 class="section-title">Fuel</h3>
+  <ul class="data-list">
+    {% for fuel in guide_report.fuels.all %}
+    <li class="data-item">
+      <span>{{ fuel.report_date|date:"d-M-Y" }}</span>
+      {% if fuel.memo %}<span style="font-weight: 600">{{ fuel.memo }}</span>{% endif %}
+      <span class="text-price-black">${{ fuel.expense }} </span>
+    </li>
+    {% endfor %}
+    <li class="subtotal-item">
+      {% comment %}
+      <span class="subtotal-label">Fuel Subtotal (inc. GST)</span>
+      <span class="subtotal-value">${{ fuel_fee }}</span>
+      {% endcomment %}
+    </li>
+  </ul>
+
+    {% if guide_report.day_inbound == 'INBOUND' %}
+  <h3 class="section-title">Restaurants</h3>
+  <ul class="data-list">
+    {% for r in guide_report.restaurants.all %}
+    <li class="data-item">
+      <span>{{ r.report_date|date:"d-M-Y" }} | {{ r.expense_type }}</span>
+      <span>{{ r.memo }}</span>
+    </li>
+    {% endfor %} 
+  </ul>
+  {% endif %}
+
+  
+  {% if guide_report.day_inbound == 'INBOUND' %}
+  <h3 class="section-title">Attractions</h3>
+  <ul class="data-list">
+    {% for a in guide_report.attractions.all %}
+    <li class="data-item">
+      <span>{{ a.report_date|date:"d-M-Y" }} | {{ a.expense_type }}</span>
+      <span>{{ a.memo }}</span>
+    </li>
+    {% endfor %} 
+  </ul>
+  {% endif %}
+
+
+  
+{% if request.user.username == 'admin' %}
+  <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}">
+    {% csrf_token %}
+    <button type="submit" class="status-badge status-confirm-btn {% if guide_report.is_confirmed %}status-confirmed{% else %}status-waiting{% endif %}">
+      {% if guide_report.is_confirmed %}CONFIRMED (Undo){% else %}CONFIRM REPORT{% endif %}
+    </button>
+  </form>
+{% else %}
+  <span class="status-badge {% if guide_report.is_confirmed %}status-confirmed{% else %}status-waiting{% endif %}">
+    {% if guide_report.is_confirmed %}CONFIRMED{% else %}WAITING FOR CONFIRMATION{% endif %}
+  </span>
+{% endif %}
+
+</div>
+

@@ -1,0 +1,125 @@
+<style>
+  .report-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2d3436;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f2f6;
+  }
+
+  /* 폼 요소 스타일 */
+  .report-form p {
+    margin-bottom: 20px;
+  }
+  .report-form label {
+    display: block;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .report-form input[type="text"],
+  .report-form input[type="number"],
+  .report-form input[type="date"],
+  .report-form select,
+  .report-form textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #333;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    background-color: #fff;
+  }
+
+  /* 드롭다운 스타일 */
+  .report-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 10px auto;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  .report-form input:focus,
+  .report-form select:focus {
+    border-color: #2d3436;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(45, 52, 54, 0.05);
+  }
+
+  /* 버튼 및 에러 메시지 */
+  .error-box {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #c53030;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: #2d3436;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 30px;
+  }
+  .btn-submit:hover {
+    background: #4a4a4a;
+  }
+</style>
+
+<div class="report-container">
+  {% if user.username != 'admin' %}
+  <h2 class="title">Guide Report — Inbound — AGENCY CODE</h2>
+  {% else %}
+  <h2 class="title">Edit Report Details</h2>
+  {% endif %}
+
+  <form method="post" class="report-form">
+    {% csrf_token %} {% if form.errors %}
+    <div class="error-box">
+      {% for field in form %} {% for error in field.errors %}
+      <p style="margin: 0">• {{ error }}</p>
+      {% endfor %} {% endfor %}
+    </div>
+    {% endif %} {{ form.as_p }}
+
+    <button type="submit" class="btn-submit">Next</button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fieldsToClear = ["adt", "tc", "chd"];
+    fieldsToClear.forEach((name) => {
+      const input = document.querySelector('input[name="' + name + '"]');
+      if (input && input.value === "0") {
+        input.value = "";
+      }
+    });
+  });
+</script>

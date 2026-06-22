@@ -1,0 +1,178 @@
+<style>
+  /* 기본 레이아웃 */
+  .report-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 10px 0;
+  }
+
+  .notice-text {
+    font-size: 14px;
+    color: #636e72;
+    margin-bottom: 25px;
+    line-height: 1.6;
+  }
+  .admin-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #f1f2f6;
+    color: #2d3436;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 25px;
+  }
+
+  /* 에러 메시지 */
+  .error-box {
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    color: #c53030;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  /* 폼 요소 스타일 */
+  .report-form p {
+    margin-bottom: 20px;
+  }
+  .report-form label {
+    display: block;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .report-form input[type="text"],
+  .report-form input[type="number"],
+  .report-form input[type="date"],
+  .report-form select,
+  .report-form textarea {
+    width: 100%;
+    padding: 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #333;
+    transition: all 0.2s;
+    box-sizing: border-box;
+    background-color: #fff;
+  }
+
+  /* 드롭다운 예쁘게 만들기 */
+  .report-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 10px auto;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+
+  /* 포커스 효과 */
+  .report-form input:focus,
+  .report-form select:focus {
+    border-color: #2d3436;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(45, 52, 54, 0.05);
+  }
+
+  /* 버튼 */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: #2d3436;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 30px;
+  }
+  .btn-submit:hover {
+    background: #4a4a4a;
+  }
+</style>
+
+<div class="report-container">
+  <h2 class="title">가이드 리포트 생성</h2>
+
+  {% if user.username == 'admin' %}
+  <div class="admin-badge">어드민 권한으로 작성 중</div>
+  {% else %}
+  <p class="notice-text">
+    Hi, <strong>{{ user.username }}</strong>! 아래 폼을 작성하여 리포트를
+    생성해주세요.
+  </p>
+  {% endif %}
+
+  <form method="post" class="report-form">
+    {% csrf_token %} {% if form.errors %}
+    <div class="error-box">
+      {% for field in form %} {% for error in field.errors %}
+      <p style="margin: 0">• {{ error }}</p>
+      {% endfor %} {% endfor %}
+    </div>
+    {% endif %} {{ form.as_p }}
+
+    <button type="submit" class="btn-submit">Next</button>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeField = document.querySelector('select[name="day_inbound"]'); // 실제 필드 이름 확인 필요
+    const roleField = document.querySelector('select[name="role"]');
+    
+    // 전체 옵션을 저장해두기 (나중에 복구할 경우 대비)
+    const allOptions = Array.from(roleField.options);
+
+    function updateRoleOptions() {
+        if (typeField.value === 'INBOUND') {
+            // 허용할 값들
+            const allowed = ['12 SEAT', 'GUIDE ONLY'];
+            
+            // 기존 옵션들을 순회하며 필터링
+            Array.from(roleField.options).forEach(option => {
+                if (allowed.includes(option.value) || option.value === "") {
+                    option.style.display = 'block';
+                } else {
+                    option.style.display = 'none';
+                }
+            });
+            
+            // 만약 현재 선택된 값이 허용되지 않는 값이라면 초기화
+            if (!allowed.includes(roleField.value) && roleField.value !== "") {
+                roleField.value = "";
+            }
+        } else {
+            // Inbound가 아닐 때는 모든 옵션 표시
+            Array.from(roleField.options).forEach(option => {
+                option.style.display = 'block';
+            });
+        }
+    }
+
+    // 변경될 때마다 실행
+    typeField.addEventListener('change', updateRoleOptions);
+    // 초기 로딩 시에도 실행
+    updateRoleOptions();
+});
+</script>

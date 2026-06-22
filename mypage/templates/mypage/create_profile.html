@@ -1,0 +1,7 @@
+<h2>Register Guide Profile</h2>
+<p>Hi, {{ user.username }}! Please register your profile first.</p>
+
+<form method="post">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit">Save Profile</button>
+</form>
