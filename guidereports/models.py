@@ -25,7 +25,7 @@ class GuideReport(models.Model):
     final_expenses_fee = models.TextField(null=True, blank=True)
     final_fuels_fee = models.TextField(null=True, blank=True)
     final_amount_due = models.TextField(null=True, blank=True)
-    super = models.TextField(null=True, blank=True)
+    super_ann = models.TextField(null=True, blank=True)
                     
     def __str__(self): 
         return str(self.guide.name) + ': ' + str(self.group_code)
