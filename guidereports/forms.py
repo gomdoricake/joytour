@@ -34,7 +34,10 @@ class GuideReportDayForm(forms.ModelForm):
             'report_date': 'Report Date', 
         }
         widgets = {
-            'report_date': forms.DateInput(attrs={'type': 'date'}),
+            'report_date': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'type': 'date'}
+            ),
         }
 
     def __init__(self, *args, **kwargs): 
@@ -129,7 +132,10 @@ class InboundEventForm(forms.ModelForm):
         model = Event
         fields = ['report_date', 'eventcode', 'hours']
         widgets = {
-            'report_date': forms.DateInput(attrs={'type': 'date'}),
+            'report_date': forms.DateInput(
+                format='%Y-%m-%d',
+                attrs={'type': 'date'}
+            ),
         }
 
     def __init__(self, *args, **kwargs):

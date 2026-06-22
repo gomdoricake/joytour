@@ -67,6 +67,7 @@ def DetailView(request, pk):
         'invoice_number': invoice_number       
     })
 
+
 @login_required
 def guidereport_confirm(request, pk): 
     if request.method == 'POST': 
@@ -76,6 +77,30 @@ def guidereport_confirm(request, pk):
 
     return redirect('guidereports:detail', pk=pk)
     
+
+@login_required
+def update_guidereport(request, pk): 
+    guidereport = get_object_or_404(GuideReport, pk=pk)
+    
+    request.session['main_data'] = {
+        'guidereport_id': guidereport.id, 
+        'day_inbound': guidereport.day_inbound,
+        'role': guidereport.role,
+    }
+    
+    if guidereport.day_inbound == 'DAY': 
+        return redirect('guidereports:guidereport_day')
+    elif guidereport.day_inbound == 'INBOUND': 
+        request.session['inbound_data'] = {
+            'guidereport_id': guidereport.id,
+            'role': guidereport.role,
+            'day_inbound': guidereport.day_inbound, 
+            'agency_code': guidereport.agency_code,
+            'adt': guidereport.adt,
+            'tc': guidereport.tc, 
+            'chd': guidereport.chd
+        }
+        return redirect('guidereports:guidereport_inbound_agency')
 
 @login_required
 def guidereport_main(request): 
@@ -98,49 +123,56 @@ def guidereport_main(request):
     
     return render(request, 'guidereports/guidereport_main.html', {'form': form})
 
+
 @login_required
 def guidereport_day(request): 
     main_data = request.session.get('main_data')
-
-    dummy_instance = GuideReport(
-        role=main_data['role'], 
-        day_inbound=main_data['day_inbound'],
-    )
-
     if not main_data: 
-        return redirect('mypage:guidereport_main')
+        return redirect('guidereports:guidereport_main') 
+
+    report_id = main_data.get('guidereport_id')
+    
+    initial_data = {}
+
+    if report_id:
+        instance = get_object_or_404(GuideReport, id=report_id)
+        event_instance = Event.objects.filter(guidereport=instance).first()
+        
+        if event_instance:
+            initial_data['eventcode'] = event_instance.eventcode
+            
+            if event_instance.report_date:
+                initial_data['report_date'] = event_instance.report_date.strftime('%Y-%m-%d')
+    else:
+        instance = GuideReport(role=main_data['role'], day_inbound=main_data['day_inbound'])
 
     if request.method == 'POST': 
-        form = GuideReportDayForm(request.POST, instance=dummy_instance)
+        form = GuideReportDayForm(request.POST, instance=instance)
         if form.is_valid(): 
-
             guide_report = form.save(commit=False)
+            guide_report.day_inbound = main_data['day_inbound']
+            guide_report.role = main_data['role']
+            guide_report.guide = request.user.guide_profile
+            guide_report.save()
 
             eventcode = form.cleaned_data['eventcode']
             report_date = form.cleaned_data['report_date'].strftime('%Y-%m-%d')
             today_str = form.cleaned_data['report_date'].strftime('%d%m%y')
 
-            guide_report.day_inbound = main_data['day_inbound']
-            guide_report.role = main_data['role']
-            guide_report.guide = request.user.guide_profile
+            event, created = Event.objects.update_or_create(
+                guidereport=guide_report,
+                defaults={'eventcode': eventcode, 'report_date': report_date}
+            )
 
-            guide_report.save()
-
-            event = Event.objects.create(eventcode=eventcode, report_date=report_date, guidereport=guide_report)
-
-            
             request.session['day_data'] = {
                 'event_id': event.id,
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
                 'today_str': today_str     
             }
-
-
-
             return redirect('guidereports:guidereport_day_guide_exp')
     else: 
-        form = GuideReportDayForm(instance=dummy_instance)
+        form = GuideReportDayForm(instance=instance, initial=initial_data)
     
     return render(request, 'guidereports/day/guidereport_day.html', {'form': form})
 
@@ -244,22 +276,24 @@ def guidereport_day_guide_exp(request):
     })
 
 
+@login_required
 def guidereport_inbound_agency(request): 
     main_data = request.session.get('main_data')
-
-    dummy_instance = GuideReport(
-        role=main_data['role'], 
-        day_inbound=main_data['day_inbound'],
-    )
-
     if not main_data: 
-        return redirect('mypage:guidereport_main')
+        return redirect('guidereports:guidereport_main') 
+
+    report_id = main_data.get('guidereport_id')
+    if report_id:
+        instance = get_object_or_404(GuideReport, id=report_id)
+    else:
+        instance = GuideReport(role=main_data['role'], day_inbound=main_data['day_inbound'])
 
     if request.method == 'POST': 
-        form = AgencyPaxForm(request.POST, instance=dummy_instance)
+        form = AgencyPaxForm(request.POST, instance=instance)
         if form.is_valid(): 
-
             guide_report = form.save(commit=False)
+            guide_report.guide = request.user.guide_profile
+            guide_report.save()
             
             request.session['inbound_data'] = {
                 'guidereport_id': guide_report.id,
@@ -270,10 +304,9 @@ def guidereport_inbound_agency(request):
                 'tc': form.cleaned_data['tc'], 
                 'chd': form.cleaned_data['chd']
             }
-
             return redirect('guidereports:guidereport_inbound_events')
     else: 
-        form = AgencyPaxForm(instance=dummy_instance)
+        form = AgencyPaxForm(instance=instance)
     
     return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form})
 

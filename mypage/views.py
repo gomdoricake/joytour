@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from guides.models import Guide
 from guides.forms import GuideProfileForm
@@ -13,14 +13,14 @@ def login_redirect_view(request):
     if request.user.username == 'admin': 
         return redirect('mypage:admin')
     else: 
-        return redirect('mypage:mypage')
+        return redirect('mypage:index')
 
 @login_required
 def admin(request): 
     return render(request, 'mypage/admin.html')
 
 @login_required
-def mypage(request): 
+def index(request): 
     if request.user.username == 'admin': 
         return redirect('mypage:admin')
     try: 
@@ -37,11 +37,26 @@ def mypage(request):
                 new_guide.user = request.user
                 new_guide.save()
 
-                return redirect('mypage:mypage')
+                return redirect('mypage:index')
         else: 
             form = GuideProfileForm()
         
         return render(request, "mypage/create_profile.html", {"form": form})
+
+@login_required 
+def update_mypage(request, pk):
+    guide = get_object_or_404(Guide, pk=pk)
+    if request.method == 'POST': 
+        form = GuideProfileForm(request.POST, instance=guide)
+        
+        if form.is_valid(): 
+            form.save()
+            return redirect('mypage:index')
+    else: 
+        form = GuideProfileForm(instance=guide)
+    
+    return render(request, 'mypage/create_profile.html', {'form': form})
+
 
 @login_required
 def review_grade(request): 
@@ -66,9 +81,8 @@ def review_grade(request):
             print("int(months / 12) + 2", int(months / 12) + 2)
 
         guide.save()
-        
-    return redirect('mypage:mypage')
 
+    return redirect('mypage:index')
         
 
 @login_required
@@ -80,7 +94,7 @@ def create_report(request):
             new_report = form.save(commit=False)
             new_report.guide = guide
             new_report.save()
-            return redirect('mypage:mypage')
+            return redirect('mypage:index')
     else: 
         guide = Guide.objects.get(user=request.user)
         form = GuideReportMainForm(initial={'guide': guide})

@@ -143,6 +143,8 @@
     {% if user.username == 'admin' %}
     <a href="{% url 'guides:index' %}" style="color: #636e72; font-size: 13px; text-decoration: none; font-weight: 500;">가이드 목록</a>
     {% endif %}
+    <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-report">My Page 수정</a>
+
   </div>
 
   <div class="action-row">

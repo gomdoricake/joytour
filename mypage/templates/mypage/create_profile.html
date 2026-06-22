@@ -1,7 +1,155 @@
-<h2>Register Guide Profile</h2>
-<p>Hi, {{ user.username }}! Please register your profile first.</p>
+<style>
+  /* 🌟 기존 마이페이지 표준 레이아웃 및 폰트 규격 완벽 일치 */
+  .mypage-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    font-family: "Pretendard", sans-serif;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  }
+  .header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+  }
+  .title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+  }
+  .sub-title {
+    font-size: 14px;
+    color: #636e72;
+    margin-top: 5px;
+    margin-bottom: 0;
+  }
 
-<form method="post">
-  {% csrf_token %} {{ form.as_p }}
-  <button type="submit">Save Profile</button>
-</form>
+  /* 🌟 폼 입력 영역 스타일 양식 (기존 info-grid 시스템 기반 계승) */
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 25px;
+    background: #f8f9fa;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    margin-bottom: 25px;
+  }
+  .form-item {
+    display: flex;
+    flex-direction: column;
+  }
+  .form-item label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  
+  /* 🌟 입력창 트렌디 스타일링 */
+  .form-item input, 
+  .form-item textarea, 
+  .form-item select {
+    width: 100%;
+    padding: 12px 16px;
+    font-family: "Pretendard", sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 10px;
+    box-sizing: border-box;
+    transition: 0.2s;
+  }
+  .form-item input:focus, 
+  .form-item textarea:focus, 
+  .form-item select:focus {
+    outline: none;
+    border-color: #2d3436;
+    background: #ffffff;
+  }
+
+  /* 🌟 하단 액션 버튼 영역 표준화 */
+  .action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+  }
+  .btn-submit {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #2d3436;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: "Pretendard", sans-serif;
+    transition: 0.2s;
+  }
+  .btn-submit:hover {
+    background: #4a4a4a;
+  }
+  .btn-cancel {
+    display: inline-block;
+    padding: 12px 24px;
+    background: #ffffff;
+    color: #2d3436;
+    border: 1.5px solid #2d3436;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: 0.2s;
+  }
+  .btn-cancel:hover {
+    background: #f8f9fa;
+  }
+</style>
+
+<div class="mypage-container">
+
+  <div class="header-box">
+    <div>
+      <h2 class="title">
+        {% if form.instance.pk %}Edit Guide Profile{% else %}Register Guide Profile{% endif %}
+      </h2>
+      <p class="sub-title">
+        {% if form.instance.pk %}Hi, {{ user.username }}! You can update your profile here.{% else %}Hi, {{ user.username }}! Please register your profile first.{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    
+    <div class="form-grid">
+      {% for field in form %}
+      <div class="form-item">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.errors %}
+          <span style="color: #d63031; font-size: 11px; margin-top: 4px; font-weight: 600;">{{ field.errors.0 }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="action-row">
+      <a href="javascript:history.back();" class="btn-cancel">취소</a>
+      <button type="submit" class="btn-submit">
+        {% if form.instance.pk %}Update Profile{% else %}Save Profile{% endif %}
+      </button>
+    </div>
+  </form>
+
+</div>
