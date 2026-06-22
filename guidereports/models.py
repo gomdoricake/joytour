@@ -166,4 +166,4 @@ class FuelExp(models.Model):
     memo = models.CharField(max_length=30, null=True, blank=True)
 
     def __str__(self): 
-        return str(self.guide_report.report_date) + str(self.guide_report.group_code)
+        return str(self.report_date) + str(self.guide_report.group_code)

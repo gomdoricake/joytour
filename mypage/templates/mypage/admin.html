@@ -1,39 +1,98 @@
 <style>
   .admin-container { 
-    max-width: 500px; margin: 60px auto; padding: 40px; 
-    font-family: "Pretendard", sans-serif; background: #ffffff; 
-    border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
-    display: flex; flex-direction: column; align-items: center; /* 대칭 핵심 */
+    max-width: 500px; 
+    margin: 60px auto; 
+    padding: 40px; 
+    font-family: "Pretendard", sans-serif; 
+    background: #ffffff; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
   }
-  .title { font-size: 24px; font-weight: 700; color: #2d3436; margin-bottom: 40px; width: 100%; }
   
-  .menu-wrapper { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; } /* 버튼 너비 제한 */
+  .title { 
+    font-size: 24px; 
+    font-weight: 800; 
+    color: #1e293b; 
+    text-align: center;
+    margin: 0 0 40px 0; 
+    width: 100%; 
+    letter-spacing: -0.5px;
+  }
   
+  .menu-wrapper { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 16px; 
+    width: 100%; 
+    max-width: 320px; 
+    align-items: center; 
+  } 
+  
+  /* 🌟 두 버튼의 크기를 완벽하게 일치시키는 스타일 */
   .menu-link { 
-    padding: 18px; background: #4e73df; color: #fff; 
-    border-radius: 12px; text-decoration: none; 
-    font-size: 16px; font-weight: 700; text-align: center;
-    transition: background 0.3s ease;
+    display: block;
+    width: 100%; /* 부모(max-width: 320px) 꽉 채우기 */
+    padding: 18px 0; /* 좌우 패딩 때문에 틀어지지 않게 상하만 패딩 부여 */
+    background: #4f46e5; 
+    color: #ffffff; 
+    border-radius: 12px; 
+    text-decoration: none; 
+    font-size: 15px; 
+    font-weight: 700; 
+    text-align: center;
+    text-transform: uppercase; /* 🌟 글자 크기 균형을 위해 대문자 통일 */
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
   }
-  .menu-link.secondary { background: #858796; } /* 대칭용 서브 버튼 색상 */
-  .menu-link:hover { opacity: 0.9; }
+  
+  .menu-link:hover { 
+    background: #4338ca;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+  }
+
+  .logout-link { 
+    display: inline-block;
+    margin-top: 30px; 
+    padding: 5px 10px;
+    color: #94a3b8; 
+    text-decoration: none; 
+    font-size: 13px; 
+    font-weight: 600; 
+    letter-spacing: 0.5px;
+    transition: color 0.2s ease;
+  } 
+  
+  .logout-link:hover {
+    color: #ef4444; 
+    text-decoration: underline;
+  }
 </style>
 
 <div class="admin-container">
   <h2 class="title">Admin Dashboard</h2>
 
   <div class="menu-wrapper">
-    <a href="{% url 'guides:index' %}" class="menu-link">
-      TOUR GUIDES
-    </a>
 
     <a href="{% url 'guidereports:index' %}" class="menu-link">
       Guide Reports
     </a>
 
-    
-    <a href="{% url 'logout' %}" class="menu-link secondary">
-      LOGOUT
+    <a href="{% url 'guides:index' %}" class="menu-link">
+      Tour Guides
     </a>
-  </div>
+
+    
+
+  <form action="{% url 'logout' %}" method="post" id="logout-form" style="display: none;">
+    {% csrf_token %}
+  </form>
+
+  <a href="#" class="logout-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+    LOGOUT
+  </a>  
 </div>
