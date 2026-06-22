@@ -16,22 +16,6 @@ class Guide(models.Model):
     bsb = models.CharField(max_length=20, null=True, blank=True)
     account_number = models.CharField(max_length=20, null=True, blank=True)
     
-    def save(self, *args, **kwargs):
-            today = timezone.now().date()
-            
-            if not self.init_training_date:
-                self.grade = 1
-            else:
-                passed_days = (today - self.init_training_date).days
-
-                if passed_days < 270: 
-                    self.grade = 1
-                else: 
-                    days_after_grade1 = passed_days - 270
-                    self.grade = 1 + (days_after_grade1 // 180)
-
-            super().save(*args, **kwargs)
-
     def __str__(self):
         return self.name
 

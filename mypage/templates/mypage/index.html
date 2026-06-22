@@ -1,4 +1,5 @@
 <style>
+  /* 🌟 표준 레이아웃 및 폰트 규격 적용 */
   .mypage-container {
     max-width: 600px;
     margin: 40px auto;
@@ -20,84 +21,142 @@
     color: #1a1a1a;
     margin: 0;
   }
+  
+  /* 🌟 상단 액션 버튼 영역 표준화 */
+  .action-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-bottom: 25px;
+  }
   .btn-report {
     display: inline-block;
-    padding: 10px 20px;
+    padding: 12px 20px;
     background: #2d3436;
     color: #fff;
-    border-radius: 8px;
+    border: none;
+    border-radius: 10px;
     font-size: 14px;
+    font-weight: 600;
     text-decoration: none;
-    transition: 0.3s;
+    transition: 0.2s;
   }
   .btn-report:hover {
-    background: #636e72;
+    background: #4a4a4a;
   }
+  .btn-review {
+    display: inline-block;
+    padding: 12px 20px;
+    background: #ffffff;
+    color: #2d3436;
+    border: 1.5px solid #2d3436;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: "Pretendard", sans-serif;
+    transition: 0.2s;
+  }
+  .btn-review:hover {
+    background: #f8f9fa;
+  }
+
+  /* 🌟 정보 그리드 영역 (리포트 폼 로우 스타일과 매치) */
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 16px;
     padding: 20px;
     background: #f8f9fa;
-    border-radius: 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
   }
   .info-item label {
     display: block;
     font-size: 12px;
     color: #888;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
+    font-weight: 600;
   }
   .info-item span {
+    font-size: 15px;
     font-weight: 600;
     color: #333;
   }
+  
+  /* 섹션 타이틀 */
   .section-title {
     font-size: 18px;
-    margin: 30px 0 15px;
+    font-weight: 700;
+    margin: 35px 0 15px;
     color: #2d3436;
   }
+
+  /* 🌟 리포트 목록 리스트 표준화 */
   .report-list {
     list-style: none;
     padding: 0;
+    margin: 0;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
   }
   .report-item {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
     transition: 0.2s;
+  }
+  .report-item:last-child {
+    border-bottom: none;
   }
   .report-item a {
     text-decoration: none;
-    color: #0984e3;
-    font-weight: 500;
+    color: #2d3436; /* 트렌디한 무채색 계열로 변경 */
+    font-weight: 600;
+    font-size: 14px;
+    display: block;
   }
   .report-item:hover {
-    background: #f1f7fe;
+    background: #f8f9fa;
   }
+  .report-item:hover a {
+    color: #0984e3; /* 호버 시에만 포인트 컬러 활성화 */
+  }
+
+  /* 하단 링크 */
   .logout-link {
-    font-size: 12px;
+    font-size: 13px;
     color: #b2bec3;
     text-decoration: underline;
+    font-weight: 500;
+  }
+  .logout-link:hover {
+    color: #636e72;
   }
 </style>
 
 <div class="mypage-container">
+  
   <div class="header-box">
     <h2 class="title">{{ guide.name }}님의 MyPage</h2>
     {% if user.username == 'admin' %}
-    <a href="{% url 'guides:index' %}" style="color: #636e72; font-size: 13px"
-      >가이드 목록</a
-    >
+    <a href="{% url 'guides:index' %}" style="color: #636e72; font-size: 13px; text-decoration: none; font-weight: 500;">가이드 목록</a>
     {% endif %}
   </div>
 
-  <a href="{% url 'guidereports:guidereport_main' %}" class="btn-report"
-    >+ 가이드 리포트 생성</a
-  >
+  <div class="action-row">
+    <a href="{% url 'guidereports:guidereport_main' %}" class="btn-report">+ 가이드 리포트 생성</a>
+    
+    <form action="{% url 'mypage:review_grade' %}" method="POST" style="margin: 0;">
+      {% csrf_token %}
+      <button type="submit" name="action_button" value="clicked" class="btn-review">Review Grade</button>
+    </form>
+  </div>
 
   <div class="info-grid">
     <div class="info-item">
-      <label>첫 트레이닝</label
-      ><span>{{ guide.init_training_date|date:"y-m-d" }}</span>
+      <label>첫 트레이닝</label><span>{{ guide.init_training_date|date:"y-m-d" }}</span>
     </div>
     <div class="info-item">
       <label>Grade</label><span>{{ guide.grade }}</span>
@@ -111,7 +170,9 @@
     <div class="info-item" style="grid-column: span 2">
       <label>주소</label><span>{{ guide.address }}</span>
     </div>
-    <div class="info-item"><label>ABN</label><span>{{ guide.abn }}</span></div>
+    <div class="info-item">
+      <label>ABN</label><span>{{ guide.abn }}</span>
+    </div>
   </div>
 
   <h3 class="section-title">계좌 정보</h3>
@@ -119,7 +180,9 @@
     <div class="info-item">
       <label>은행명</label><span>{{ guide.bank_account_name }}</span>
     </div>
-    <div class="info-item"><label>BSB</label><span>{{ guide.bsb }}</span></div>
+    <div class="info-item">
+      <label>BSB</label><span>{{ guide.bsb }}</span>
+    </div>
     <div class="info-item">
       <label>계좌번호</label><span>{{ guide.account_number }}</span>
     </div>
@@ -129,12 +192,10 @@
   <ul class="report-list">
     {% for report in guide_reports %}
     <li class="report-item">
-      <a href="{% url 'guidereports:detail' report.pk %}"
-        >▷ {{ report.invoice_number }} {{ report.group_code }}</a
-      >
+      <a href="{% url 'guidereports:detail' report.pk %}">▷ {{ report.invoice_number }} {{ report.group_code }}</a>
     </li>
     {% empty %}
-    <li class="report-item" style="color: #b2bec3; text-align: center">
+    <li class="report-item" style="color: #b2bec3; text-align: center; font-size: 14px; font-weight: 500;">
       등록된 리포트가 없습니다.
     </li>
     {% endfor %}
@@ -143,4 +204,5 @@
   <div style="text-align: right; margin-top: 30px">
     <a href="{% url 'logout' %}" class="logout-link">로그아웃</a>
   </div>
+  
 </div>
