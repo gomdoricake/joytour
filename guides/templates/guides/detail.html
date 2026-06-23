@@ -12,6 +12,90 @@
   
   /* 긴 필드는 2열 차지 */
   .full-width { grid-column: span 2; }
+
+  /* 🌟 여기서부터 리포트 영역 스타일링 추가 */
+  .report-section {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 2px dashed #e2e8f0; /* Account Number와 시각적 분리 */
+  }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #475569;
+    margin: 0 0 15px 0;
+  }
+
+  .report-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+  }
+
+  /* 클릭 가능한 카드 형태 버튼 */
+  .report-item { 
+    padding: 0; 
+    border-radius: 12px;
+    background: #f8fafc; 
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .report-item a { 
+    display: flex;
+    align-items: center;
+    padding: 16px 20px; 
+    text-decoration: none; 
+    color: #334155; 
+    font-weight: 600; 
+    font-size: 15px; 
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 그룹 코드 포인트 뱃지 효과 */
+  .code-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-right: 12px;
+    font-family: monospace; 
+  }
+
+  .report-name {
+    color: #1e293b;
+  }
+
+  /* 마우스 올렸을 때 호버 액션 */
+  .report-item:hover { 
+    background: #ffffff; 
+    border-color: #4f46e5; /* 세련된 인디고 블루 포인트 */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04);
+  }
+  
+  .report-item:hover .code-badge {
+    background: #e0e7ff;
+    color: #4f46e5;
+  }
+
+  .no-data { 
+    color: #94a3b8; 
+    font-size: 14px;
+    background: #f8fafc;
+    border: 1px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin: 0;
+  }
 </style>
 
 <div class="report-container">
@@ -31,6 +115,24 @@
     <div class="info-item full-width"><span class="label">Address</span><span class="value">{{ guide.address }}</span></div>
     <div class="info-item"><span class="label">Bank Account</span><span class="value">{{ guide.bank_account_number }}</span></div>
     <div class="info-item"><span class="label">BSB</span><span class="value">{{ guide.bsb }}</span></div>
-    <div class="info-item"><span class="label">Account Number</span><span class="value">{{ guide.account_number }}</span></div>
+    <div class="info-item full-width"><span class="label">Account Number</span><span class="value">{{ guide.account_number }}</span></div>
+  </div>
+
+  <div class="report-section">
+    <h3 class="section-title">Related Reports</h3>
+    
+    {% if guide.guidereports.all %}
+    <ul class="report-list">
+      {% for report in guide.guidereports.all %}
+      <li class="report-item">
+        <a href="{% url 'guidereports:detail' report.id %}">
+          <span class="code-badge">{{ report.invoice_number }}. {{ report.group_code }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="no-data">등록된 리포트가 없습니다.</p>
+    {% endif %}
   </div>
 </div>
