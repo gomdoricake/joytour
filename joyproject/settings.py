@@ -29,9 +29,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS","127.0.0.1").split(",")
+ALLOWED_HOSTS = ["3.106.149.167", "127.0.0.1", "joytourhub.com"]
 
-
+CSRF_TRUSTED_ORIGINS = ['https://joytourhub.com']
 # Application definition
 
 INSTALLED_APPS = [
