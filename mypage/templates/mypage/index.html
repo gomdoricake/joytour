@@ -230,13 +230,6 @@
   <a href="{% url 'guidereports:guidereport_main' %}" class="btn-action-base btn-create-report">
     리포트 새로 생성하기
   </a>
-  
-  <form action="{% url 'mypage:review_grade' %}" method="POST" style="margin: 0; flex: 1;">
-    {% csrf_token %}
-    <button type="submit" name="action_button" value="clicked" class="btn-action-base btn-review-grade" style="width: 100%;">
-      Review Grade
-    </button>
-  </form>
 </div>
 
   <div class="info-grid">

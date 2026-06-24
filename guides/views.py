@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.views import generic
 
 from .models import Guide
+from mypage.views  import review_grade
 
 class IndexView(generic.ListView):
     template_name = "guides/index.html"
@@ -17,5 +18,18 @@ class IndexView(generic.ListView):
 class DetailView(generic.DetailView):
     model = Guide
     template_name = "guides/detail.html"
+
+    def get_context_data(self, **kwargs): 
+        context = super().get_context_data(**kwargs)
+        guide = context['guide']
+        grade = review_grade(guide.pk)
+        guide.grade = grade
+        guide.save()
+
+        context['guide'] = guide
+
+        return context
+        
+
 
 

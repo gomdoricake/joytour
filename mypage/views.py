@@ -10,7 +10,7 @@ from dateutil.relativedelta import relativedelta
 
 @login_required
 def login_redirect_view(request): 
-    if request.user.username == 'admin': 
+    if request.user.username == 'admin':
         return redirect('mypage:admin')
     else: 
         return redirect('mypage:index')
@@ -19,14 +19,39 @@ def login_redirect_view(request):
 def admin(request): 
     return render(request, 'mypage/admin.html')
 
+def review_grade(guide_id):
+    print("review_grade") 
+    guide = Guide.objects.get(id=guide_id)
+    current_grade = guide.grade
+    init_training_date = guide.init_training_date
+        
+    months, today = 0, datetime.date.today()
+
+    while True: 
+        if init_training_date + relativedelta(months=months) > today: 
+            break
+        months += 1
+    print('months: ' + str(months)) 
+
+    if months <= 9: 
+        guide.grade = 1
+    else: 
+        months -= 10
+        guide.grade = int(months / 12) + 2
+        print("int(months / 12) + 2", int(months / 12) + 2)
+
+    guide.save()
+    return guide.grade
+
 @login_required
 def index(request): 
+    print("mypage")
     if request.user.username == 'admin': 
         return redirect('mypage:admin')
     try: 
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')
-        
+        review_grade(request.user.guide_profile.id)
         context = {"guide": current_guide, "user": request.user, "guide_reports": guide_reports}
         return render(request, "mypage/index.html", context)
     except AttributeError: 
@@ -55,35 +80,7 @@ def update_mypage(request, pk):
     else: 
         form = GuideProfileForm(instance=guide)
     
-    return render(request, 'mypage/create_profile.html', {'form': form})
-
-
-@login_required
-def review_grade(request): 
-    if request.method == "POST": 
-        guide = Guide.objects.get(user=request.user)
-        current_grade = guide.grade
-        init_training_date = guide.init_training_date
-        
-        months, today = 0, datetime.date.today()
-
-        while True: 
-            if init_training_date + relativedelta(months=months) > today: 
-                break
-            months += 1
-        print('months: ' + str(months)) 
-
-        if months <= 9: 
-            guide.grade = 1
-        else: 
-            months -= 10
-            guide.grade = int(months / 12) + 2
-            print("int(months / 12) + 2", int(months / 12) + 2)
-
-        guide.save()
-
-    return redirect('mypage:index')
-        
+    return render(request, 'mypage/create_profile.html', {'form': form})        
 
 @login_required
 def create_report(request): 
