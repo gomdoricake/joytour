@@ -50,6 +50,9 @@ def guidereport_day(request):
                 defaults={'eventcode': eventcode, 'report_date': report_date}
             )
 
+            main_data['guidereport_id'] = guide_report.id
+            request.session['main_data'] = main_data
+
             request.session['day_data'] = {
                 'event_id': event.id,
                 'role': main_data['role'],
@@ -113,8 +116,6 @@ def guidereport_day_guide_exp(request):
                 exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
                 memo = request.POST.get(f'{prefix}-{i}-memo')
                 is_delete = request.POST.get(f'form-{i}-DELETE') 
-
-                print(f"DEBUG: 저장 시도 - Row {i}, Type: {exp_type}, Val: {exp_val_raw}")
 
                 if exp_type and exp_val_raw and not is_delete:
                     try:

@@ -88,9 +88,7 @@ def update_guidereport(request, pk):
         'role': guidereport.role,
     }
     
-    if guidereport.day_inbound == 'DAY': 
-        return redirect('guidereports:guidereport_day')
-    elif guidereport.day_inbound == 'INBOUND': 
+    if guidereport.day_inbound == 'INBOUND': 
         request.session['inbound_data'] = {
             'guidereport_id': guidereport.id,
             'role': guidereport.role,
@@ -100,18 +98,20 @@ def update_guidereport(request, pk):
             'tc': guidereport.tc, 
             'chd': guidereport.chd
         }
-        return redirect('guidereports:guidereport_inbound_agency')
+    return redirect('guidereports:guidereport_main')
+
 
 @login_required
 def guidereport_main(request): 
     if request.method == 'POST': 
         form = GuideReportMainForm(request.POST)
         if form.is_valid(): 
-            
-            request.session['main_data'] = {
-                'day_inbound': form.cleaned_data['day_inbound'], 
-                'role': form.cleaned_data['role'],
-            }
+            existing_data = request.session.get('main_data', {})
+
+            existing_data['day_inbound'] = form.cleaned_data['day_inbound']
+            existing_data['role'] = form.cleaned_data['role']
+
+            request.session['main_data'] = existing_data
 
             if form.cleaned_data['day_inbound'] == 'DAY': 
                 return redirect('guidereports:guidereport_day')
@@ -119,7 +119,12 @@ def guidereport_main(request):
                 return redirect('guidereports:guidereport_inbound_agency')            
 
     else: 
-        form = GuideReportMainForm()
+        saved_main_data = request.session.get('main_data')
+
+        if saved_main_data:
+            form = GuideReportMainForm(initial=saved_main_data)
+        else:
+            form = GuideReportMainForm()
     
     return render(request, 'guidereports/guidereport_main.html', {'form': form})
 
