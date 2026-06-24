@@ -109,9 +109,36 @@
   .btn-submit:hover {
     background: #4a4a4a;
   }
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #334155;
+  }
 </style>
 
 <div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'mypage:index' %}" class="back-link">← 마이페이지로 돌아가기 </a>
+  </div>
+
+
   <h2 class="title">가이드 리포트 생성</h2>
 
   {% if user.username == 'admin' %}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JOY TOUR HUB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800;900&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* 기본 상태 초기화 및 힙한 다크 무드 세팅 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1a1c29 0%, #0e1017 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        /* 배경에 은은하게 깔리는 사이버네틱 무드 그리드 효과 */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: rotateX(60deg) translateY(-30%);
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        /* 메인 허브 컨테이너 카드로 입체감 부여 */
+        .hub-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 3.5rem 5rem;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+            transform-style: preserve-3d;
+            transition: transform 0.5s ease;
+        }
+
+        .hub-container:hover {
+            transform: translateY(-5px) rotateX(2deg);
+        }
+
+        /* 상단 서브 타이틀 */
+        .sub-tag {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        /* 미친 존재감의 타이틀 사이버 그라데이션 */
+        .main-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            font-size: 4rem;
+            letter-spacing: -1px;
+            line-height: 1.1;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(45deg, #ffffff 10%, #a5b4fc 50%, #6366f1 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: textShine 4s ease infinite;
+        }
+
+        /* 움직이는 라이브 그라데이션 애니메이션 */
+        @keyframes textShine {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* START 버튼의 압도적인 변신 */
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 1.25rem;
+            letter-spacing: 2px;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 18px 50px;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            border-radius: 50px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+        }
+
+        /* 버튼 뒤에 숨겨진 네온 글로우 백그라운드 */
+        .cta-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+            transition: 0.5s;
+        }
+
+        /* 마우스 갖다 대면 터지는 네온 라이팅 효과 */
+        .cta-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.6), 
+                        0 0 20px rgba(0, 255, 204, 0.2);
+            background: linear-gradient(90deg, #5b52f9, #8b4eff);
+        }
+
+        .cta-btn:hover::before {
+            left: 100%;
+        }
+
+        /* 화살표 아이콘 애니메이션 */
+        .cta-btn i {
+            font-size: 1.1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-btn:hover i {
+            transform: translateX(6px) scale(1.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hub-container">
+        <div class="sub-tag">Next Gen Travel Platform</div>
+        
+        <h1 class="main-title">JOY TOUR<br>HUB</h1>
+        
+        <a href="{% url 'login' %}" class="cta-btn">
+            START 
+            <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+
+</body>
+</html>

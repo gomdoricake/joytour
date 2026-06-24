@@ -89,9 +89,35 @@
     margin-bottom: 20px;
     font-size: 14px;
   }
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #334155;
+  }
 </style>
 
 <div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 전으로 돌아가기</a>
+  </div>
+
   {% if user.username != 'admin' %}
   <h2 class="title">
     Guide Report —
@@ -111,7 +137,9 @@
       {% endfor %} {% endfor %}
     </div>
     {% endif %} {{ form.as_p }}
+    <div>
+     <button type="submit" class="btn-submit">Next</button>
 
-    <button type="submit" class="btn-submit">Next</button>
+    </div>
   </form>
 </div>

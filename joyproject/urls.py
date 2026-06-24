@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from . import views
+
+app_name = 'joyproject'
 
 urlpatterns = [
+    path('', views.home, name='home'),
     path('accounts/', include('django.contrib.auth.urls')),
     path('mypage/', include('mypage.urls')),
     path('guidereports/', include('guidereports.urls')),
