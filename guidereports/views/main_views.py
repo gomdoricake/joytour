@@ -76,6 +76,16 @@ def guidereport_confirm(request, pk):
         guide_report.save()
 
     return redirect('guidereports:detail', pk=pk)
+
+@login_required
+def guidereport_pay(request, pk): 
+    if request.method == 'POST': 
+        guide_report = get_object_or_404(GuideReport, id=pk)
+        guide_report.is_paid = not guide_report.is_paid
+        guide_report.save()
+
+    return redirect('guidereports:detail', pk=pk)
+        
     
 
 @login_required

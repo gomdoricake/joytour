@@ -9,6 +9,7 @@ urlpatterns = [
     path('', main_views.index, name='index'),
     path('guidereport_main/', main_views.guidereport_main, name='guidereport_main'), 
     path('guidereport_confirm/<int:pk>/', main_views.guidereport_confirm, name='guidereport_confirm'),
+    path('guidereport_pay/<int:pk>/', main_views.guidereport_pay, name='guidereport_pay'),
     path('update_guidereport/<int:pk>/', main_views.update_guidereport, name='update_guidereport'), 
     path('detail/<int:pk>/', main_views.DetailView, name='detail'),
 

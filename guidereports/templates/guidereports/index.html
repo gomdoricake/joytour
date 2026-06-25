@@ -23,82 +23,106 @@
     margin: 0;
   }
   
-  /* 🌟 상단 어드민 링크 버튼 고도화 */
-  .admin-link { 
-    padding: 10px 22px; 
-    background: #4f46e5; /* 세련된 인디고 블루 */
-    color: white; 
-    border-radius: 10px; 
-    text-decoration: none; 
-    font-weight: 600; 
-    font-size: 14px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-  }
-  .admin-link:hover {
-    background: #4338ca;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
-  }
-  
   .guide-list { 
     list-style: none; 
     padding: 0; 
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px; /* 리스트 사이 간격 부여 */
+    gap: 12px; 
   }
 
-  /* 🌟 리스트 아이템을 '클릭 가능한 카드 버튼' 형태로 변경 */
+  /* 🌟 리스트 아이템 카드 레이아웃 고도화 */
   .guide-item { 
-    padding: 0; /* 내부 a 태그가 영역을 다 채우도록 0으로 설정 */
+    padding: 0; 
     border-radius: 12px;
-    background: #f8fafc; /* 밝고 투명한 그레이 background */
+    background: #f8fafc; 
     border: 1px solid #e2e8f0;
     transition: all 0.2s ease-in-out;
   }
   
-  /* 🌟 버튼 내부 링크 영역을 꽉 채워서 어디를 눌러도 클릭되게 처리 */
+  /* 🌟 flex 분배를 통해 정보를 왼쪽, 뱃지를 오른쪽 정렬 */
   .guide-item a { 
     display: flex;
     align-items: center;
-    padding: 18px 20px; 
+    justify-content: space-between; /* 👈 좌우 분할 */
+    padding: 16px 20px; 
     text-decoration: none; 
     color: #334155; 
-    font-weight: 600; 
-    font-size: 15px; 
     width: 100%;
     box-sizing: border-box;
   }
 
-  /* 🌟 그룹 코드 부분에 포인트 뱃지 효과 부여 */
+  .info-area {
+    display: flex;
+    align-items: center;
+  }
+
+  /* 가이드 이름 스펙 */
+  .guide-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1e293b;
+    transition: color 0.2s;
+  }
+
+  /* 그룹 코드 뱃지 스펙 */
   .code-badge {
     background: #e2e8f0;
     color: #475569;
-    padding: 4px 8px;
+    padding: 4px 10px;
+    margin-right: 14px;
     border-radius: 6px;
     font-size: 13px;
     font-weight: 700;
-    margin-right: 12px;
-    font-family: monospace; /* 코드 형태 느낌 강조 */
+    font-family: monospace; 
   }
 
-  .guide-name {
-    color: #1e293b;
-  }
-
-  /* 🌟 마우스 올렸을 때 호버 액션 극대화 */
+  /* 카드 호버 액션 */
   .guide-item:hover { 
     background: #ffffff; 
-    border-color: #4f46e5; /* 호버 시 어드민 버튼 컬러와 통일감 제공 */
+    border-color: #4f46e5; 
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.08);
   }
   
   .guide-item:hover .code-badge {
+    color: #4f46e5;
+  }
+
+  .guide-item:hover .guide-name {
     background: #e0e7ff;
     color: #4f46e5;
+  }
+
+  /* 🏷️ 우측 미니 상태 뱃지 공통 스타일 */
+  .status-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 20px; /* 동글동글한 알약 스타일 */
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  .status-mini-badge.mini-waiting {
+    background-color: #FFF1F2;
+    color: #E11D48;
+    border: 1px solid #FFF1F2;
+  }
+
+  .status-mini-badge.mini-confirmed {
+    background-color: #fef9c3;
+    color: #713f12;
+    border: 1px solid #fef9c3;
+  }
+
+  .status-mini-badge.mini-paid {
+    background-color: #dcfce7; 
+    color: #14532d;            
+    border: 1px solid #dcfce7;  
   }
 
   .no-data { 
@@ -107,8 +131,6 @@
     padding: 40px 20px; 
     font-size: 15px;
   }
-
-  .no-data { color: #999; text-align: center; padding: 20px; }
   .nav-block {
     display: flex;
     justify-content: space-between;
@@ -148,8 +170,20 @@
     {% for guidereport in guidereports %}
     <li class="guide-item">
       <a href="{% url 'guidereports:detail' guidereport.id %}">
-        <span class="code-badge">{{ guidereport.group_code }}</span>
-        <span class="guide-name">{{ guidereport.guide.name }}</span>
+        <div class="info-area">
+          <span class="code-badge">{{ guidereport.guide.name }}  </span>  
+          <span class="guide-name">{{ guidereport.group_code }}</span>
+        </div>
+
+        <div class="status-area">
+          {% if guidereport.is_paid %}
+            <span class="status-mini-badge mini-paid">PAID</span>
+          {% elif guidereport.is_confirmed %}
+            <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
+          {% else %}
+            <span class="status-mini-badge mini-waiting">WAITING</span>
+          {% endif %}
+        </div>
       </a>
     </li>
     {% endfor %}
