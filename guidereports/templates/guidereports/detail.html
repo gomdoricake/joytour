@@ -248,7 +248,7 @@
   .total-amount {
     font-size: 28px;
     font-weight: 800;
-    color: #ef4444;
+    color: #475569;
   }
   .super-amount {
     font-size: 24px;
@@ -417,7 +417,8 @@
     <ul class="data-list">
       {% for event in events %}
       <li class="data-item">
-        <span>{{ event.report_date|date:"d-M-Y" }} &nbsp;<span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span></span>
+        <span>{{ event.report_date|date:"d-M-Y" }} &nbsp;<span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span>
+          {% if guide_report.day_inbound == 'INBOUND' %} ({{ event.hours }}) {% endif %}</span>
         <span class="text-price-black">${{ event.guide_fee }}</span>
       </li>
       {% endfor %}
