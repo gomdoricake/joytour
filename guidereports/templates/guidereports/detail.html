@@ -385,7 +385,7 @@
     <ul class="data-list">
       {% for exp in guide_report.expenses.all %}
       <li class="data-item">
-        <span>{{ exp.expense_type }}</span>
+        <span>{{ exp.expense_type }} {% if exp.memo %}( {{ exp.memo}} ){% endif %}</span>
         <span class="text-price-black">${{ exp.expense }}</span>
       </li>
       {% endfor %}
@@ -415,12 +415,16 @@
   <div class="section-card">
     <h3 class="section-title" style="margin-top: 0;">Fuel</h3>
     <ul class="data-list">
-      {% for fuel in guide_report.fuels.all %}
-      <li class="data-item">
-        <span>{{ fuel.report_date|date:"d-M-Y" }} &nbsp;{% if fuel.memo %}<span style="color:#64748b;">({{ fuel.memo }})</span>{% endif %}</span>
-        <span class="text-price-black">${{ fuel.expense }}</span>
-      </li>
-      {% endfor %}
+      {% if guide_report.fuels %}
+        {% for fuel in guide_report.fuels.all %}
+        <li class="data-item">
+          <span>{{ fuel.report_date|date:"d-M-Y" }} &nbsp;{% if fuel.memo %}<span style="color:#64748b;">({{ fuel.memo }})</span>{% endif %}</span>
+          <span class="text-price-black">${{ fuel.expense }}</span>
+        </li>
+        {% endfor %}
+      {% else %}
+        No fuels
+      {% endif %}
     </ul>
 
     {% if guide_report.day_inbound == 'INBOUND' %}
@@ -429,8 +433,7 @@
       <ul class="data-list">
         {% for r in guide_report.restaurants.all %}
         <li class="data-item">
-          <span>{{ r.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ r.expense_type }}</span>
-          <span style="color: #64748b; font-size:13px;">{{ r.memo }}</span>
+          <span>{{ r.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ r.expense_type }} <span style="color:#64748b;">{% if r.memo %} ({{ r.memo }})</span> {% endif %}</span>
         </li>
         {% endfor %} 
       </ul>
@@ -441,7 +444,7 @@
       <ul class="data-list">
         {% for a in guide_report.attractions.all %}
         <li class="data-item">
-          <span>{{ a.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ a.expense_type }}</span>
+          <span>{{ a.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ a.expense_type }} <span style="color:#64748b;"> {% if a.memo %} ({{ a.memo }}) {% endif %} </span></span>
           <span style="color: #64748b; font-size:13px;">{{ a.memo }}</span>
         </li>
         {% endfor %} 
