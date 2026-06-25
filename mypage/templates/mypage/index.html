@@ -212,6 +212,28 @@
   .logout-link:hover {
     color: #64748b;
   }
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #334155;
+  }
 </style>
 
 <div class="mypage-container">
@@ -280,7 +302,7 @@
   </ul>
 
   <div style="text-align: right; margin-top: 30px">
-    <a href="{% url 'logout' %}" class="logout-link">로그아웃</a>
+    <a href="{% url 'home' %}" class="logout-link">로그아웃</a>
   </div>
   
 </div>
