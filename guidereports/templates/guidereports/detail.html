@@ -216,7 +216,7 @@
   .subtotal-value {
     font-size: 15px;
     font-weight: 700;
-    color: #4f46e5; /* 세련되게 통일 */
+    color: #4f46e5;
   }
 
   /* 🌟 토탈 전용 정산 섹션 */
@@ -248,7 +248,7 @@
   .total-amount {
     font-size: 28px;
     font-weight: 800;
-    color: #ef4444; /* 인보이스의 최종 목적 금액은 시인성 좋은 레드로 강조 가능 */
+    color: #475569;
   }
   .super-amount {
     font-size: 24px;
@@ -257,10 +257,11 @@
   }
 
   /* 🌟 상태 배지 / 하단 폼 디자인 */
-/* 🌟 상태 배지 / 하단 폼 디자인 */
   .status-form {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
     margin-top: 35px;
   }
   .status-badge {
@@ -279,44 +280,89 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  
-/* 🌟 대기 중 (인디고 테마와 고급스럽게 어우러지는 버터/크림 옐로우) */
+
+  /* 🔴 기본 Waiting (분홍/빨강 계열) */
   .status-waiting {
-    background-color: #fef9c3; /* 부드럽고 따뜻한 파스텔 노랑 */
-    color: #713f12;            /* 눈이 아프지 않은 깊은 브라운톤 글자색 */
-    border: 1px solid #fef08a;
+    background-color: #FFF1F2;
+    color: #E11D48;
+    border: 1px solid #FFF1F2;
   }
-  
-  .status-confirm-btn {
+
+  /* 🟡 기본 Confirmed (노란색 계열) */
+  .status-confirmed {
+    background-color: #fef9c3;
+    color: #713f12;
+    border: 1px solid #fef9c3;
+  }
+
+  /* 🟢 기본 Paid (연녹색 계열) */
+  .status-paid {
+    background-color: #dcfce7; 
+    color: #14532d;            
+    border: 1px solid #dcfce7;  
+  }
+
+  /* 공통 버튼 베이스 */
+  .status-confirm-btn, .status-pay-btn {
     border: none;
     cursor: pointer;
     font-family: inherit;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
   }
-  
-  .status-confirm-btn:hover {
-    transform: translateY(-1px);
+
+  .status-confirm-btn:hover, .status-pay-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
   }
 
-  /* 🌟 노란색 대기 버튼에 마우스 올렸을 때 효과 */
+  /* 🌟 CONFIRM REPORT 버튼: 기존 Confirmed(노랑) 컬러 매칭 */
+  .status-confirm-btn.status-waiting {
+    background-color: #fef9c3 !important;
+    color: #713f12 !important;
+    border: 1px solid #fef9c3 !important;
+  }
   .status-confirm-btn.status-waiting:hover {
-    background-color: #fef08a; /* 조금 더 선명한 노란색으로 변경 */
-    color: #a16207;            /* 글자색도 살짝 밝은 골드 브라운으로 */
-    box-shadow: 0 4px 14px rgba(234, 179, 8, 0.15);
+    background-color: #fef08a !important;
   }
 
-  /* 확인 완료 버튼에 마우스 올렸을 때 (되돌리기 취소 액션) */
+  /* 🌟 [수정] CONFIRMED (Undo) 버튼: Waiting(빨강/분홍) 컬러 매칭 */
+  .status-confirm-btn.status-confirmed {
+    background-color: #FFF1F2 !important;
+    color: #E11D48 !important;
+    border: 1px solid #FFF1F2 !important;
+  }
   .status-confirm-btn.status-confirmed:hover {
-    background-color: #fee2e2;
-    color: #ef4444;
-    border-color: #fca5a5;
-    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.1);
+    background-color: #ffe4e6 !important;
+  }
+
+  /* 🌟 PAY REPORT 버튼: PAID(연녹색) 컬러 매칭 */
+  .status-pay-btn.status-waiting {
+    background-color: #dcfce7 !important;
+    color: #14532d !important;
+    border: 1px solid #dcfce7 !important;
+  }
+  .status-pay-btn.status-waiting:hover {
+    background-color: #bbf7d0 !important;
+  }
+
+  /* 🌟 [수정] PAID (Undo) 버튼: Confirmed(노랑) 컬러 매칭 */
+  .status-pay-btn.status-paid {
+    background-color: #fef9c3 !important;
+    color: #713f12 !important;
+    border: 1px solid #fef9c3 !important;
+  }
+  .status-pay-btn.status-paid:hover {
+    background-color: #fef08a !important;
   }
 </style>
 
 <div class="report-container">
   <div class="nav-block">
+    {% if request.user.username == 'admin' %}
+    <a href="{% url 'guidereports:index' %}" class="back-link">← 목록으로 돌아가기</a>
+    {% else %}
     <a href="{% url 'mypage:index' %}" class="back-link">← 목록으로 돌아가기</a>
+    {% endif %}
     <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
   </div>
 
@@ -371,7 +417,8 @@
     <ul class="data-list">
       {% for event in events %}
       <li class="data-item">
-        <span>{{ event.report_date|date:"d-M-Y" }} &nbsp;<span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span></span>
+        <span>{{ event.report_date|date:"d-M-Y" }} &nbsp;<span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span>
+          {% if guide_report.day_inbound == 'INBOUND' %} ({{ event.hours }}) {% endif %}</span>
         <span class="text-price-black">${{ event.guide_fee }}</span>
       </li>
       {% endfor %}
@@ -385,7 +432,7 @@
     <ul class="data-list">
       {% for exp in guide_report.expenses.all %}
       <li class="data-item">
-        <span>{{ exp.expense_type }}</span>
+        <span>{{ exp.expense_type }} {% if exp.memo %}( {{ exp.memo}} ){% endif %}</span>
         <span class="text-price-black">${{ exp.expense }}</span>
       </li>
       {% endfor %}
@@ -415,12 +462,16 @@
   <div class="section-card">
     <h3 class="section-title" style="margin-top: 0;">Fuel</h3>
     <ul class="data-list">
-      {% for fuel in guide_report.fuels.all %}
-      <li class="data-item">
-        <span>{{ fuel.report_date|date:"d-M-Y" }} &nbsp;{% if fuel.memo %}<span style="color:#64748b;">({{ fuel.memo }})</span>{% endif %}</span>
-        <span class="text-price-black">${{ fuel.expense }}</span>
-      </li>
-      {% endfor %}
+      {% if guide_report.fuels.all %}
+        {% for fuel in guide_report.fuels.all %}
+        <li class="data-item">
+          <span>{{ fuel.report_date|date:"d-M-Y" }} &nbsp;{% if fuel.memo %}<span style="color:#64748b;">({{ fuel.memo }})</span>{% endif %}</span>
+          <span class="text-price-black">${{ fuel.expense }}</span>
+        </li>
+        {% endfor %}
+      {% else %}
+        <li class="data-item" style="color: #94a3b8;">No fuels</li>
+      {% endif %}
     </ul>
 
     {% if guide_report.day_inbound == 'INBOUND' %}
@@ -429,8 +480,7 @@
       <ul class="data-list">
         {% for r in guide_report.restaurants.all %}
         <li class="data-item">
-          <span>{{ r.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ r.expense_type }}</span>
-          <span style="color: #64748b; font-size:13px;">{{ r.memo }}</span>
+          <span>{{ r.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ r.expense_type }} <span style="color:#64748b;">{% if r.memo %} ({{ r.memo }})</span> {% endif %}</span>
         </li>
         {% endfor %} 
       </ul>
@@ -441,8 +491,7 @@
       <ul class="data-list">
         {% for a in guide_report.attractions.all %}
         <li class="data-item">
-          <span>{{ a.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ a.expense_type }}</span>
-          <span style="color: #64748b; font-size:13px;">{{ a.memo }}</span>
+          <span>{{ a.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ a.expense_type }} <span style="color:#64748b;"> {% if a.memo %} ({{ a.memo }}) {% endif %} </span></span>
         </li>
         {% endfor %} 
       </ul>
@@ -452,16 +501,54 @@
 
   <div class="status-form">
     {% if request.user.username == 'admin' %}
-      <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center;">
+
+      {% if not guide_report.is_confirmed %}
+        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 10px;">
+          {% csrf_token %}
+          <button type="submit" class="status-badge status-confirm-btn status-waiting">
+            CONFIRM REPORT
+          </button>
+         </form>
+        
+      {% elif not guide_report.is_paid %}
+        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 10px;">
+          {% csrf_token %}
+          <button type="submit" class="status-badge status-confirm-btn status-confirmed">
+            CONFIRMED (Undo)
+          </button>
+         </form>
+          <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
+          {% csrf_token %}
+          <button type="submit" class="status-badge status-pay-btn status-waiting">
+            PAY REPORT
+          </button>
+        </form>   
+
+      {% elif guide_report.is_paid and guide_report.is_confirmed %}
+      <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
         {% csrf_token %}
-        <button type="submit" class="status-badge status-confirm-btn {% if guide_report.is_confirmed %}status-confirmed{% else %}status-waiting{% endif %}">
-          {% if guide_report.is_confirmed %}CONFIRMED (Undo){% else %}CONFIRM REPORT{% endif %}
+        <button type="submit" class="status-badge status-pay-btn status-paid">
+          PAID (Undo)
         </button>
-      </form>
+      </form>   
+      {% endif %}
+
     {% else %}
-      <span class="status-badge {% if guide_report.is_confirmed %}status-confirmed{% else %}status-waiting{% endif %}">
-        {% if guide_report.is_confirmed %}CONFIRMED{% else %}WAITING FOR CONFIRMATION{% endif %}
-      </span>
+    <div style="width: 100%; text-align: center;">
+      {% if guide_report.is_paid %}
+        <span class="status-badge status-paid">
+          PAID
+        </span>
+      {% elif guide_report.is_confirmed %}
+        <span class="status-badge status-confirmed">
+          CONFIRMED
+        </span>
+      {% else %}
+        <span class="status-badge status-waiting">
+          WAITING FOR CONFIRMATION
+        </span>
+      {% endif %}
+    </div>    
     {% endif %}
   </div>
 

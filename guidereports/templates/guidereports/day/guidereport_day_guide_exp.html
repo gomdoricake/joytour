@@ -167,7 +167,8 @@
       <div class="expense-form-row expense-row">
         {{ form.id }}
         <label>항목</label> {{ form.expense_type }}
-        <label>금액</label> {{form.expense }} <label>메모</label> {{form.memo}}
+        <label>금액</label> {{ form.expense }} 
+        <label>메모</label> {{ form.memo }}
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
       </div>
       {% endfor %}
@@ -191,7 +192,7 @@
     {{ formset.empty_form.id }}
     <label>항목</label> {{ formset.empty_form.expense_type }}
     <label>금액</label> {{ formset.empty_form.expense }}
-    <label>메모</label>{{formset.empty_form.memo}}
+    <label>메모</label> {{formset.empty_form.memo}}
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>

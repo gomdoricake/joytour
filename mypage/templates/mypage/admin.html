@@ -88,11 +88,7 @@
 
     
 
-  <form action="{% url 'logout' %}" method="post" id="logout-form" style="display: none;">
-    {% csrf_token %}
-  </form>
-
-  <a href="#" class="logout-link" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-    LOGOUT
-  </a>  
+  <div style="text-align: right; margin-top: 30px">
+    <a href="{% url 'home' %}" class="logout-link">LOG OUT</a>
+  </div>
 </div>

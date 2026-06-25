@@ -54,68 +54,108 @@ def guidereport_day(request):
             request.session['main_data'] = main_data
 
             request.session['day_data'] = {
+                'guidereport_id': guide_report.id,
                 'event_id': event.id,
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
                 'today_str': today_str     
             }
-            return redirect('guidereports:guidereport_day_guide_exp')
+            return redirect('guidereports:guidereport_day_fuel_exp')
     else: 
         form = GuideReportDayForm(instance=instance, initial=initial_data)
     
     return render(request, 'guidereports/day/guidereport_day.html', {'form': form})
 
 
-GuideExpFormSet = inlineformset_factory(
+FuelFormSet = inlineformset_factory(
     GuideReport, 
-    GuideExp, 
-    fields=['id', 'expense_type', 'expense'], 
+    FuelExp, 
+    form=FuelExpForm,  
     extra=1,             
     can_delete=True  
 )
 
 @login_required
-def guidereport_day_guide_exp(request):
+def guidereport_day_fuel_exp(request): 
     day_data = request.session.get('day_data')
     if not day_data:
-        return redirect('guidereports:guidereport_main')
+        return redirect('guidereports:guidereport_day')
     
-    event = get_object_or_404(Event, id=day_data['event_id'])
+    report_id = day_data.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+
+    if request.method == "POST": 
+        formset = FuelFormSet(request.POST, instance=guide_report)
+
+        if formset.is_valid():
+            formset.save()
+            
+            request.session['day_fuel'] = day_data
+            return redirect('guidereports:guidereport_day_guide_exp') 
+        else:
+            print("폼셋 유효성 검사 실패:", formset.errors)
+
+    else:
+        formset = FuelFormSet(instance=guide_report)
+
+    return render(request, 'guidereports/day/guidereport_day_fuel_exp.html', {
+        'formset': formset, 
+        'guide_report': guide_report,
+    })
+
+
+GuideExpFormSet = inlineformset_factory(
+    GuideReport, 
+    GuideExp, 
+    fields=['id', 'expense_type', 'expense', 'memo'], 
+    extra=1,             
+    can_delete=True  
+)
+
+
+@login_required
+def guidereport_day_guide_exp(request):
+    day_fuel = request.session.get('day_fuel')
+    if not day_fuel:
+        return redirect('guidereports:guidereport_day')
+    
+    report_id = day_fuel.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+    event = get_object_or_404(Event, guidereport=guide_report)
 
     if request.method == 'POST':
-        if event.guidereport:
-            final_instance = event.guidereport
-        else:
-            final_instance = GuideReport(guide=request.user.guide_profile)
-            
-        final_instance.role = day_data['role']
-        final_instance.day_inbound = day_data.get('day_inbound')
+        final_instance = guide_report
+        final_instance.role = day_fuel.get('role')
+        final_instance.day_inbound = day_fuel.get('day_inbound')
 
         formset = GuideExpFormSet(request.POST, instance=final_instance)
         
         if formset.is_valid():
-            today_str = day_data.get('today_str')
+            today_str = day_fuel.get('today_str')
             if not today_str and event.report_date:
-                today_str = datetime.strptime(day_data['report_date'], '%Y-%m-%d').strftime('%d%m%y')
+                if isinstance(event.report_date, str):
+                    today_str = datetime.strptime(event.report_date, '%Y-%m-%d').strftime('%d%m%y')
+                else:
+                    today_str = event.report_date.strftime('%d%m%y')
 
             day_inbound_check = str(final_instance.day_inbound).upper().strip()
             if day_inbound_check == "DAY" and today_str and event.eventcode:
                 final_instance.group_code = 'J' + today_str + event.eventcode
             
+            final_instance.invoice_date = datetime.date.today()
             final_instance.save()
 
             GuideExp.objects.filter(guide_report=final_instance).delete()
 
             prefix = formset.prefix
             total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
-
             wash_added = False
 
             for i in range(total_forms_count):
                 exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
                 exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
                 memo = request.POST.get(f'{prefix}-{i}-memo')
-                is_delete = request.POST.get(f'form-{i}-DELETE') 
+                is_delete = request.POST.get(f'{prefix}-{i}-DELETE') # prefix 연동 수정
 
                 if exp_type and exp_val_raw and not is_delete:
                     try:
@@ -132,34 +172,29 @@ def guidereport_day_guide_exp(request):
                                 expense=exp_val,
                                 memo=memo
                             )
-
                     except ValueError:
                         pass 
 
             event.guidereport = final_instance
             event.save()
 
-            today = datetime.date.today()
-            final_instance.invoice_date = today
-            final_instance.save()
-
             if 'main_data' in request.session: del request.session['main_data']
             if 'day_data' in request.session: del request.session['day_data']
+            if 'day_fuel' in request.session: del request.session['day_fuel']
             
             return redirect('guidereports:detail', pk=final_instance.id) 
     else:
-        final_instance = event.guidereport if event.guidereport else GuideReport(
-            role=day_data['role'],
-            day_inbound=day_data.get('day_inbound'),
-            guide=request.user.guide_profile
-        )
+        final_instance = guide_report
         formset = GuideExpFormSet(instance=final_instance)
+
+    if event.report_date:
+        report_date_str = event.report_date if isinstance(event.report_date, str) else event.report_date.strftime("%Y-%m-%d")
+    else:
+        report_date_str = day_data.get('report_date')
 
     return render(request, 'guidereports/day/guidereport_day_guide_exp.html', {
         'formset': formset, 
         'final_instance': final_instance,
         'eventcode': event.eventcode,
-        'report_date': event.report_date.strftime("%Y-%m-%d") if event.report_date else day_data.get('report_date')
+        'report_date': report_date_str
     })
-
-
