@@ -117,18 +117,18 @@ def guidereport_main(request):
         form = GuideReportMainForm(request.POST)
         if form.is_valid(): 
             existing_data = request.session.get('main_data', {})
-
             existing_data['day_inbound'] = form.cleaned_data['day_inbound']
             existing_data['role'] = form.cleaned_data['role']
-
             request.session['main_data'] = existing_data
-
             if form.cleaned_data['day_inbound'] == 'DAY': 
                 return redirect('guidereports:guidereport_day')
             if form.cleaned_data['day_inbound'] == 'INBOUND': 
                 return redirect('guidereports:guidereport_inbound_agency')            
-
     else: 
+        if request.GET.get('new') == '1':
+            request.session.pop('main_data', None)
+            request.session.pop('inbound_data', None) # 혹시 inbound 데이터도 남아있다면 함께 삭제
+
         saved_main_data = request.session.get('main_data')
 
         if saved_main_data:
@@ -137,5 +137,3 @@ def guidereport_main(request):
             form = GuideReportMainForm()
     
     return render(request, 'guidereports/guidereport_main.html', {'form': form})
-
-
