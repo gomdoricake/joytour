@@ -148,10 +148,11 @@ def guidereport_inbound_events(request):
 
     else:
         formset = EventFormSet(instance=guide_report)
-
+    
     return render(request, 'guidereports/inbound/guidereport_inbound_events.html', {
         'formset': formset, 
         'guide_report': guide_report,
+        'INBOUND_EVENTCODE': INBOUND_EVENTCODE
     })
 
 
