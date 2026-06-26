@@ -81,18 +81,6 @@ class GuideReportInboundForm(forms.ModelForm):
             'report_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
-    def __init__(self, *args, **kwargs): 
-        super().__init__(*args, **kwargs)
-
-        self.field_order=['eventcode']
-
-        if self.instance:
-            role = self.instance.role
-            day_inbound = self.instance.day_inbound
-            print('role' + role + 'day_inbound' + day_inbound)
-
-            self.fields['eventcode'].choices = INBOUND_EVENTCODE
-
 class AgencyPaxForm(forms.ModelForm): 
     class Meta: 
         model = GuideReport
@@ -111,18 +99,28 @@ class AgencyPaxForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['agency_code'].widget = forms.TextInput(attrs = {
+            'list': 'agency_datalist', 
+            'placeholder': '선택하거나 직접 입력하세요', 
+            'class': 'form-control'
+        })
+
         for field_name in ['adt', 'tc', 'chd']:
             if self.instance and getattr(self.instance, field_name) == 0:
                 self.fields[field_name].initial = None
             
             self.fields[field_name].widget.attrs['placeholder'] = ''
 
-class InboundEventForm(forms.ModelForm): 
-    eventcode = forms.ChoiceField(
-        choices=INBOUND_EVENTCODE,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
 
+class InboundEventForm(forms.ModelForm):
+    eventcode = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'list': 'eventcode_datalist', 
+            'placeholder': '선택하거나 직접 입력하세요', 
+            'class': 'form-control'
+        })
+    ) 
     hours = forms.ChoiceField(
         choices=INBOUND_HOURS,
         widget=forms.Select(attrs={'class': 'form-control'})
@@ -141,7 +139,7 @@ class InboundEventForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['hours'].required = True
-        
+
         if self.data:
             prefix = self.prefix
             eventcode = self.data.get(f'{prefix}-eventcode')

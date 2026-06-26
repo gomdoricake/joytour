@@ -45,15 +45,22 @@
     background-color: #fff;
   }
 
-  /* 드롭다운 스타일 */
-  .report-form select {
+  /* 원래 CSS에 있던 드롭다운(화살표) 스타일을 datalist가 연결된 input[list]에도 적용 */
+  .report-form select,
+  .report-form input[list] {
     appearance: none;
+    -webkit-appearance: none;
     background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
     background-repeat: no-repeat;
     background-position: right 15px top 50%;
     background-size: 10px auto;
     padding-right: 40px;
     cursor: pointer;
+  }
+
+  /* 브라우저 기본 화살표와 디자인이 겹치지 않도록 투명화 */
+  .report-form input[list]::-webkit-calendar-picker-indicator {
+    opacity: 0 !important;
   }
 
   .report-form input:focus,
@@ -113,7 +120,6 @@
     background: #e2e8f0;
     color: #334155;
   }
-
 </style>
 
 <div class="report-container">
@@ -122,23 +128,51 @@
   </div>
 
   {% if user.username != 'admin' %}
-  <h2 class="title">Guide Report — Inbound — AGENCY CODE</h2>
+    <h2 class="title">Guide Report — Inbound — AGENCY CODE</h2>
   {% else %}
-  <h2 class="title">Edit Report Details</h2>
+    <h2 class="title">Edit Report Details</h2>
   {% endif %}
 
   <form method="post" class="report-form">
-    {% csrf_token %} {% if form.errors %}
-    <div class="error-box">
-      {% for field in form %} {% for error in field.errors %}
-      <p style="margin: 0">• {{ error }}</p>
-      {% endfor %} {% endfor %}
-    </div>
-    {% endif %} {{ form.as_p }}
+      {% csrf_token %}
 
-    <button type="submit" class="btn-submit">Next</button>
+      {% if form.errors %}
+        <div class="error-box">
+            <strong>입력 내용을 확인해 주세요.</strong>
+            {{ form.errors }}
+        </div>
+      {% endif %}
+      
+      <p>
+      <label for="{{ form.agency_code.id_for_label }}">Agency Code:</label>
+          {{ form.agency_code }}
+          
+          <datalist id="agency_datalist">
+              {% for key, value in AGENCY_CHOICES.items %}
+                  <option value="{{ key }}">{{ value }}</option>
+              {% endfor %}
+          </datalist>
+      </p>
+
+      <p>
+          <label for="{{ form.adt.id_for_label }}">ADT:</label>
+          {{ form.adt }}      
+      </p>
+
+      <p>
+          <label for="{{ form.chd.id_for_label }}">CHD:</label>
+          {{ form.chd }}      
+      </p>
+
+      <p>
+          <label for="{{ form.tc.id_for_label }}">TC:</label>
+          {{ form.tc }}
+      </p>
+
+      <button type="submit" class="btn-submit">Next</button>
   </form>
 </div>
+
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
