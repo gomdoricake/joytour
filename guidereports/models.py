@@ -15,7 +15,7 @@ class GuideReport(models.Model):
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)
     role = models.CharField(max_length=100, choices=ROLE)
     group_code = models.CharField(max_length=100, blank=True, null=True)
-    agency_code = models.CharField(max_length=10, choices=AGENCY_CHOICES, blank=True, null=True) 
+    agency_code = models.CharField(max_length=10, blank=True, null=True) 
     adt = models.PositiveIntegerField(default=0)
     tc = models.PositiveIntegerField(default=0)    
     chd = models.PositiveIntegerField(default=0)

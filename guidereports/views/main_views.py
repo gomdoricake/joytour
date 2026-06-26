@@ -127,7 +127,7 @@ def guidereport_main(request):
     else: 
         if request.GET.get('new') == '1':
             request.session.pop('main_data', None)
-            request.session.pop('inbound_data', None) # 혹시 inbound 데이터도 남아있다면 함께 삭제
+            request.session.pop('inbound_data', None) 
 
         saved_main_data = request.session.get('main_data')
 

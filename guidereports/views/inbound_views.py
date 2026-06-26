@@ -44,7 +44,7 @@ def guidereport_inbound_agency(request):
     else: 
         form = AgencyPaxForm(instance=instance)
     
-    return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form})
+    return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form, 'AGENCY_CHOICES': AGENCY_CHOICES})
 
 
 EventFormSet = inlineformset_factory(

@@ -111,6 +111,12 @@ class AgencyPaxForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['agency_code'].widget = forms.TextInput(attrs = {
+            'list': 'agency_datalist', 
+            'placeholder': '선택하거나 직접 입력하세요', 
+            'class': 'form-control'
+        })
+
         for field_name in ['adt', 'tc', 'chd']:
             if self.instance and getattr(self.instance, field_name) == 0:
                 self.fields[field_name].initial = None
