@@ -385,6 +385,7 @@ def guidereport_inbound_guide_exp(request):
                         memo=memo
                     )
         today = date.today()
+        print("today: " + str(today))
         guide_report.invoice_date = today
 
         guide_report.save()

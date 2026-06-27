@@ -217,42 +217,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // 🌟 Hours 필드를 동적으로 제어하는 함수
   function checkHoursControl(row) {
-    const eventCodeField = row.querySelector('[name$="-eventcode"]');
-    const hoursField = row.querySelector('[name$="-hours"]');
-    
-    if (!eventCodeField || !hoursField) return;
+  const eventCodeField = row.querySelector('[name$="-eventcode"]');
+  const hoursField = row.querySelector('[name$="-hours"]');
+  
+  if (!eventCodeField || !hoursField) return;
 
-    // 대소문자 및 공백 방어태세 (비교를 위해 대문자로 통일)
-    const codeValue = eventCodeField.value.toUpperCase().trim();
+  const codeValue = eventCodeField.value.toUpperCase().trim();
 
-    // 1️⃣ 이벤트 코드가 'AM/AS'인 경우 -> hours 필드도 자동으로 'AM/AS' 강제 매핑 및 잠금
+  // 1️⃣ hours가 <select>인 경우
+  if (hoursField.tagName === 'SELECT') {
     if (codeValue === 'AM/AS') {
-      // DB/상수 규격에 맞게 'AM/AS' 그대로 집어넣습니다.
-      hoursField.value = "AM/AS"; 
-      hoursField.disabled = false; // 백엔드로 정상 전송되도록 활성화 유지
-      
-      // 'AM/AS' 외의 다른 시간 선택지들은 전부 고르지 못하게 차단
+      hoursField.value = "AM/AS";
       Array.from(hoursField.options).forEach(opt => {
         opt.disabled = (opt.value.toUpperCase().trim() !== 'AM/AS');
       });
-
-    // 2️⃣ 이벤트 코드가 'AM/AS'가 아닌 다른 일반 코드인 경우
     } else {
-      // 사용자가 hours 필드 드롭다운을 눌렀을 때 'AM/AS' 선택지는 선택 불가능(disabled) 처리
       Array.from(hoursField.options).forEach(opt => {
-        if (opt.value.toUpperCase().trim() === 'AM/AS') {
-          opt.disabled = true; 
-        } else {
-          opt.disabled = false; // 나머지 일반 시간대('6HRS', '10HRS' 등)는 정상 활성화
-        }
+        opt.disabled = (opt.value.toUpperCase().trim() === 'AM/AS');
       });
-
-      // 만약 이벤트 코드를 다른 걸로 바꿨는데 hours가 여전히 'AM/AS'에 머물러 있다면 기본값(------)으로 초기화
-      if (hoursField.value.toUpperCase().trim() === 'AM/AS') {
-        hoursField.value = ""; 
-      }
+      if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+    }
+  } 
+  // 2️⃣ hours가 <input>인 경우 (텍스트 박스)
+  else {
+    if (codeValue === 'AM/AS') {
+      hoursField.value = "AM/AS";
+      hoursField.readOnly = true; // 수정 불가
+    } else {
+      hoursField.readOnly = false;
+      if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
     }
   }
+}
 
   // 폼 변경 이벤트 리스너 (이벤트 위임)
   formContainer.addEventListener("change", function (e) {

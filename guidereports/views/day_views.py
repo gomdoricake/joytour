@@ -20,6 +20,17 @@ def guidereport_day(request):
     
     initial_data = {}
 
+    role = main_data['role']
+    if role == '12 SEAT':
+        DAY_EVENTCODE = DAY_EVENTCODE_12SEAT
+    if role == '21 SEAT': 
+        DAY_EVENTCODE = DAY_EVENTCODE_21SEAT
+    if role == '53 SEAT': 
+        DAY_EVENTCODE = DAY_EVENTCODE_53SEAT
+    elif role == 'GUIDE ONLY': 
+        DAY_EVENTCODE = DAY_EVENTCODE_GUIDE_ONLY
+
+
     if report_id:
         instance = get_object_or_404(GuideReport, id=report_id)
         event_instance = Event.objects.filter(guidereport=instance).first()
@@ -64,7 +75,7 @@ def guidereport_day(request):
     else: 
         form = GuideReportDayForm(instance=instance, initial=initial_data)
     
-    return render(request, 'guidereports/day/guidereport_day.html', {'form': form})
+    return render(request, 'guidereports/day/guidereport_day.html', {'form': form, 'DAY_EVENTCODE': DAY_EVENTCODE})
 
 
 FuelFormSet = inlineformset_factory(

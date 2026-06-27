@@ -1,0 +1,133 @@
+DAY_INBOUND = {
+    'DAY': 'DAY', 
+    'INBOUND': 'INBOUND'
+}
+
+AGENCY_CHOICES = {
+    'PA': 'PA',
+    'RH': 'RH',
+    'NLK': 'NLK',
+    'HN': 'HN',
+    'HJ': 'HJ', 
+    'SSK': 'SSK',
+    'HT': 'HT', 
+    'TA': 'TA',
+    'LOC': 'LOC',
+}
+
+ROLE = {
+    '12 SEAT': '12 SEAT',
+    '21 SEAT': '21 SEAT', 
+    '53 SEAT': '53 SEAT', 
+    'GUIDE ONLY': 'GUIDE ONLY'
+}
+
+DAY_EVENTCODE_12SEAT = {
+    'GOR': 'GOR', 
+    'ZGOR': 'ZGOR', 
+    'PP': 'PP', 
+    'PP(PEAK)': 'PP(PEAK)', 
+    'PB': 'PB', 
+    'PI': 'PI', 
+    'PPT': 'PPT', 
+    'MON': 'MON', 
+    'WN': 'WN',
+    'AP/AD': 'AP/AD',
+    'OTHERS': 'OTHERS'
+}
+
+DAY_EVENTCODE_21SEAT = {
+    'GOR': 'GOR', 
+    'PP': 'PP', 
+    'PP(PEAK)': 'PP(PEAK)',
+    'PB': 'PB', 
+    'PI': 'PI', 
+    'MON': 'MON', 
+    'WN': 'WN',
+    'AP/AD': 'AP/AD',
+    'OTHERS': 'OTHERS'
+}
+
+DAY_EVENTCODE_53SEAT = {
+    'GOR': 'GOR', 
+    'PP': 'PP', 
+    'PP(PEAK)': 'PP(PEAK)', 
+    'PB': 'PB', 
+    'PI': 'PI', 
+    'WN': 'WN',
+    'AP/AD': 'AP/AD'
+    'OTHERS'
+}
+
+DAY_EVENTCODE_GUIDE_ONLY = {
+    'CT': 'CT'
+}
+
+INBOUND_EVENTCODE = {
+    ('GOR', 'GOR'), 
+    ('PP', 'PP'), 
+    ('PP(PEAK)', 'PP(PEAK)'), 
+    ('PB', 'PB'), 
+    ('PI', 'PI'), 
+    ('MON', 'MON'), 
+    ('WN', 'WN'),
+    ('YV', 'YV'),
+    ('AM/AS', 'AM/AS'),
+    ('OTHERS', 'OTHERS'),
+}
+
+INBOUND_HOURS = {
+    'AM/AS': 'AM/AS',
+    '6HRS': '6HRS', 
+    '10HRS': '10HRS', 
+    '12HRS': '12HRS',
+}
+
+DAY_RATE_12SEAT = {
+    'GOR': [300, 309, 318, 327, 336], 
+    'ZGOR': [313, 322, 331, 341, 350], 
+    'PP': [300, 309, 318, 327, 336], 
+    'PP(PEAK)': [338, 348, 358, 368, 378], 
+    'PB': [138, 142, 146, 150, 154], 
+    'PI': [225, 231, 238, 245, 252], 
+    'PPT': [90, 90, 90, 90, 90], 
+    'MON': [213, 219, 225, 232, 238], 
+    'AP/AD': [50, 50, 50, 50, 50]
+}
+
+DAY_RATE_21SEAT = {
+    'GOR': [324, 333, 343, 353, 362], 
+    'PP': [324, 333, 343, 353, 362], 
+    'PP(PEAK)': [365, 375, 386, 397, 408], 
+    'PB': [149, 153, 157, 162, 166], 
+    'PI': [243, 250, 257, 264, 272], 
+    'MON': [230, 236, 243, 250, 257], 
+    'AP/AD': [55, 55, 55, 55, 55]
+}
+
+DAY_RATE_53SEAT = {
+    'GOR': [403, 415, 427, 439, 451], 
+    'PP': [372, 383, 394, 405, 416], 
+    'PP(PEAK)': [419, 431, 444, 456, 469], 
+    'PB': [171, 176, 181, 186, 191], 
+    'PI': [279, 287, 295, 304, 312], 
+    'AP/AD': [55, 55, 55, 55, 55]
+}
+
+DAY_RATE_GUIDE_ONLY = {
+    'CT': [63, 64, 66, 68, 70]
+}
+
+INBOUND_RATE_12SEAT = {
+    'AM/AS': [80, 80, 80, 80, 80], 
+    '6HRS': [160, 164, 169, 174, 179], 
+    '10HRS': [260, 267, 275, 283, 291], 
+    '12HRS': [310, 319, 328, 337, 347]
+}
+
+INBOUND_RATE_GUIDE_ONLY = {
+    'AM/AS': [80, 80, 80, 80, 80], 
+    '6HRS': [140, 144, 148, 152, 156], 
+    '10HRS': [250, 257, 265, 272, 280], 
+    '12HRS': [290, 298, 307, 316, 324]
+}

@@ -25,8 +25,14 @@ class GuideReportMainForm(forms.ModelForm):
         return cleaned_data
 
 class GuideReportDayForm(forms.ModelForm): 
-
-    eventcode = forms.ChoiceField(choices=[], label='Event Code', required=True)
+    eventcode = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'list': 'eventcode_datalist', 
+            'placeholder': '선택하거나 직접 입력하세요', 
+            'class': 'form-control'
+        })
+    ) 
     class Meta: 
         model = Event
         fields = ['report_date']
@@ -48,16 +54,7 @@ class GuideReportDayForm(forms.ModelForm):
         if self.instance:
             role = self.instance.role
             day_inbound = self.instance.day_inbound
-            print('role' + role + 'day_inbound' + day_inbound)
 
-            if role == '12 SEAT':
-                self.fields['eventcode'].choices = DAY_EVENTCODE_12SEAT
-            if role == '21 SEAT': 
-                self.fields['eventcode'].choices = DAY_EVENTCODE_21SEAT
-            if role == '53 SEAT': 
-                self.fields['eventcode'].choices = DAY_EVENTCODE_53SEAT
-            elif role == 'GUIDE ONLY': 
-                self.fields['eventcode'].choices = DAY_EVENTCODE_GUIDE_ONLY
 
 class GuideExpForm(forms.ModelForm): 
     class Meta:
@@ -69,8 +66,6 @@ class GuideExpForm(forms.ModelForm):
 
 
 class GuideReportInboundForm(forms.ModelForm): 
-
-    event = forms.ChoiceField(choices=[], label='Event', required=True)
     class Meta: 
         model = Event
         fields = ['report_date']
