@@ -51,7 +51,7 @@ EventFormSet = inlineformset_factory(
     GuideReport, 
     Event, 
     form=InboundEventForm, 
-    extra=1,             
+    extra=3,             
     can_delete=True  
 )
 

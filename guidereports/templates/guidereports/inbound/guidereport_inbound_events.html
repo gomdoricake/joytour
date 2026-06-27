@@ -215,92 +215,117 @@ document.addEventListener("DOMContentLoaded", function () {
   const addButton = document.getElementById("add-form-btn");
   const prefix = "{{ formset.prefix }}";
 
-  // 🌟 Hours 필드를 동적으로 제어하는 함수
+  // 1. 날짜 계산 함수
+  function getNextDate(baseDateStr) {
+    if (!baseDateStr) return "";
+    let baseDate = new Date(baseDateStr);
+    baseDate.setDate(baseDate.getDate() + 1);
+    return baseDate.toISOString().split('T')[0];
+  }
+
+  // 2. Hours 제어 함수 (중요!)
   function checkHoursControl(row) {
-  const eventCodeField = row.querySelector('[name$="-eventcode"]');
-  const hoursField = row.querySelector('[name$="-hours"]');
-  
-  if (!eventCodeField || !hoursField) return;
+    const eventCodeField = row.querySelector('[name$="-eventcode"]');
+    const hoursField = row.querySelector('[name$="-hours"]');
+    if (!eventCodeField || !hoursField) return;
 
-  const codeValue = eventCodeField.value.toUpperCase().trim();
+    const codeValue = eventCodeField.value.toUpperCase().trim();
 
-  // 1️⃣ hours가 <select>인 경우
-  if (hoursField.tagName === 'SELECT') {
+    // AM/AS 강제 매핑 및 수정 잠금
     if (codeValue === 'AM/AS') {
       hoursField.value = "AM/AS";
-      Array.from(hoursField.options).forEach(opt => {
-        opt.disabled = (opt.value.toUpperCase().trim() !== 'AM/AS');
-      });
+      hoursField.readOnly = true; // 텍스트 입력일 경우
+      if (hoursField.tagName === 'SELECT') {
+        hoursField.disabled = false;
+        Array.from(hoursField.options).forEach(opt => {
+          opt.disabled = (opt.value.toUpperCase().trim() !== 'AM/AS');
+        });
+      }
     } else {
-      Array.from(hoursField.options).forEach(opt => {
-        opt.disabled = (opt.value.toUpperCase().trim() === 'AM/AS');
-      });
-      if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
-    }
-  } 
-  // 2️⃣ hours가 <input>인 경우 (텍스트 박스)
-  else {
-    if (codeValue === 'AM/AS') {
-      hoursField.value = "AM/AS";
-      hoursField.readOnly = true; // 수정 불가
-    } else {
+      // 일반 코드로 변경 시 잠금 해제 및 초기화
       hoursField.readOnly = false;
-      if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+      if (hoursField.tagName === 'SELECT') {
+        Array.from(hoursField.options).forEach(opt => {
+          opt.disabled = (opt.value.toUpperCase().trim() === 'AM/AS');
+        });
+        if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+      } else {
+        if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+      }
     }
   }
-}
 
-  // 폼 변경 이벤트 리스너 (이벤트 위임)
-  formContainer.addEventListener("change", function (e) {
-    if (e.target.matches('[name$="-eventcode"]')) {
-      checkHoursControl(e.target.closest(".event-form-row"));
-    }
-  });
-
-  // 동적 추가 로직
-  addButton.addEventListener("click", function () {
+  // 3. 폼 추가 함수
+  function addNewFormRow() {
     const template = document.getElementById("empty-form-template").firstElementChild;
     const newRow = template.cloneNode(true);
-    const currentCount = formContainer.querySelectorAll(".event-form-row").length;
+    const rows = formContainer.querySelectorAll(".event-form-row");
+    const currentCount = rows.length;
     
     newRow.querySelectorAll("input, select, textarea").forEach((el) => {
       if (el.name) el.name = el.name.replace(/__prefix__/g, currentCount);
       if (el.id) el.id = el.id.replace(/__prefix__/g, currentCount);
     });
     
+    if (currentCount > 0) {
+      const lastDate = rows[currentCount - 1].querySelector('[name$="-report_date"]').value;
+      const nextDateInput = newRow.querySelector('[name$="-report_date"]');
+      if (lastDate && nextDateInput) nextDateInput.value = getNextDate(lastDate);
+    }
+    
     newRow.querySelector(".event-title").innerText = `이벤트 #${currentCount + 1}`;
     formContainer.appendChild(newRow);
     document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = currentCount + 1;
     
-    // 새 폼이 추가될 때도 초기 상태 체크 트리거
+    // 추가 후에도 로직 적용
     checkHoursControl(newRow);
+  }
+
+  // 4. 통합 이벤트 리스너
+  formContainer.addEventListener("input", function (e) {
+    const target = e.target;
+    const row = target.closest(".event-form-row");
+
+    // 날짜 연쇄 업데이트
+    if (target.matches('[name$="-report_date"]')) {
+      const rows = Array.from(formContainer.querySelectorAll(".event-form-row"));
+      const rowIndex = rows.indexOf(row);
+      let lastDate = target.value;
+      for (let i = rowIndex + 1; i < rows.length; i++) {
+        const nextDateField = rows[i].querySelector('[name$="-report_date"]');
+        if (nextDateField && lastDate) {
+          lastDate = getNextDate(lastDate);
+          nextDateField.value = lastDate;
+        }
+      }
+    }
+
+    // 이벤트 코드 변경 시 Hours 제어 호출
+    if (target.matches('[name$="-eventcode"]')) {
+      checkHoursControl(row);
+    }
   });
 
-  // 초기 로딩 시 기존 데이터 체크
-  formContainer.querySelectorAll(".event-form-row").forEach(row => {
-    checkHoursControl(row);
-  });
-
-  // 삭제 버튼 로직
+  // 5. 삭제 버튼 로직
   formContainer.addEventListener("click", function (e) {
     if (e.target.classList.contains("remove-form-btn")) {
+      const row = e.target.closest(".event-form-row");
       const rows = formContainer.querySelectorAll(".event-form-row");
       if (rows.length > 1) {
-          e.target.closest(".event-form-row").remove();
-          document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = 
-              formContainer.querySelectorAll(".event-form-row").length;
+        row.remove();
+        const remainingRows = formContainer.querySelectorAll(".event-form-row");
+        remainingRows.forEach((r, idx) => {
+          r.querySelector(".event-title").innerText = `이벤트 #${idx + 1}`;
+        });
+        document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = remainingRows.length;
       } else {
-          alert("최소 하나의 이벤트는 필요합니다.");
+        alert("최소 하나의 이벤트는 필요합니다.");
       }
     }
   });
-});
 
-// Submit 가드 링
-document.getElementById("real-event-form").addEventListener("submit", function() {
-  const disabledFields = this.querySelectorAll('[name$="-hours"][disabled]');
-  disabledFields.forEach(field => {
-    field.disabled = false; 
-  });
+  // 초기 로딩 시 기존 폼들에 대해 제어 적용
+  formContainer.querySelectorAll(".event-form-row").forEach(row => checkHoursControl(row));
+  addButton.addEventListener("click", addNewFormRow);
 });
 </script>
