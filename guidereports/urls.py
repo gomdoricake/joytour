@@ -12,6 +12,7 @@ urlpatterns = [
     path('guidereport_pay/<int:pk>/', main_views.guidereport_pay, name='guidereport_pay'),
     path('guidereport_pdf/<int:pk>/', main_views.guidereport_pdf, name='guidereport_pdf'),
 
+    path('delete_guidereport/<int:pk>/', main_views.delete_guidereport, name='delete_guidereport'),
     path('update_guidereport/<int:pk>/', main_views.update_guidereport, name='update_guidereport'), 
     path('detail/<int:pk>/', main_views.DetailView, name='detail'),
 

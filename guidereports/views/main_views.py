@@ -97,6 +97,16 @@ def DetailView(request, pk):
         'invoice_number': invoice_number       
     })
 
+@login_required
+def delete_guidereport(request, pk):
+    guidereport = get_object_or_404(GuideReport, pk=pk)
+
+    if request.method == "POST": 
+        guidereport.delete()
+        return redirect('mypage:index')
+    
+    return render(request, 'guidereports/guidereport_confirm_delete.html', {'guidereport': guidereport})
+
 
 @login_required
 def guidereport_confirm(request, pk): 
