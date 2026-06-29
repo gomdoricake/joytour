@@ -1,177 +1,198 @@
 <style>
-  /* 🌟 기본 베이스 컨테이너 스타일링 */
-  .report-container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 40px;
-    font-family: "Pretendard", sans-serif;
-    background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
   }
 
-  /* 🌟 내비게이션 버튼 구조 고도화 */
+  .report-container {
+    max-width: 750px;
+    margin: 60px auto;
+    padding: 45px;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
+  }
+
   .nav-block {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
+    gap: 10px;
   }
+
   .back-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    color: #64748b;
+    padding: 10px 16px;
+    color: #475569;
     background: #f1f5f9;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
     transition: all 0.2s ease;
   }
+
   .back-link:hover {
     background: #e2e8f0;
-    color: #334155;
+    color: #0f172a;
   }
-  .edit-link {
+  
+  .nav-right-group {
+    display: flex;
+    gap: 10px;
+  }
+  .edit-link, .pdf-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    color: #4f46e5;
-    background: #e0e7ff;
-    border-radius: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
     transition: all 0.2s ease;
   }
+
+  .edit-link {
+    color: #4f46e5;
+    background: #e0e7ff;
+    border: 1px solid #c7d2fe;
+  }
+
   .edit-link:hover {
     background: #c7d2fe;
   }
 
-  /* 🌟 헤더 섹션 */
-  .header-section {
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f1f5f9;
+  .pdf-link {
+    color: #475569;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
   }
+
+  .pdf-link:hover {
+    background: #f8fafc;
+    color: #0f172a;
+  }
+
+  .header-section {
+    margin-bottom: 35px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
   .title {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
-    color: #1e293b;
-    margin: 0 0 15px 0;
+    color: #0f172a;
+    margin: 0 0 16px 0;
     letter-spacing: -0.5px;
   }
+
   .invoice-date-tag {
     display: inline-block;
     font-size: 13px;
-    color: #64748b;
-    background: #f8fafc;
+    color: #475569;
+    background: #f1f5f9;
     border: 1px solid #e2e8f0;
     padding: 6px 14px;
     border-radius: 8px;
     font-weight: 600;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
   }
 
-  /* 🌟 그리드 및 박스 레이아웃 리디자인 */
   .two-column-box {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 20px;
+    gap: 20px;
   }
+
   .info-detail-box {
     background: #f8fafc;
-    padding: 18px;
+    padding: 20px;
     border-radius: 14px;
     border: 1px solid #e2e8f0;
     font-size: 13px;
     line-height: 1.6;
     color: #334155;
   }
+
   .info-detail-box strong {
-    color: #475569;
+    color: #64748b;
     display: block;
     font-size: 11px;
     text-transform: uppercase;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 4px;
+    padding-bottom: 6px;
     letter-spacing: 0.5px;
   }
+
   .bill-to-text {
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 700;
-    color: #1e293b;
+    color: #0f172a;
   }
 
-  /* 구분, 역할 요약 뷰 */
   .info-box {
     background: #f8fafc;
-    padding: 16px;
-    border-radius: 14px;
+    padding: 18px 24px;
+    border-radius: 16px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
   }
+
   .info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
   }
+
   .info-item {
     font-size: 14px;
   }
+
   .info-item strong {
     color: #64748b;
     display: block;
     font-size: 11px;
     text-transform: uppercase;
     margin-bottom: 6px;
-  }
-  .info-highlight {
-    font-size: 15px;
-    font-weight: 700;
-    color: #1e293b;
-  }
-  .info-group-compact {
-    display: flex;
-    gap: 10px;
-    background: #ffffff;
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    width: fit-content;
-  }
-  .info-item-small {
-    font-size: 12px;
-    color: #334155;
-    font-weight: 600;
-  }
-  .info-item-small strong {
-    font-size: 10px;
-    display: inline;
-    margin-right: 3px;
-    color: #94a3b8;
+    letter-spacing: 0.5px;
   }
 
-  /* 🌟 데이터 리스트 카드 영역화 */
+  .info-highlight {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
   .section-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+    border-radius: 18px;
+    padding: 28px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.01);
   }
+
   .section-title {
     font-size: 16px;
-    font-weight: 800;
-    color: #1e293b;
-    margin: 25px 0 12px;
-    display: flex;
-    align-items: center;
+    font-weight: 700;
+    color: #475569;
+    margin: 35px 0 14px;
+    padding-left: 6px;
+    border-left: 3px solid #4f46e5;
   }
+
   .section-card .section-title:first-of-type {
     margin-top: 0;
   }
@@ -180,179 +201,197 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
   }
+
   .data-item {
-    padding: 12px 4px;
+    padding: 14px 4px;
     border-bottom: 1px solid #f1f5f9;
     font-size: 14px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     color: #334155;
   }
+
   .data-item:last-child {
     border-bottom: none;
   }
+
   .text-price-black {
-    color: #1e293b;
+    color: #0f172a;
     font-weight: 600;
+    font-size: 15px;
   }
 
-  /* 서브 토탈 소계 */
   .subtotal-item {
-    padding: 14px 4px 4px 4px;
-    margin-top: 6px;
-    border-top: 1px solid #e2e8f0;
+    padding: 16px 4px 4px 4px;
+    margin-top: 8px;
+    border-top: 1px dashed #cbd5e1;
     font-size: 14px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
   }
+
   .subtotal-label {
     font-size: 12px;
     color: #64748b;
-    font-weight: 600;
+    font-weight: 700;
   }
+
   .subtotal-value {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
     color: #4f46e5;
   }
 
-  /* 🌟 토탈 전용 정산 섹션 */
   .total-section {
     text-align: center;
-    margin: 35px 0;
-    padding: 25px;
+    margin: 40px 0;
+    padding: 28px;
     background: #f8fafc;
-    border-radius: 16px;
-    border: 2px dashed #cbd5e1;
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
   }
+
   .total-grid {
     display: flex;
     justify-content: center;
-    gap: 50px;
+    gap: 60px;
   }
+
   .total-group {
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+
   .total-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #64748b;
     font-weight: 700;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
     letter-spacing: 0.5px;
   }
+
   .total-amount {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 800;
-    color: #475569;
-  }
-  .super-amount {
-    font-size: 24px;
-    font-weight: 800;
-    color: #475569;
+    color: #4f46e5;
   }
 
-  /* 🌟 상태 배지 / 하단 폼 디자인 */
+  .super-amount {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
   .status-form {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    margin-top: 35px;
+    margin-top: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f5f9;
   }
+
   .status-badge {
     display: inline-flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 300px;
-    padding: 14px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 700;
+    max-width: 320px;
+    padding: 16px 24px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 800;
     text-decoration: none;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
-  /* 🔴 기본 Waiting (분홍/빨강 계열) */
   .status-waiting {
-    background-color: #FFF1F2;
-    color: #E11D48;
-    border: 1px solid #FFF1F2;
+    background-color: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
   }
 
-  /* 🟡 기본 Confirmed (노란색 계열) */
   .status-confirmed {
-    background-color: #fef9c3;
-    color: #713f12;
+    background-color: #fefce8;
+    color: #b45309;
     border: 1px solid #fef9c3;
   }
 
-  /* 🟢 기본 Paid (연녹색 계열) */
   .status-paid {
-    background-color: #dcfce7; 
-    color: #14532d;            
+    background-color: #f0fdf4; 
+    color: #16a34a;            
     border: 1px solid #dcfce7;  
   }
 
-  /* 공통 버튼 베이스 */
   .status-confirm-btn, .status-pay-btn {
     border: none;
     cursor: pointer;
     font-family: inherit;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
   }
 
   .status-confirm-btn:hover, .status-pay-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   }
 
-  /* 🌟 CONFIRM REPORT 버튼: 기존 Confirmed(노랑) 컬러 매칭 */
   .status-confirm-btn.status-waiting {
-    background-color: #fef9c3 !important;
-    color: #713f12 !important;
+    background-color: #fefce8 !important;
+    color: #b45309 !important;
     border: 1px solid #fef9c3 !important;
   }
-  .status-confirm-btn.status-waiting:hover {
-    background-color: #fef08a !important;
-  }
 
-  /* 🌟 [수정] CONFIRMED (Undo) 버튼: Waiting(빨강/분홍) 컬러 매칭 */
+  .status-confirm-btn.status-waiting:hover { background-color: #fef9c3 !important; }
+
   .status-confirm-btn.status-confirmed {
-    background-color: #FFF1F2 !important;
-    color: #E11D48 !important;
-    border: 1px solid #FFF1F2 !important;
+    background-color: #fff1f2 !important;
+    color: #f43f5e !important;
+    border: 1px solid #ffe4e6 !important;
   }
-  .status-confirm-btn.status-confirmed:hover {
-    background-color: #ffe4e6 !important;
-  }
+  .status-confirm-btn.status-confirmed:hover { background-color: #ffe4e6 !important; }
 
-  /* 🌟 PAY REPORT 버튼: PAID(연녹색) 컬러 매칭 */
   .status-pay-btn.status-waiting {
-    background-color: #dcfce7 !important;
-    color: #14532d !important;
+    background-color: #f0fdf4 !important;
+    color: #16a34a !important;
     border: 1px solid #dcfce7 !important;
   }
-  .status-pay-btn.status-waiting:hover {
-    background-color: #bbf7d0 !important;
-  }
+  .status-pay-btn.status-waiting:hover { background-color: #dcfce7 !important; }
 
-  /* 🌟 [수정] PAID (Undo) 버튼: Confirmed(노랑) 컬러 매칭 */
   .status-pay-btn.status-paid {
-    background-color: #fef9c3 !important;
-    color: #713f12 !important;
+    background-color: #fefce8 !important;
+    color: #b45309 !important;
     border: 1px solid #fef9c3 !important;
   }
-  .status-pay-btn.status-paid:hover {
-    background-color: #fef08a !important;
+  .status-pay-btn.status-paid:hover { background-color: #fef9c3 !important; }
+
+  .delete-link-container {
+    text-align: center;
+    margin-top: 25px;
+  }
+  
+  .delete-link {
+    font-size: 13px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .delete-link:hover {
+    color: #f43f5e;
+    text-decoration: underline;
   }
 </style>
 
@@ -363,23 +402,26 @@
     {% else %}
     <a href="{% url 'mypage:index' %}" class="back-link">← 목록으로 돌아가기</a>
     {% endif %}
-    <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
-    <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}">PDF 생성</a>
+    
+    <div class="nav-right-group">
+      <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}" class="pdf-link">PDF 다운로드</a>
+      <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
+    </div>
   </div>
 
   <div class="header-section">
-    <h2 class="title">{{ invoice_number }}. {{ guide_report.group_code }}</h2>
+    <h2 class="title">#{{ invoice_number }}. {{ guide_report.group_code }}</h2>
     <div class="invoice-date-tag">
-      <strong>Invoice Date:</strong> {{ guide_report.invoice_date |date:"d-M-Y" }}
+      <strong>Invoice Date:</strong> {{ guide_report.invoice_date|date:"d-M-Y" }}
     </div>
 
     <div class="two-column-box">
       <div class="info-detail-box">
         <strong>Guide Payment Details</strong>
-        Name: {{ guide_report.guide.name }}<br>
+        <span style="font-weight: 700; color: #0f172a;">{{ guide_report.guide.name }}</span><br>
         ABN: {{ guide_report.guide.abn }}<br>
         Contact: {{ guide_report.guide.contact_info }}<br>
-        BSB: {{ guide_report.guide.bsb }} | Account: {{ guide_report.guide.account_number }}
+        <span style="color: #64748b; font-size: 12px; display: inline-block; margin-top: 4px;">BSB: {{ guide_report.guide.bsb }} | Acc: {{ guide_report.guide.account_number }}</span>
       </div>
       <div class="info-detail-box">
         <strong>Bill To</strong>
@@ -400,21 +442,14 @@
         <span class="info-highlight">{{ guide_report.role }}</span>
       </div>
       
-    {% if guide_report.day_inbound == 'INBOUND' %}
-    <div class="info-item">
-      <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
-        <span class="info-highlight" style="flex: 1; text-align: center;">
-          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">ADT</strong>{{ guide_report.adt|default:0 }}
-        </span>
-        <span class="info-highlight" style="flex: 1; text-align: center;">
-          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">CHD</strong>{{ guide_report.chd|default:0 }}
-        </span>
-        <span class="info-highlight" style="flex: 1; text-align: center;">
-          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">TC</strong>{{ guide_report.tc|default:0 }}
-        </span>
+      {% if guide_report.day_inbound == 'INBOUND' %}
+      <div class="info-item">
+        <strong>인원 요약</strong>
+          <span class="info-highlight" style="font-size: 13px;"><span style="color: #94a3b8; font-size: 11px; margin-right: 3px;">ADT</span>{{ guide_report.adt|default:0 }}</span>
+          <span class="info-highlight" style="font-size: 13px;"><span style="color: #94a3b8; font-size: 11px; margin-right: 3px;">CHD</span>{{ guide_report.chd|default:0 }}</span>
+          <span class="info-highlight" style="font-size: 13px;"><span style="color: #94a3b8; font-size: 11px; margin-right: 3px;">TC</span>{{ guide_report.tc|default:0 }}</span>
       </div>
-    </div>
-    {% endif %}    
+      {% endif %}    
     </div>
   </div>
 
@@ -424,24 +459,25 @@
       {% for event in events %}
       <li class="data-item">
         <span>
-          {{ event.report_date|date:"d-M-Y" }} &nbsp;
-          <span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span>
-          {% if guide_report.day_inbound == 'INBOUND' %} ({{ event.hours }}) {% endif %}
+          <span style="color: #64748b; font-size: 13px;">{{ event.report_date|date:"d-M-Y" }}</span> &nbsp;&nbsp;
+          <span style="font-weight: 700; color: #4f46e5;">{{ event.eventcode }}</span>
+          {% if guide_report.day_inbound == 'INBOUND' %} <span style="color: #94a3b8; font-size: 13px;">({{ event.hours }} hrs)</span> {% endif %}
         </span>
         <span class="text-price-black">${{ event.guide_fee }}</span>
       </li>
 
       {% if event.overtime and event.overtime != "0" %}
-        <li class="data-item" style="background-color: #fcfcff; padding-left: 20px; border-left: 3px solid #818cf8;">
-          <span style="font-size: 13px; color: #6b7280;">
+        <li class="data-item" style="background-color: #f8fafc; padding-left: 20px; border-left: 3px solid #818cf8; border-bottom: 1px solid #f1f5f9;">
+          <span style="font-size: 13px; color: #64748b;">
             └ Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong>
           </span>
-          <span class="text-price-black" style="font-size: 14px; font-weight: 600; color: #4f46e5;">
+          <span class="text-price-black" style="color: #4f46e5;">
             ${% widthratio event.overtime 1 30 %}
           </span>
         </li>
-    {% endif %}
-    {% endfor %}
+      {% endif %}
+      {% endfor %}
+      
       <li class="subtotal-item">
         <span class="subtotal-label">Event Subtotal (inc. GST)</span>
         <span class="subtotal-value">${{ event_fee }}</span>
@@ -452,10 +488,13 @@
     <ul class="data-list">
       {% for exp in guide_report.expenses.all %}
       <li class="data-item">
-        <span>{{ exp.expense_type }} {% if exp.memo %}( {{ exp.memo}} ){% endif %}</span>
+        <span>{{ exp.expense_type }} {% if exp.memo %}<span style="color:#64748b; font-size: 13px;">({{ exp.memo }})</span>{% endif %}</span>
         <span class="text-price-black">${{ exp.expense }}</span>
       </li>
+      {% empty %}
+      <li class="data-item" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 20px 0;">등록된 비용 부담 내역이 없습니다.</li>
       {% endfor %}
+      
       <li class="subtotal-item">
         <span class="subtotal-label">Expense Subtotal (inc. GST)</span>
         <span class="subtotal-value">${{ expense_fee }}</span>
@@ -472,7 +511,7 @@
       
       {% if request.user.username == 'admin' %}
       <div class="total-group">
-        <span class="total-label">SUPER</span>
+        <span class="total-label">SUPER ANNUATION</span>
         <div class="super-amount">${{ super_ann }}</div>
       </div>
       {% endif %}
@@ -480,17 +519,17 @@
   </div>
 
   <div class="section-card">
-    <h3 class="section-title" style="margin-top: 0;">Fuel</h3>
+    <h3 class="section-title" style="margin-top: 0;">Fuel Expenses</h3>
     <ul class="data-list">
       {% if guide_report.fuels.all %}
         {% for fuel in guide_report.fuels.all %}
         <li class="data-item">
-          <span>{{ fuel.report_date|date:"d-M-Y" }} &nbsp;{% if fuel.memo %}<span style="color:#64748b;">({{ fuel.memo }})</span>{% endif %}</span>
+          <span><span style="color: #64748b;">{{ fuel.report_date|date:"d-M-Y" }}</span> &nbsp;{% if fuel.memo %}<span style="color:#64748b; font-size: 13px;">({{ fuel.memo }})</span>{% endif %}</span>
           <span class="text-price-black">${{ fuel.expense }}</span>
         </li>
         {% endfor %}
       {% else %}
-        <li class="data-item" style="color: #94a3b8;">No fuels</li>
+        <li class="data-item" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 20px 0;">No fuel records</li>
       {% endif %}
     </ul>
 
@@ -500,7 +539,7 @@
       <ul class="data-list">
         {% for r in guide_report.restaurants.all %}
         <li class="data-item">
-          <span>{{ r.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ r.expense_type }} <span style="color:#64748b;">{% if r.memo %} ({{ r.memo }})</span> {% endif %}</span>
+          <span><span style="color: #64748b;">{{ r.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; <span style="font-weight: 600;">{{ r.expense_type }}</span> {% if r.memo %}<span style="color:#64748b; font-size: 13px;">({{ r.memo }})</span>{% endif %}</span>
         </li>
         {% endfor %} 
       </ul>
@@ -511,7 +550,7 @@
       <ul class="data-list">
         {% for a in guide_report.attractions.all %}
         <li class="data-item">
-          <span>{{ a.report_date|date:"d-M-Y" }} &nbsp;|&nbsp; {{ a.expense_type }} <span style="color:#64748b;"> {% if a.memo %} ({{ a.memo }}) {% endif %} </span></span>
+          <span><span style="color: #64748b;">{{ a.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; <span style="font-weight: 600;">{{ a.expense_type }}</span> {% if a.memo %}<span style="color:#64748b; font-size: 13px;">({{ a.memo }})</span>{% endif %}</span>
         </li>
         {% endfor %} 
       </ul>
@@ -521,56 +560,48 @@
 
   <div class="status-form">
     {% if request.user.username == 'admin' %}
-
       {% if not guide_report.is_confirmed %}
-        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 10px;">
+        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center;">
           {% csrf_token %}
           <button type="submit" class="status-badge status-confirm-btn status-waiting">
             CONFIRM REPORT
           </button>
-         </form>
-        
+        </form>
       {% elif not guide_report.is_paid %}
-        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 10px;">
+        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 6px;">
           {% csrf_token %}
           <button type="submit" class="status-badge status-confirm-btn status-confirmed">
             CONFIRMED (Undo)
           </button>
-         </form>
-          <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
+        </form>
+        <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
           {% csrf_token %}
           <button type="submit" class="status-badge status-pay-btn status-waiting">
             PAY REPORT
           </button>
-        </form>   
-
+        </form> 
       {% elif guide_report.is_paid and guide_report.is_confirmed %}
-      <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
-        {% csrf_token %}
-        <button type="submit" class="status-badge status-pay-btn status-paid">
-          PAID (Undo)
-        </button>
-      </form>   
+        <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
+          {% csrf_token %}
+          <button type="submit" class="status-badge status-pay-btn status-paid">
+            PAID (Undo)
+          </button>
+        </form> 
       {% endif %}
-
     {% else %}
-    <div style="width: 100%; text-align: center;">
-      {% if guide_report.is_paid %}
-        <span class="status-badge status-paid">
-          PAID
-        </span>
-      {% elif guide_report.is_confirmed %}
-        <span class="status-badge status-confirmed">
-          CONFIRMED
-        </span>
-      {% else %}
-        <span class="status-badge status-waiting">
-          WAITING FOR CONFIRMATION
-        </span>
-      {% endif %}
-    </div>    
+      <div style="width: 100%; text-align: center;">
+        {% if guide_report.is_paid %}
+          <span class="status-badge status-paid">PAID</span>
+        {% elif guide_report.is_confirmed %}
+          <span class="status-badge status-confirmed">CONFIRMED</span>
+        {% else %}
+          <span class="status-badge status-waiting">WAITING FOR CONFIRMATION</span>
+        {% endif %}
+      </div>    
     {% endif %}
   </div>
 
-  <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}">GuideReport 삭제</a>
+  <div class="delete-link-container">
+    <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}" class="delete-link">GuideReport 삭제</a>
+  </div>
 </div>

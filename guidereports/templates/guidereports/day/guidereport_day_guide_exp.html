@@ -1,111 +1,29 @@
 <style>
+  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
   .report-container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 30px;
-    font-family: "Pretendard", sans-serif;
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    max-width: 720px;
+    margin: 60px auto;
+    padding: 40px;
+    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
   }
 
-  /* 정보 요약 섹션 */
-  .info-summary {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #e9ecef;
-    margin-bottom: 30px;
-  }
-  .info-summary h4 {
-    margin: 0 0 15px 0;
-    color: #2d3436;
-    font-size: 16px;
-    border-bottom: 2px solid #e9ecef;
-    padding-bottom: 10px;
-  }
-  .info-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    font-size: 14px;
-    color: #4a4a4a;
-  }
-  .info-grid span {
-    font-weight: 600;
-    color: #2d3436;
-  }
-
-  /* 폼 스타일 */
-  .expense-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    background: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #edf2f7;
-  }
-  .expense-row label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #718096;
-    white-space: nowrap;
-  }
-
-  input,
-  select {
-    padding: 10px;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 14px;
-  }
-  select {
-    flex-grow: 1;
-    min-width: 120px;
-    cursor: pointer;
-  }
-  input {
-    width: 100px;
-  }
-
-  /* 버튼 스타일 */
-  .btn-add {
-    background: #e8f5e9;
-    color: #2e7d32;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  .btn-add:hover {
-    background: #c8e6c9;
-  }
-  .btn-remove {
-    background: #fff5f5;
-    color: #e53e3e;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-  }
-  .btn-submit {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    background: #2d3436;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 30px;
-  }
+  /* 상단 내비게이션 바 */
   .nav-block {
     display: flex;
     justify-content: space-between;
@@ -115,10 +33,11 @@
   .back-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    color: #64748b;
+    padding: 10px 16px;
+    color: #475569;
     background: #f1f5f9;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -126,39 +45,214 @@
   }
   .back-link:hover {
     background: #e2e8f0;
-    color: #334155;
+    color: #0f172a;
+  }
+
+  /* 🌟 리포트 정보 요약 세션 브랜딩 */
+  .info-summary {
+    background: #f8fafc;
+    padding: 22px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 35px;
+  }
+  .info-summary h4 {
+    margin: 0 0 16px 0;
+    color: #0f172a;
+    font-size: 15px;
+    font-weight: 800;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+    letter-spacing: -0.3px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
+  }
+  .info-grid span {
+    font-weight: 700;
+    color: #1e293b;
+    margin-left: 4px;
+  }
+  
+  /* 타이틀 스타일 */
+  .section-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
+  }
+
+  /* 🌟 동적 추가 경비 행(Row) 카드 포맷 */
+  .expense-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+    transition: all 0.2s ease;
+  }
+  .expense-row:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.02);
+  }
+  .expense-row label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #64748b;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #f1f5f9;
+    padding: 6px 10px;
+    border-radius: 6px;
+  }
+
+  /* 인풋 공통 스타일 */
+  input, select {
+    padding: 11px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  input:focus, select:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+  
+  /* 가변 레이아웃 밸런스 조정 */
+  select {
+    flex: 1.5;
+    min-width: 130px;
+    cursor: pointer;
+  }
+  input[name$="-expense"] {
+    width: 110px;
+  }
+  input[name$="-memo"] {
+    flex: 2;
+    min-width: 150px;
+  }
+
+  /* 에러 박스 */
+  .error-box {
+    background: #fff1f2;
+    border: 1px solid #ffe4e6;
+    color: #f43f5e;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* ➕ 항목 추가 버튼 (그린 톤) */
+  .btn-add {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-add:hover {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+  
+  /* ❌ 행 내 삭제 버튼 */
+  .btn-remove {
+    background: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-remove:hover {
+    background: #ffe4e6;
+    color: #e11d48;
+    border-color: #fecdd3;
+  }
+
+  /* 🚀 서브밋 버튼 (인디고 그라디언트) */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 35px;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+  .btn-submit:disabled {
+    background: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 </style>
 
 <div class="report-container">
   <div class="nav-block">
-    <a href="{% url 'guidereports:guidereport_day' %}" class="back-link">← 전으로 돌아가기</a>
+    <a href="{% url 'guidereports:guidereport_day' %}" class="back-link">← 이전 단계로 돌아가기</a>
   </div>
 
   <div class="info-summary">
-    <h4>현재 작성 중인 리포트</h4>
+    <h4>현재 작성 중인 리포트 요약</h4>
     <div class="info-grid">
-      <div>차종: <span>{{ formset.instance.role }}</span></div>
-      <div>구분: <span>{{ formset.instance.day_inbound }}</span></div>
-      <div>이벤트 코드: <span>{{ eventcode }}</span></div>
-      <div>날짜: <span>{{ report_date }}</span></div>
+      <div>차종 <span>{{ formset.instance.role }}</span></div>
+      <div>구분 <span>{{ formset.instance.day_inbound }}</span></div>
+      <div>이벤트 코드 <span style="font-family: monospace;">{{ eventcode }}</span></div>
+      <div>날짜 <span>{{ report_date }}</span></div>
     </div>
   </div>
 
-  <h3>Expense 내역 추가</h3>
+  <h3 class="section-title">Expense 내역 추가</h3>
 
   <form method="post" id="real-expense-form">
-    {% csrf_token %} {{ formset.management_form }} {% if formset.errors %}
-    <div
-      style="
-        background: #fff5f5;
-        color: #c53030;
-        padding: 10px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-      "
-    >
-      데이터를 다시 확인해주세요.
+    {% csrf_token %} 
+    {{ formset.management_form }} 
+    
+    {% if formset.errors %}
+    <div class="error-box">
+      ⚠️ 일부 데이터 포맷이 유효하지 않습니다. 입력 값을 다시 확인해 주세요.
     </div>
     {% endif %}
 
@@ -167,22 +261,19 @@
       <div class="expense-form-row expense-row">
         {{ form.id }}
         <label>항목</label> {{ form.expense_type }}
-        <label>금액</label> {{ form.expense }} 
+        <label>금액 ($)</label> {{ form.expense }} 
         <label>메모</label> {{ form.memo }}
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
       </div>
       {% endfor %}
     </div>
 
-    <button type="button" id="add-form-btn" class="btn-add">+ 항목 추가</button>
+    <div style="margin-top: 20px;">
+      <button type="button" id="add-form-btn" class="btn-add">➕ 항목 추가하기</button>
+    </div>
 
-    <button
-      type="submit"
-      id="submit-final-btn"
-      name="submit_final"
-      class="btn-submit"
-    >
-      Submit
+    <button type="submit" id="submit-final-btn" name="submit_final" class="btn-submit">
+      리포트 제출 완료 (Submit)
     </button>
   </form>
 </div>
@@ -191,8 +282,8 @@
   <div class="expense-form-row expense-row">
     {{ formset.empty_form.id }}
     <label>항목</label> {{ formset.empty_form.expense_type }}
-    <label>금액</label> {{ formset.empty_form.expense }}
-    <label>메모</label> {{formset.empty_form.memo}}
+    <label>금액 ($)</label> {{ formset.empty_form.expense }}
+    <label>메모</label> {{ formset.empty_form.memo }}
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
@@ -225,14 +316,11 @@
 
     // 2. WASH 중복 방지 및 옵션 상태 업데이트
     function updateWashOptions() {
-      const allSelects = formContainer.querySelectorAll(
-        'select[name$="-expense_type"]',
-      );
+      const allSelects = formContainer.querySelectorAll('select[name$="-expense_type"]');
       const isWashUsed = Array.from(allSelects).some((s) => s.value === "WASH");
 
       allSelects.forEach((select) => {
         Array.from(select.options).forEach((opt) => {
-          // 이미 WASH가 사용 중이라면, 선택되지 않은 행들의 WASH 옵션은 비활성화
           if (opt.value === "WASH" && isWashUsed && select.value !== "WASH") {
             opt.disabled = true;
           } else {
@@ -261,30 +349,26 @@
       }
     }
 
-    // [이벤트 통합]
+    // 이벤트 델리게이션 바인딩
     formContainer.addEventListener("change", function (event) {
-      if (event.target.matches('input[name$="-expense"]'))
+      if (event.target.matches('input[name$="-expense"]')) {
         checkExpenseRealtime(event.target);
+      }
       if (event.target.matches('select[name$="-expense_type"]')) {
-        const expenseInput = event.target
-          .closest(".expense-form-row")
-          .querySelector('input[name$="-expense"]');
+        const expenseInput = event.target.closest(".expense-form-row").querySelector('input[name$="-expense"]');
         if (expenseInput) checkExpenseRealtime(expenseInput);
         updateWashOptions();
         enforceGuideOnlyRule(event.target);
       }
     });
 
-    // 행 추가
+    // 행 동적 추가
     addButton.addEventListener("click", function () {
-      const template = document.getElementById(
-        "empty-form-template",
-      ).firstElementChild;
+      const template = document.getElementById("empty-form-template").firstElementChild;
       const newRow = template.cloneNode(true);
-      const count =
-        formContainer.getElementsByClassName("expense-form-row").length;
+      const count = formContainer.getElementsByClassName("expense-form-row").length;
       const isWashUsed = Array.from(
-        formContainer.querySelectorAll('select[name$="-expense_type"]'),
+        formContainer.querySelectorAll('select[name$="-expense_type"]')
       ).some((s) => s.value === "WASH");
 
       newRow.querySelectorAll("input, select, textarea").forEach((el) => {
@@ -292,10 +376,7 @@
         if (el.id) el.id = el.id.replace(/__prefix__/g, count);
 
         if (el.tagName === "SELECT") {
-          // 💡 WASH가 이미 있다면 기본값을 FUEL로 설정
           el.value = isWashUsed ? "FUEL" : "";
-
-          // 새로 추가된 행에서도 WASH가 있다면 즉시 비활성화
           if (isWashUsed) {
             Array.from(el.options).forEach((o) => {
               if (o.value === "WASH") o.disabled = true;
@@ -307,20 +388,16 @@
         }
       });
       formContainer.appendChild(newRow);
-      document
-        .querySelectorAll('input[name$="-TOTAL_FORMS"]')
-        .forEach((inp) => (inp.value = count + 1));
+      document.querySelectorAll('input[name$="-TOTAL_FORMS"]').forEach((inp) => (inp.value = count + 1));
       updateWashOptions();
     });
 
-    // 행 삭제
+    // 행 동적 삭제 및 가변 폼 재색인
     formContainer.addEventListener("click", function (e) {
       if (e.target.classList.contains("remove-form-btn")) {
         e.target.closest(".expense-form-row").remove();
         const rows = formContainer.getElementsByClassName("expense-form-row");
-        document
-          .querySelectorAll('input[name$="-TOTAL_FORMS"]')
-          .forEach((inp) => (inp.value = rows.length));
+        document.querySelectorAll('input[name$="-TOTAL_FORMS"]').forEach((inp) => (inp.value = rows.length));
         Array.from(rows).forEach((row, i) => {
           row.querySelectorAll("input, select, textarea").forEach((el) => {
             el.name = el.name.replace(/form-\d+-/, `form-${i}-`);
@@ -331,15 +408,13 @@
       }
     });
 
-    // 초기 적용
-    formContainer
-      .querySelectorAll('select[name$="-expense_type"]')
-      .forEach(enforceGuideOnlyRule);
+    // 초기 로드 검증 구동
+    formContainer.querySelectorAll('select[name$="-expense_type"]').forEach(enforceGuideOnlyRule);
     updateWashOptions();
 
     mainForm.addEventListener("submit", function () {
       submitBtn.disabled = true;
-      submitBtn.innerText = "Submitting...";
+      submitBtn.innerText = "제출 중인 리포트 완료 처리 중...";
     });
   });
 </script>
