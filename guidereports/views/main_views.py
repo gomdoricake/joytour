@@ -392,5 +392,8 @@ def guidereport_pdf(request, pk):
 
     doc.build(story)
     buffer.seek(0)
+
+    clean_group_code = (guide_report.group_code or '').strip().replace(' ', '_')
+    pdf_filename = f"{invoice_number}_{clean_group_code}.pdf"
     
-    return FileResponse(buffer, as_attachment=False, content_type='application/pdf')
+    return FileResponse(buffer, as_attachment=False, content_type='application/pdf', filename=pdf_filename)
