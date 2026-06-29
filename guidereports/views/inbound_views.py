@@ -101,33 +101,59 @@ def guidereport_inbound_events(request):
             for i in range(total_forms_count): 
                 report_date = request.POST.get(f'{prefix}-{i}-report_date')
                 eventcode = request.POST.get(f'{prefix}-{i}-eventcode')
-                hours = request.POST.get(f'{prefix}-{i}-hours')
+                hours_raw = request.POST.get(f'{prefix}-{i}-hours')
+                overtime_raw = request.POST.get(f'{prefix}-{i}-overtime')
                 is_delete = request.POST.get(f'{prefix}-{i}-DELETE')
-                print("hours: " + str(hours))
 
-                print(f'---- EVENT [Form Row {i}] Date: {report_date}, Code: {eventcode}, Delete: {is_delete} ----')
+                print(f"[{i}] hours_raw: {hours_raw}, overtime_raw: {overtime_raw}, delete: {is_delete}")
 
-                if report_date and eventcode and not is_delete: 
-                    if not representative_date_str and not representative_code:
+                if is_delete or not report_date or not eventcode:
+                    continue
+
+                hours_value = None
+                if hours_raw:
+                    hours_raw = hours_raw.strip()
+                    if hours_raw.upper() == 'AM/AS':
+                        hours_value = 'AM/AS'  # CharField일 경우 문자열 그대로 저장
+                    else:
                         try:
-                            representative_date_str = datetime.strptime(report_date, '%Y-%m-%d').strftime('%d%m%y')
-                            representative_code = str(eventcode).strip()
-                        except Exception:
-                            pass
+                            hours_value = hours_raw
+                        except ValueError:
+                            hours_value = 0
+                else:
+                    hours_value = 0
+                
+                print("hours_raw: " + hours_raw)
 
-                    try: 
-                        Event.objects.create(
-                            guidereport_id=guide_report.id,
-                            report_date=report_date, 
-                            eventcode=eventcode,
-                            hours=hours
-                        )
-                    except ValueError: 
+                overtime_value = 0
+                if overtime_raw:
+                    try:
+                        overtime_value = float(overtime_raw.strip())
+                    except ValueError:
+                        overtime_value = 0
+
+                if not representative_date_str and not representative_code:
+                    try:
+                        representative_date_str = datetime.strptime(report_date, '%Y-%m-%d').strftime('%d%m%y')
+                        representative_code = str(eventcode).strip()
+                    except Exception:
                         pass
+
+                try: 
+                    Event.objects.create(
+                        guidereport_id=guide_report.id,
+                        report_date=report_date, 
+                        eventcode=eventcode,
+                        hours=hours_value,
+                        overtime=overtime_value
+                    )
+                except Exception as e:
+                    print(f"이벤트 저장 중 에러 발생: {e}")
+                    pass
                 
             day_inbound_check = str(guide_report.day_inbound).upper().strip()
             if day_inbound_check == "INBOUND" and representative_date_str:
-                if guide_report.adt + guide_report.tc + guide_report.chd > 9: 
+                if (guide_report.adt or 0) + (guide_report.tc or 0) + (guide_report.chd or 0) > 9: 
                     guide_report.group_code = f"{guide_report.agency_code}{representative_date_str}G"
                 else: 
                     guide_report.group_code = f"{guide_report.agency_code}{representative_date_str}F"
@@ -154,7 +180,6 @@ def guidereport_inbound_events(request):
         'guide_report': guide_report,
         'INBOUND_EVENTCODE': INBOUND_EVENTCODE
     })
-
 
 RestaurantFormSet = inlineformset_factory(
     GuideReport, 

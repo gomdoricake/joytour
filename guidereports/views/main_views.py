@@ -48,6 +48,14 @@ def DetailView(request, pk):
         fuel_fee += fee
 
     guide_report.final_fuels_fee = fuel_fee
+
+    overtime_fee = 0
+    for event in guide_report.events.all(): 
+        overtime_fee += int(event.overtime)
+    
+    print("overtime: " + str(overtime_fee))
+
+    final_amount_due += (overtime_fee * 30)
     guide_report.final_amount_due = final_amount_due
 
     all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')

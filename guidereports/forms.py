@@ -123,7 +123,7 @@ class InboundEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['report_date', 'eventcode', 'hours']
+        fields = ['report_date', 'eventcode', 'hours', 'overtime']
         widgets = {
             'report_date': forms.DateInput(
                 format='%Y-%m-%d',
