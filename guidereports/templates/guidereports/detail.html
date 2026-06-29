@@ -399,16 +399,21 @@
         <span class="info-highlight">{{ guide_report.role }}</span>
       </div>
       
-      {% if guide_report.day_inbound == 'INBOUND' %}
-      <div class="info-item">
-        <strong>PAX</strong>
-        <div class="info-group-compact">
-          <span class="info-item-small"><strong>ADT</strong>{{ guide_report.adt }}</span>
-          <span class="info-item-small"><strong>CHD</strong>{{ guide_report.chd }}</span>
-          <span class="info-item-small"><strong>TC</strong>{{ guide_report.tc }}</span>
-        </div>
+    {% if guide_report.day_inbound == 'INBOUND' %}
+    <div class="info-item">
+      <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+        <span class="info-highlight" style="flex: 1; text-align: center;">
+          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">ADT</strong>{{ guide_report.adt|default:0 }}
+        </span>
+        <span class="info-highlight" style="flex: 1; text-align: center;">
+          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">CHD</strong>{{ guide_report.chd|default:0 }}
+        </span>
+        <span class="info-highlight" style="flex: 1; text-align: center;">
+          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">TC</strong>{{ guide_report.tc|default:0 }}
+        </span>
       </div>
-      {% endif %}
+    </div>
+    {% endif %}    
     </div>
   </div>
 

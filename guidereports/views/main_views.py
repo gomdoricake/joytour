@@ -53,8 +53,6 @@ def DetailView(request, pk):
     for event in guide_report.events.all(): 
         overtime_fee += int(event.overtime)
     
-    print("overtime: " + str(overtime_fee))
-
     final_amount_due += (overtime_fee * 30)
     guide_report.final_amount_due = final_amount_due
 
@@ -85,6 +83,7 @@ def guidereport_confirm(request, pk):
 
     return redirect('guidereports:detail', pk=pk)
 
+
 @login_required
 def guidereport_pay(request, pk): 
     if request.method == 'POST': 
@@ -94,7 +93,6 @@ def guidereport_pay(request, pk):
 
     return redirect('guidereports:detail', pk=pk)
         
-    
 
 @login_required
 def update_guidereport(request, pk): 

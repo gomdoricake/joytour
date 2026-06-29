@@ -105,8 +105,6 @@ def guidereport_inbound_events(request):
                 overtime_raw = request.POST.get(f'{prefix}-{i}-overtime')
                 is_delete = request.POST.get(f'{prefix}-{i}-DELETE')
 
-                print(f"[{i}] hours_raw: {hours_raw}, overtime_raw: {overtime_raw}, delete: {is_delete}")
-
                 if is_delete or not report_date or not eventcode:
                     continue
 
@@ -123,8 +121,6 @@ def guidereport_inbound_events(request):
                 else:
                     hours_value = 0
                 
-                print("hours_raw: " + hours_raw)
-
                 overtime_value = 0
                 if overtime_raw:
                     try:
@@ -410,7 +406,6 @@ def guidereport_inbound_guide_exp(request):
                         memo=memo
                     )
         today = date.today()
-        print("today: " + str(today))
         guide_report.invoice_date = today
 
         guide_report.save()
