@@ -364,6 +364,7 @@
     <a href="{% url 'mypage:index' %}" class="back-link">← 목록으로 돌아가기</a>
     {% endif %}
     <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
+    <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}">PDF 생성</a>
   </div>
 
   <div class="header-section">
