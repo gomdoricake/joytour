@@ -141,5 +141,12 @@
      <button type="submit" class="btn-submit">Next</button>
 
     </div>
+
   </form>
 </div>
+
+<datalist id="eventcode_datalist">
+{% for key, value in DAY_EVENTCODE.items %}
+    <option value="{{ key }}">{{ value }}</option>
+{% endfor %}
+</datalist>

@@ -36,6 +36,7 @@ class Event(models.Model):
     hours = models.CharField(max_length=10, choices=INBOUND_HOURS,null=True,blank=True)
     guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
     guide_fee = models.TextField()
+    overtime = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     def save(self, *args, **kwargs): 
         parent = self.guidereport
@@ -54,6 +55,8 @@ class Event(models.Model):
         }
         
         target_rate_dict = rate_mapping.get((day_inbound_val, role_val))
+
+        print("target_rate_dict: " + str(target_rate_dict))
         
         calculated_fee = "0.00"
 

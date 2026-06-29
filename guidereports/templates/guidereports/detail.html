@@ -369,7 +369,7 @@
   <div class="header-section">
     <h2 class="title">{{ invoice_number }}. {{ guide_report.group_code }}</h2>
     <div class="invoice-date-tag">
-      <strong>Invoice Date:</strong> {{ guide_report.invoice_date|date:"d-M-Y" }}
+      <strong>Invoice Date:</strong> {{ guide_report.invoice_date |date:"d-M-Y" }}
     </div>
 
     <div class="two-column-box">
@@ -399,16 +399,21 @@
         <span class="info-highlight">{{ guide_report.role }}</span>
       </div>
       
-      {% if guide_report.day_inbound == 'INBOUND' %}
-      <div class="info-item">
-        <strong>PAX</strong>
-        <div class="info-group-compact">
-          <span class="info-item-small"><strong>ADT</strong>{{ guide_report.adt }}</span>
-          <span class="info-item-small"><strong>CHD</strong>{{ guide_report.chd }}</span>
-          <span class="info-item-small"><strong>TC</strong>{{ guide_report.tc }}</span>
-        </div>
+    {% if guide_report.day_inbound == 'INBOUND' %}
+    <div class="info-item">
+      <div style="display: flex; gap: 8px; width: 100%; margin-top: 4px;">
+        <span class="info-highlight" style="flex: 1; text-align: center;">
+          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">ADT</strong>{{ guide_report.adt|default:0 }}
+        </span>
+        <span class="info-highlight" style="flex: 1; text-align: center;">
+          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">CHD</strong>{{ guide_report.chd|default:0 }}
+        </span>
+        <span class="info-highlight" style="flex: 1; text-align: center;">
+          <strong style="color: #718096; margin-right: 4px; font-size: 11px;">TC</strong>{{ guide_report.tc|default:0 }}
+        </span>
       </div>
-      {% endif %}
+    </div>
+    {% endif %}    
     </div>
   </div>
 
@@ -417,11 +422,25 @@
     <ul class="data-list">
       {% for event in events %}
       <li class="data-item">
-        <span>{{ event.report_date|date:"d-M-Y" }} &nbsp;<span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span>
-          {% if guide_report.day_inbound == 'INBOUND' %} ({{ event.hours }}) {% endif %}</span>
+        <span>
+          {{ event.report_date|date:"d-M-Y" }} &nbsp;
+          <span style="font-weight:600; color: #4f46e5;">{{ event.eventcode }}</span>
+          {% if guide_report.day_inbound == 'INBOUND' %} ({{ event.hours }}) {% endif %}
+        </span>
         <span class="text-price-black">${{ event.guide_fee }}</span>
       </li>
-      {% endfor %}
+
+      {% if event.overtime and event.overtime != "0" %}
+        <li class="data-item" style="background-color: #fcfcff; padding-left: 20px; border-left: 3px solid #818cf8;">
+          <span style="font-size: 13px; color: #6b7280;">
+            └ Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong>
+          </span>
+          <span class="text-price-black" style="font-size: 14px; font-weight: 600; color: #4f46e5;">
+            ${% widthratio event.overtime 1 30 %}
+          </span>
+        </li>
+    {% endif %}
+    {% endfor %}
       <li class="subtotal-item">
         <span class="subtotal-label">Event Subtotal (inc. GST)</span>
         <span class="subtotal-value">${{ event_fee }}</span>

@@ -109,26 +109,19 @@
     background: #e2e8f0;
     color: #334155;
   }
-.event-form-row input[list] {
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 15px top 50%;
-  background-size: 10px auto;
-  padding-right: 40px;
-  cursor: pointer;
-}
-
-.event-form-row input[list]::-webkit-calendar-picker-indicator {
-  opacity: 0 !important;
-}
-
-
-/* 브라우저 기본 화살표 숨기기 */
-.report-form input[list]::-webkit-calendar-picker-indicator {
-  opacity: 0 !important;
-}
+  .event-form-row input[list] {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px top 50%;
+    background-size: 10px auto;
+    padding-right: 40px;
+    cursor: pointer;
+  }
+  .event-form-row input[list]::-webkit-calendar-picker-indicator {
+    opacity: 0 !important;
+  }
 </style>
 
 <div class="report-container">
@@ -137,7 +130,7 @@
   </div>
 
   {% if user.username != 'admin' %}
-  <h2 class="title">Guide Report — Inbound — Events</h2>
+    <h2 class="title">Guide Report — Inbound — Events</h2>
   {% endif %}
 
   <form method="post" id="real-event-form" class="report-form">
@@ -145,31 +138,31 @@
     {{ formset.management_form }} 
     
     {% if formset.errors %}
-    <div class="error-box">입력 내용을 확인해주세요.</div>
+      <div class="error-box">입력 내용을 확인해주세요.</div>
     {% endif %}
 
     <div id="event-form-list">
       {% for form in formset %}
-      <div class="event-form-row report-form">
-        {{ form.id }}
+        <div class="event-form-row report-form" {% if form.DELETE.value %}style="display: none;"{% endif %}>
+          {{ form.id }}
 
-        <div style="display: none;">
-          {{ form.DELETE }}
+          <div style="display: none;">
+            {{ form.DELETE }}
+          </div>
+
+          <h5 class="event-title">이벤트 #{{ forloop.counter }}</h5>
+          
+          {% for field in form %}
+            {% if field.name != 'id' and field.name != 'guidereport' and field.name != 'DELETE' %}
+              <p>
+                <label>{{ field.label }}</label>
+                {{ field }}
+              </p>
+            {% endif %}
+          {% endfor %}
+          
+          <button type="button" class="remove-form-btn btn-remove">삭제</button>
         </div>
-
-        <h5 class="event-title">이벤트 #{{ forloop.counter }}</h5>
-        
-        {% for field in form %}
-          {% if field.name != 'id' and field.name != 'guidereport' and field.name != 'DELETE' %}
-            <p>
-              <label>{{ field.label }}</label>
-              {{ field }}
-            </p>
-          {% endif %}
-        {% endfor %}
-        
-        <button type="button" class="remove-form-btn btn-remove">삭제</button>
-      </div>
       {% endfor %}
     </div>
 
@@ -179,7 +172,6 @@
     <button type="submit" class="btn-submit">Next</button>
   </form>
 </div>
-
 
 <div id="empty-form-template" style="display: none">
   <div class="event-form-row report-form"> 
@@ -203,68 +195,100 @@
   </div>
 </div>
 
-<datalist id="eventcode_datalist">
+<templatelist>
+  <datalist id="eventcode_datalist">
     {% for key, value in INBOUND_EVENTCODE %}
-        <option value="{{ key }}">{{ value }}</option>
+      <option value="{{ key }}">{{ value }}</option>
     {% endfor %}
-</datalist>
+  </datalist>
+</templatelist>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const formContainer = document.getElementById("event-form-list");
   const addButton = document.getElementById("add-form-btn");
+  const totalFormsInput = document.getElementById("id_{{ formset.prefix }}-TOTAL_FORMS");
   const prefix = "{{ formset.prefix }}";
 
-  // 🌟 Hours 필드를 동적으로 제어하는 함수
+  // 날짜 계산 함수
+  function getNextDate(baseDateStr) {
+    if (!baseDateStr) return "";
+    let baseDate = new Date(baseDateStr);
+    baseDate.setDate(baseDate.getDate() + 1);
+    return baseDate.toISOString().split('T')[0];
+  }
+
+  // Hours 제어 기능
   function checkHoursControl(row) {
     const eventCodeField = row.querySelector('[name$="-eventcode"]');
     const hoursField = row.querySelector('[name$="-hours"]');
-    
     if (!eventCodeField || !hoursField) return;
 
-    // 대소문자 및 공백 방어태세 (비교를 위해 대문자로 통일)
+    // View단에서 바인딩 가능하도록 input에 datalist 속성 동적 부여
+    if (eventCodeField.tagName === 'INPUT' && !eventCodeField.hasAttribute('list')) {
+      eventCodeField.setAttribute('list', 'eventcode_datalist');
+    }
+
     const codeValue = eventCodeField.value.toUpperCase().trim();
 
-    // 1️⃣ 이벤트 코드가 'AM/AS'인 경우 -> hours 필드도 자동으로 'AM/AS' 강제 매핑 및 잠금
     if (codeValue === 'AM/AS') {
-      // DB/상수 규격에 맞게 'AM/AS' 그대로 집어넣습니다.
-      hoursField.value = "AM/AS"; 
-      hoursField.disabled = false; // 백엔드로 정상 전송되도록 활성화 유지
-      
-      // 'AM/AS' 외의 다른 시간 선택지들은 전부 고르지 못하게 차단
-      Array.from(hoursField.options).forEach(opt => {
-        opt.disabled = (opt.value.toUpperCase().trim() !== 'AM/AS');
-      });
-
-    // 2️⃣ 이벤트 코드가 'AM/AS'가 아닌 다른 일반 코드인 경우
+      hoursField.value = "AM/AS";
+      hoursField.readOnly = true; 
+      if (hoursField.tagName === 'SELECT') {
+        hoursField.disabled = false;
+        Array.from(hoursField.options).forEach(opt => {
+          opt.disabled = (opt.value.toUpperCase().trim() !== 'AM/AS');
+        });
+      }
     } else {
-      // 사용자가 hours 필드 드롭다운을 눌렀을 때 'AM/AS' 선택지는 선택 불가능(disabled) 처리
-      Array.from(hoursField.options).forEach(opt => {
-        if (opt.value.toUpperCase().trim() === 'AM/AS') {
-          opt.disabled = true; 
-        } else {
-          opt.disabled = false; // 나머지 일반 시간대('6HRS', '10HRS' 등)는 정상 활성화
-        }
-      });
-
-      // 만약 이벤트 코드를 다른 걸로 바꿨는데 hours가 여전히 'AM/AS'에 머물러 있다면 기본값(------)으로 초기화
-      if (hoursField.value.toUpperCase().trim() === 'AM/AS') {
-        hoursField.value = ""; 
+      hoursField.readOnly = false;
+      if (hoursField.tagName === 'SELECT') {
+        Array.from(hoursField.options).forEach(opt => {
+          opt.disabled = (opt.value.toUpperCase().trim() === 'AM/AS');
+        });
+        if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+      } else {
+        if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
       }
     }
   }
 
-  // 폼 변경 이벤트 리스너 (이벤트 위임)
-  formContainer.addEventListener("change", function (e) {
-    if (e.target.matches('[name$="-eventcode"]')) {
-      checkHoursControl(e.target.closest(".event-form-row"));
-    }
-  });
+  // 전체 인덱스 및 번호 재정렬 함수 (View 단의 순차 루프 파싱 대응)
+  function updateFormIndices() {
+    const rows = formContainer.querySelectorAll(".event-form-row");
+    let visibleIndex = 1;
 
-  // 동적 추가 로직
-  addButton.addEventListener("click", function () {
+    rows.forEach((row, currentIndex) => {
+      // 속성들의 id, name 인덱스 치환
+      row.querySelectorAll("input, select, textarea").forEach((el) => {
+        if (el.name) {
+          el.name = el.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
+        }
+        if (el.id) {
+          el.id = el.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
+        }
+      });
+
+      // 사용자 화면단 타이틀 넘버링 (삭제된 폼 제외)
+      const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+      if (deleteCheckbox && deleteCheckbox.checked) {
+        // 이미 지워진 폼은 넘버링 계산에서 제외
+      } else {
+        row.querySelector(".event-title").innerText = `이벤트 #${visibleIndex}`;
+        visibleIndex++;
+      }
+    });
+
+    // 전체 개수 업데이트
+    totalFormsInput.value = rows.length;
+  }
+
+  // 폼 추가 함수
+  function addNewFormRow() {
     const template = document.getElementById("empty-form-template").firstElementChild;
     const newRow = template.cloneNode(true);
+    
+    // 임시 인덱스를 지정하여 추가 후 전체 재정렬 시행
     const currentCount = formContainer.querySelectorAll(".event-form-row").length;
     
     newRow.querySelectorAll("input, select, textarea").forEach((el) => {
@@ -272,39 +296,88 @@ document.addEventListener("DOMContentLoaded", function () {
       if (el.id) el.id = el.id.replace(/__prefix__/g, currentCount);
     });
     
-    newRow.querySelector(".event-title").innerText = `이벤트 #${currentCount + 1}`;
-    formContainer.appendChild(newRow);
-    document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = currentCount + 1;
+    // 날짜 자동 세팅
+    const allRows = formContainer.querySelectorAll(".event-form-row");
+    // 삭제되지 않은 마지막 로우 찾기
+    let lastDate = "";
+    for(let i = allRows.length - 1; i >= 0; i--) {
+      const delChk = allRows[i].querySelector('[name$="-DELETE"]');
+      if(!delChk || !delChk.checked) {
+        lastDate = allRows[i].querySelector('[name$="-report_date"]').value;
+        break;
+      }
+    }
+
+    const nextDateInput = newRow.querySelector('[name$="-report_date"]');
+    if (lastDate && nextDateInput) {
+      nextDateInput.value = getNextDate(lastDate);
+    }
     
-    // 새 폼이 추가될 때도 초기 상태 체크 트리거
+    formContainer.appendChild(newRow);
+    
+    // 유효한 속성 적용 및 인덱스 동기화
+    updateFormIndices();
     checkHoursControl(newRow);
+  }
+
+  // 통합 이벤트 리스너 (날짜 연쇄 및 이벤트 코드 변경 감지)
+  formContainer.addEventListener("input", function (e) {
+    const target = e.target;
+    const row = target.closest(".event-form-row");
+
+    if (target.matches('[name$="-report_date"]')) {
+      const rows = Array.from(formContainer.querySelectorAll(".event-form-row"));
+      const rowIndex = rows.indexOf(row);
+      let lastDate = target.value;
+      for (let i = rowIndex + 1; i < rows.length; i++) {
+        const nextDateField = rows[i].querySelector('[name$="-report_date"]');
+        const delChk = rows[i].querySelector('[name$="-DELETE"]');
+        // 삭제되지 않은 필드만 연쇄 날짜 수정
+        if (nextDateField && lastDate && (!delChk || !delChk.checked)) {
+          lastDate = getNextDate(lastDate);
+          nextDateField.value = lastDate;
+        }
+      }
+    }
+
+    if (target.matches('[name$="-eventcode"]')) {
+      checkHoursControl(row);
+    }
   });
 
-  // 초기 로딩 시 기존 데이터 체크
-  formContainer.querySelectorAll(".event-form-row").forEach(row => {
-    checkHoursControl(row);
-  });
-
-  // 삭제 버튼 로직
+  // 삭제 버튼 로직 (View의 POST 파싱 로직에 대응)
   formContainer.addEventListener("click", function (e) {
     if (e.target.classList.contains("remove-form-btn")) {
-      const rows = formContainer.querySelectorAll(".event-form-row");
-      if (rows.length > 1) {
-          e.target.closest(".event-form-row").remove();
-          document.getElementById("id_" + prefix + "-TOTAL_FORMS").value = 
-              formContainer.querySelectorAll(".event-form-row").length;
+      const row = e.target.closest(".event-form-row");
+      const idField = row.querySelector('[name$="-id"]');
+      const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+      
+      // 화면에 노출된 실질적 로우 수 계산
+      const visibleRows = Array.from(formContainer.querySelectorAll(".event-form-row")).filter(r => {
+        const chk = r.querySelector('[name$="-DELETE"]');
+        return !chk || !chk.checked;
+      });
+
+      if (visibleRows.length <= 1) {
+        alert("최소 하나의 이벤트는 필요합니다.");
+        return;
+      }
+
+      if (idField && idField.value) {
+        // 1. 기존 DB에 있던 데이터인 경우: DELETE를 체크하고 화면에서만 숨김 (백엔드 파싱 유지를 위해 인덱스 유지)
+        if (deleteCheckbox) deleteCheckbox.checked = true;
+        row.style.display = "none";
+        updateFormIndices();
       } else {
-          alert("최소 하나의 이벤트는 필요합니다.");
+        // 2. 새로 추가했던 폼인 경우: 바로 DOM에서 삭제 후 인덱스 재정렬
+        row.remove();
+        updateFormIndices();
       }
     }
   });
-});
 
-// Submit 가드 링
-document.getElementById("real-event-form").addEventListener("submit", function() {
-  const disabledFields = this.querySelectorAll('[name$="-hours"][disabled]');
-  disabledFields.forEach(field => {
-    field.disabled = false; 
-  });
+  // 초기화 실행
+  formContainer.querySelectorAll(".event-form-row").forEach(row => checkHoursControl(row));
+  addButton.addEventListener("click", addNewFormRow);
 });
 </script>
