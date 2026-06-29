@@ -221,6 +221,12 @@
   }
 </style>
 
+<datalist id="restaurant_datalist">
+  {% for key, value in RESTAURANT_CHOICES %}
+    <option value="{{ key }}">{{ value }}</option>
+  {% endfor %}
+</datalist>
+
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_inbound_events' %}" class="back-link">← 이전 단계로 돌아가기</a>
@@ -246,7 +252,12 @@
         <div style="display: none">{{ form.DELETE }}</div>
         
         <div class="form-group"><label>날짜</label>{{ form.report_date }}</div>
-        <div class="form-group"><label>식당명 / 타입</label>{{ form.expense_type }}</div>
+        
+        <div class="form-group">
+          <label>식당명 / 타입</label>
+          {{ form.expense_type }}
+        </div>
+        
         <div class="form-group"><label>Memo (메모)</label>{{ form.memo }}</div>
         
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
@@ -267,7 +278,10 @@
     {{ formset.empty_form.id }}
     <div style="display: none">{{ formset.empty_form.DELETE }}</div>
     <div class="form-group"><label>날짜</label>{{ formset.empty_form.report_date }}</div>
-    <div class="form-group"><label>식당명 / 타입</label>{{ formset.empty_form.expense_type }}</div>
+    <div class="form-group">
+      <label>식당명 / 타입</label>
+      {{ formset.empty_form.expense_type }}
+    </div>
     <div class="form-group"><label>Memo (메모)</label>{{ formset.empty_form.memo }}</div>
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
@@ -279,8 +293,19 @@
     const addButton = document.getElementById("add-form-btn");
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
-
     const prefix = "{{ formset.prefix }}";
+
+    // [추가] 기존에 렌더링된 input 엘리먼트에도 datalist 속성을 바인딩해줍니다 (Django forms.py에서 설정 안 했을 경우 대비)
+    function bindDataList(container) {
+      // name 속성에 'expense_type'이 포함된 input을 찾아서 list 속성 부여
+      const expenseInputs = container.querySelectorAll("input[name*='expense_type']");
+      expenseInputs.forEach(input => {
+        input.setAttribute("list", "restaurant_datalist");
+      });
+    }
+
+    // 초기 실행 시 기존 폼들에 datalist 바인딩
+    bindDataList(formContainer);
 
     // 항목 동적 추가
     addButton.addEventListener("click", function () {
@@ -308,6 +333,9 @@
       });
 
       formContainer.appendChild(newRow);
+      
+      // 새 행이 추가된 후 datalist 다시 바인딩
+      bindDataList(newRow);
 
       const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
       if (totalFormsInput) {

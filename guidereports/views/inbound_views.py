@@ -239,6 +239,7 @@ def guidereport_inbound_restaurant_exp(request):
     return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
+        'RESTAURANT_CHOICES': RESTAURANT_CHOICES
     })
 
 
@@ -304,6 +305,7 @@ def guidereport_inbound_attraction_exp(request):
     return render(request, 'guidereports/inbound/guidereport_inbound_attraction_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
+        'ATTRACTION_CHOICES': ATTRACTION_CHOICES
     })
 
 FuelFormSet = inlineformset_factory(

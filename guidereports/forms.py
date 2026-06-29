@@ -143,6 +143,15 @@ class InboundEventForm(forms.ModelForm):
                 self.fields['hours'].required = False
 
 class RestaurantExpForm(forms.ModelForm): 
+    expense_type = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'list': 'restaurant_datalist', 
+            'placeholder': '선택하거나 직접 입력하세요', 
+            'class': 'form-control'
+        })
+    ) 
+
     class Meta: 
         model = RestaurantExp
         fields = ['report_date','expense_type', 'memo']
@@ -156,6 +165,15 @@ class RestaurantExpForm(forms.ModelForm):
         }
     
 class AttractionExpForm(forms.ModelForm):
+    expense_type = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'list': 'attraction_datalist', 
+            'placeholder': '선택하거나 직접 입력하세요', 
+            'class': 'form-control'
+        })
+    ) 
+
     class Meta: 
         model = AttractionExp
         fields = ['report_date', 'expense_type', 'memo']

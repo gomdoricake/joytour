@@ -15,6 +15,32 @@ AGENCY_CHOICES = {
     'LOC': 'LOC',
 }
 
+RESTAURANT_CHOICES = [
+    ('홍대', '홍대'),
+    ('대장금', '대장금'),
+    ('OAK & VINE', 'OAK & VINE'),  
+    ('CELLAR DOOR', 'CELLAR DOOR'), 
+    ('LA PORCHETTA', 'LA PORCHETTA'), 
+    ('FUSION SPACE', 'FUSION SPACE'), 
+    ('FEAST BUFFET', 'FEAST BUFFET'), 
+    ('BANG POP', 'BANG POP'),
+    ('WING LOCK', 'WING LOCK'),
+    ('ROCHFORD', 'ROCHFORD'),
+    ('OTHERS', 'OTHERS')
+]
+
+ATTRACTION_CHOICES = [
+    ('PUFFING BILLY', 'PUFFING BILLY'), 
+    ('PENGUIN PARADE', 'PENGUIN PARADE'), 
+    ('PENINSULA', 'PENINSULA'), 
+    ('HELI 15min', 'HELI 15min'), 
+    ('PENGUINE PARADE', 'PENGUINE PARADE'), 
+    ('CRUISE', 'CRUISE'), 
+    ('EUREKA', 'EUREKA'), 
+    ('WINE TASTING', 'WINE TASTING')
+]
+
+
 ROLE = {
     '12 SEAT': '12 SEAT',
     '21 SEAT': '21 SEAT', 
