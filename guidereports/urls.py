@@ -19,6 +19,7 @@ urlpatterns = [
     path('day/guidereport_day/', day_views.guidereport_day, name='guidereport_day'),
     path('day/guidereport_day_guide_exp/', day_views.guidereport_day_guide_exp, name='guidereport_day_guide_exp'),
     path('day/guidereport_day_fuel_exp/', day_views.guidereport_day_fuel_exp, name='guidereport_day_fuel_exp'),
+    path('day/guiderport_day_summary/', day_views.guidereport_day_summary, name='guidereport_day_summary'),
     
     path('inbound/guidereport_inbound_agency/', inbound_views.guidereport_inbound_agency, name='guidereport_inbound_agency'),
     path('inbound/guidereport_inbound_events/', inbound_views.guidereport_inbound_events, name='guidereport_inbound_events'),

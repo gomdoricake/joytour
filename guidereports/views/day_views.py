@@ -189,11 +189,15 @@ def guidereport_day_guide_exp(request):
             event.guidereport = final_instance
             event.save()
 
-            if 'main_data' in request.session: del request.session['main_data']
-            if 'day_data' in request.session: del request.session['day_data']
-            if 'day_fuel' in request.session: del request.session['day_fuel']
+            request.session['guide_exp'] = {
+                'guidereport_id': guide_report.id,
+                'event_id': event.id,
+                'role': day_fuel['role'],
+                'day_inbound': day_fuel['day_inbound'], 
+                'today_str': today_str     
+            }
             
-            return redirect('guidereports:detail', pk=final_instance.id) 
+            return redirect('guidereports:guidereport_day_summary') 
     else:
         final_instance = guide_report
         formset = GuideExpFormSet(instance=final_instance)
@@ -209,3 +213,54 @@ def guidereport_day_guide_exp(request):
         'eventcode': event.eventcode,
         'report_date': report_date_str
     })
+
+@login_required
+def guidereport_day_summary(request): 
+    session_data = request.session.get('guide_exp') or request.session.get('day_fuel')
+    
+    if not session_data:
+        return redirect('guidereports:guidereport_day')
+        
+    report_id = session_data.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+    event = Event.objects.filter(guidereport=guide_report).first()
+
+    report_date_str = "-"
+    if event and event.report_date:
+        if isinstance(event.report_date, str):
+            report_date_str = event.report_date
+        else:
+            report_date_str = event.report_date.strftime("%Y-%m-%d")
+    elif session_data.get('today_str'):
+        # today_str(ddmmyy) 포맷을 YYYY-MM-DD로 변환 시도 (예외 처리 포함)
+        try:
+            report_date_str = datetime.strptime(session_data.get('today_str'), '%d%m%y').strftime('%Y-%m-%d')
+        except ValueError:
+            pass
+    
+    fuel_expenses = FuelExp.objects.filter(guide_report=guide_report)
+    guide_expenses = GuideExp.objects.filter(guide_report=guide_report)
+    
+    total_fuel = sum(item.expense for item in fuel_expenses if item.expense)
+    total_guide = sum(item.expense for item in guide_expenses if item.expense)
+    grand_total = total_fuel + total_guide
+
+    if request.method == 'POST':
+        if 'main_data' in request.session: del request.session['main_data']
+        if 'day_data' in request.session: del request.session['day_data']
+        if 'day_fuel' in request.session: del request.session['day_fuel']
+        if 'guide_exp' in request.session: del request.session['guide_exp']
+        
+        return redirect('guidereports:detail', pk=guide_report.id)
+
+    context = {
+        'guide_report': guide_report,
+        'event': event,
+        'report_date': report_date_str,
+        'fuel_expenses': fuel_expenses,
+        'guide_expenses': guide_expenses,
+        'total_fuel': total_fuel,
+        'total_guide': total_guide,
+        'grand_total': grand_total,
+    }
+    return render(request, 'guidereports/day/guidereport_day_summary.html', context)
