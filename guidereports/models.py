@@ -106,22 +106,9 @@ class GuideExp(models.Model):
         return str(self.expense_type) + " " + str(self.expense)
     
 class RestaurantExp(models.Model): 
-    EXPENSE_CHOICES = [
-        ('홍대', '홍대'),
-        ('대장금', '대장금'),
-        ('OAK & VINE', 'OAK & VINE'),  
-        ('CELLAR DOOR', 'CELLAR DOOR'), 
-        ('LA PORCHETTA', 'LA PORCHETTA'), 
-        ('FUSION SPACE', 'FUSION SPACE'), 
-        ('FEAST BUFFET', 'FEAST BUFFET'), 
-        ('BANG POP', 'BANG POP'),
-        ('WING LOCK', 'WING LOCK'),
-        ('ROCHFORD', 'ROCHFORD'),
-        ('OTHERS', 'OTHERS')
-    ]
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='홍대')
+    expense_type = models.CharField(max_length=100, null=True, blank=True)
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
 
@@ -142,19 +129,9 @@ class RestaurantExp(models.Model):
         return str(self.expense_type)
 
 class AttractionExp(models.Model): 
-    EXPENSE_CHOICES = [
-        ('PUFFING BILLY', 'PUFFING BILLY'), 
-        ('PENGUIN PARADE', 'PENGUIN PARADE'), 
-        ('PENINSULA', 'PENINSULA'), 
-        ('HELI 15min', 'HELI 15min'), 
-        ('PENGUINE PARADE', 'PENGUINE PARADE'), 
-        ('CRUISE', 'CRUISE'), 
-        ('EUREKA', 'EUREKA'), 
-        ('WINE TASTING', 'WINE TASTING')
-    ]
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='attractions')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, choices=EXPENSE_CHOICES, default='EUREKA')
+    expense_type = models.CharField(max_length=100, null=True, blank=True)
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
 
@@ -164,7 +141,7 @@ class AttractionExp(models.Model):
 class FuelExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='fuels')
     report_date = models.DateField(null=True, blank=True)
-    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, null=True, blank=True)
     memo = models.CharField(max_length=30, null=True, blank=True)
 
     def __str__(self): 

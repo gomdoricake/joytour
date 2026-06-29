@@ -1,160 +1,124 @@
 <style>
-  /* 🌟 표준 레이아웃 및 폰트 규격 적용 */
-  .mypage-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 30px;
-    font-family: "Pretendard", sans-serif;
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  }
-  .header-box {
-    display: flex;
-    justify-content: space-between;
-    align-items: center; /* 수직 중앙 정렬로 안정감 부여 */
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f8f9fa;
-  }
-  .title {
-    font-size: 22px;
-    font-weight: 800;
-    color: #1e293b;
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
     margin: 0;
   }
+
+  .mypage-container {
+    max-width: 650px;
+    margin: 60px auto;
+    padding: 40px;
+    font-family: sans-serif;
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+  }
+
+  /* 🌟 마이페이지 전용: 확실한 웰컴 프로필 히어로 배너 */
+  .profile-hero-card {
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    padding: 28px;
+    border-radius: 18px;
+    color: #ffffff;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .profile-hero-card .welcome-text h2 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+  }
+  .profile-hero-card .welcome-text p {
+    font-size: 13px;
+    margin: 0;
+    color: #c7d2fe;
+  }
   
-  /* 🌟 [1번 교정] 마이페이지 수정 버튼: 상단 구석으로 옮기고 톤 다운 (차분한 서브 버튼 형태) */
+  /* 마이페이지 내비게이션 링크 */
+  .mypage-nav-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
   .btn-edit-mypage {
     display: inline-block;
-    padding: 8px 14px;
-    background: #f1f5f9;
-    color: #475569;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-  .btn-edit-mypage:hover {
-    background: #e2e8f0;
-    color: #1e293b;
-  }
-
-  /* 🌟 [공통] 마이페이지 하단 버튼 베이스 규격 맞춤 */
-  .btn-action-base {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 12px 18px; /* 너무 크지 않고 딱 적당한 두께감 */
+    padding: 10px 16px;
+    background: #ffffff;
+    color: #4f46e5;
+    border: 1px solid #ffffff;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s ease-in-out;
-    box-sizing: border-box;
-    height: 46px; /* 두 버튼의 높이를 강제로 통일하여 안정감 부여 */
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   }
-
-  /* 🚀 [주인공] 가이드 리포트 생성 버튼 (컴팩트 버전) */
-  .btn-create-report {
-    background: #4f46e5; /* 세련된 인디고 블루 유지 */
-    color: #ffffff;
-    flex: 1.2; /* Review 버튼보다 미세하게 넓혀 시각적 안정감 유도 */
-    border: none;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
-  }
-  .btn-create-report:hover {
-    background: #4338ca;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
-  }
-
-  /* 🔍 [보조] Review Grade 버튼 (차분한 라인 버전) */
-  .btn-review-grade {
-    background: #ffffff;
-    color: #475569;
-    border: 1.5px solid #cbd5e0;
-    flex: 1; /* 생성 버튼보다 살짝 슬림하게 */
-    cursor: pointer;
-    font-family: "Pretendard", sans-serif;
-  }
-  .btn-review-grade:hover {
+  .btn-edit-mypage:hover {
     background: #f8fafc;
-    color: #1e293b;
-    border-color: #94a3b8;
+    color: #3730a3;
   }
 
-  /* 🌟 [2번 교정] 액션 버튼 레이아웃 구조조정 */
+  /* 🌟 리포트 생성 버튼 (기존보다 더 명확하게 하단 배치 및 스타일 조정) */
   .action-row {
-    display: flex;
-    justify-content: space-between; /* 양쪽 끝으로 균형감 있게 배치 */
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 30px;
+    margin-bottom: 35px;
   }
-  /* 🌟 주인공 버튼 (가이드 리포트 생성) : 무조건 눈에 띄고 듬직하게 */
   .btn-create-report {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 100%;
     padding: 16px;
-    background: #4f46e5; /* 시선을 사로잡는 선명한 블루/인디고 */
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
+    background: #ffffff;
+    color: #4f46e5;
+    border: 2px dashed #c7d2fe;
+    border-radius: 14px;
+    font-size: 15px;
     font-weight: 700;
     text-decoration: none;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    letter-spacing: -0.2px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
   }
   .btn-create-report:hover {
-    background: #4338ca;
+    background: #f5f3ff;
+    border-color: #4f46e5;
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.3);
   }
 
-  /* 🌟 서브 기능 버튼 (Review Grade) : 튀지 않는 투명 라인 버튼 스타일 */
-  .btn-review-grade {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 12px;
-    background: #ffffff;
-    color: #64748b;
-    border: 1.5px solid #cbd5e0;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: "Pretendard", sans-serif;
-    transition: all 0.2s;
-  }
-  .btn-review-grade:hover {
-    background: #f8fafc;
-    color: #334155;
-    border-color: #94a3b8;
-  }
-
-  /* 🌟 정보 그리드 영역 */
+  /* 정보 그리드 */
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 20px;
+    gap: 18px;
+    padding: 24px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 16px;
+    border-radius: 18px;
+  }
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
   .info-item label {
-    display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: #64748b;
-    margin-bottom: 6px;
-    font-weight: 600;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
   .info-item span {
     font-size: 15px;
@@ -162,150 +126,106 @@
     color: #1e293b;
   }
   
-  /* 섹션 타이틀 */
   .section-title {
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 700;
-    margin: 35px 0 15px;
-    color: #1e293b;
+    margin: 40px 0 16px;
+    color: #475569;
+    letter-spacing: -0.3px;
+    padding-left: 6px;
+    border-left: 3px solid #cbd5e1;
   }
 
-  /* 🌟 리포트 목록 리스트 표준화 */
+  /* 리포트 리스트 스타일 */
   .report-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .report-item {
-    border-bottom: 1px solid #e2e8f0;
+    border-radius: 12px;
     background: #ffffff;
-    transition: 0.2s;
-  }
-  .report-item:last-child {
-    border-bottom: none;
-  }
-  .report-item a {
-    text-decoration: none;
-    color: #334155; 
-    font-weight: 600;
-    font-size: 14px;
-    display: block;
-    padding: 16px 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.25s ease;
   }
   .report-item:hover {
-    background: #f8fafc;
+    border-color: #4f46e5;
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
   }
-  .report-item:hover a {
-    color: #4f46e5; 
-  }
-
-  /* 하단 링크 */
-  .logout-link {
-    font-size: 13px;
-    color: #94a3b8;
-    text-decoration: underline;
-    font-weight: 500;
-  }
-  .logout-link:hover {
-    color: #64748b;
-  }
-  .nav-block {
+  
+  .report-item a.report-link {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-  }
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
-    color: #64748b;
-    background: #f1f5f9;
-    border-radius: 8px;
+    padding: 16px 20px;
     text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-  .back-link:hover {
-    background: #e2e8f0;
+    width: 100%;
+    box-sizing: border-box;
     color: #334155;
+    font-weight: 600;
+    font-size: 14px;
   }
-  /* 리스트 아이템 베이스 정렬 */
-  .report-item {
-    display: flex;
-    justify-content: space-between; /* 이름은 왼쪽, 뱃지는 오른쪽 */
-    align-items: center;
-    padding: 12px 16px;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  .report-link {
-    text-decoration: none;
-    color: #1e293b;
-    font-weight: 500;
-  }
-
+  
   .invoice-num {
-    color: #64748b;
-    font-weight: 400;
-    margin-right: 4px;
+    color: #94a3b8;
+    font-weight: 700;
+    margin-right: 6px;
   }
 
-  /* 🏷️ 미니 뱃지 공통 스타일 */
   .status-mini-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 10px;
-    border-radius: 20px; /* 동글동글한 알약 모양 */
+    padding: 5px 12px;
+    border-radius: 20px;
     font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
+    font-weight: 800;
   }
-  
-  .status-mini-badge.mini-waiting {
-    background-color: #FFF1F2;
-    color: #E11D48;
-    border: 1px solid #FFF1F2;
-  }
-  
-  .status-mini-badge.mini-confirmed {
-    background-color: #fef9c3;
-    color: #713f12;
-    border: 1px solid #fef9c3;
-  }
+  .status-mini-badge.mini-waiting { background-color: #fff1f2; color: #f43f5e; border: 1px solid #ffe4e6; }
+  .status-mini-badge.mini-confirmed { background-color: #fefce8; color: #b45309; border: 1px solid #fef9c3; }
+  .status-mini-badge.mini-paid { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
 
-  .status-mini-badge.mini-paid {
-    background-color: #dcfce7;
-    color: #14532d;
-    border: 1px solid #dcfce7;
+  .logout-link {
+    font-size: 13px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-weight: 500;
   }
-
+  .logout-link:hover { color: #64748b; text-decoration: underline; }
 </style>
 
 <div class="mypage-container">
   
-  <div class="header-box">
-    <h2 class="title">{{ guide.name }}님의 MyPage</h2>
-    <div style="display: flex; align-items: center; gap: 12px;">
+  <div class="mypage-nav-links">
+    <div>
       {% if user.username == 'admin' %}
-      <a href="{% url 'guides:index' %}" style="color: #64748b; font-size: 13px; text-decoration: none; font-weight: 500;">가이드 목록</a>
+        <a href="{% url 'guides:index' %}" style="color: #64748b; font-size: 13px; text-decoration: none; font-weight: 600;">← 가이드 목록으로 돌아가기</a>
+      {% else %}
+        <span style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">내 계정 대시보드</span>
       {% endif %}
-      <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">정보 수정</a>
     </div>
+    <a href="{% url 'home' %}" class="logout-link">로그아웃</a>
   </div>
 
-<div class="action-row">
-  <a href="{% url 'guidereports:guidereport_main' %}?new=1" class="btn-action-base btn-create-report">
-    리포트 새로 생성하기
-  </a>
-  
-</div>
+  <div class="profile-hero-card">
+    <div class="welcome-text">
+      <h2>{{ guide.name }}님의 개인 공간</h2>
+      <p>등록된 개인 정보와 정산 리포트 목록을 관리합니다.</p>
+    </div>
+    <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">정보 수정</a>
+  </div>
+
+  <div class="action-row">
+    <a href="{% url 'guidereports:guidereport_main' %}?new=1" class="btn-create-report">
+      ➕ 새로운 가이드 리포트 정산서 작성하기
+    </a>
+  </div>
+
+  <h3 class="section-title">기본 프로필 정보</h3>
   <div class="info-grid">
     <div class="info-item">
       <label>첫 트레이닝</label><span>{{ guide.init_training_date|date:"y-m-d" }}</span>
@@ -319,15 +239,15 @@
     <div class="info-item">
       <label>연락처</label><span>{{ guide.contact_info }}</span>
     </div>
-    <div class="info-item" style="grid-column: span 2">
+    <div class="info-item">
       <label>주소</label><span>{{ guide.address }}</span>
     </div>
-    <div class="info-item">
-      <label>ABN</label><span>{{ guide.abn }}</span>
+    <div class="info-item" style="grid-column: span 2">
+      <label>ABN</label><span style="letter-spacing: 0.5px;">{{ guide.abn }}</span>
     </div>
   </div>
 
-  <h3 class="section-title">계좌 정보</h3>
+  <h3 class="section-title">지급 계좌 정보</h3>
   <div class="info-grid">
     <div class="info-item">
       <label>은행명</label><span>{{ guide.bank_account_name }}</span>
@@ -335,36 +255,36 @@
     <div class="info-item">
       <label>BSB</label><span>{{ guide.bsb }}</span>
     </div>
-    <div class="info-item">
+    <div class="info-item" style="grid-column: span 2">
       <label>계좌번호</label><span>{{ guide.account_number }}</span>
     </div>
   </div>
 
-  <h3 class="section-title">가이드 리포트 목록</h3>
+  <h3 class="section-title">작성된 가이드 리포트 정산서 목록</h3>
   <ul class="report-list">
     {% for report in guide_reports %}
-  <li class="report-item">
-    <a href="{% url 'guidereports:detail' report.pk %}" class="report-link">
-      <span class="invoice-num">{{ report.invoice_number }}.</span> {{ report.group_code }}
-    </a>
-    
-    {% if report.is_paid %} 
-      <span class="status-mini-badge mini-paid">PAID</span> 
-    {% elif report.is_confirmed %} 
-      <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
-    {% else %} 
-      <span class="status-mini-badge mini-waiting">WAITING</span>
-    {% endif %}
-  </li>    
-  {% empty %}
-    <li class="report-item" style="color: #94a3b8; text-align: center; padding: 30px 20px; font-size: 14px; font-weight: 500;">
+    <li class="report-item">
+      <a href="{% url 'guidereports:detail' report.pk %}" class="report-link">
+        <div>
+          <span class="invoice-num">#{{ report.invoice_number }}</span> 
+          <span>{{ report.group_code }}</span>
+        </div>
+        
+        <div>
+          {% if report.is_paid %} 
+            <span class="status-mini-badge mini-paid">PAID</span> 
+          {% elif report.is_confirmed %} 
+            <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
+          {% else %} 
+            <span class="status-mini-badge mini-waiting">WAITING</span>
+          {% endif %}
+        </div>
+      </a>
+    </li>    
+    {% empty %}
+    <li class="report-item" style="color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 14px; font-weight: 500; background: #f8fafc; border-style: dashed;">
       등록된 리포트가 없습니다.
     </li>
     {% endfor %}
   </ul>
-
-  <div style="text-align: right; margin-top: 30px">
-    <a href="{% url 'home' %}" class="logout-link">로그아웃</a>
-  </div>
-  
 </div>

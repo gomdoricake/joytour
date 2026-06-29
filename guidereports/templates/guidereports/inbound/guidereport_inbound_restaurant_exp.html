@@ -1,107 +1,29 @@
 <style>
-  /* 기존 Guide Report 스타일과 동일한 레이아웃 */
+  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
   .report-container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 30px;
-    font-family: "Pretendard", sans-serif;
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  }
-  .title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #2d3436;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #f1f2f6;
-  }
-  
-  /* 리포트 정보 박스 */
-  .report-info-box {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 30px;
-  }
-  
-  /* 입력 폼 행 스타일 */
-.expense-form-row {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 20px;
-    position: relative;
-    /* 추가된 부분: 내부 요소를 정렬합니다 */
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    padding-right: 80px; /* 우측 삭제 버튼을 위한 공간 확보 */
+    max-width: 720px;
+    margin: 60px auto;
+    padding: 40px;
+    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
   }
 
-  .form-group { flex: 1; min-width: 150px; }
-
-  
-    
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #718096;
-    margin-bottom: 6px;
-  }
-  
-  .form-group input, .form-group select {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #cbd5e0;
-    border-radius: 8px;
-    font-size: 14px;
-    box-sizing: border-box;
-    background: #fff;
-  }
-
-    .btn-remove {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #fff5f5;
-      color: #e53e3e;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      z-index: 10;
-    }
-  .btn-add {
-    background: #e8f5e9;
-    color: #2e7d32;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    width: 100%;
-  }
-  .btn-submit {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    background: #2d3436;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 30px;
-  }
-
+  /* 상단 이동 링크 */
   .nav-block {
     display: flex;
     justify-content: space-between;
@@ -111,10 +33,11 @@
   .back-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    color: #64748b;
+    padding: 10px 16px;
+    color: #475569;
     background: #f1f5f9;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -122,27 +45,205 @@
   }
   .back-link:hover {
     background: #e2e8f0;
-    color: #334155;
+    color: #0f172a;
+  }
+
+  /* 타이틀 스타일 */
+  .title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    letter-spacing: -0.5px;
+  }
+  
+  /* 🌟 리포트 정보 박스 브랜딩 */
+  .report-info-box {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 35px;
+  }
+  .report-info-box strong {
+    color: #475569;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  
+  /* 🌟 동적 추가 경비 행(Row) 카드 포맷 */
+  .expense-form-row {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-right: 90px; /* 우측 삭제 버튼 공간 */
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    transition: all 0.2s ease;
+  }
+  .expense-form-row:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.02);
+  }
+
+  /* 입력 항목 레이아웃 그룹 그룹화 */
+  .form-group { 
+    flex: 1; 
+    min-width: 140px; 
+  }
+  .form-group:has(input[name$="-memo"]) {
+    flex: 1.5; /* 메모 인풋의 가로 비율 확대 */
+  }
+  
+  /* 라벨 스타일 */
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* 인풋 요소 공통 스타일 */
+  .form-group input, 
+  .form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    box-sizing: border-box;
+    background: #fff;
+    transition: all 0.2s ease;
+  }
+  .form-group input:focus, 
+  .form-group select:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+
+  /* 🎯 커스텀 드롭다운 화살표 스타일 정돈 */
+  .form-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px top 50%;
+    background-size: 10px auto;
+    padding-right: 36px;
+    cursor: pointer;
+  }
+
+  /* ❌ 우측 정렬 삭제 버튼 */
+  .btn-remove {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    right: 20px;
+    background: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.2s ease;
+  }
+  .btn-remove:hover {
+    background: #ffe4e6;
+    color: #e11d48;
+    border-color: #fecdd3;
+  }
+
+  /* ➕ 항목 추가 버튼 (연한 그린 스킨) */
+  .btn-add {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+  }
+  .btn-add:hover {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+
+  /* 🚀 다음 단계 제출 버튼 (인디고 그라디언트) */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 35px;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+  .btn-submit:disabled {
+    background: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
   }
 </style>
 
-<div class="report-container">
+<datalist id="restaurant_datalist">
+  {% for key, value in RESTAURANT_CHOICES %}
+    <option value="{{ key }}">{{ value }}</option>
+  {% endfor %}
+</datalist>
 
+<div class="report-container">
   <div class="nav-block">
-    <a href="{% url 'guidereports:guidereport_inbound_events' %}" class="back-link">← 전으로 돌아가기</a>
+    <a href="{% url 'guidereports:guidereport_inbound_events' %}" class="back-link">← 이전 단계로 돌아가기</a>
   </div>
 
   <h2 class="title">Restaurant 경비 내역</h2>
 
   <div class="report-info-box">
-    <div style="display: flex; gap: 20px; font-size: 14px;">
-      <div><strong>구분:</strong> {{ guide_report.day_inbound }}</div>
-      <div><strong>그룹 코드:</strong> {{ guide_report.group_code }}</div>
+    <div style="display: flex; gap: 24px; font-size: 14px; color: #1e293b; font-weight: 600;">
+      <div><strong>구분</strong> {{ guide_report.day_inbound }}</div>
+      <div><strong>그룹 코드</strong> <span>{{ guide_report.group_code }}</span></div>
     </div>
   </div>
 
   <form method="post" id="real-expense-form">
-    {% csrf_token %} {{ formset.management_form }}
+    {% csrf_token %} 
+    {{ formset.management_form }}
 
     <div id="expense-form-list">
       {% for form in formset %}
@@ -151,16 +252,24 @@
         <div style="display: none">{{ form.DELETE }}</div>
         
         <div class="form-group"><label>날짜</label>{{ form.report_date }}</div>
-        <div class="form-group"><label>식당명/타입</label>{{ form.expense_type }}</div>
-        <div class="form-group"><label>MEMO</label>{{ form.memo }}</div>
+        
+        <div class="form-group">
+          <label>식당명 / 타입</label>
+          {{ form.expense_type }}
+        </div>
+        
+        <div class="form-group"><label>Memo (메모)</label>{{ form.memo }}</div>
         
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
       </div>
       {% endfor %}
     </div>
 
-    <button type="button" id="add-form-btn" class="btn-add">+ Restaurant 항목 추가</button>
-    <button type="submit" id="submit-final-btn" class="btn-submit">Next Step (Attraction)</button>
+    <div style="margin-bottom: 16px;">
+      <button type="button" id="add-form-btn" class="btn-add">➕ Restaurant 항목 추가하기</button>
+    </div>
+
+    <button type="submit" id="submit-final-btn" class="btn-submit">다음 단계로 이동 (Next: Attraction)</button>
   </form>
 </div>
 
@@ -169,8 +278,11 @@
     {{ formset.empty_form.id }}
     <div style="display: none">{{ formset.empty_form.DELETE }}</div>
     <div class="form-group"><label>날짜</label>{{ formset.empty_form.report_date }}</div>
-    <div class="form-group"><label>식당명/타입</label>{{ formset.empty_form.expense_type }}</div>
-    <div class="form-group"><label>MEMO</label>{{ formset.empty_form.memo }}</div>
+    <div class="form-group">
+      <label>식당명 / 타입</label>
+      {{ formset.empty_form.expense_type }}
+    </div>
+    <div class="form-group"><label>Memo (메모)</label>{{ formset.empty_form.memo }}</div>
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
@@ -181,28 +293,35 @@
     const addButton = document.getElementById("add-form-btn");
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
-
     const prefix = "{{ formset.prefix }}";
 
+    // [추가] 기존에 렌더링된 input 엘리먼트에도 datalist 속성을 바인딩해줍니다 (Django forms.py에서 설정 안 했을 경우 대비)
+    function bindDataList(container) {
+      // name 속성에 'expense_type'이 포함된 input을 찾아서 list 속성 부여
+      const expenseInputs = container.querySelectorAll("input[name*='expense_type']");
+      expenseInputs.forEach(input => {
+        input.setAttribute("list", "restaurant_datalist");
+      });
+    }
+
+    // 초기 실행 시 기존 폼들에 datalist 바인딩
+    bindDataList(formContainer);
+
+    // 항목 동적 추가
     addButton.addEventListener("click", function () {
       const noDataAlert = document.getElementById("no-data-alert");
       if (noDataAlert) noDataAlert.remove();
 
-      const template = document.getElementById(
-        "empty-form-template",
-      ).firstElementChild;
+      const template = document.getElementById("empty-form-template").firstElementChild;
       const newRow = template.cloneNode(true);
-      const currentFormCount =
-        formContainer.getElementsByClassName("expense-form-row").length;
+      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
 
       const prefixRegex = new RegExp(`__prefix__`, "g");
       const inputs = newRow.querySelectorAll("input, select, textarea");
 
       inputs.forEach((input) => {
-        if (input.name)
-          input.name = input.name.replace(prefixRegex, currentFormCount);
-        if (input.id)
-          input.id = input.id.replace(prefixRegex, currentFormCount);
+        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
+        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
 
         if (input.type !== "hidden") {
           if (input.tagName === "SELECT") {
@@ -214,41 +333,35 @@
       });
 
       formContainer.appendChild(newRow);
+      
+      // 새 행이 추가된 후 datalist 다시 바인딩
+      bindDataList(newRow);
 
-      const totalFormsInput = document.getElementById(
-        `id_${prefix}-TOTAL_FORMS`,
-      );
+      const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
       if (totalFormsInput) {
         totalFormsInput.value = currentFormCount + 1;
         totalFormsInput.setAttribute("value", currentFormCount + 1);
       }
     });
 
+    // 항목 삭제 및 가변 인덱스 재정렬
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const row = event.target.closest(".expense-form-row");
-
         row.remove();
 
-        const remainingRows =
-          formContainer.getElementsByClassName("expense-form-row");
-        const totalFormsInput = document.getElementById(
-          `id_${prefix}-TOTAL_FORMS`,
-        );
+        const remainingRows = formContainer.getElementsByClassName("expense-form-row");
+        const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
         if (totalFormsInput) totalFormsInput.value = remainingRows.length;
 
         const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
         const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
 
         for (let i = 0; i < remainingRows.length; i++) {
-          const rowInputs = remainingRows[i].querySelectorAll(
-            "input, select, textarea",
-          );
+          const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
           rowInputs.forEach((input) => {
-            if (input.name)
-              input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
-            if (input.id)
-              input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
+            if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
+            if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
           });
         }
       }
@@ -256,7 +369,7 @@
 
     mainForm.addEventListener("submit", function () {
       submitBtn.disabled = true;
-      submitBtn.innerText = "Processing to Next Step...";
+      submitBtn.innerText = "다음 단계 양식 생성 중 (Attraction)...";
     });
   });
 </script>

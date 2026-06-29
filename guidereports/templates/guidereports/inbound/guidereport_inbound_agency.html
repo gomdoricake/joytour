@@ -1,103 +1,29 @@
 <style>
+  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
   .report-container {
     max-width: 600px;
-    margin: 40px auto;
-    padding: 30px;
-    font-family: "Pretendard", sans-serif;
-    background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
-  }
-  .title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #2d3436;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #f1f2f6;
+    margin: 60px auto;
+    padding: 40px;
+    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
   }
 
-  /* 폼 요소 스타일 */
-  .report-form p {
-    margin-bottom: 20px;
-  }
-  .report-form label {
-    display: block;
-    font-size: 13px;
-    color: #888;
-    margin-bottom: 8px;
-    font-weight: 600;
-  }
-
-  .report-form input[type="text"],
-  .report-form input[type="number"],
-  .report-form input[type="date"],
-  .report-form select,
-  .report-form textarea {
-    width: 100%;
-    padding: 14px;
-    border: 1.5px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 15px;
-    color: #333;
-    transition: all 0.2s;
-    box-sizing: border-box;
-    background-color: #fff;
-  }
-
-  /* 원래 CSS에 있던 드롭다운(화살표) 스타일을 datalist가 연결된 input[list]에도 적용 */
-  .report-form select,
-  .report-form input[list] {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23a0aec0%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 15px top 50%;
-    background-size: 10px auto;
-    padding-right: 40px;
-    cursor: pointer;
-  }
-
-  /* 브라우저 기본 화살표와 디자인이 겹치지 않도록 투명화 */
-  .report-form input[list]::-webkit-calendar-picker-indicator {
-    opacity: 0 !important;
-  }
-
-  .report-form input:focus,
-  .report-form select:focus {
-    border-color: #2d3436;
-    outline: none;
-    box-shadow: 0 0 0 4px rgba(45, 52, 54, 0.05);
-  }
-
-  /* 버튼 및 에러 메시지 */
-  .error-box {
-    background: #fff5f5;
-    border: 1px solid #feb2b2;
-    color: #c53030;
-    padding: 15px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    font-size: 14px;
-  }
-  .btn-submit {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    background: #2d3436;
-    color: #fff;
-    border: none;
-    border-radius: 12px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.3s;
-    margin-top: 30px;
-  }
-  .btn-submit:hover {
-    background: #4a4a4a;
-  }
-
+  /* 상단 이동 링크 */
   .nav-block {
     display: flex;
     justify-content: space-between;
@@ -107,10 +33,11 @@
   .back-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    color: #64748b;
+    padding: 10px 16px;
+    color: #475569;
     background: #f1f5f9;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -118,19 +45,141 @@
   }
   .back-link:hover {
     background: #e2e8f0;
-    color: #334155;
+    color: #0f172a;
+  }
+
+  /* 🌟 타이틀 및 서브 뱃지 라인 */
+  .title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .title-badge {
+    font-size: 12px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* 에러 메시지 상자 */
+  .error-box {
+    background: #fff1f2;
+    border: 1px solid #ffe4e6;
+    color: #f43f5e;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* 🌟 폼 요소 고급화 */
+  .report-form p {
+    margin-bottom: 24px;
+  }
+  .report-form label {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .report-form input[type="text"],
+  .report-form input[type="number"],
+  .report-form input[type="date"],
+  .report-form select,
+  .report-form input[list] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  /* 🎯 세련된 커스텀 드롭다운 & datalist 매핑 인풋 통합 화살표 */
+  .report-form select,
+  .report-form input[list] {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px top 50%;
+    background-size: 11px auto;
+    padding-right: 44px;
+    cursor: pointer;
+  }
+
+  /* 브라우저 기본 캘린더/리스트 인디케이터 투명 아이콘 중복 제거 */
+  .report-form input[list]::-webkit-calendar-picker-indicator {
+    opacity: 0 !important;
+  }
+
+  /* 포커스 링 하이라이트 효과 */
+  .report-form input:focus,
+  .report-form select:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    background-color: #ffffff;
+  }
+
+  /* 🚀 다음 단계로 이동 버튼 (인디고 그라디언트) */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 40px;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+  }
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
 </style>
 
 <div class="report-container">
   <div class="nav-block">
-    <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 전으로 돌아가기</a>
+    <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 이전 단계로 돌아가기</a>
   </div>
 
   {% if user.username != 'admin' %}
-    <h2 class="title">Guide Report — Inbound — AGENCY CODE</h2>
+    <h2 class="title">
+      <span>Guide Report</span>
+      <span class="title-badge">Inbound</span>
+      <span class="title-badge" style="background:#f1f5f9; color:#475569;">Agency Details</span>
+    </h2>
   {% else %}
-    <h2 class="title">Edit Report Details</h2>
+    <h2 class="title">Edit Report Details <span class="title-badge" style="background:#f1f5f9; color:#475569;">Admin</span></h2>
   {% endif %}
 
   <form method="post" class="report-form">
@@ -138,44 +187,44 @@
 
       {% if form.errors %}
         <div class="error-box">
-            <strong>입력 내용을 확인해 주세요.</strong>
-            {{ form.errors }}
+            <strong>입력 내용을 다시 한 번 확인해 주세요.</strong>
+            <div style="margin-top: 6px; font-weight: normal; font-size: 13px;">{{ form.errors }}</div>
         </div>
       {% endif %}
       
       <p>
-      <label for="{{ form.agency_code.id_for_label }}">Agency Code:</label>
-          {{ form.agency_code }}
-          
-          <datalist id="agency_datalist">
-              {% for key, value in AGENCY_CHOICES.items %}
-                  <option value="{{ key }}">{{ value }}</option>
-              {% endfor %}
-          </datalist>
+        <label for="{{ form.agency_code.id_for_label }}">Agency Code (거래처 코드)</label>
+        {{ form.agency_code }}
+        
+        <datalist id="agency_datalist">
+            {% for key, value in AGENCY_CHOICES.items %}
+                <option value="{{ key }}">{{ value }}</option>
+            {% endfor %}
+        </datalist>
       </p>
 
       <p>
-          <label for="{{ form.adt.id_for_label }}">ADT:</label>
-          {{ form.adt }}      
+        <label for="{{ form.adt.id_for_label }}">ADT (성인 인원수)</label>
+        {{ form.adt }}      
       </p>
 
       <p>
-          <label for="{{ form.chd.id_for_label }}">CHD:</label>
-          {{ form.chd }}      
+        <label for="{{ form.chd.id_for_label }}">CHD (소아 인원수)</label>
+        {{ form.chd }}      
       </p>
 
       <p>
-          <label for="{{ form.tc.id_for_label }}">TC:</label>
-          {{ form.tc }}
+        <label for="{{ form.tc.id_for_label }}">TC (인솔자 가이드수)</label>
+        {{ form.tc }}
       </p>
 
-      <button type="submit" class="btn-submit">Next</button>
+      <button type="submit" class="btn-submit">다음 단계로 이동하기 (Next)</button>
   </form>
 </div>
 
-
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    // 0 값 초기 리셋 최적화 스크립트 그대로 유지
     const fieldsToClear = ["adt", "tc", "chd"];
     fieldsToClear.forEach((name) => {
       const input = document.querySelector('input[name="' + name + '"]');
