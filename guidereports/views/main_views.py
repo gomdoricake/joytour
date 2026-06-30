@@ -67,8 +67,8 @@ def DetailView(request, pk):
     guide_report.final_expenses_fee = expense_fee
     
     fuel_fee = 0
-    for fuel in fuels: 
-        fee = float(fuel.expense)
+    for fuel in fuels:
+        if fuel.expense: fee = float(fuel.expense)
         fuel_fee += fee
 
     guide_report.final_fuels_fee = fuel_fee

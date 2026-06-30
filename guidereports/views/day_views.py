@@ -166,7 +166,7 @@ def guidereport_day_guide_exp(request):
                 exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
                 exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
                 memo = request.POST.get(f'{prefix}-{i}-memo')
-                is_delete = request.POST.get(f'{prefix}-{i}-DELETE') # prefix 연동 수정
+                is_delete = request.POST.get(f'{prefix}-{i}-DELETE') 
 
                 if exp_type and exp_val_raw and not is_delete:
                     try:
@@ -232,7 +232,6 @@ def guidereport_day_summary(request):
         else:
             report_date_str = event.report_date.strftime("%Y-%m-%d")
     elif session_data.get('today_str'):
-        # today_str(ddmmyy) 포맷을 YYYY-MM-DD로 변환 시도 (예외 처리 포함)
         try:
             report_date_str = datetime.strptime(session_data.get('today_str'), '%d%m%y').strftime('%Y-%m-%d')
         except ValueError:
