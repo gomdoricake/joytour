@@ -228,15 +228,13 @@
     <div class="summary-section-card">
       <div class="section-title">
         <span>Restaurant Expenses</span>
-        <span style="color: #475569; font-size: 14px;">소계: {{ total_restaurant|default:"$0" }}</span>
       </div>
       {% if restaurant_expenses %}
         <table class="summary-table">
           <thead>
             <tr>
               <th>식당명/항목</th>
-              <th>메모(Memo)</th>
-              <th class="text-right">금액</th>
+              <th class="text-right">메모(Memo)</th>
             </tr>
           </thead>
           <tbody>
@@ -244,7 +242,6 @@
               <tr>
                 <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
                 <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">{{ item.expense }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -257,15 +254,13 @@
     <div class="summary-section-card">
       <div class="section-title">
         <span>Attraction Expenses</span>
-        <span style="color: #475569; font-size: 14px;">소계: {{ total_attraction|default:"$0" }}</span>
       </div>
       {% if attraction_expenses %}
         <table class="summary-table">
           <thead>
             <tr>
               <th>관광지/옵션</th>
-              <th>메모(Memo)</th>
-              <th class="text-right">금액</th>
+              <th class="text-right">메모(Memo)</th>
             </tr>
           </thead>
           <tbody>
@@ -273,7 +268,6 @@
               <tr>
                 <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
                 <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">{{ item.expense }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -286,7 +280,6 @@
     <div class="summary-section-card">
       <div class="section-title">
         <span>Fuel Expenses</span>
-        <span style="color: #475569; font-size: 14px;">소계: {{ total_fuel|default:"$0" }}</span>
       </div>
       {% if fuel_expenses %}
         <table class="summary-table">
@@ -319,7 +312,6 @@
     <div class="summary-section-card">
       <div class="section-title">
         <span>Guide Expenses</span>
-        <span style="color: #475569; font-size: 14px;">소계: {{ total_guide|default:"$0" }}</span>
       </div>
       {% if guide_expenses %}
         <table class="summary-table">
@@ -343,11 +335,6 @@
       {% else %}
         <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 가이드 경비 내역이 없습니다.</div>
       {% endif %}
-    </div>
-
-    <div class="grand-total-box">
-      <span class="grand-total-title">Total Gross Expenses (총합계)</span>
-      <span class="grand-total-amount">{{ grand_total|default:"$0" }}</span>
     </div>
 
     <button type="submit" id="submit-final-btn" class="btn-submit">작성 완료 및 리포트 제출 (Submit)</button>
