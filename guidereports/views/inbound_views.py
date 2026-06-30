@@ -345,8 +345,6 @@ def guidereport_inbound_attraction_exp(request):
                 memo = request.POST.get(f'{prefix}-{i}-memo') 
                 is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
 
-                print(f'---- ATTRACTION [Row {i}] Name: {expense_type},  Delete: {is_delete} ----')
-
                 if report_date and expense_type and not is_delete: 
                     try: 
                         AttractionExp.objects.create(
@@ -358,8 +356,13 @@ def guidereport_inbound_attraction_exp(request):
                         print(f"Attraction 행 {i} 저장 성공")
                     except Exception as e:
                         print(f"Attraction 행 {i} 저장 실패: {e}")
-                
+            
             request.session['inbound_attraction'] = inbound_restaurant
+            
+            
+            if inbound_restaurant['role'] == 'GUIDE ONLY':
+                return redirect('guidereports:guidereport_inbound_guide_exp')
+
             return redirect('guidereports:guidereport_inbound_fuel_exp') 
 
     else:

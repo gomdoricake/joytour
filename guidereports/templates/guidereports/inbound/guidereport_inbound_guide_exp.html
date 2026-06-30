@@ -220,7 +220,11 @@
 
 <div class="report-container">
   <div class="nav-block">
+    {% if formset.role == 'GUIDE ONLY' %}
+    <a href="{% url 'guidereports:guidereport_inbound_attraction_exp' %}" class="back-link">← 이전 단계로 돌아가기</a>
+    {% else %}
     <a href="{% url 'guidereports:guidereport_inbound_fuel_exp' %}" class="back-link">← 이전 단계로 돌아가기</a>
+    {% endif %}
   </div>
 
   <h2 class="title">Expense 내역 추가</h2>
