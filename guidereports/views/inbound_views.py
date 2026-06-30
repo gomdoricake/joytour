@@ -10,6 +10,69 @@ from datetime import datetime, date
 from django.shortcuts import redirect
 
 @login_required
+def update_attraction(request, pk): 
+    guidereport = get_object_or_404(GuideReport, pk=pk)
+    
+    if request.user.username != 'admin':
+        return HttpResponseForbidden("권한이 없습니다.")
+
+    if request.method == 'POST': 
+        for attraction in guidereport.attractions.all():
+            adt_val = request.POST.get(f'adt_{attraction.pk}')
+            chd_val = request.POST.get(f'chd_{attraction.pk}')
+            tc_val = request.POST.get(f'tc_{attraction.pk}')
+            tg_val = request.POST.get(f'tg_{attraction.pk}')
+            tod_val = request.POST.get(f'tod_{attraction.pk}')
+
+            if adt_val is not None:
+                attraction.adt = int(adt_val) if adt_val else 0
+                attraction.chd = int(chd_val) if chd_val else 0
+                attraction.tc = int(tc_val) if tc_val else 0
+                attraction.tg = int(tg_val) if tg_val else 0
+                attraction.tod = int(tod_val) if tod_val else 0
+                
+                attraction.expense = 30 * attraction.adt + 20 * attraction.chd + 10 * attraction.tc + 5 * attraction.tg
+
+                attraction.save()
+
+        guidereport.save()
+            
+    return redirect('guidereports:detail', guidereport.pk)    
+
+
+@login_required
+def update_restaurant(request, pk): 
+    guidereport = get_object_or_404(GuideReport, pk=pk)
+    
+    if request.user.username != 'admin':
+        return HttpResponseForbidden("권한이 없습니다.")
+
+    if request.method == 'POST': 
+        for restaurant in guidereport.restaurants.all():
+            adt_val = request.POST.get(f'adt_{restaurant.pk}')
+            chd_val = request.POST.get(f'chd_{restaurant.pk}')
+            tc_val = request.POST.get(f'tc_{restaurant.pk}')
+            tg_val = request.POST.get(f'tg_{restaurant.pk}')
+            dr_val = request.POST.get(f'dr_{restaurant.pk}')
+
+            if adt_val is not None:
+                restaurant.adt = int(adt_val) if adt_val else 0
+                restaurant.chd = int(chd_val) if chd_val else 0
+                restaurant.tc = int(tc_val) if tc_val else 0
+                restaurant.tg = int(tg_val) if tg_val else 0
+                restaurant.dr = int(dr_val) if dr_val else 0
+                
+                restaurant.expense = 25 * restaurant.adt + 20 * restaurant.chd + 10 * restaurant.tc + 5 * restaurant.tg
+                print("restuarant.expense: " + str(restaurant.expense))
+                restaurant.save()
+            
+        guidereport.save()
+
+    return redirect('guidereports:detail', guidereport.pk)    
+
+
+
+@login_required
 def guidereport_inbound_agency(request): 
     main_data = request.session.get('main_data')
     if not main_data: 
@@ -263,41 +326,42 @@ def guidereport_inbound_attraction_exp(request):
 
     if request.method == "POST": 
         formset = AttractionFormSet(request.POST, instance=guide_report)
+        guide_report.save()
 
-        if formset.is_valid(): 
-            guide_report.save()
+        main_data = request.session.get('main_data', {})
+        main_data['guidereport_id'] = guide_report.id
+        request.session['main_data'] = main_data
+        
+        AttractionExp.objects.filter(guide_report_id=guide_report.id).delete()
+        
+        prefix = formset.prefix
+        total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
 
-            main_data = request.session.get('main_data', {})
-            main_data['guidereport_id'] = guide_report.id
-            request.session['main_data'] = main_data
-            
-            AttractionExp.objects.filter(guide_report_id=guide_report.id).delete()
-            
-            prefix = formset.prefix
-            total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+        for i in range(total_forms_count): 
+            report_date = request.POST.get(f'{prefix}-{i}-report_date')
+            expense_type = request.POST.get(f'{prefix}-{i}-expense_type')
+            memo = request.POST.get(f'{prefix}-{i}-memo') 
+            is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
 
-            for i in range(total_forms_count): 
-                report_date = request.POST.get(f'{prefix}-{i}-report_date')
-                expense_type = request.POST.get(f'{prefix}-{i}-expense_type')
-                memo = request.POST.get(f'{prefix}-{i}-memo') 
-                is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
+            if report_date and expense_type and not is_delete: 
+                try: 
+                    AttractionExp.objects.create(
+                        guide_report_id=guide_report.id,
+                        report_date=report_date if report_date else None,
+                        expense_type=expense_type, 
+                        memo = memo
+                    )
+                    print(f"Attraction 행 {i} 저장 성공")
+                except Exception as e:
+                    print(f"Attraction 행 {i} 저장 실패: {e}")
+        
+        request.session['inbound_attraction'] = inbound_restaurant
+        
+        
+        if inbound_restaurant['role'] == 'GUIDE ONLY':
+            return redirect('guidereports:guidereport_inbound_guide_exp')
 
-                print(f'---- ATTRACTION [Row {i}] Name: {expense_type},  Delete: {is_delete} ----')
-
-                if report_date and expense_type and not is_delete: 
-                    try: 
-                        AttractionExp.objects.create(
-                            guide_report_id=guide_report.id,
-                            report_date=report_date if report_date else None,
-                            expense_type=expense_type, 
-                            memo = memo
-                        )
-                        print(f"Attraction 행 {i} 저장 성공")
-                    except Exception as e:
-                        print(f"Attraction 행 {i} 저장 실패: {e}")
-                
-            request.session['inbound_attraction'] = inbound_restaurant
-            return redirect('guidereports:guidereport_inbound_fuel_exp') 
+        return redirect('guidereports:guidereport_inbound_fuel_exp') 
 
     else:
         formset = AttractionFormSet(instance=guide_report)
@@ -356,11 +420,11 @@ GuideExpFormSet = inlineformset_factory(
 @login_required
 def guidereport_inbound_guide_exp(request): 
 
-    inbound_attraction = request.session.get('inbound_attraction')
-    if not inbound_attraction: 
-        return redirect('guidereports:guidereport_inbound_attraction_exp')
+    inbound_fuel = request.session.get('inbound_fuel')
+    if not inbound_fuel: 
+        return redirect('guidereports:guidereport_inbound_fuel_exp')
     
-    report_id = inbound_attraction.get('guidereport_id')
+    report_id = inbound_fuel.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
     if request.method == "POST":
 
@@ -395,6 +459,12 @@ def guidereport_inbound_guide_exp(request):
                 e_val = request.POST.get(f'{prefix}-{i}-expense')
                 memo = request.POST.get(f'{prefix}-{i}-memo')
 
+                print("e_val: " + str(e_val))
+                if e_val == '':
+                    continue
+                print("e_val2: " + str(e_val))
+
+
                 if e_type == "WASH": 
                     if wash_added: 
                         continue
@@ -412,11 +482,110 @@ def guidereport_inbound_guide_exp(request):
 
         guide_report.save()
 
-        return redirect('guidereports:detail', pk=guide_report.id)   
+        return redirect('guidereports:guidereport_inbound_summary')   
     else:
         formset = GuideExpFormSet(instance=guide_report)
+
+    CHOICES = ""
+    
+    if inbound_fuel['role'] == 'GUIDE ONLY': 
+        CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
+    else: 
+        CHOICES = EXPENSE_CHOICES
+    
+    fuel_ids = list(FuelExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
+    restaurant_ids = list(RestaurantExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
+    attraction_ids = list(AttractionExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
+    guide_exp_ids = list(GuideExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
+
+    event = Event.objects.filter(guidereport=guide_report).first()
+    event_id = event.id if event else None
+
+    request.session['guide_exp'] = {
+        'guidereport_id': guide_report.id,
+        'role': inbound_fuel.get('role', guide_report.role),
+        'day_inbound': inbound_fuel.get('day_inbound', guide_report.day_inbound), 
+        
+        'event_id': event_id,
+        
+        'fuel_ids': fuel_ids,
+        'restaurant_ids': restaurant_ids,
+        'attraction_ids': attraction_ids,
+        'guide_exp_ids': guide_exp_ids,
+        
+        'summary_snapshot': {
+            'group_code': guide_report.group_code,
+            'has_fuel': len(fuel_ids) > 0,
+            'has_restaurant': len(restaurant_ids) > 0,
+            'has_attraction': len(attraction_ids) > 0,
+            'has_guide_exp': len(guide_exp_ids) > 0,
+        }
+    }
+
+    request.session.modified = True
 
     return render(request, 'guidereports/inbound/guidereport_inbound_guide_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
+        'role': inbound_fuel['role'],
+        'EXPENSE_CHOICES': CHOICES
     })
+
+@login_required
+def guidereport_inbound_summary(request): 
+    session_data = request.session.get('guide_exp') or request.session.get('inbound_fuel')
+    
+    if not session_data:
+        return redirect('guidereports:guidereport_inbound_agency')
+        
+    report_id = session_data.get('guidereport_id')
+    guide_report = get_object_or_404(GuideReport, id=report_id)
+    event = Event.objects.filter(guidereport=guide_report).first()
+
+    report_date_str = "-"
+    if event and event.report_date:
+        if isinstance(event.report_date, str):
+            report_date_str = event.report_date
+        else:
+            report_date_str = event.report_date.strftime("%Y-%m-%d")
+    elif session_data.get('today_str'):
+        try:
+            report_date_str = datetime.strptime(session_data.get('today_str'), '%d%m%y').strftime('%Y-%m-%d')
+        except ValueError:
+            pass
+    
+    fuel_expenses = FuelExp.objects.filter(guide_report=guide_report)
+    guide_expenses = GuideExp.objects.filter(guide_report=guide_report)
+    restaurant_expenses = RestaurantExp.objects.filter(guide_report=guide_report)  
+    attraction_expenses = AttractionExp.objects.filter(guide_report=guide_report)  
+    
+    total_fuel = sum(item.expense for item in fuel_expenses if item.expense)
+    total_guide = sum(item.expense for item in guide_expenses if item.expense)
+    total_restaurant = sum(item.expense for item in restaurant_expenses if item.expense)  
+    total_attraction = sum(item.expense for item in attraction_expenses if item.expense) 
+    
+    grand_total = total_fuel + total_guide + total_restaurant + total_attraction
+
+    if request.method == 'POST':
+        if 'main_data' in request.session: del request.session['main_data']
+        if 'day_data' in request.session: del request.session['day_data']
+        if 'day_fuel' in request.session: del request.session['day_fuel']
+        if 'guide_exp' in request.session: del request.session['guide_exp']
+        
+        return redirect('guidereports:detail', pk=guide_report.id)
+
+    context = {
+        'guide_report': guide_report,
+        'event': event,
+        'report_date': report_date_str,
+        'fuel_expenses': fuel_expenses,
+        'guide_expenses': guide_expenses,
+        'restaurant_expenses': restaurant_expenses,  
+        'attraction_expenses': attraction_expenses,  
+        'total_fuel': total_fuel,
+        'total_guide': total_guide,
+        'total_restaurant': total_restaurant,          
+        'total_attraction': total_attraction,          
+        'grand_total': grand_total,
+    }
+    return render(request, 'guidereports/inbound/guidereport_inbound_summary.html', context)

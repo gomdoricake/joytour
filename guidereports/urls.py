@@ -21,10 +21,13 @@ urlpatterns = [
     path('day/guidereport_day_fuel_exp/', day_views.guidereport_day_fuel_exp, name='guidereport_day_fuel_exp'),
     path('day/guiderport_day_summary/', day_views.guidereport_day_summary, name='guidereport_day_summary'),
     
+    path('inbound/update_attraction/<int:pk>/', inbound_views.update_attraction, name='update_attraction'), 
+    path('inbound/update_restaurant/<int:pk>/', inbound_views.update_restaurant, name='update_restaurant'),
     path('inbound/guidereport_inbound_agency/', inbound_views.guidereport_inbound_agency, name='guidereport_inbound_agency'),
     path('inbound/guidereport_inbound_events/', inbound_views.guidereport_inbound_events, name='guidereport_inbound_events'),
     path('inbound/guidereport_inbound_restaurant_exp/', inbound_views.guidereport_inbound_restaurant_exp, name='guidereport_inbound_restaurant_exp'), 
     path('inbound/guidereport_inbound_attraction_exp/', inbound_views.guidereport_inbound_attraction_exp, name='guidereport_inbound_attraction_exp'),
     path('inbound/guidereport_inbound_fuel_exp/', inbound_views.guidereport_inbound_fuel_exp, name='guidereport_inbound_fuel_exp'),
     path('inbound/guidereport_inbound_guide_exp/', inbound_views.guidereport_inbound_guide_exp, name='guidereport_inbound_guide_exp'),
+    path('inbound/guidereport_inbound_summary/', inbound_views.guidereport_inbound_summary, name='guidereport_inbound_summary'),
 ]

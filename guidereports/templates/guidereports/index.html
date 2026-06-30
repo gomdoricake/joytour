@@ -1,136 +1,29 @@
 <style>
+  /* 🌟 화사하고 맑은 라이트 배경 및 전체 패밀리룩 서체 통일 */
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  /* 🌟 화이트 글래스모피즘 어드민 컨테이너 */
   .admin-container { 
-    max-width: 600px; 
-    margin: 40px auto; 
+    max-width: 640px; 
+    margin: 60px auto; 
     padding: 40px; 
-    font-family: "Pretendard", sans-serif; 
-    background: #ffffff; 
-    border-radius: 20px; 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); 
-  }
-  .admin-header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 35px; 
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f8f9fa;
-  }
-  .title { 
-    font-size: 22px; 
-    font-weight: 800; 
-    color: #1e293b; 
-    margin: 0;
-  }
-  
-  .guide-list { 
-    list-style: none; 
-    padding: 0; 
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px; 
+    font-family: sans-serif; /* 시스템 고딕 서체 통일 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
   }
 
-  /* 🌟 리스트 아이템 카드 레이아웃 고도화 */
-  .guide-item { 
-    padding: 0; 
-    border-radius: 12px;
-    background: #f8fafc; 
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease-in-out;
-  }
-  
-  /* 🌟 flex 분배를 통해 정보를 왼쪽, 뱃지를 오른쪽 정렬 */
-  .guide-item a { 
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 👈 좌우 분할 */
-    padding: 16px 20px; 
-    text-decoration: none; 
-    color: #334155; 
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  .info-area {
-    display: flex;
-    align-items: center;
-  }
-
-  /* 가이드 이름 스펙 */
-  .guide-name {
-    font-weight: 700;
-    font-size: 15px;
-    color: #1e293b;
-    transition: color 0.2s;
-  }
-
-  /* 그룹 코드 뱃지 스펙 */
-  .code-badge {
-    background: #e2e8f0;
-    color: #475569;
-    padding: 4px 10px;
-    margin-right: 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 700;
-    font-family: monospace; 
-  }
-
-  /* 카드 호버 액션 */
-  .guide-item:hover { 
-    background: #ffffff; 
-    border-color: #4f46e5; 
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.08);
-  }
-  
-  .guide-item:hover .code-badge {
-    color: #4f46e5;
-  }
-
-  .guide-item:hover .guide-name {
-    background: #e0e7ff;
-    color: #4f46e5;
-  }
-
-  /* 🏷️ 우측 미니 상태 뱃지 공통 스타일 */
-  .status-mini-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px 12px;
-    border-radius: 20px; /* 동글동글한 알약 스타일 */
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-  }
-
-  .status-mini-badge.mini-waiting {
-    background-color: #FFF1F2;
-    color: #E11D48;
-    border: 1px solid #FFF1F2;
-  }
-
-  .status-mini-badge.mini-confirmed {
-    background-color: #fef9c3;
-    color: #713f12;
-    border: 1px solid #fef9c3;
-  }
-
-  .status-mini-badge.mini-paid {
-    background-color: #dcfce7; 
-    color: #14532d;            
-    border: 1px solid #dcfce7;  
-  }
-
-  .no-data { 
-    color: #94a3b8; 
-    text-align: center; 
-    padding: 40px 20px; 
-    font-size: 15px;
-  }
+  /* 상단 네비게이션 블록 */
   .nav-block {
     display: flex;
     justify-content: space-between;
@@ -140,10 +33,11 @@
   .back-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
-    color: #64748b;
+    padding: 10px 16px;
+    color: #475569;
     background: #f1f5f9;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -151,14 +45,139 @@
   }
   .back-link:hover {
     background: #e2e8f0;
-    color: #334155;
+    color: #0f172a;
+  }
+
+  /* 헤더 섹션 */
+  .admin-header { 
+    margin-bottom: 30px; 
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .title { 
+    font-size: 24px; 
+    font-weight: 800; 
+    color: #0f172a; 
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+  
+  /* 리스트 적재 레이아웃 */
+  .guide-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px; 
+  }
+
+  /* 🌟 리스트 카드 아이템 */
+  .guide-item { 
+    border-radius: 16px;
+    background: #ffffff; 
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .guide-item a { 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 22px; 
+    text-decoration: none; 
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .info-area {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  /* 가이드 이름 네임태그 */
+  .code-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* 그룹 코드 */
+  .guide-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1e293b;
+    font-family: monospace;
+    transition: color 0.2s;
+  }
+
+  /* 카드 전체 호버 액션 스타일링 정돈 */
+  .guide-item:hover { 
+    border-color: #4f46e5; 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08);
+  }
+  
+  .guide-item:hover .code-badge {
+    color: #4f46e5;
+    background: #e0e7ff;
+    border-color: #c7d2fe;
+  }
+
+  .guide-item:hover .guide-name {
+    color: #4f46e5;
+  }
+
+  /* 🏷️ 상태 알약(Pill) 뱃지 인상 교정 */
+  .status-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  .status-mini-badge.mini-waiting {
+    background-color: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+  }
+
+  .status-mini-badge.mini-confirmed {
+    background-color: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fef08a;
+  }
+
+  .status-mini-badge.mini-paid {
+    background-color: #f0fdf4; 
+    color: #16a34a;            
+    border: 1px solid #dcfce7;  
+  }
+
+  /* 데이터 공백 안내구 */
+  .no-data { 
+    color: #94a3b8; 
+    text-align: center; 
+    padding: 50px 20px; 
+    font-size: 15px;
+    font-weight: 500;
   }
 </style>
 
 {% if request.user.username == 'admin' %}
 <div class="admin-container">
   <div class="nav-block">
-    <a href="{% url 'mypage:admin' %}" class="back-link">← 목록으로 돌아가기</a>
+    <a href="{% url 'mypage:admin' %}" class="back-link">← 어드민 홈으로 돌아가기</a>
   </div>
 
   <div class="admin-header">
@@ -171,7 +190,7 @@
     <li class="guide-item">
       <a href="{% url 'guidereports:detail' guidereport.id %}">
         <div class="info-area">
-          <span class="code-badge">{{ guidereport.guide.name }}  </span>  
+          <span class="code-badge">{{ guidereport.guide.name }}</span>   
           <span class="guide-name">{{ guidereport.group_code }}</span>
         </div>
 
@@ -189,7 +208,7 @@
     {% endfor %}
   </ul>
   {% else %}
-  <p class="no-data">No guidereports are available.</p>
+  <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>
   {% endif %}
 </div>
 {% endif %}
