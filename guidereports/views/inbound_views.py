@@ -34,11 +34,42 @@ def update_attraction(request, pk):
                 attraction.expense = 30 * attraction.adt + 20 * attraction.chd + 10 * attraction.tc + 5 * attraction.tg
 
                 attraction.save()
+
+        guidereport.save()
             
+    return redirect('guidereports:detail', guidereport.pk)    
+
+
+@login_required
+def update_restaurant(request, pk): 
+    guidereport = get_object_or_404(GuideReport, pk=pk)
+    
+    if request.user.username != 'admin':
+        return HttpResponseForbidden("권한이 없습니다.")
+
+    if request.method == 'POST': 
+        for restaurant in guidereport.restaurants.all():
+            adt_val = request.POST.get(f'adt_{restaurant.pk}')
+            chd_val = request.POST.get(f'chd_{restaurant.pk}')
+            tc_val = request.POST.get(f'tc_{restaurant.pk}')
+            tg_val = request.POST.get(f'tg_{restaurant.pk}')
+            dr_val = request.POST.get(f'dr_{restaurant.pk}')
+
+            if adt_val is not None:
+                restaurant.adt = int(adt_val) if adt_val else 0
+                restaurant.chd = int(chd_val) if chd_val else 0
+                restaurant.tc = int(tc_val) if tc_val else 0
+                restaurant.tg = int(tg_val) if tg_val else 0
+                restaurant.dr = int(dr_val) if dr_val else 0
+                
+                restaurant.expense = 25 * restaurant.adt + 20 * restaurant.chd + 10 * restaurant.tc + 5 * restaurant.tg
+                print("restuarant.expense: " + str(restaurant.expense))
+                restaurant.save()
             
+        guidereport.save()
 
     return redirect('guidereports:detail', guidereport.pk)    
-    
+
 
 
 @login_required

@@ -108,19 +108,11 @@ class RestaurantExp(models.Model):
     expense_type = models.CharField(max_length=100, null=True, blank=True)
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        price_mapping = {
-            'BANG POP': 40,
-            'LA PORCHETTA': 30,
-            '홍대': 25,
-            '대장금': 25,
-            'OTHERS': 0.00,
-        }
-        
-        self.expense = price_mapping.get(self.expense_type, 0.00)
-        
-        super().save(*args, **kwargs)
+    adt = models.PositiveIntegerField(default=0, null=True, blank=True)
+    chd = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tc = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tg = models.PositiveIntegerField(default=0, null=True, blank=True)
+    dr = models.PositiveIntegerField(default=0, null=True, blank=True)
     
     def __str__(self): 
         return str(self.expense_type)

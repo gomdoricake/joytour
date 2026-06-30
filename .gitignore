@@ -11,4 +11,6 @@ db.sqlite3
 
 .vscode/
 
+guidereports/rate.py
+
 LightsailDefaultKey-ap-southeast-2.pem
