@@ -10,6 +10,38 @@ from datetime import datetime, date
 from django.shortcuts import redirect
 
 @login_required
+def update_attraction(request, pk): 
+    guidereport = get_object_or_404(GuideReport, pk=pk)
+    
+    if request.user.username != 'admin':
+        return HttpResponseForbidden("권한이 없습니다.")
+
+    if request.method == 'POST': 
+        for attraction in guidereport.attractions.all():
+            adt_val = request.POST.get(f'adt_{attraction.pk}')
+            chd_val = request.POST.get(f'chd_{attraction.pk}')
+            tc_val = request.POST.get(f'tc_{attraction.pk}')
+            tg_val = request.POST.get(f'tg_{attraction.pk}')
+            tod_val = request.POST.get(f'tod_{attraction.pk}')
+
+            if adt_val is not None:
+                attraction.adt = int(adt_val) if adt_val else 0
+                attraction.chd = int(chd_val) if chd_val else 0
+                attraction.tc = int(tc_val) if tc_val else 0
+                attraction.tg = int(tg_val) if tg_val else 0
+                attraction.tod = int(tod_val) if tod_val else 0
+                
+                attraction.expense = 30 * attraction.adt + 20 * attraction.chd + 10 * attraction.tc + 5 * attraction.tg
+
+                attraction.save()
+            
+            
+
+    return redirect('guidereports:detail', guidereport.pk)    
+    
+
+
+@login_required
 def guidereport_inbound_agency(request): 
     main_data = request.session.get('main_data')
     if not main_data: 

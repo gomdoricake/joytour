@@ -176,7 +176,7 @@ class AttractionExpForm(forms.ModelForm):
 
     class Meta: 
         model = AttractionExp
-        fields = ['report_date', 'expense_type', 'memo']
+        fields = ['report_date', 'expense_type', 'memo', 'adt', 'chd', 'tc', 'tg', 'tod']
         labels = {
             'report_date': 'Report Date', 
             'expense_type': 'Expense Type'

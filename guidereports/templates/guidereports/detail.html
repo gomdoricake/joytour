@@ -405,7 +405,9 @@
     
     <div class="nav-right-group">
       <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}" class="pdf-link">PDF 다운로드</a>
+      {% if request.user.username != 'admin' %}
       <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
+      {% endif %}
     </div>
   </div>
 
@@ -547,13 +549,59 @@
 
       {% if guide_report.attractions.all %}
       <h3 class="section-title">Attractions</h3>
-      <ul class="data-list">
-        {% for a in guide_report.attractions.all %}
-        <li class="data-item">
-          <span><span style="color: #64748b;">{{ a.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; <span style="font-weight: 600;">{{ a.expense_type }}</span> {% if a.memo %}<span style="color:#64748b; font-size: 13px;">({{ a.memo }})</span>{% endif %}</span>
-        </li>
-        {% endfor %} 
-      </ul>
+
+      <form method="POST" action="{% url 'guidereports:update_attraction' guide_report.pk %}" style="margin: 0; padding: 0;">
+        {% csrf_token %}
+        
+        <ul class="data-list">
+          {% for a in guide_report.attractions.all %}
+          <li class="data-item" style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+            
+            <span>
+              <span style="color: #64748b; font-size: 13px;">{{ a.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; 
+              <span style="font-weight: 600; color: #0f172a;">{{ a.expense_type }}</span> 
+              {% if a.memo %}<span style="color:#64748b; font-size: 13px;">({{ a.memo }})</span>{% endif %}
+            </span>
+            
+            <span>
+            {% if request.user.username == 'admin' %}
+              <span style="display: inline-flex; align-items: center; gap: 5px;">
+                <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
+                  ADT <input type="number" name="adt_{{ a.pk }}" value="{{ a.adt }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
+                </label>
+                <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
+                  CHD <input type="number" name="chd_{{ a.pk }}" value="{{ a.chd }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
+                </label>
+                <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
+                  TC <input type="number" name="tc_{{ a.pk }}" value="{{ a.tc }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
+                </label>
+                <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
+                  TG <input type="number" name="tg_{{ a.pk }}" value="{{ a.tg }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
+                </label>
+                <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px; margin-right: 4px;">
+                  TOD <input type="number" name="tod_{{ a.pk }}" value="{{ a.tod }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
+                </label>
+                
+                <span style="font-weight: 600; color: #0f172a; margin-left: 2px;">${{ a.expense }}</span> 
+              </span>
+            {% endif %}            
+
+            </span>
+          </li>
+          {% endfor %} 
+        </ul>
+
+        {% if request.user.username == 'admin' %}
+          <div style="text-align: right; margin-top: 20px;">
+            <button type="submit" 
+                    style="display: inline-flex; align-items: center; padding: 10px 20px; color: #4f46e5; background: #e0e7ff; border: 1px solid #c7d2fe; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;"
+                    onmouseover="this.style.background='#c7d2fe'" 
+                    onmouseout="this.style.background='#e0e7ff'">
+              인원 수 즉시 저장
+            </button>
+          </div>
+        {% endif %}
+      </form>
       {% endif %}
     {% endif %}
   </div>

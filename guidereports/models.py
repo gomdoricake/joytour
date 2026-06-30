@@ -55,8 +55,6 @@ class Event(models.Model):
         }
         
         target_rate_dict = rate_mapping.get((day_inbound_val, role_val))
-
-        print("target_rate_dict: " + str(target_rate_dict))
         
         calculated_fee = "0.00"
 
@@ -71,7 +69,6 @@ class Event(models.Model):
             else: 
                 current_code = self.hours
         
-        print("current_code: " + str(current_code))
 
         if current_code in target_rate_dict:
             rate_list = target_rate_dict[current_code]
@@ -134,6 +131,11 @@ class AttractionExp(models.Model):
     expense_type = models.CharField(max_length=100, null=True, blank=True)
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
+    adt = models.PositiveIntegerField(default=0, null=True, blank=True)
+    chd = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tc = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tod = models.PositiveIntegerField(default=0, null=True, blank=True)
+    tg = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     def __str__(self): 
         return self.expense_type

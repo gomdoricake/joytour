@@ -1,28 +1,131 @@
 <style>
-  .report-container { max-width: 400px; margin: 80px auto; padding: 40px; font-family: "Pretendard", sans-serif; background: #ffffff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); }
-  .title { font-size: 24px; font-weight: 700; color: #2d3436; margin-bottom: 30px; text-align: center; }
+  /* 🌟 화사하고 맑은 라이트 배경 패밀리룩 일치 */
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 🌟 화이트 글래스모피즘 컴팩트 로그인 컨테이너 */
+  .report-container { 
+    width: 100%;
+    max-width: 420px; 
+    margin: 40px auto; 
+    padding: 45px 40px; 
+    font-family: sans-serif; /* 시스템 고딕 서체 통일 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+    box-sizing: border-box;
+  }
+
+  /* 타이틀 스타일 */
+  .title { 
+    font-size: 26px; 
+    font-weight: 800; 
+    color: #0f172a; 
+    margin-top: 0;
+    margin-bottom: 35px; 
+    text-align: center; 
+    letter-spacing: -0.5px;
+  }
   
-  /* Django form.as_p 스타일링 */
-  p { margin-bottom: 20px; }
-  label { display: block; font-size: 13px; font-weight: 600; color: #718096; margin-bottom: 8px; }
-  input { width: 100%; padding: 12px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; box-sizing: border-box; background: #f8f9fa; }
+  /* 🌟 Django form.as_p 렌더링 태그 정밀 커스텀 */
+  .form-group p { 
+    margin-bottom: 24px; 
+    position: relative;
+  }
   
+  .form-group label { 
+    display: block; 
+    font-size: 11px; 
+    font-weight: 700; 
+    color: #64748b; 
+    margin-bottom: 8px; 
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .form-group input { 
+    width: 100%; 
+    padding: 14px 16px; 
+    border: 1px solid #cbd5e1; 
+    border-radius: 12px; 
+    font-size: 15px; 
+    font-weight: 600;
+    color: #1e293b;
+    box-sizing: border-box; 
+    background: #ffffff; 
+    transition: all 0.2s ease;
+  }
+  
+  /* 인풋 포커스 하이라이트 효과 */
+  .form-group input:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+    background: #ffffff;
+  }
+  
+  /* 🚀 인디고 그라디언트 로그인 버튼 */
   .btn-login { 
-    display: block; width: 100%; padding: 16px; background: #2d3436; color: #fff; 
-    border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 20px; 
+    display: block; 
+    width: 100%; 
+    padding: 16px; 
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #fff; 
+    border: none; 
+    border-radius: 14px; 
+    font-size: 16px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    margin-top: 30px; 
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+  }
+  
+  .btn-login:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+  .btn-login:active {
+    transform: translateY(0);
+  }
+
+  /* 유효성 에러 메시지 등이 p 태그 내부나 주변에 노출될 때를 대비한 헬퍼 내역 */
+  .errorlist {
+    padding: 0;
+    margin: 0 0 16px 0;
+    list-style: none;
+    font-size: 13px;
+    color: #ef4444;
+    font-weight: 600;
   }
 </style>
 
 <div class="report-container">
-  <h2 class="title">Login</h2>
+  <h2 class="title">Sign In</h2>
 
-  <form method="post">
+  <form method="post" autocomplete="off">
     {% csrf_token %}
     
     <div class="form-group">
       {{ form.as_p }}
     </div>
 
-    <button type="submit" class="btn-login">Login</button>
+    <button type="submit" class="btn-login">로그인하기</button>
   </form>
 </div>
