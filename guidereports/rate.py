@@ -40,6 +40,16 @@ ATTRACTION_CHOICES = [
     ('WINE TASTING', 'WINE TASTING')
 ]
 
+EXPENSE_CHOICES = [
+    ('WASH', 'Car Wash'),
+    ('PARK', 'Parking'),
+    ('ETC', 'ETC'),
+]
+
+GUIDE_ONLY_EXPENSE_CHOICES = [
+    ('ETC', 'ETC')
+]
+
 
 ROLE = {
     '12 SEAT': '12 SEAT',

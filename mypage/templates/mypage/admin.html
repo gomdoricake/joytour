@@ -1,75 +1,109 @@
 <style>
+  /* 🌟 화사하고 맑은 라이트 배경 및 전체 패밀리룩 서체 통일 */
+  body {
+    background-color: #f8fafc;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* 🌟 화이트 글래스모피즘 어드민 대시보드 컨테이너 */
   .admin-container { 
+    width: 100%;
     max-width: 500px; 
-    margin: 60px auto; 
-    padding: 40px; 
-    font-family: "Pretendard", sans-serif; 
-    background: #ffffff; 
-    border-radius: 20px; 
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04); 
+    margin: 40px auto; 
+    padding: 50px 40px; 
+    font-family: sans-serif; /* 시스템 고딕 서체 통일 */
+    background: rgba(255, 255, 255, 0.85); 
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
     display: flex; 
     flex-direction: column; 
     align-items: center; 
+    box-sizing: border-box;
   }
   
+  /* 대시보드 타이틀 스타일 */
   .title { 
-    font-size: 24px; 
+    font-size: 26px; 
     font-weight: 800; 
-    color: #1e293b; 
+    color: #0f172a; 
     text-align: center;
-    margin: 0 0 40px 0; 
+    margin: 0 0 35px 0; 
     width: 100%; 
     letter-spacing: -0.5px;
   }
   
+  /* 메뉴 감싸는 래퍼 폭 정돈 */
   .menu-wrapper { 
     display: flex; 
     flex-direction: column; 
     gap: 16px; 
     width: 100%; 
-    max-width: 320px; 
+    max-width: 360px; 
     align-items: center; 
   } 
   
-  /* 🌟 두 버튼의 크기를 완벽하게 일치시키는 스타일 */
+  /* 🚀 인디고 그라디언트 메뉴 링크 버튼 */
   .menu-link { 
     display: block;
-    width: 100%; /* 부모(max-width: 320px) 꽉 채우기 */
-    padding: 18px 0; /* 좌우 패딩 때문에 틀어지지 않게 상하만 패딩 부여 */
-    background: #4f46e5; 
+    width: 100%; 
+    padding: 18px 0; 
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
     color: #ffffff; 
-    border-radius: 12px; 
+    border-radius: 14px; 
     text-decoration: none; 
     font-size: 15px; 
     font-weight: 700; 
     text-align: center;
-    text-transform: uppercase; /* 🌟 글자 크기 균형을 위해 대문자 통일 */
+    text-transform: uppercase; 
     box-sizing: border-box;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
+    transition: all 0.25s ease-in-out;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.15);
   }
   
+  /* 버튼 호버 인터랙션 고도화 */
   .menu-link:hover { 
-    background: #4338ca;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.25);
+    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3);
+  }
+
+  .menu-link:active {
+    transform: translateY(0);
+  }
+
+  /* 🚪 하단 로그아웃 영역 레이아웃 교정 (틀어짐 방지) */
+  .logout-box {
+    text-align: center; 
+    margin-top: 35px;
+    width: 100%;
   }
 
   .logout-link { 
     display: inline-block;
-    margin-top: 30px; 
-    padding: 5px 10px;
+    padding: 6px 14px;
     color: #94a3b8; 
     text-decoration: none; 
-    font-size: 13px; 
-    font-weight: 600; 
-    letter-spacing: 0.5px;
-    transition: color 0.2s ease;
+    font-size: 12px; 
+    font-weight: 700; 
+    letter-spacing: 0.8px;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    background: transparent;
   } 
   
   .logout-link:hover {
     color: #ef4444; 
-    text-decoration: underline;
+    background: #fef2f2;
   }
 </style>
 
@@ -77,7 +111,6 @@
   <h2 class="title">Admin Dashboard</h2>
 
   <div class="menu-wrapper">
-
     <a href="{% url 'guidereports:index' %}" class="menu-link">
       Guide Reports
     </a>
@@ -85,10 +118,9 @@
     <a href="{% url 'guides:index' %}" class="menu-link">
       Tour Guides
     </a>
+  </div>
 
-    
-
-  <div style="text-align: right; margin-top: 30px">
+  <div class="logout-box">
     <a href="{% url 'home' %}" class="logout-link">LOG OUT</a>
   </div>
 </div>

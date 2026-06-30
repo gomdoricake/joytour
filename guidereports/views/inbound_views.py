@@ -459,6 +459,12 @@ def guidereport_inbound_guide_exp(request):
                 e_val = request.POST.get(f'{prefix}-{i}-expense')
                 memo = request.POST.get(f'{prefix}-{i}-memo')
 
+                print("e_val: " + str(e_val))
+                if e_val == '':
+                    continue
+                print("e_val2: " + str(e_val))
+
+
                 if e_type == "WASH": 
                     if wash_added: 
                         continue
@@ -480,7 +486,18 @@ def guidereport_inbound_guide_exp(request):
     else:
         formset = GuideExpFormSet(instance=guide_report)
 
+    CHOICES = ""
+    
+    if inbound_attraction['role'] == 'GUIDE ONLY': 
+        CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
+    else: 
+        CHOICES = EXPENSE_CHOICES
+
+    print("CHOICES: " + str(CHOICES))
+
     return render(request, 'guidereports/inbound/guidereport_inbound_guide_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
+        'role': inbound_attraction['role'],
+        'EXPENSE_CHOICES': CHOICES
     })
