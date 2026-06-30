@@ -326,44 +326,42 @@ def guidereport_inbound_attraction_exp(request):
 
     if request.method == "POST": 
         formset = AttractionFormSet(request.POST, instance=guide_report)
+        guide_report.save()
 
-        if formset.is_valid(): 
-            guide_report.save()
+        main_data = request.session.get('main_data', {})
+        main_data['guidereport_id'] = guide_report.id
+        request.session['main_data'] = main_data
+        
+        AttractionExp.objects.filter(guide_report_id=guide_report.id).delete()
+        
+        prefix = formset.prefix
+        total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
 
-            main_data = request.session.get('main_data', {})
-            main_data['guidereport_id'] = guide_report.id
-            request.session['main_data'] = main_data
-            
-            AttractionExp.objects.filter(guide_report_id=guide_report.id).delete()
-            
-            prefix = formset.prefix
-            total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+        for i in range(total_forms_count): 
+            report_date = request.POST.get(f'{prefix}-{i}-report_date')
+            expense_type = request.POST.get(f'{prefix}-{i}-expense_type')
+            memo = request.POST.get(f'{prefix}-{i}-memo') 
+            is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
 
-            for i in range(total_forms_count): 
-                report_date = request.POST.get(f'{prefix}-{i}-report_date')
-                expense_type = request.POST.get(f'{prefix}-{i}-expense_type')
-                memo = request.POST.get(f'{prefix}-{i}-memo') 
-                is_delete = request.POST.get(f'{prefix}-{i}-DELETE') or request.POST.get(f'form-{i}-DELETE')
+            if report_date and expense_type and not is_delete: 
+                try: 
+                    AttractionExp.objects.create(
+                        guide_report_id=guide_report.id,
+                        report_date=report_date if report_date else None,
+                        expense_type=expense_type, 
+                        memo = memo
+                    )
+                    print(f"Attraction 행 {i} 저장 성공")
+                except Exception as e:
+                    print(f"Attraction 행 {i} 저장 실패: {e}")
+        
+        request.session['inbound_attraction'] = inbound_restaurant
+        
+        
+        if inbound_restaurant['role'] == 'GUIDE ONLY':
+            return redirect('guidereports:guidereport_inbound_guide_exp')
 
-                if report_date and expense_type and not is_delete: 
-                    try: 
-                        AttractionExp.objects.create(
-                            guide_report_id=guide_report.id,
-                            report_date=report_date if report_date else None,
-                            expense_type=expense_type, 
-                            memo = memo
-                        )
-                        print(f"Attraction 행 {i} 저장 성공")
-                    except Exception as e:
-                        print(f"Attraction 행 {i} 저장 실패: {e}")
-            
-            request.session['inbound_attraction'] = inbound_restaurant
-            
-            
-            if inbound_restaurant['role'] == 'GUIDE ONLY':
-                return redirect('guidereports:guidereport_inbound_guide_exp')
-
-            return redirect('guidereports:guidereport_inbound_fuel_exp') 
+        return redirect('guidereports:guidereport_inbound_fuel_exp') 
 
     else:
         formset = AttractionFormSet(instance=guide_report)
