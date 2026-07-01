@@ -120,12 +120,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const addButton = document.getElementById("add-form-btn");
   const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
   
-  // 1. 실제 화면의 차종 배지 텍스트를 기준으로 롤 체크 (가장 확실함)
   const roleBadge = document.querySelector(".role-badge");
   const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "";
   const isGuideOnly = currentRole.includes("GUIDE") && currentRole.includes("ONLY");
 
-  // 2. 장고 뷰가 던져준 초이스 데이터를 자바스크립트 객체/배열 형태로 안전하게 파싱
   const choiceData = {};
   const choiceKeys = [];
   {% if EXPENSE_CHOICES %}
@@ -137,12 +135,10 @@ document.addEventListener("DOMContentLoaded", function () {
   
   const defaultExpenseType = choiceKeys.length > 0 ? choiceKeys[0] : (isGuideOnly ? "ETC" : "WASH");
 
-  // 🎯 [핵심 추가] 태그 타입에 상관없이 드롭다운/선택지를 강제로 만들어주는 함수
   function rebuildOptions(element) {
     if (!element) return;
 
     if (element.tagName === "SELECT") {
-      // 렌더링된 태그가 SELECT인 경우 -> 옵션을 전부 날리고 뷰 데이터로 재구성
       element.innerHTML = "";
       
       if (isGuideOnly) {
@@ -152,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
         element.appendChild(opt);
         element.value = "ETC";
       } else {
-        // 일반 차량일 때 모든 초이스 동적 생성 (WASH, PARK, ETC)
         choiceKeys.forEach(key => {
           const opt = document.createElement("option");
           opt.value = key;
@@ -161,7 +156,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     } else if (element.tagName === "INPUT") {
-      // 렌더링된 태그가 INPUT인 경우 -> datalist 연결 및 잠금 해제 제어
       if (!element.hasAttribute('list')) {
         element.setAttribute("list", "guideexp_datalist");
       }
@@ -175,14 +169,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 최초 로드 시 기존에 존재하는 모든 행의 선택지 빌드
   function initExistingRows() {
     formContainer.querySelectorAll('[name$="-expense_type"]').forEach(el => {
       rebuildOptions(el);
     });
   }
 
-  // 1. 세차비 금액 한도 검증 로직
   function checkExpenseRealtime(inputElement) {
     if (isGuideOnly) return; 
     
@@ -204,7 +196,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 2. WASH 옵션 제어 (일반 차량일 때 세차비 중복 선택 방지)
   function refreshWashOptions() {
     if (isGuideOnly) return; 
 
@@ -224,7 +215,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // 4. 행 추가 로직
   addButton.addEventListener("click", function () {
     const template = document.getElementById("empty-form-template").firstElementChild;
     const newRow = template.cloneNode(true);
