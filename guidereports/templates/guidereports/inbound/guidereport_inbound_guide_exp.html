@@ -68,14 +68,6 @@
 
   <h2 class="title">Expense 내역 추가</h2>
 
-  <div class="report-info-box">
-    <div class="info-grid">
-      <div><strong>차종</strong> <span class="role-badge">{{ role|default:guide_report.role }}</span></div>
-      <div><strong>구분</strong> {{ guide_report.day_inbound }}</div>
-      <div><strong>그룹 코드</strong> <span>{{ guide_report.group_code }}</span></div>
-    </div>
-  </div>
-
   <form method="post" id="real-expense-form">
     {% csrf_token %} 
     {{ formset.management_form }}
@@ -119,30 +111,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const formContainer = document.getElementById("expense-form-list");
   const addButton = document.getElementById("add-form-btn");
   const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
+  const mainForm = document.getElementById("real-expense-form"); // 👈 변수 바인딩 정상화
   
-  // 1. 실제 화면의 차종 배지 텍스트를 기준으로 롤 체크 (가장 확실함)
   const roleBadge = document.querySelector(".role-badge");
   const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "";
   const isGuideOnly = currentRole.includes("GUIDE") && currentRole.includes("ONLY");
 
-  // 2. 장고 뷰가 던져준 초이스 데이터를 자바스크립트 객체/배열 형태로 안전하게 파싱
+  // 💡 장고 튜플 쌍 데이터를 자바스크립트 객체 및 배열로 완벽하게 복원 매핑
   const choiceData = {};
   const choiceKeys = [];
+  
   {% if EXPENSE_CHOICES %}
-    {% for key, value in EXPENSE_CHOICES.items %}
-      choiceData["{{ key|safe }}"] = "{{ value|safe }}";
-      choiceKeys.push("{{ key|safe }}");
+    {% for k, v in EXPENSE_CHOICES %}
+      choiceData["{{ k|safe }}"] = "{{ v|safe }}";
+      choiceKeys.push("{{ k|safe }}");
     {% endfor %}
   {% endif %}
   
-  const defaultExpenseType = choiceKeys.length > 0 ? choiceKeys[0] : (isGuideOnly ? "ETC" : "WASH");
+  const defaultExpenseType = isGuideOnly ? "ETC" : (choiceKeys.includes("WASH") ? "WASH" : choiceKeys[0]);
 
-  // 🎯 [핵심 추가] 태그 타입에 상관없이 드롭다운/선택지를 강제로 만들어주는 함수
+  // 💡 드롭다운 옵션을 다시 그려 진짜 텍스트(Car Wash 등)를 표기하는 핵심 함수
   function rebuildOptions(element) {
     if (!element) return;
 
     if (element.tagName === "SELECT") {
-      // 렌더링된 태그가 SELECT인 경우 -> 옵션을 전부 날리고 뷰 데이터로 재구성
+      const savedValue = element.value; // 기존 유저가 선택해 둔 값 보존
       element.innerHTML = "";
       
       if (isGuideOnly) {
@@ -152,37 +145,27 @@ document.addEventListener("DOMContentLoaded", function () {
         element.appendChild(opt);
         element.value = "ETC";
       } else {
-        // 일반 차량일 때 모든 초이스 동적 생성 (WASH, PARK, ETC)
         choiceKeys.forEach(key => {
           const opt = document.createElement("option");
-          opt.value = key;
-          opt.textContent = choiceData[key];
+          opt.value = key;                         // 서버로 전송될 Key (예: WASH)
+          opt.textContent = choiceData[key] || key; // 화면에 노출될 Value (예: Car Wash)
           element.appendChild(opt);
         });
-      }
-    } else if (element.tagName === "INPUT") {
-      // 렌더링된 태그가 INPUT인 경우 -> datalist 연결 및 잠금 해제 제어
-      if (!element.hasAttribute('list')) {
-        element.setAttribute("list", "guideexp_datalist");
-      }
-      
-      if (isGuideOnly) {
-        element.value = "ETC";
-        element.readOnly = true;
-      } else {
-        element.readOnly = false;
+        
+        // 기존 선택값 복구
+        if (savedValue && choiceKeys.includes(savedValue)) {
+          element.value = savedValue;
+        }
       }
     }
   }
 
-  // 최초 로드 시 기존에 존재하는 모든 행의 선택지 빌드
   function initExistingRows() {
     formContainer.querySelectorAll('[name$="-expense_type"]').forEach(el => {
       rebuildOptions(el);
     });
   }
 
-  // 1. 세차비 금액 한도 검증 로직
   function checkExpenseRealtime(inputElement) {
     if (isGuideOnly) return; 
     
@@ -204,7 +187,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 2. WASH 옵션 제어 (일반 차량일 때 세차비 중복 선택 방지)
   function refreshWashOptions() {
     if (isGuideOnly) return; 
 
@@ -214,17 +196,18 @@ document.addEventListener("DOMContentLoaded", function () {
     allElements.forEach((el) => {
       if (el.tagName === "SELECT") {
         Array.from(el.options).forEach((opt) => {
-          if (opt.value === "WASH" && isWashUsed && el.value !== "WASH") {
-            opt.disabled = true;
-          } else {
-            opt.disabled = false;
+          if (opt.value === "WASH") {
+            if (isWashUsed && el.value !== "WASH") {
+              opt.disabled = true;
+            } else {
+              opt.disabled = false;
+            }
           }
         });
       }
     });
   }
 
-  // 4. 행 추가 로직
   addButton.addEventListener("click", function () {
     const template = document.getElementById("empty-form-template").firstElementChild;
     const newRow = template.cloneNode(true);
@@ -236,7 +219,6 @@ document.addEventListener("DOMContentLoaded", function () {
       if (el.id) el.id = el.id.replace(/__prefix__/g, count);
 
       if (el.name && el.name.endsWith("-expense_type")) {
-        // 우선순위에 맞춰 드롭다운 구조부터 개편
         rebuildOptions(el);
         el.value = defaultExpenseType; 
       } else if (el.type !== "hidden") {
@@ -245,17 +227,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     formContainer.appendChild(newRow);
-    
     if (totalForms) totalForms.value = count + 1;
     
     refreshWashOptions();
   });
 
-  // 5. 이벤트 핸들러 바인딩 구조화
-  formContainer.addEventListener("change", function (event) {
+  // 이벤트 핸들러 바인딩 구조화
+  formContainer.addEventListener("input", function (event) {
     if (event.target.matches('input[name$="-expense"]')) {
       checkExpenseRealtime(event.target);
     }
+  });
+
+  formContainer.addEventListener("change", function (event) {
     if (event.target.matches('[name$="-expense_type"]')) {
       refreshWashOptions();
       const row = event.target.closest(".expense-form-row");
@@ -264,43 +248,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-// 🎯 5. 제출 전 무효한 행 처리 (금액 누락 및 ETC $0 검사)
-  formForm.addEventListener("submit", function (event) {
-    const rows = formContainer.querySelectorAll(".expense-form-row");
-    
-    rows.forEach(row => {
-      if (row.style.display === "none") return;
+  // 제출 전 무효한 행 처리 (정확한 form ID 기반 처리)
+  if (mainForm) {
+    mainForm.addEventListener("submit", function (event) {
+      const rows = formContainer.querySelectorAll(".expense-form-row");
+      
+      rows.forEach(row => {
+        if (row.style.display === "none") return;
 
-      const typeEl = row.querySelector('[name$="-expense_type"]');
-      const priceEl = row.querySelector('[name$="-expense"]');
-      const idEl = row.querySelector('input[name$="-id"]');
+        const typeEl = row.querySelector('[name$="-expense_type"]');
+        const priceEl = row.querySelector('[name$="-expense"]');
+        const idEl = row.querySelector('input[name$="-id"]');
 
-      const expenseType = typeEl ? typeEl.value.trim().toUpperCase() : "";
-      const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
-      const expensePrice = parseFloat(expensePriceRaw) || 0;
+        const expenseType = typeEl ? typeEl.value.trim().toUpperCase() : "";
+        const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
+        const expensePrice = parseFloat(expensePriceRaw) || 0;
 
-      // 💡 조건 판정: 
-      // 1) 금액 칸이 아예 비어있거나 
-      // 2) 타입이 ETC 인데 금액이 0인 경우
-      if (!expensePriceRaw || (expenseType === "ETC" && expensePrice === 0)) {
-        if (idEl && idEl.value) {
-          // [A] 이미 DB에 있던 데이터라면 DELETE 체크박스를 체크해서 서버에서 지워지도록 처리
-          const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
-          if (deleteCheckbox) deleteCheckbox.checked = true;
-        } else {
-          // [B] 새로 추가한 행이라면 서버로 전송되지 않게 DOM 구조에서 즉시 삭제
-          row.remove();
+        if (!expensePriceRaw || (expenseType === "ETC" && expensePrice === 0)) {
+          if (idEl && idEl.value) {
+            const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+            if (deleteCheckbox) deleteCheckbox.checked = true;
+          } else {
+            row.remove();
+          }
         }
+      });
+
+      const currentActiveRows = formContainer.querySelectorAll(".expense-form-row").length;
+      if (totalForms) {
+        totalForms.value = currentActiveRows;
       }
     });
+  }
 
-    // 제거된 행들을 반영하여 TOTAL_FORMS 개수를 실시간으로 보정
-    const currentActiveRows = formContainer.querySelectorAll(".expense-form-row").length;
-    if (totalForms) {
-      totalForms.value = currentActiveRows;
-    }
-  });
-  // 🚀 최초 로드 초기화 강제 실행
+  // 🚀 최초 로드 시 실행
   initExistingRows();
   refreshWashOptions();
 });

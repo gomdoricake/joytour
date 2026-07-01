@@ -217,12 +217,6 @@
   
   <h2 class="title">Fuel 경비 내역</h2>
 
-  <div class="report-info-box">
-    <div style="display: flex; gap: 24px; font-size: 14px; color: #1e293b; font-weight: 600;">
-      <div><strong>구분</strong> {{ guide_report.day_inbound }}</div>
-      <div><strong>그룹 코드</strong> <span>{{ guide_report.group_code }}</span></div>
-    </div>
-  </div>
 
   <form method="post" id="real-expense-form">
     {% csrf_token %} 
@@ -305,33 +299,27 @@
 
       formContainer.appendChild(newRow);
 
-      // TOTAL_FORMS 갱신
       getTotalFormsInputs().forEach(input => {
         input.value = currentFormCount + 1;
         input.setAttribute("value", currentFormCount + 1);
       });
     });
 
-    // 2. 항목 삭제 및 인덱스 재정렬 (Remove & Re-index)
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const row = event.target.closest(".expense-form-row");
         
-        // 중요: 기존 DB에 있던 데이터(id 값이 채워져 있는 경우)는 지우면 안 되고 DELETE 체크박스를 켜야 함
         const idInput = row.querySelector('input[name$="-id"]');
         const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
 
         if (idInput && idInput.value) {
-          // 기존 데이터인 경우: 화면에서 숨기고 DELETE 체크박스를 True로 변환
           if (deleteCheckbox) deleteCheckbox.checked = true;
           row.style.display = "none";
-          row.classList.add("form-deleted"); // 재정렬 대상에서 제외하기 위한 클래스 추가
+          row.classList.add("form-deleted"); 
         } else {
-          // 새로 추가했던 데이터인 경우: 그냥 DOM에서 삭제
           row.remove();
         }
 
-        // 인덱스 재정렬 (삭제되거나 숨겨지지 않은 '유효한' 행들만 대상으로 정렬)
         const allRows = formContainer.getElementsByClassName("expense-form-row");
         let validIndex = 0;
 
@@ -339,7 +327,6 @@
         const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
 
         for (let i = 0; i < allRows.length; i++) {
-          // 이미 삭제 예정(숨김)인 행은 인덱스 수정 없이 건너뜀 (단, name과 id는 유지해야 에러 안 남)
           if (allRows[i].classList.contains("form-deleted")) {
             continue; 
           }
@@ -353,8 +340,6 @@
           validIndex++;
         }
 
-        // TOTAL_FORMS는 삭제된 것을 제외한 최종 유효 행의 개수로 업데이트하지 않고, 
-        // Django Formset 규칙에 따라 [전체 row 개수]를 전송해야 합니다. (DELETE가 체크된 것도 개수에 포함되어야 함)
         getTotalFormsInputs().forEach(input => {
           input.value = allRows.length;
           input.setAttribute("value", allRows.length);
