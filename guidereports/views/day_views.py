@@ -207,11 +207,17 @@ def guidereport_day_guide_exp(request):
     else:
         report_date_str = day_data.get('report_date')
 
+    if day_fuel.get('role') == 'GUIDE ONLY':
+        CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
+    else:
+        CHOICES = EXPENSE_CHOICES
+    
     return render(request, 'guidereports/day/guidereport_day_guide_exp.html', {
         'formset': formset, 
         'final_instance': final_instance,
         'eventcode': event.eventcode,
-        'report_date': report_date_str
+        'report_date': report_date_str, 
+        'EXPENSE_CHOICES': CHOICES,
     })
 
 @login_required

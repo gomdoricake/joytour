@@ -229,6 +229,12 @@
   }
 </style>
 
+<datalist id="guideexp_datalist">
+  {% for key, value in EXPENSE_CHOICES %}
+    <option value="{{ key }}">{{ value }}</option>
+  {% endfor %}
+</datalist>
+
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_day' %}" class="back-link">← 이전 단계로 돌아가기</a>
@@ -237,7 +243,7 @@
   <div class="info-summary">
     <h4>현재 작성 중인 리포트 요약</h4>
     <div class="info-grid">
-      <div>차종 <span>{{ formset.instance.role }}</span></div>
+      <div>차종 <span class="role-badge">{{ formset.instance.role }}</span></div>
       <div>구분 <span>{{ formset.instance.day_inbound }}</span></div>
       <div>이벤트 코드 <span style="font-family: monospace;">{{ eventcode }}</span></div>
       <div>날짜 <span>{{ report_date }}</span></div>
@@ -260,6 +266,7 @@
       {% for form in formset %}
       <div class="expense-form-row expense-row">
         {{ form.id }}
+        <div style="display: none">{{ form.DELETE }}</div>
         <label>항목</label> {{ form.expense_type }}
         <label>금액 ($)</label> {{ form.expense }} 
         <label>메모</label> {{ form.memo }}
@@ -281,6 +288,7 @@
 <div id="empty-form-template" style="display: none">
   <div class="expense-form-row expense-row">
     {{ formset.empty_form.id }}
+    <div style="display: none">{{ formset.empty_form.DELETE }}</div>
     <label>항목</label> {{ formset.empty_form.expense_type }}
     <label>금액 ($)</label> {{ formset.empty_form.expense }}
     <label>메모</label> {{ formset.empty_form.memo }}
@@ -289,53 +297,67 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const formContainer = document.getElementById("expense-form-list");
-    const addButton = document.getElementById("add-form-btn");
-    const mainForm = document.getElementById("real-expense-form");
-    const submitBtn = document.getElementById("submit-final-btn");
-    
-    const currentRole = "{{ formset.instance.role }}".trim().toUpperCase();
-    const isGuideOnly = currentRole.includes("GUIDE") && currentRole.includes("ONLY");
+document.addEventListener("DOMContentLoaded", function () {
+  const formContainer = document.getElementById("expense-form-list");
+  const addButton = document.getElementById("add-form-btn");
+  const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
+  const mainForm = document.getElementById("real-expense-form");
+  
+  // 차종 뱃지 텍스트 파싱
+  const roleBadge = document.querySelector(".role-badge");
+  const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "";
+  const isGuideOnly = currentRole.includes("GUIDE") && currentRole.includes("ONLY");
 
-    // 1. GUIDE ONLY 규칙 처리
-    function enforceGuideOnlyRule(selectElement) {
+  // 💡 장고 튜플 리스트 [('WASH', 'Car Wash'), ...] 구조를 자바스크립트 매핑 객체로 완벽 치환
+  const choiceData = {};
+  const choiceKeys = [];
+  {% if EXPENSE_CHOICES %}
+    {% for k, v in EXPENSE_CHOICES %}
+      choiceData["{{ k|safe }}"] = "{{ v|safe }}";
+      choiceKeys.push("{{ k|safe }}");
+    {% endfor %}
+  {% endif %}
+  
+  const defaultExpenseType = isGuideOnly ? "ETC" : (choiceKeys.includes("WASH") ? "WASH" : choiceKeys[0]);
+
+  // 💡 드롭다운 옵션 재생성 로직 (Key와 Value를 명확하게 분리)
+  function rebuildOptions(element) {
+    if (!element) return;
+
+    if (element.tagName === "SELECT") {
+      const savedValue = element.value; // 기존에 선택되어 있던 값 백업
+      element.innerHTML = ""; // 기존 옵션 완전 초기화
+      
       if (isGuideOnly) {
-        const options = selectElement.querySelectorAll("option");
-        options.forEach((option) => {
-          if (option.value.toUpperCase() === "ETC" || option.text.toUpperCase().includes("ETC")) {
-            option.selected = true;
-            selectElement.value = option.value;
-          } else if (option.value) {
-            option.disabled = true;
-          }
+        const opt = document.createElement("option");
+        opt.value = "ETC";
+        opt.textContent = choiceData["ETC"] || "ETC"; // 👈 화면 표시 텍스트
+        element.appendChild(opt);
+        element.value = "ETC";
+      } else {
+        choiceKeys.forEach(key => {
+          const opt = document.createElement("option");
+          opt.value = key; // 👈 서버로 전송될 키 (WASH, PARK 등)
+          opt.textContent = choiceData[key] || key; // 👈 화면에 보여줄 이름 (Car Wash, Parking 등)
+          element.appendChild(opt);
         });
+        
+        // 기존에 선택된 값이 있었다면 복구 복원
+        if (savedValue && choiceKeys.includes(savedValue)) {
+          element.value = savedValue;
+        }
       }
     }
+  }
 
-    // 2. WASH 중복 선택 방지 옵션 상태 업데이트
-    function updateWashOptions() {
-      if (isGuideOnly) return;
+  function initExistingRows() {
+    formContainer.querySelectorAll('[name$="-expense_type"]').forEach(el => {
+      rebuildOptions(el);
+    });
+  }
 
-      const allSelects = formContainer.querySelectorAll('select[name$="-expense_type"]');
-      const isWashUsed = Array.from(allSelects).some((s) => s.value === "WASH");
-
-      allSelects.forEach((select) => {
-        Array.from(select.options).forEach((opt) => {
-          if (opt.value === "WASH") {
-            // 다른 행에서 WASH를 이미 쓰고 있고, 현재 행의 선택값이 WASH가 아니라면 비활성화
-            if (isWashUsed && select.value !== "WASH") {
-              opt.disabled = true;
-            } else {
-              opt.disabled = false;
-            }
-          }
-        });
-      });
-    }
-
-    // 3. 세차비 금액 실시간 한도 검증
-function checkExpenseRealtime(inputElement) {
+  // 실시간 세차비 차량별 상한선 필터링
+  function checkExpenseRealtime(inputElement) {
     if (isGuideOnly) return; 
     
     const row = inputElement.closest(".expense-form-row");
@@ -345,14 +367,9 @@ function checkExpenseRealtime(inputElement) {
     const expenseValue = parseFloat(inputElement.value) || 0;
     let limit = 0;
 
-    // 💡 인바운드/데이 구분 없이 차종 텍스트에 포함된 숫자로만 한도 판정
-    if (currentRole.includes("12")) {
-      limit = 8;
-    } else if (currentRole.includes("21")) {
-      limit = 12;
-    } else if (currentRole.includes("53")) {
-      limit = 25;
-    }
+    if (currentRole.includes("12")) limit = 8;
+    else if (currentRole.includes("21")) limit = 12;
+    else if (currentRole.includes("53")) limit = 25;
 
     if (limit > 0 && expenseValue > limit) {
       alert(`🛑 ${currentRole} 차량의 세차비는 $${limit}를 넘을 수 없습니다.`);
@@ -360,8 +377,55 @@ function checkExpenseRealtime(inputElement) {
       inputElement.focus();
     }
   }
-    // 이벤트 델리게이션을 통한 실시간 변화 감지 (동적 추가된 행도 자동 적용됨)
-// 기존 코드의 "change"를 "input"으로 확장하거나 아래처럼 구성하면 반응이 훨씬 빠릅니다.
+
+  // 세차비 다중 선택 방지 규칙
+  function refreshWashOptions() {
+    if (isGuideOnly) return; 
+
+    const allElements = formContainer.querySelectorAll('[name$="-expense_type"]');
+    const isWashUsed = Array.from(allElements).some((el) => el.value === "WASH");
+
+    allElements.forEach((el) => {
+      if (el.tagName === "SELECT") {
+        Array.from(el.options).forEach((opt) => {
+          if (opt.value === "WASH") {
+            if (isWashUsed && el.value !== "WASH") {
+              opt.disabled = true;
+            } else {
+              opt.disabled = false;
+            }
+          }
+        });
+      }
+    });
+  }
+
+  // 행 추가 핸들러
+  addButton.addEventListener("click", function () {
+    const template = document.getElementById("empty-form-template").querySelector(".expense-form-row");
+    const newRow = template.cloneNode(true);
+    
+    const count = formContainer.getElementsByClassName("expense-form-row").length;
+
+    newRow.querySelectorAll("input, select").forEach((el) => {
+      if (el.name) el.name = el.name.replace(/__prefix__/g, count);
+      if (el.id) el.id = el.id.replace(/__prefix__/g, count);
+
+      if (el.name && el.name.endsWith("-expense_type")) {
+        rebuildOptions(el);
+        el.value = defaultExpenseType; 
+      } else if (el.type !== "hidden") {
+        el.value = "";
+      }
+    });
+
+    formContainer.appendChild(newRow);
+    if (totalForms) totalForms.value = count + 1;
+    
+    refreshWashOptions();
+  });
+
+  // 유저 상호작용 통합 감지 이벤트 (델리게이션)
   formContainer.addEventListener("input", function (event) {
     if (event.target.matches('input[name$="-expense"]')) {
       checkExpenseRealtime(event.target);
@@ -376,71 +440,65 @@ function checkExpenseRealtime(inputElement) {
       if (expInput && expInput.value) checkExpenseRealtime(expInput);
     }
   });
-  
-    // 행 동적 추가
-    addButton.addEventListener("click", function () {
-      const template = document.getElementById("empty-form-template").querySelector(".expense-form-row");
-      const newRow = template.cloneNode(true);
-      const count = formContainer.getElementsByClassName("expense-form-row").length;
-      
-      const allSelects = formContainer.querySelectorAll('select[name$="-expense_type"]');
-      const isWashUsed = Array.from(allSelects).some((s) => s.value === "WASH");
 
-      newRow.querySelectorAll("input, select, textarea").forEach((el) => {
-        if (el.name) el.name = el.name.replace(/__prefix__/g, count);
-        if (el.id) el.id = el.id.replace(/__prefix__/g, count);
+  // 동적 행 삭제 핸들러
+  formContainer.addEventListener("click", function (e) {
+    if (e.target.classList.contains("remove-form-btn")) {
+      const row = e.target.closest(".expense-form-row");
+      const idEl = row.querySelector('input[name$="-id"]');
 
-        if (el.tagName === "SELECT") {
-          // 이미 세차비가 선택되어 있다면 기본값을 FUEL 등으로 우회 (선택 유도)
-          el.value = isWashUsed ? "FUEL" : ""; 
-          enforceGuideOnlyRule(el);
-        } else if (el.type !== "hidden") {
-          el.value = "";
+      if (idEl && idEl.value) {
+        row.style.display = "none";
+        const delBox = row.querySelector('input[name$="-DELETE"]');
+        if (delBox) delBox.checked = true;
+      } else {
+        row.remove();
+      }
+
+      const rows = formContainer.querySelectorAll(".expense-form-row");
+      if (totalForms) totalForms.value = rows.length;
+
+      refreshWashOptions();
+    }
+  });
+
+  // 폼 제출 전 정밀 검사 검증부
+  mainForm.addEventListener("submit", function (event) {
+    const rows = formContainer.querySelectorAll(".expense-form-row");
+    
+    rows.forEach(row => {
+      if (row.style.display === "none") return;
+
+      const typeEl = row.querySelector('[name$="-expense_type"]');
+      const priceEl = row.querySelector('[name$="-expense"]');
+      const idEl = row.querySelector('input[name$="-id"]');
+
+      const expenseType = typeEl ? typeEl.value.trim().toUpperCase() : "";
+      const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
+      const expensePrice = parseFloat(expensePriceRaw) || 0;
+
+      if (!expensePriceRaw || (expenseType === "ETC" && expensePrice === 0)) {
+        if (idEl && idEl.value) {
+          row.style.display = "none";
+          const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+          if (deleteCheckbox) deleteCheckbox.checked = true;
+        } else {
+          row.remove();
         }
-      });
-
-      formContainer.appendChild(newRow);
-      
-      // Django Management Form TOTAL_FORMS 갱신
-      document.querySelectorAll('input[name$="-TOTAL_FORMS"]').forEach((inp) => {
-        inp.value = count + 1;
-      });
-
-      updateWashOptions();
-    });
-
-    // 행 동적 삭제 및 가변 폼 ID/NAME 재정렬
-    formContainer.addEventListener("click", function (e) {
-      if (e.target.classList.contains("remove-form-btn")) {
-        e.target.closest(".expense-form-row").remove();
-        
-        const rows = formContainer.getElementsByClassName("expense-form-row");
-        
-        // TOTAL_FORMS 갱신
-        document.querySelectorAll('input[name$="-TOTAL_FORMS"]').forEach((inp) => {
-          inp.value = rows.length;
-        });
-
-        // Django formset 데이터 순서 정렬 순회 (name, id 전체 속성 완벽 대응)
-        Array.from(rows).forEach((row, i) => {
-          row.querySelectorAll("input, select, textarea").forEach((el) => {
-            if (el.name) el.name = el.name.replace(/form-\d+-/, `form-${i}-`);
-            if (el.id) el.id = el.id.replace(/id_form-\d+-/, `id_form-${i}-`);
-          });
-        });
-
-        updateWashOptions();
       }
     });
 
-    // 초기 실행 및 바인딩
-    formContainer.querySelectorAll('select[name$="-expense_type"]').forEach(enforceGuideOnlyRule);
-    updateWashOptions();
+    const currentActiveRows = formContainer.querySelectorAll(".expense-form-row").length;
+    if (totalForms) totalForms.value = currentActiveRows;
 
-    // 더블 서브밋 방지
-    mainForm.addEventListener("submit", function () {
+    const submitBtn = document.getElementById("submit-final-btn");
+    if (submitBtn) {
       submitBtn.disabled = true;
       submitBtn.innerText = "제출 중인 리포트 완료 처리 중...";
-    });
+    }
   });
-</script>
+
+  // 🚀 초기 구동부 명시적 처리 실행
+  initExistingRows();
+  refreshWashOptions();
+});</script>

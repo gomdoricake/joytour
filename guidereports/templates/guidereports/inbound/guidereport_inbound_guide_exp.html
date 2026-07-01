@@ -124,17 +124,31 @@ document.addEventListener("DOMContentLoaded", function () {
   const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "";
   const isGuideOnly = currentRole.includes("GUIDE") && currentRole.includes("ONLY");
 
+// 💡 인바운드와 드롭다운을 완벽하게 동기화하기 위한 데이터 매핑 구조
   const choiceData = {};
   const choiceKeys = [];
+  
   {% if EXPENSE_CHOICES %}
-    {% for key, value in EXPENSE_CHOICES.items %}
-      choiceData["{{ key|safe }}"] = "{{ value|safe }}";
-      choiceKeys.push("{{ key|safe }}");
+    {% for choice in EXPENSE_CHOICES %}
+      // 장고 뷰에서 튜플 형태로 넘어올 때(choice.0, choice.1)와 일반 key, value 모두 대응
+      {
+        let k = "{{ choice.0|default:choice|safe }}";
+        let v = "{{ choice.1|default:choice|safe }}";
+        
+        // 만약 뷰에서 순수 딕셔너리 형태로 넘어왔을 경우를 위한 방어 코드
+        if (k === "" || k.includes("Object")) {
+          k = "{{ choice|safe }}";
+          v = "{{ value|safe }}";
+        }
+        
+        choiceData[k] = v;
+        choiceKeys.push(k);
+      }
     {% endfor %}
   {% endif %}
   
+  // 기본 설정값 지정 (GUIDE ONLY 면 ETC, 아니면 첫 번째 값 혹은 WASH)
   const defaultExpenseType = choiceKeys.length > 0 ? choiceKeys[0] : (isGuideOnly ? "ETC" : "WASH");
-
   function rebuildOptions(element) {
     if (!element) return;
 
