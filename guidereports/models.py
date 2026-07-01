@@ -72,8 +72,6 @@ class Event(models.Model):
 
         if current_code in target_rate_dict:
             rate_list = target_rate_dict[current_code]
-
-            print("rate_list: " + str(rate_list))
             
             if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
                 grade_index = guide_profile.grade - 1
@@ -125,7 +123,7 @@ class AttractionExp(models.Model):
     tg = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     def __str__(self): 
-        return self.expense_type
+        return str(self.expense_type)
 
 class FuelExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='fuels')

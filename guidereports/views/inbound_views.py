@@ -252,6 +252,7 @@ RestaurantFormSet = inlineformset_factory(
 @login_required
 def guidereport_inbound_restaurant_exp(request): 
     inbound_events = request.session.get('inbound_events')
+
     if not inbound_events: 
         return redirect('guidereports:guidereport_inbound_events')
     
@@ -318,6 +319,7 @@ AttractionFormSet = inlineformset_factory(
 @login_required
 def guidereport_inbound_attraction_exp(request): 
     inbound_restaurant = request.session.get('inbound_restaurant')
+
     if not inbound_restaurant: 
         return redirect('guidereports:guidereport_inbound_restaurant_exp')
     
@@ -421,6 +423,7 @@ GuideExpFormSet = inlineformset_factory(
 def guidereport_inbound_guide_exp(request): 
 
     inbound_fuel = request.session.get('inbound_fuel')
+    print("inbound_fuel: " + str(inbound_fuel['role']))
     if not inbound_fuel: 
         return redirect('guidereports:guidereport_inbound_fuel_exp')
     
@@ -434,13 +437,16 @@ def guidereport_inbound_guide_exp(request):
 
         F_or_G = ""
 
-        if guide_report.adt + guide_report.chd + guide_report.tc <= 9:
+        adt = guide_report.adt or 0
+        chd = guide_report.chd or 0
+        tc = guide_report.tc or 0
+
+        if adt + chd + tc <= 9:
             F_or_G = "F"
         else: 
             F_or_G = "G"
 
         guide_report.group_code = f"{guide_report.agency_code}{today_str}{F_or_G}"
-
 
         prefix = 'expenses'
         
@@ -487,11 +493,15 @@ def guidereport_inbound_guide_exp(request):
         formset = GuideExpFormSet(instance=guide_report)
 
     CHOICES = ""
+
+    print("inbound_fuel['role']: " + str(inbound_fuel['role']))
     
     if inbound_fuel['role'] == 'GUIDE ONLY': 
         CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
     else: 
         CHOICES = EXPENSE_CHOICES
+    
+    print("CHOICES: " + str(CHOICES))
     
     fuel_ids = list(FuelExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
     restaurant_ids = list(RestaurantExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
@@ -541,6 +551,7 @@ def guidereport_inbound_summary(request):
     report_id = session_data.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
     event = Event.objects.filter(guidereport=guide_report).first()
+    events = Event.objects.filter(guidereport=guide_report)
 
     report_date_str = "-"
     if event and event.report_date:
@@ -566,6 +577,52 @@ def guidereport_inbound_summary(request):
     
     grand_total = total_fuel + total_guide + total_restaurant + total_attraction
 
+    events = guide_report.events.all()
+    expenses = guide_report.expenses.all()
+    fuels = guide_report.fuels.all()
+
+    final_amount_due = 0 
+
+    event_fee = 0
+    for event in events: 
+        fee = float(event.guide_fee)
+        event_fee += fee
+        final_amount_due += fee
+    
+    guide_report.final_events_fee = event_fee
+
+    super_ann = event_fee * 0.115
+    guide_report.super_ann = super_ann
+
+    expense_fee = 0
+    for expense in expenses: 
+        fee = float(expense.expense)
+        expense_fee += fee
+        final_amount_due += fee
+
+    guide_report.final_expenses_fee = expense_fee
+    
+    fuel_fee = 0
+    for fuel in fuels:
+        if fuel.expense: fee = float(fuel.expense)
+        fuel_fee += fee
+
+    guide_report.final_fuels_fee = fuel_fee
+
+    overtime_fee = 0
+    for event in guide_report.events.all(): 
+        overtime_fee += int(event.overtime)
+    
+    final_amount_due += (overtime_fee * 30)
+    guide_report.final_amount_due = final_amount_due
+
+    all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
+    invoice_number = list(all_reports.values_list('id', flat=True)).index(guide_report.id) + 1
+
+    guide_report.invoice_number = invoice_number
+    guide_report.save()
+
+
     if request.method == 'POST':
         if 'main_data' in request.session: del request.session['main_data']
         if 'day_data' in request.session: del request.session['day_data']
@@ -577,6 +634,7 @@ def guidereport_inbound_summary(request):
     context = {
         'guide_report': guide_report,
         'event': event,
+        'events': events,
         'report_date': report_date_str,
         'fuel_expenses': fuel_expenses,
         'guide_expenses': guide_expenses,
@@ -587,5 +645,9 @@ def guidereport_inbound_summary(request):
         'total_restaurant': total_restaurant,          
         'total_attraction': total_attraction,          
         'grand_total': grand_total,
+        'event_fee': event_fee, 
+        'expense_fee': expense_fee, 
+        'fuel_fee': fuel_fee,
+        'final_amount_due': final_amount_due, 
     }
     return render(request, 'guidereports/inbound/guidereport_inbound_summary.html', context)

@@ -42,50 +42,13 @@ def index(request):
 def DetailView(request, pk):
     guide_report = get_object_or_404(GuideReport, pk=pk)
     events = guide_report.events.all()
-    expenses = guide_report.expenses.all()
-    fuels = guide_report.fuels.all()
+    event_fee = guide_report.final_events_fee
+    expense_fee = guide_report.final_expenses_fee
+    fuel_fee = guide_report.final_fuels_fee
+    final_amount_due = guide_report.final_amount_due
+    super_ann = guide_report.super_ann
+    invoice_number = guide_report.invoice_number
 
-    final_amount_due = 0 
-
-    event_fee = 0
-    for event in events: 
-        fee = float(event.guide_fee)
-        event_fee += fee
-        final_amount_due += fee
-    
-    guide_report.final_events_fee = event_fee
-
-    super_ann = event_fee * 0.115
-    guide_report.super_ann = super_ann
-
-    expense_fee = 0
-    for expense in expenses: 
-        fee = float(expense.expense)
-        expense_fee += fee
-        final_amount_due += fee
-
-    guide_report.final_expenses_fee = expense_fee
-    
-    fuel_fee = 0
-    for fuel in fuels:
-        if fuel.expense: fee = float(fuel.expense)
-        fuel_fee += fee
-
-    guide_report.final_fuels_fee = fuel_fee
-
-    overtime_fee = 0
-    for event in guide_report.events.all(): 
-        overtime_fee += int(event.overtime)
-    
-    final_amount_due += (overtime_fee * 30)
-    guide_report.final_amount_due = final_amount_due
-
-    all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
-    invoice_number = list(all_reports.values_list('id', flat=True)).index(guide_report.id) + 1
-
-    guide_report.invoice_number = invoice_number
-    guide_report.save()
-        
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,
         'events': events,

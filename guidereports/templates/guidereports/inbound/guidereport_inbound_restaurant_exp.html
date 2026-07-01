@@ -234,13 +234,6 @@
 
   <h2 class="title">Restaurant 경비 내역</h2>
 
-  <div class="report-info-box">
-    <div style="display: flex; gap: 24px; font-size: 14px; color: #1e293b; font-weight: 600;">
-      <div><strong>구분</strong> {{ guide_report.day_inbound }}</div>
-      <div><strong>그룹 코드</strong> <span>{{ guide_report.group_code }}</span></div>
-    </div>
-  </div>
-
   <form method="post" id="real-expense-form">
     {% csrf_token %} 
     {{ formset.management_form }}
