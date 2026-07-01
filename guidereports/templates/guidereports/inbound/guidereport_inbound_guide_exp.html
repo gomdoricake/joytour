@@ -196,6 +196,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+    formContainer.addEventListener("input", function (event) {
+    if (event.target.matches('input[name$="-expense"]')) {
+      checkExpenseRealtime(event.target);
+    }
+  });
+
+  formContainer.addEventListener("change", function (event) {
+    if (event.target.matches('[name$="-expense_type"]')) {
+      refreshWashOptions();
+      const row = event.target.closest(".expense-form-row");
+      const expInput = row.querySelector('input[name$="-expense"]');
+      if (expInput && expInput.value) checkExpenseRealtime(expInput);
+    }
+  });
+
+
   function refreshWashOptions() {
     if (isGuideOnly) return; 
 
