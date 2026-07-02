@@ -69,7 +69,6 @@ class Event(models.Model):
 
         if current_code in target_rate_dict:
             rate_list = target_rate_dict[current_code]
-            
             if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
                 grade_index = guide_profile.grade - 1
                 if 0 <= grade_index < len(rate_list):

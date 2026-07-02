@@ -7,6 +7,7 @@ from django.forms import inlineformset_factory
 from ..forms import *
 
 import datetime
+from datetime import date
 from django.shortcuts import redirect
 
 
@@ -223,17 +224,25 @@ def guidereport_day_guide_exp(request):
         'EXPENSE_CHOICES': CHOICES,
     })
 
+
 @login_required
 @never_cache
 def guidereport_day_summary(request): 
-    session_data = request.session.get('guide_exp') or request.session.get('day_fuel')
+    session_data = (
+        request.session.get('guide_exp') or 
+        request.session.get('day_fuel') or
+        request.session.get('day_data')
+    )
     
     if not session_data:
         return redirect('guidereports:guidereport_day')
         
     report_id = session_data.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
-    event = Event.objects.filter(guidereport=guide_report).first()
+    
+    event = guide_report.events.first()  
+    fuel_expenses = guide_report.fuels.all()  
+    guide_expenses = guide_report.expenses.all()
 
     report_date_str = "-"
     if event and event.report_date:
@@ -247,18 +256,29 @@ def guidereport_day_summary(request):
         except ValueError:
             pass
     
-    fuel_expenses = FuelExp.objects.filter(guide_report=guide_report)
-    guide_expenses = GuideExp.objects.filter(guide_report=guide_report)
+    total_fuel = float(sum(item.expense for item in fuel_expenses if item.expense))
+    total_guide = float(sum(item.expense for item in guide_expenses if item.expense))
     
-    total_fuel = sum(item.expense for item in fuel_expenses if item.expense)
-    total_guide = sum(item.expense for item in guide_expenses if item.expense)
-    grand_total = total_fuel + total_guide
+    base_fee = float(event.guide_fee) if (event and event.guide_fee) else 0.0
+    
+    grand_total = base_fee + total_fuel + total_guide
+
+    guide_report.final_events_fee = str(base_fee)
+    guide_report.final_fuels_fee = str(total_fuel)
+    guide_report.final_expenses_fee = str(total_guide)  
+    guide_report.final_amount_due = str(grand_total)
+    
+    
+    guide_report.invoice_date = date.today()
+    guide_report.save()
 
     if request.method == 'POST':
-        if 'main_data' in request.session: del request.session['main_data']
-        if 'day_data' in request.session: del request.session['day_data']
-        if 'day_fuel' in request.session: del request.session['day_fuel']
-        if 'guide_exp' in request.session: del request.session['guide_exp']
+        session_keys_to_delete = [
+            'main_data', 'day_data', 'day_fuel', 'guide_exp', 'inbound_data'
+        ]
+        for key in session_keys_to_delete:
+            if key in request.session: 
+                del request.session[key]
         
         return redirect('guidereports:detail', pk=guide_report.id)
 

@@ -48,29 +48,27 @@
     color: #0f172a;
   }
 
-  /* 타이틀 스타일 */
+  /* 타이틀 및 역할 정보 스타일 */
+  .title-area {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+  }
   .title {
     font-size: 24px;
     font-weight: 800;
     color: #0f172a;
-    margin: 0 0 25px 0;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #f1f5f9;
+    margin: 0 0 8px 0;
     letter-spacing: -0.5px;
   }
-  
-  /* 리포트 정보 박스 브랜딩 */
-  .report-info-box {
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 25px;
-  }
-  .report-info-box strong {
-    color: #475569;
+  .role-badge {
+    display: inline-block;
+    font-size: 12px;
     font-weight: 700;
-    margin-right: 4px;
+    color: #475569;
+    background: #e2e8f0;
+    padding: 3px 8px;
+    border-radius: 6px;
   }
 
   /* 요약 섹션 카드 포맷 */
@@ -96,12 +94,35 @@
     align-items: center;
   }
 
-  /* 요약 테이블 스타일 */
+  /* 우측 상단 개별 요약 금액 배지 */
+  .section-total-badge {
+    font-size: 14px;
+    font-weight: 800;
+    color: #4f46e5;
+    background: #eef2ff;
+    padding: 4px 10px;
+    border-radius: 8px;
+  }
+
+  /* 이벤트 개별 루프 서브카드 (통일감 부여) */
+  .event-sub-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .event-sub-card:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 요약 테이블 스타일 통일 */
   .summary-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
     text-align: left;
+    table-layout: fixed; /* 테이블 너비 고정하여 균형 유지 */
   }
   .summary-table th {
     color: #64748b;
@@ -116,10 +137,17 @@
     border-bottom: 1px solid #f1f5f9;
     color: #334155;
     font-weight: 600;
+    word-break: break-all;
   }
   .summary-table tr:last-child td {
     border-bottom: none;
   }
+  
+  /* 컬럼 너비 지정 */
+  .col-type { width: 35%; }
+  .col-memo { width: 45%; }
+  .col-amount { width: 20%; }
+
   .text-right {
     text-align: right;
   }
@@ -129,29 +157,29 @@
     font-size: 13px;
   }
 
-  /* 최종 합계 데코레이션 */
+  /* 최종 합계 데코레이션 박스 */
   .grand-total-box {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border: 1px solid #bbf7d0;
-    padding: 20px;
+    border: 1px solid #ffffff;
+    padding: 22px;
     border-radius: 16px;
     margin-top: 30px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08);
   }
   .grand-total-title {
     font-size: 16px;
     font-weight: 800;
-    color: #16a34a;
+    color: #14532d;
   }
   .grand-total-amount {
-    font-size: 22px;
-    font-weight: 800;
-    color: #15803d;
+    font-size: 24px;
+    font-weight: 900;
+    color: #16a34a; /* 통일성 있는 초록 계열 피드백 혹은 강조 포인트 */
   }
 
-  /* 🚀 다음 단계 제출 버튼 (인디고 그라디언트) */
   .btn-submit {
     display: block;
     width: 100%;
@@ -163,7 +191,7 @@
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    margin-top: 30px;
+    margin-top: 20px;
     box-sizing: border-box;
     transition: all 0.25s ease;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
@@ -186,18 +214,12 @@
 
 <div class="report-container">
   <div class="nav-block">
-    <a href="{% url 'guidereports:guidereport_day_guide_exp' %}" class="back-link">← 경비 수정하러 가기</a>
+    <a href="{% url 'guidereports:guidereport_inbound_guide_exp' %}" class="back-link">← 경비 수정하러 가기</a>
   </div>
   
-  <h2 class="title">정산 내역 최종 확인 (Summary)</h2>
-
-  <div class="report-info-box">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 14px; color: #1e293b; font-weight: 600;">
-      <div><strong>구분:</strong> {{ guide_report.day_inbound }}</div>
-      <div><strong>차량 정보:</strong> {{ guide_report.role }}</div>
-      <div><strong>그룹 코드:</strong> <span style="color: #4f46e5;">{{ guide_report.group_code|default:"-" }}</span></div>
-      <div><strong>운행 일자:</strong> {{ report_date }}</div>
-    </div>
+  <div class="title-area">
+    <h2 class="title">정산 내역 최종 확인 (Summary)</h2>
+    <span class="role-badge">INBOUND • {{ guide_report.role|default:"GUIDE" }}</span>
   </div>
 
   <form method="post" id="summary-final-form">
@@ -206,54 +228,70 @@
     <div class="summary-section-card" style="border-left: 4px solid #4f46e5;">
       <div class="section-title">
         <span>Event Information</span>
+        <span class="section-total-badge">${{ event.guide_fee|default:"0" }}</span>
       </div>
       {% if event %}
-        <table class="summary-table">
-          <tbody>
-            <tr>
-              <td style="width: 30%; color: #64748b; font-size: 13px;">EVENT CODE</td>
-              <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 13px;">{{ event.eventcode }}</span></td>
-            </tr>
-            <tr>
-              <td style="color: #64748b; font-size: 13px;">REPORT DATE</td>
-              <td>{{ event.report_date|default:report_date }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="event-sub-card">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td style="width: 30%; color: #64748b; font-size: 13px;">EVENT CODE</td>
+                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-family: monospace; font-weight: 700;">{{ event.eventcode }}</span></td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">REPORT DATE</td>
+                <td>{{ event.report_date|default:report_date }}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
+                <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
+              </tr>
+              {% if event.memo %}
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">MEMO</td>
+                <td class="text-muted">{{ event.memo }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
       {% else %}
         <div class="text-muted" style="text-align: center; padding: 10px 0;">연동된 이벤트 정보가 존재하지 않습니다.</div>
       {% endif %}
     </div>
 
+
     <div class="summary-section-card">
       <div class="section-title">
         <span>Fuel Expenses</span>
-        <span style="color: #475569; font-size: 14px;">소계: {{ total_fuel }}</span>
+        <span class="section-total-badge">${{ total_fuel|default:"0" }}</span>
       </div>
       {% if fuel_expenses %}
-<table class="summary-table">
-  <thead>
-    <tr>
-      <th>주유소/항목</th>
-      <th class="text-right">금액</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in fuel_expenses %}
-        <tr>
-            <td>
-            {% if item.expense_type %}
-                {{ item.get_expense_type_display|default:item.expense_type }}
-            {% else %}
-                주유 내역 ({{ item.memo|default:"주유비" }})
-            {% endif %}
-            </td>
-            <td class="text-right">{{ item.expense }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-    </table>      
-    {% else %}
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th class="col-type">주유소/항목</th>
+              <th class="col-memo">메모(Memo)</th>
+              <th class="col-amount text-right">금액</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in fuel_expenses %}
+              <tr>
+                <td>
+                  {% if item.expense_type %}
+                    {{ item.get_expense_type_display|default:item.expense_type }}
+                  {% else %}
+                    주유 내역
+                  {% endif %}
+                </td>
+                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="text-right">${{ item.expense|default:"0" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>      
+      {% else %}
         <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 주유비 내역이 없습니다.</div>
       {% endif %}
     </div>
@@ -261,15 +299,15 @@
     <div class="summary-section-card">
       <div class="section-title">
         <span>Guide Expenses</span>
-        <span style="color: #475569; font-size: 14px;">소계: {{ total_guide }}</span>
+        <span class="section-total-badge">${{ total_guide|default:"0" }}</span>
       </div>
-      {% if guide_expenses %}
+      {% if guide_expenses or overtimes %}
         <table class="summary-table">
           <thead>
             <tr>
-              <th>지출 항목</th>
-              <th>메모(Memo)</th>
-              <th class="text-right">금액</th>
+              <th class="col-type">지출 항목</th>
+              <th class="col-memo">메모(Memo)</th>
+              <th class="col-amount text-right">금액</th>
             </tr>
           </thead>
           <tbody>
@@ -277,7 +315,7 @@
               <tr>
                 <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
                 <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">{{ item.expense }}</td>
+                <td class="text-right">${{ item.expense|default:"0" }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -285,6 +323,11 @@
       {% else %}
         <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 가이드 경비 내역이 없습니다.</div>
       {% endif %}
+    </div>
+
+    <div class="grand-total-box">
+      <div class="grand-total-title">최종 정산 예정 금액 (Grand Total)</div>
+      <div class="grand-total-amount">${{ grand_total|default:"0" }}</div>
     </div>
 
     <button type="submit" id="submit-final-btn" class="btn-submit">작성 완료 및 리포트 제출 (Submit)</button>
@@ -296,10 +339,11 @@
     const mainForm = document.getElementById("summary-final-form");
     const submitBtn = document.getElementById("submit-final-btn");
 
-    mainForm.addEventListener("submit", function () {
-      // 중복 제출 방지 및 진행 상태 표기
-      submitBtn.disabled = true;
-      submitBtn.innerText = "리포트를 서버에 안전하게 등록 중입니다...";
-    });
+    if (mainForm && submitBtn) {
+      mainForm.addEventListener("submit", function () {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "리포트를 서버에 안전하게 등록 중입니다...";
+      });
+    }
   });
 </script>
