@@ -65,7 +65,6 @@ def update_restaurant(request, pk):
                 restaurant.dr = int(dr_val) if dr_val else 0
                 
                 restaurant.expense = 25 * restaurant.adt + 20 * restaurant.chd + 10 * restaurant.tc + 5 * restaurant.tg
-                print("restuarant.expense: " + str(restaurant.expense))
                 restaurant.save()
             
         guidereport.save()
@@ -111,8 +110,6 @@ def guidereport_inbound_agency(request):
         form = AgencyPaxForm(instance=instance)
     
     return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form, 'AGENCY_CHOICES': AGENCY_CHOICES})
-
-
 
 
 @login_required
@@ -195,9 +192,6 @@ def guidereport_inbound_events(request):
     })
 
 
-
-
-
 @login_required
 @never_cache
 def guidereport_inbound_restaurant_exp(request): 
@@ -209,32 +203,38 @@ def guidereport_inbound_restaurant_exp(request):
     report_id = inbound_events.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
 
+    events = guide_report.events.all()
+    initial_data = []
+    for event in events:
+        initial_data.append({'report_date': event.report_date}) 
+        initial_data.append({'report_date': event.report_date}) 
+
     RestaurantFormSet = inlineformset_factory(
         GuideReport, 
         RestaurantExp, 
         form=RestaurantExpForm, 
-        extra=guide_report.events.count() * 2,             
+        extra=events.count() * 2,             
         can_delete=True  
     )
 
     if request.method == "POST": 
-        formset = RestaurantFormSet(request.POST, instance=guide_report)
+        formset = RestaurantFormSet(request.POST, instance=guide_report, initial=initial_data)
 
         if formset.is_valid(): 
             guide_report.save()
-            
             formset.save() 
             
             request.session['inbound_restaurant'] = inbound_events
             return redirect('guidereports:guidereport_inbound_attraction_exp') 
     else:
-        formset = RestaurantFormSet(instance=guide_report)
+        formset = RestaurantFormSet(instance=guide_report, initial=initial_data)
 
     return render(request, 'guidereports/inbound/guidereport_inbound_restaurant_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
         'RESTAURANT_CHOICES': RESTAURANT_CHOICES
     })
+
 
 
 AttractionFormSet = inlineformset_factory(
