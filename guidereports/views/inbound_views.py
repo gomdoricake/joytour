@@ -608,12 +608,16 @@ def guidereport_inbound_summary(request):
         fuel_fee += fee
 
     guide_report.final_fuels_fee = fuel_fee
+    final_amount_due += fuel_fee
 
-    overtime_fee = 0
+    overtime = 0
     for event in guide_report.events.all(): 
-        overtime_fee += int(event.overtime)
+        if event.overtime is not None:
+            overtime += int(event.overtime)
     
-    final_amount_due += (overtime_fee * 30)
+    event_fee += (overtime * 30)
+
+    final_amount_due += (overtime * 30)
     guide_report.final_amount_due = final_amount_due
 
     all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
@@ -622,7 +626,6 @@ def guidereport_inbound_summary(request):
     guide_report.invoice_number = invoice_number
     guide_report.save()
 
-
     if request.method == 'POST':
         if 'main_data' in request.session: del request.session['main_data']
         if 'day_data' in request.session: del request.session['day_data']
@@ -630,6 +633,15 @@ def guidereport_inbound_summary(request):
         if 'guide_exp' in request.session: del request.session['guide_exp']
         
         return redirect('guidereports:detail', pk=guide_report.id)
+
+    overtimes = []
+    for event in events:
+        if event.overtime is not None:
+            overtimes.append(event.overtime * 30)
+        else: 
+            overtimes.append(0)
+    
+    event_data = zip(events, overtimes)
 
     context = {
         'guide_report': guide_report,
@@ -649,5 +661,6 @@ def guidereport_inbound_summary(request):
         'expense_fee': expense_fee, 
         'fuel_fee': fuel_fee,
         'final_amount_due': final_amount_due, 
+        'event_data': event_data,
     }
     return render(request, 'guidereports/inbound/guidereport_inbound_summary.html', context)
