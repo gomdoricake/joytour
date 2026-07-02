@@ -13,7 +13,8 @@ class GuideReport(models.Model):
     invoice_date = models.DateField(null=True, blank=True)
     invoice_number = models.CharField(max_length=10, null=True, blank=True)
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)
-    role = models.CharField(max_length=100, choices=ROLE)
+    role = models.CharField(max_length=100)
+    coach = models.CharField(max_length=100, null=True, blank=True)
     group_code = models.CharField(max_length=100, blank=True, null=True)
     agency_code = models.CharField(max_length=10, blank=True, null=True) 
     adt = models.PositiveIntegerField(default=0)
@@ -50,36 +51,30 @@ class Event(models.Model):
             ('DAY', '21 SEAT'): DAY_RATE_21SEAT,
             ('DAY', '53 SEAT'): DAY_RATE_53SEAT,
             ('DAY', 'GUIDE ONLY'): DAY_RATE_GUIDE_ONLY,
-            ('INBOUND', '12 SEAT'): INBOUND_RATE_12SEAT,
-            ('INBOUND', 'GUIDE ONLY'): INBOUND_RATE_GUIDE_ONLY,
+            ('INBOUND', 'FIT'): INBOUND_RATE_12SEAT,
+            ('INBOUND', 'GROUP'): INBOUND_RATE_GUIDE_ONLY,
         }
         
         target_rate_dict = rate_mapping.get((day_inbound_val, role_val))
-        
         calculated_fee = "0.00"
-
 
         if day_inbound_val == "DAY" and target_rate_dict: 
             current_code = self.eventcode
-        
 
         elif day_inbound_val == "INBOUND" and target_rate_dict:
             if self.hours == None:
                 current_code = 'AM/AS'
             else: 
                 current_code = self.hours
-        
 
         if current_code in target_rate_dict:
             rate_list = target_rate_dict[current_code]
-            
             if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
                 grade_index = guide_profile.grade - 1
                 if 0 <= grade_index < len(rate_list):
                     calculated_fee = float(rate_list[grade_index])
 
         self.guide_fee = calculated_fee
-
         super().save(*args, **kwargs)
 
     def __str__(self): 

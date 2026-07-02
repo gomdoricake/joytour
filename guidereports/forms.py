@@ -12,18 +12,6 @@ class GuideReportMainForm(forms.ModelForm):
             'role': 'Role', 
         }
 
-    def clean(self):
-        cleaned_data = super().clean()
-        report_type = cleaned_data.get("type")
-        role = cleaned_data.get("role")
-
-        if report_type == 'Inbound':
-            allowed_roles = ['12 SEAT', 'GUIDE ONLY']
-            if role not in allowed_roles:
-                raise forms.ValidationError(f"Inbound인 경우 Role은 {allowed_roles} 중 하나여야 합니다.")
-        
-        return cleaned_data
-
 class GuideReportDayForm(forms.ModelForm): 
     eventcode = forms.CharField(
         required=True,

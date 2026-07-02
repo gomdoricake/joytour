@@ -281,68 +281,88 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const formContainer = document.getElementById("expense-form-list");
-    const addButton = document.getElementById("add-form-btn");
-    const mainForm = document.getElementById("real-expense-form");
-    const submitBtn = document.getElementById("submit-final-btn");
-    const prefix = "{{ formset.prefix }}";
+document.addEventListener("DOMContentLoaded", function () {
+  const formContainer = document.getElementById("expense-form-list");
+  const addButton = document.getElementById("add-form-btn");
+  const mainForm = document.getElementById("real-expense-form");
+  const submitBtn = document.getElementById("submit-final-btn");
+  const prefix = "{{ formset.prefix }}";
 
-    // [추가] 기존에 렌더링된 input 엘리먼트에도 datalist 속성을 바인딩해줍니다 (Django forms.py에서 설정 안 했을 경우 대비)
-    function bindDataList(container) {
-      // name 속성에 'expense_type'이 포함된 input을 찾아서 list 속성 부여
-      const expenseInputs = container.querySelectorAll("input[name*='expense_type']");
-      expenseInputs.forEach(input => {
-        input.setAttribute("list", "restaurant_datalist");
-      });
-    }
+  const eventDates = [
+    {% for event in guide_report.events.all %}
+      "{{ event.report_date|date:'Y-m-d' }}",
+    {% endfor %}
+  ];
 
-    // 초기 실행 시 기존 폼들에 datalist 바인딩
-    bindDataList(formContainer);
+  // datalist 바인딩 함수
+  function bindDataList(container) {
+    const expenseInputs = container.querySelectorAll(`input[name*='expense_type']`);
+    expenseInputs.forEach(input => {
+      input.setAttribute("list", "restaurant_datalist");
+    });
+  }
 
-    // 항목 동적 추가
-    addButton.addEventListener("click", function () {
-      const noDataAlert = document.getElementById("no-data-alert");
-      if (noDataAlert) noDataAlert.remove();
+  bindDataList(formContainer);
 
-      const template = document.getElementById("empty-form-template").firstElementChild;
-      const newRow = template.cloneNode(true);
-      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
+  addButton.addEventListener("click", function () {
+    const noDataAlert = document.getElementById("no-data-alert");
+    if (noDataAlert) noDataAlert.remove();
 
-      const prefixRegex = new RegExp(`__prefix__`, "g");
-      const inputs = newRow.querySelectorAll("input, select, textarea");
+    const template = document.getElementById("empty-form-template").firstElementChild;
+    const newRow = template.cloneNode(true);
+    
+    const currentFormCount = formContainer.querySelectorAll(".expense-form-row").length;
 
-      inputs.forEach((input) => {
-        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
-        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
+    const prefixRegex = new RegExp(`__prefix__`, "g");
+    const inputs = newRow.querySelectorAll("input, select, textarea");
 
-        if (input.type !== "hidden") {
-          if (input.tagName === "SELECT") {
-            input.selectedIndex = 0;
-          } else {
-            input.value = "";
-          }
+    inputs.forEach((input) => {
+      if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
+      if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
+
+      if (input.type !== "hidden") {
+        if (input.tagName === "SELECT") {
+          input.selectedIndex = 0;
+        } else {
+          input.value = "";
         }
-      });
-
-      formContainer.appendChild(newRow);
-      
-      // 새 행이 추가된 후 datalist 다시 바인딩
-      bindDataList(newRow);
-
-      const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-      if (totalFormsInput) {
-        totalFormsInput.value = currentFormCount + 1;
-        totalFormsInput.setAttribute("value", currentFormCount + 1);
       }
     });
 
-    // 항목 삭제 및 가변 인덱스 재정렬
-    formContainer.addEventListener("click", function (event) {
-      if (event.target.classList.contains("remove-form-btn")) {
-        const row = event.target.closest(".expense-form-row");
-        row.remove();
+    const dateIndex = Math.floor(currentFormCount / 2);
+    const targetDateInput = newRow.querySelector(`input[name*='report_date']`);
+    
+    if (targetDateInput && eventDates.length > 0) {
+      const assignedDate = eventDates[dateIndex] || eventDates[eventDates.length - 1];
+      targetDateInput.value = assignedDate;
+    }
 
+    formContainer.appendChild(newRow);
+    bindDataList(newRow);
+
+    const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+    if (totalFormsInput) {
+      const nextCount = currentFormCount + 1;
+      totalFormsInput.value = nextCount;
+    }
+  });
+
+  formContainer.addEventListener("click", function (event) {
+    if (event.target.classList.contains("remove-form-btn")) {
+      const row = event.target.closest(".expense-form-row");
+      
+      const idInput = row.querySelector("input[type='hidden'][name$='-id']");
+      
+      if (idInput && idInput.value) {
+        row.style.display = "none";
+        
+        const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
+        if (deleteCheckbox) {
+          deleteCheckbox.checked = true;
+        }
+      } else {
+        row.remove();
+        
         const remainingRows = formContainer.getElementsByClassName("expense-form-row");
         const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
         if (totalFormsInput) totalFormsInput.value = remainingRows.length;
@@ -358,11 +378,13 @@
           });
         }
       }
-    });
-
-    mainForm.addEventListener("submit", function () {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "다음 단계 양식 생성 중 (Attraction)...";
-    });
+    }
   });
+
+  // 폼 서브밋 디펜스
+  mainForm.addEventListener("submit", function () {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "다음 단계 양식 생성 중 (Attraction)...";
+  });
+});
 </script>

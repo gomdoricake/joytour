@@ -51,11 +51,7 @@
   .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35); background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
 </style>
 
-<datalist id="guideexp_datalist">
-  {% for key, value in EXPENSE_CHOICES %}
-    <option value="{{ key }}">{{ value }}</option>
-  {% endfor %}
-</datalist>
+<datalist id="guideexp_datalist"></datalist>
 
 <div class="report-container">
   <div class="nav-block">
@@ -106,77 +102,85 @@
   </div>
 </div>
 
+
+<div id="django-expense-data" style="display: none;"
+     data-choices="{% for key, val in EXPENSE_CHOICES %}{{ key }}:{{ val }},{% endfor %}"
+     data-guide-choices="{% for key, val in GUIDE_ONLY_EXPENSE_CHOICES %}{{ key }}:{{ val }},{% endfor %}">
+</div>
+
+{% block extra_script %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+  console.log("=== [확인] Expense 폼셋 스크립트 가동 ===");
+
   const formContainer = document.getElementById("expense-form-list");
   const addButton = document.getElementById("add-form-btn");
   const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
-  const mainForm = document.getElementById("real-expense-form"); // 👈 변수 바인딩 정상화
-  
-  const roleBadge = document.querySelector(".role-badge");
-  const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "";
-  const isGuideOnly = currentRole.includes("GUIDE") && currentRole.includes("ONLY");
+  const mainForm = document.getElementById("real-expense-form"); 
 
-  // 💡 장고 튜플 쌍 데이터를 자바스크립트 객체 및 배열로 완벽하게 복원 매핑
+  // 역할군 판단
+  const roleBadge = document.querySelector(".role-badge");
+  const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "{{ guide_report.role|upper }}";
+  const isGuideOnly = currentRole.includes("GUIDE ONLY") || currentRole.includes("GROUP");
+
+  // 데이터 파싱
+  const dataBridge = document.getElementById("django-expense-data");
   const choiceData = {};
   const choiceKeys = [];
-  
-  {% if EXPENSE_CHOICES %}
-    {% for k, v in EXPENSE_CHOICES %}
-      choiceData["{{ k|safe }}"] = "{{ v|safe }}";
-      choiceKeys.push("{{ k|safe }}");
-    {% endfor %}
-  {% endif %}
-  
+  const guideOnlyKeys = [];
+
+  if (dataBridge) {
+    const rawChoices = dataBridge.getAttribute("data-choices") || "";
+    const rawGuideChoices = dataBridge.getAttribute("data-guide-choices") || "";
+
+    rawChoices.split(",").forEach(item => {
+      if (!item) return;
+      const [key, val] = item.split(":");
+      if (key) { choiceData[key] = val || key; choiceKeys.push(key); }
+    });
+
+    rawGuideChoices.split(",").forEach(item => {
+      if (!item) return;
+      const [key, val] = item.split(":");
+      if (key) { choiceData[key] = val || key; guideOnlyKeys.push(key); }
+    });
+  }
+
   const defaultExpenseType = isGuideOnly ? "ETC" : (choiceKeys.includes("WASH") ? "WASH" : choiceKeys[0]);
 
-  // 💡 드롭다운 옵션을 다시 그려 진짜 텍스트(Car Wash 등)를 표기하는 핵심 함수
   function rebuildOptions(element) {
-    if (!element) return;
+    if (!element || element.tagName !== "SELECT") return;
+    const savedValue = element.value; 
+    element.innerHTML = "";
+    
+    const keys = isGuideOnly ? guideOnlyKeys : choiceKeys;
+    keys.forEach(key => {
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = choiceData[key] || key;
+      element.appendChild(opt);
+    });
 
-    if (element.tagName === "SELECT") {
-      const savedValue = element.value; // 기존 유저가 선택해 둔 값 보존
-      element.innerHTML = "";
-      
-      if (isGuideOnly) {
-        const opt = document.createElement("option");
-        opt.value = "ETC";
-        opt.textContent = choiceData["ETC"] || "ETC";
-        element.appendChild(opt);
-        element.value = "ETC";
-      } else {
-        choiceKeys.forEach(key => {
-          const opt = document.createElement("option");
-          opt.value = key;                         // 서버로 전송될 Key (예: WASH)
-          opt.textContent = choiceData[key] || key; // 화면에 노출될 Value (예: Car Wash)
-          element.appendChild(opt);
-        });
-        
-        // 기존 선택값 복구
-        if (savedValue && choiceKeys.includes(savedValue)) {
-          element.value = savedValue;
-        }
-      }
+    if (savedValue && keys.includes(savedValue)) {
+      element.value = savedValue;
+    } else {
+      element.value = defaultExpenseType;
     }
   }
 
   function initExistingRows() {
-    formContainer.querySelectorAll('[name$="-expense_type"]').forEach(el => {
-      rebuildOptions(el);
-    });
+    formContainer.querySelectorAll('[name$="-expense_type"]').forEach(el => rebuildOptions(el));
   }
 
   function checkExpenseRealtime(inputElement) {
     if (isGuideOnly) return; 
-    
     const row = inputElement.closest(".expense-form-row");
     const typeElement = row.querySelector('[name$="-expense_type"]');
     if (!typeElement || typeElement.value !== "WASH") return;
 
     const expenseValue = parseFloat(inputElement.value) || 0;
     let limit = 0;
-
-    if (currentRole.includes("12")) limit = 8;
+    if (currentRole.includes("12") || currentRole.includes("FIT")) limit = 8;
     else if (currentRole.includes("21")) limit = 12;
     else if (currentRole.includes("53")) limit = 25;
 
@@ -189,100 +193,120 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function refreshWashOptions() {
     if (isGuideOnly) return; 
-
     const allElements = formContainer.querySelectorAll('[name$="-expense_type"]');
-    const isWashUsed = Array.from(allElements).some((el) => el.value === "WASH");
+    const isWashUsed = Array.from(allElements).some((el) => {
+      const row = el.closest(".expense-form-row");
+      const delChk = row.querySelector('input[name$="-DELETE"]');
+      return el.value === "WASH" && !(delChk && (delChk.checked || delChk.value === "WASH")) && row.style.display !== "none";
+    });
 
     allElements.forEach((el) => {
       if (el.tagName === "SELECT") {
         Array.from(el.options).forEach((opt) => {
-          if (opt.value === "WASH") {
-            if (isWashUsed && el.value !== "WASH") {
-              opt.disabled = true;
-            } else {
-              opt.disabled = false;
-            }
-          }
+          if (opt.value === "WASH") opt.disabled = (isWashUsed && el.value !== "WASH");
         });
       }
     });
   }
 
-  addButton.addEventListener("click", function () {
-    const template = document.getElementById("empty-form-template").firstElementChild;
-    const newRow = template.cloneNode(true);
-    
-    const count = totalForms ? parseInt(totalForms.value, 10) : formContainer.getElementsByClassName("expense-form-row").length;
+  // ➕ 추가 버튼
+  if (addButton) {
+    addButton.addEventListener("click", function () {
+      const template = document.getElementById("empty-form-template").firstElementChild;
+      const newRow = template.cloneNode(true);
+      const count = formContainer.getElementsByClassName("expense-form-row").length;
 
-    newRow.querySelectorAll("input, select").forEach((el) => {
-      if (el.name) el.name = el.name.replace(/__prefix__/g, count);
-      if (el.id) el.id = el.id.replace(/__prefix__/g, count);
-
-      if (el.name && el.name.endsWith("-expense_type")) {
-        rebuildOptions(el);
-        el.value = defaultExpenseType; 
-      } else if (el.type !== "hidden") {
-        el.value = "";
-      }
-    });
-
-    formContainer.appendChild(newRow);
-    if (totalForms) totalForms.value = count + 1;
-    
-    refreshWashOptions();
-  });
-
-  // 이벤트 핸들러 바인딩 구조화
-  formContainer.addEventListener("input", function (event) {
-    if (event.target.matches('input[name$="-expense"]')) {
-      checkExpenseRealtime(event.target);
-    }
-  });
-
-  formContainer.addEventListener("change", function (event) {
-    if (event.target.matches('[name$="-expense_type"]')) {
-      refreshWashOptions();
-      const row = event.target.closest(".expense-form-row");
-      const expInput = row.querySelector('input[name$="-expense"]');
-      if (expInput && expInput.value) checkExpenseRealtime(expInput);
-    }
-  });
-
-  // 제출 전 무효한 행 처리 (정확한 form ID 기반 처리)
-  if (mainForm) {
-    mainForm.addEventListener("submit", function (event) {
-      const rows = formContainer.querySelectorAll(".expense-form-row");
-      
-      rows.forEach(row => {
-        if (row.style.display === "none") return;
-
-        const typeEl = row.querySelector('[name$="-expense_type"]');
-        const priceEl = row.querySelector('[name$="-expense"]');
-        const idEl = row.querySelector('input[name$="-id"]');
-
-        const expenseType = typeEl ? typeEl.value.trim().toUpperCase() : "";
-        const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
-        const expensePrice = parseFloat(expensePriceRaw) || 0;
-
-        if (!expensePriceRaw || (expenseType === "ETC" && expensePrice === 0)) {
-          if (idEl && idEl.value) {
-            const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
-            if (deleteCheckbox) deleteCheckbox.checked = true;
-          } else {
-            row.remove();
-          }
+      newRow.querySelectorAll("input, select").forEach((el) => {
+        if (el.name) el.name = el.name.replace(/__prefix__/g, count);
+        if (el.id) el.id = el.id.replace(/__prefix__/g, count);
+        if (el.name && el.name.endsWith("-expense_type")) {
+          rebuildOptions(el);
+          el.value = defaultExpenseType; 
+        } else if (el.type !== "hidden") {
+          el.value = "";
         }
       });
 
-      const currentActiveRows = formContainer.querySelectorAll(".expense-form-row").length;
-      if (totalForms) {
-        totalForms.value = currentActiveRows;
+      formContainer.appendChild(newRow);
+      if (totalForms) totalForms.value = formContainer.getElementsByClassName("expense-form-row").length;
+      refreshWashOptions();
+    });
+  }
+
+  // ❌ [핵심 수정] 삭제 제어 로직 보정
+  if (formContainer) {
+    formContainer.addEventListener("click", function (e) {
+      if (e.target.classList.contains("remove-form-btn")) {
+        const row = e.target.closest(".expense-form-row");
+        const idEl = row.querySelector('input[name$="-id"]');
+        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+
+        if (idEl && idEl.value) {
+          // DB에 이미 잡혀있는 데이터라면 체크박스를 명시적으로 켜서 서버로 전송
+          if (deleteCheckbox) {
+            deleteCheckbox.checked = true;
+            deleteCheckbox.value = "on"; 
+          }
+          row.style.display = "none"; // 화면에서만 은닉
+        } else {
+          // 새로 추가했다가 지우는 데이터는 아예 Node 제거
+          row.remove();
+          
+          // 새로 만든 로우가 삭제되었을 때만 TOTAL_FORMS 카운트를 차감해 줌
+          if (totalForms) {
+            totalForms.value = formContainer.getElementsByClassName("expense-form-row").length;
+          }
+        }
+        refreshWashOptions();
+      }
+    });
+
+    formContainer.addEventListener("input", function (event) {
+      if (event.target.matches('input[name$="-expense"]')) checkExpenseRealtime(event.target);
+    });
+
+    formContainer.addEventListener("change", function (event) {
+      if (event.target.matches('[name$="-expense_type"]')) {
+        refreshWashOptions();
+        const row = event.target.closest(".expense-form-row");
+        const expInput = row.querySelector('input[name$="-expense"]');
+        if (expInput && expInput.value) checkExpenseRealtime(expInput);
       }
     });
   }
 
-  // 🚀 최초 로드 시 실행
+  // 🚀 제출 전 무효값 처리
+  if (mainForm) {
+    mainForm.addEventListener("submit", function (event) {
+      const rows = formContainer.querySelectorAll(".expense-form-row");
+      let activeValidCount = 0;
+
+      rows.forEach(row => {
+        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+        if ((deleteCheckbox && deleteCheckbox.checked) || row.style.display === "none") return;
+
+        const priceEl = row.querySelector('[name$="-expense"]');
+        const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
+        const expensePrice = parseFloat(expensePriceRaw) || 0;
+
+        if (!expensePriceRaw || expensePrice === 0) {
+          const idEl = row.querySelector('input[name$="-id"]');
+          if (idEl && idEl.value) {
+            if (deleteCheckbox) { deleteCheckbox.checked = true; deleteCheckbox.value = "on"; }
+            row.style.display = "none";
+          } else {
+            row.remove();
+          }
+        } else {
+          activeValidCount++;
+        }
+      });
+
+    });
+  }
+
   initExistingRows();
   refreshWashOptions();
 });
 </script>
+{% endblock %}

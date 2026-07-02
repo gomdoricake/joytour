@@ -14,7 +14,7 @@
     max-width: 600px;
     margin: 60px auto;
     padding: 40px;
-    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
+    font-family: sans-serif;
     background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -167,6 +167,8 @@
   }
 </style>
 
+<datalist id="role_datalist"></datalist>
+
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'mypage:index' %}" class="back-link">← 마이페이지로 돌아가기 </a>
@@ -182,7 +184,7 @@
     </p>
   {% endif %}
 
-  <form method="post" class="report-form">
+  <form method="post" class="report-form" id="report-main-form">
     {% csrf_token %} 
     
     {% if form.errors %}
@@ -203,36 +205,60 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const typeField = document.querySelector('select[name="day_inbound"]'); 
-    const roleField = document.querySelector('select[name="role"]');
+    const typeField = document.querySelector('[name="day_inbound"]'); 
+    let roleField = document.querySelector('[name="role"]');
+    const datalist = document.getElementById('role_datalist');
     
-    if (typeField && roleField) {
-        const allOptions = Array.from(roleField.options);
+    // 1. Django 컨텍스트의 딕셔너리 Key값들을 JS 배열로 안전하게 매핑
+    const inboundRoles = [{% for role in INBOUND_ROLE %}"{{ role }}",{% endfor %}];
+    const dayRoles = [{% for role in DAY_ROLE %}"{{ role }}",{% endfor %}];
+    
+    if (roleField && datalist) {
+        // 2. 만약 Django 폼이 select 태그 형태로 그려졌다면, 유연한 텍스트+드롭다운을 위해 input으로 변환
+        if (roleField.tagName === 'SELECT') {
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.name = roleField.name;
+            inputField.id = roleField.id;
+            inputField.className = roleField.className;
+            inputField.value = roleField.value;
+            inputField.placeholder = "역할을 선택하거나 직접 입력하세요";
+            
+            roleField.parentNode.replaceChild(inputField, roleField);
+            roleField = inputField;
+        }
 
-        function updateRoleOptions() {
-            if (typeField.value === 'INBOUND') {
-                const allowed = ['12 SEAT', 'GUIDE ONLY'];
-                
-                Array.from(roleField.options).forEach(option => {
-                    if (allowed.includes(option.value) || option.value === "") {
-                        option.style.display = 'block';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-                
-                if (!allowed.includes(roleField.value) && roleField.value !== "") {
-                    roleField.value = "";
-                }
-            } else {
-                Array.from(roleField.options).forEach(option => {
-                    option.style.display = 'block';
-                });
+        // 3. input 필드에 동적 datalist 결합
+        roleField.setAttribute('list', 'role_datalist');
+
+        // 4. 핵심 로직: day_inbound 값 변화에 따라 드롭다운 옵션을 실시간 변경하는 함수
+        function updateRoleDatalist() {
+            if (!typeField) return;
+
+            datalist.innerHTML = ''; // 기존 옵션 노드 초기화 청소
+
+            // 조건 분기: DAY 선택 시 dayRoles, 그 외(INBOUND)에는 inboundRoles 매핑
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            
+            // 데이터리스트에 맞춰 새로운 option 엘리먼트 동적 생성 및 바인딩
+            activeRoles.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                datalist.appendChild(opt);
+            });
+            
+            // 데이터 성격이 스위칭되었을 때, 기존 입력창 값이 바뀐 선택지에 존재하지 않는다면 완전 초기화
+            if (!activeRoles.includes(roleField.value) && roleField.value !== "") {
+                roleField.value = "";
             }
         }
 
-        typeField.addEventListener('change', updateRoleOptions);
-        updateRoleOptions();
+        if (typeField) {
+            // 변경 이벤트 감지 리스너 등록
+            typeField.addEventListener('change', updateRoleDatalist);
+            // 초기 페이지 로딩(세션 값 복원 포함) 상태 반영을 위해 최초 1회 실행
+            updateRoleDatalist();
+        }
     }
 });
 </script>
