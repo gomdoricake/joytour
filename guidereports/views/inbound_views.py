@@ -113,13 +113,6 @@ def guidereport_inbound_agency(request):
     return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form, 'AGENCY_CHOICES': AGENCY_CHOICES})
 
 
-EventFormSet = inlineformset_factory(
-    GuideReport, 
-    Event, 
-    form=InboundEventForm, 
-    extra=3,             
-    can_delete=True  
-)
 
 
 @login_required
@@ -143,6 +136,24 @@ def guidereport_inbound_events(request):
             tc=inbound_data['tc'],
             chd=inbound_data['chd']
         )
+    
+    if guide_report.events.count() == 0:
+        EventFormSet = inlineformset_factory(
+            GuideReport, 
+            Event, 
+            form=InboundEventForm, 
+            extra=3,             
+            can_delete=True  
+        )
+    else: 
+        EventFormSet = inlineformset_factory(
+            GuideReport, 
+            Event, 
+            form=InboundEventForm, 
+            extra=0,             
+            can_delete=True  
+        )
+
 
     if request.method == 'POST':
         formset = EventFormSet(request.POST, instance=guide_report)
@@ -184,13 +195,7 @@ def guidereport_inbound_events(request):
     })
 
 
-RestaurantFormSet = inlineformset_factory(
-    GuideReport, 
-    RestaurantExp, 
-    form=RestaurantExpForm, 
-    extra=1,             
-    can_delete=True  
-)
+
 
 
 @login_required
@@ -203,6 +208,14 @@ def guidereport_inbound_restaurant_exp(request):
     
     report_id = inbound_events.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
+
+    RestaurantFormSet = inlineformset_factory(
+        GuideReport, 
+        RestaurantExp, 
+        form=RestaurantExpForm, 
+        extra=guide_report.events.count() * 2,             
+        can_delete=True  
+    )
 
     if request.method == "POST": 
         formset = RestaurantFormSet(request.POST, instance=guide_report)
