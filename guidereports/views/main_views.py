@@ -168,24 +168,26 @@ def guidereport_pdf(request, pk):
     for event in events:
         g_fee = float(event.guide_fee or 0)
         event_subtotal += g_fee
-        date_str = event.report_date.strftime("%d-%b-%Y") if event.report_date else ""
+        date_str = event.report_date if event.report_date else ""
         
         hours_str = f" ({event.hours})" if guide_report.day_inbound == 'INBOUND' and event.hours else ""
-        event_list_data.append((f"{date_str}   {event.eventcode}{hours_str}", f"${g_fee:,.2f}"))
-        
-        if event.overtime and float(event.overtime) > 0:
-            ov_time = float(event.overtime)
-            ov_fee = ov_time * 30
-            event_subtotal += ov_fee
-            event_list_data.append((f"   └ Overtime Fee — {ov_time} hrs", f"${ov_fee:,.2f}"))
-
+        event_list_data.append((f"{date_str} |  {event.eventcode}{hours_str}", f"${g_fee:,.2f}"))
+    
     expense_subtotal = 0
     expense_list_data = []
+
     for exp in guide_report.expenses.all():
         e_fee = float(exp.expense or 0)
         expense_subtotal += e_fee
         memo_str = f" ({exp.memo})" if exp.memo else ""
-        expense_list_data.append((f"{exp.expense_type}{memo_str}", f"${e_fee:,.2f}"))
+        expense_list_data.append((f"", f"{exp.expense_type}{memo_str}", f"${e_fee:,.2f}"))
+    
+    for event in guide_report.events.all():
+        if event.overtime and int(event.overtime) > 0:
+            ov_time = int(event.overtime)
+            ov_fee = ov_time * 30
+            expense_subtotal += ov_fee
+            expense_list_data.append((f"{event.report_date}", f"Overtime {ov_time} hrs", f"${ov_fee:,.2f}"))
 
     final_amount_due = event_subtotal + expense_subtotal
     super_ann = final_amount_due * 0.115 
@@ -199,9 +201,13 @@ def guidereport_pdf(request, pk):
     
     styles = getSampleStyleSheet()
     
-    title_style = ParagraphStyle(
+    invoice_style = ParagraphStyle(
         'InvoiceTitle', parent=styles['Heading1'], fontName=font_name,
         fontSize=22, leading=26, textColor=colors.HexColor('#2d3436'), spaceAfter=6
+    )
+    invoice_number_style = ParagraphStyle(
+        'InvoiceNumber', parent=styles['Heading3'], fontName=font_name,
+        fontSize=10,  textColor=colors.HexColor('#2d3436')
     )
     date_tag_style = ParagraphStyle(
         'InvoiceDate', parent=styles['Normal'], fontName=font_name,
@@ -237,8 +243,9 @@ def guidereport_pdf(request, pk):
     story = []
 
     inv_date_str = guide_report.invoice_date.strftime("%d-%b-%Y") if guide_report.invoice_date else ""
-    story.append(Paragraph("INVOICE"))
-    story.append(Paragraph(f"{invoice_number}. {guide_report.group_code or ''}", title_style))
+    story.append(Paragraph("INVOICE", invoice_style))
+    story.append(Paragraph(f"#{invoice_number}", invoice_number_style))
+    story.append(Paragraph(f"REF {guide_report.group_code or ''}", invoice_number_style))
     story.append(Paragraph(f"<b>Invoice Date:</b> {inv_date_str}", date_tag_style))
 
     guide_name = guide_report.guide.name if hasattr(guide_report.guide, 'name') else request.user.first_name
@@ -247,8 +254,10 @@ def guidereport_pdf(request, pk):
     Name: {guide_name}<br/>
     ABN: {getattr(guide_report.guide, 'abn', '')}<br/>
     Contact: {getattr(guide_report.guide, 'contact_info', '')}<br/>
-    BSB: {getattr(guide_report.guide, 'bsb', '')} | Account: {getattr(guide_report.guide, 'account_number', '')}
-    """
+    Bank: {getattr(guide_report.guide, 'bank_account_name', '')}<br/>"""
+
+    bsb = getattr(guide_report.guide, 'bsb', '')
+    account_number = getattr(guide_report.guide, 'account_number', '')
     
     bill_to = """
     <b>Bill To</b><br/>
@@ -277,7 +286,7 @@ def guidereport_pdf(request, pk):
         adt_val = guide_report.adt if guide_report.adt is not None else 0
         chd_val = guide_report.chd if guide_report.chd is not None else 0
         tc_val = guide_report.tc if guide_report.tc is not None else 0
-        pax_str = f"<b>ADT:</b> {adt_val}   <b>CHD:</b> {chd_val}   <b>TC:</b> {tc_val}"
+        pax_str = f"ADT: {adt_val}   CHD: {chd_val}   TC: {tc_val}"
 
     pax_table_data = [
         [Paragraph("<b>DAY/INBOUND</b>", td_bold_style), Paragraph("<b>Role</b>", td_bold_style), Paragraph("<b>PAX</b>", td_bold_style)],
@@ -315,8 +324,11 @@ def guidereport_pdf(request, pk):
     story.append(Paragraph("Guide Expenses", section_title_style))
     exp_table_rows = [[Paragraph("<b>Expense Type / Memo</b>", th_style), Paragraph("<b>Amount</b>", th_style)]]
     if expense_list_data:
-        for desc, amt in expense_list_data:
-            exp_table_rows.append([Paragraph(desc, td_style), Paragraph(amt, td_style)])
+        for report_date, desc, amt in expense_list_data:
+            if report_date:
+                exp_table_rows.append([Paragraph(f"{report_date} | {desc}", td_style), Paragraph(amt, td_style)])
+            else: 
+                exp_table_rows.append([Paragraph(desc, td_style), Paragraph(amt, td_style)])
     else:
         exp_table_rows.append([Paragraph("등록된 비용이 없습니다.", td_style), Paragraph("$0.00", td_style)])
         
@@ -360,8 +372,28 @@ def guidereport_pdf(request, pk):
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('BOTTOMPADDING', (0,0), (-1,-1), 15),
     ]))
-    
+
     story.append(KeepTogether([total_table]))
+    story.append(Spacer(1, 20))
+
+
+    bsb_account_table_data = [
+        [Paragraph("<b>BSB</b>", td_bold_style), Paragraph(bsb, td_style)],
+        [Paragraph("<b>Account Number</b>", td_bold_style), Paragraph(account_number, td_style)]
+    ]
+    bsb_account_table = Table(bsb_account_table_data, colWidths=[150, 365])
+    bsb_account_table.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#f8f9fa')),
+        ('PADDING', (0,0), (-1,-1), 8),
+        ('LINEBELOW', (0,0), (-1,-1), 1, colors.HexColor('#e2e8f0')),
+        ('LINEABOVE', (0,0), (-1,-1), 1, colors.HexColor('#e2e8f0')),
+        ('LINELEFT', (0,0), (-1,-1), 1, colors.HexColor('#e2e8f0')),
+        ('LINERIGHT', (0,0), (-1,-1), 1, colors.HexColor('#e2e8f0')),
+    ]))
+    story.append(bsb_account_table)
+    story.append(Spacer(1, 15))
+
+    
 
     doc.build(story)
     buffer.seek(0)

@@ -617,7 +617,7 @@ def guidereport_inbound_summary(request):
     
     event_fee += (overtime * 30)
 
-    final_amount_due += (overtime * 30)
+    final_expense += (overtime * 30)
     guide_report.final_amount_due = final_amount_due
 
     all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
@@ -641,8 +641,6 @@ def guidereport_inbound_summary(request):
         else: 
             overtimes.append(0)
     
-    event_data = zip(events, overtimes)
-
     context = {
         'guide_report': guide_report,
         'event': event,
