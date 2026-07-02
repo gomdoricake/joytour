@@ -506,8 +506,7 @@ def guidereport_inbound_summary(request):
     guide_report.final_amount_due = final_amount_due
 
     all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
-    invoice_number = list(all_reports.values_list('id', flat=True)).index(guide_report.id) + 1
-    guide_report.invoice_number = invoice_number
+    guide_report.invoice_number = GuideReport.objects.filter(invoice_number__isnull=False).count() + 1
     guide_report.save()
 
     if request.method == 'POST':
