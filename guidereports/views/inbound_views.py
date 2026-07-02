@@ -422,23 +422,23 @@ GuideExpFormSet = inlineformset_factory(
 
 @login_required
 def guidereport_inbound_guide_exp(request): 
-
     inbound_fuel = request.session.get('inbound_fuel')
     if not inbound_fuel: 
         return redirect('guidereports:guidereport_inbound_fuel_exp')
     
     report_id = inbound_fuel.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
-    print("guide_report.id: " + str(guide_report.id))
+
     if request.method == "POST":
+        formset = GuideExpFormSet(request.POST, instance=guide_report)
+        
+        GuideExp.objects.filter(guide_report=guide_report).delete()
 
         day_inbound_check = str(guide_report.day_inbound).upper().strip()
         first_event = guide_report.events.order_by('id').first()
-        print("first_event: " + str(first_event))
         today_str = datetime.strptime(str(first_event.report_date), '%Y-%m-%d').strftime('%d%m%y')
 
         F_or_G = ""
-
         adt = guide_report.adt or 0
         chd = guide_report.chd or 0
         tc = guide_report.tc or 0
@@ -449,62 +449,44 @@ def guidereport_inbound_guide_exp(request):
             F_or_G = "G"
 
         guide_report.group_code = f"{guide_report.agency_code}{today_str}{F_or_G}"
-
-        prefix = 'expenses'
         
-        total_forms_raw = request.POST.get(f'{prefix}-TOTAL_FORMS', '0')
-        total_forms = int(total_forms_raw)
-
-        GuideExp.objects.filter(guide_report=guide_report).delete()
-
+        prefix = 'expenses'  
+        total_forms = int(request.POST.get(f'{prefix}-TOTAL_FORMS', '0'))
         wash_added = False
 
+        for i in range(total_forms):
+            is_deleted = request.POST.get(f'{prefix}-{i}-DELETE')
+            if is_deleted in ['on', 'True', 'true', '1']:
+                continue
 
-        if total_forms > 0:
-            
-            for i in range(total_forms):
-                e_type = request.POST.get(f'{prefix}-{i}-expense_type')
-                e_val = request.POST.get(f'{prefix}-{i}-expense')
-                memo = request.POST.get(f'{prefix}-{i}-memo')
+            e_type = request.POST.get(f'{prefix}-{i}-expense_type')
+            e_val = request.POST.get(f'{prefix}-{i}-expense')
+            memo = request.POST.get(f'{prefix}-{i}-memo')
 
-                print("e_val: " + str(e_val))
-                if e_val == '':
+            if not e_val or e_val.strip() == '':
+                continue
+
+            if e_type == "WASH": 
+                if wash_added: 
                     continue
-                print("e_val2: " + str(e_val))
-
-
-                if e_type == "WASH": 
-                    if wash_added: 
-                        continue
-                    wash_added = True
+                wash_added = True
                                     
-                if e_type:
-                    GuideExp.objects.create(
-                        guide_report=guide_report,
-                        expense_type=e_type,
-                        expense=float(e_val) if e_val else 0.0, 
-                        memo=memo
-                    )
+            if e_type:
+                GuideExp.objects.create(
+                    guide_report=guide_report,
+                    expense_type=e_type,
+                    expense=float(e_val) if e_val else 0.0, 
+                    memo=memo
+                )
+                
         today = date.today()
         guide_report.invoice_date = today
-
         guide_report.save()
 
         return redirect('guidereports:guidereport_inbound_summary')   
     else:
         formset = GuideExpFormSet(instance=guide_report)
 
-    CHOICES = ""
-
-    print("inbound_fuel['role']: " + str(inbound_fuel['role']))
-    
-    if inbound_fuel['role'] == 'GROUP': 
-        CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
-    else: 
-        CHOICES = EXPENSE_CHOICES
-    
-    print("CHOICES: " + str(CHOICES))
-    
     fuel_ids = list(FuelExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
     restaurant_ids = list(RestaurantExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
     attraction_ids = list(AttractionExp.objects.filter(guide_report=guide_report).values_list('id', flat=True))
@@ -517,30 +499,29 @@ def guidereport_inbound_guide_exp(request):
         'guidereport_id': guide_report.id,
         'role': inbound_fuel.get('role', guide_report.role),
         'day_inbound': inbound_fuel.get('day_inbound', guide_report.day_inbound), 
-        
         'event_id': event_id,
-        
         'fuel_ids': fuel_ids,
         'restaurant_ids': restaurant_ids,
         'attraction_ids': attraction_ids,
         'guide_exp_ids': guide_exp_ids,
-        
         'summary_snapshot': {
             'group_code': guide_report.group_code,
             'has_fuel': len(fuel_ids) > 0,
             'has_restaurant': len(restaurant_ids) > 0,
             'has_attraction': len(attraction_ids) > 0,
             'has_guide_exp': len(guide_exp_ids) > 0,
-        }
+        },
+        'GUIDE_ONLY_EXPENSE_CHOICES': GUIDE_ONLY_EXPENSE_CHOICES,
+        'EXPENSE_CHOICES': EXPENSE_CHOICES
     }
-
     request.session.modified = True
 
     return render(request, 'guidereports/inbound/guidereport_inbound_guide_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
         'role': inbound_fuel['role'],
-        'EXPENSE_CHOICES': CHOICES
+        'EXPENSE_CHOICES': EXPENSE_CHOICES,
+        'GUIDE_ONLY_EXPENSE_CHOICES': GUIDE_ONLY_EXPENSE_CHOICES
     })
 
 @login_required
@@ -631,7 +612,8 @@ def guidereport_inbound_summary(request):
         if 'day_data' in request.session: del request.session['day_data']
         if 'day_fuel' in request.session: del request.session['day_fuel']
         if 'guide_exp' in request.session: del request.session['guide_exp']
-        
+        if 'inbound_data' in request.session: del request.session['inbound_data']
+
         return redirect('guidereports:detail', pk=guide_report.id)
 
     overtimes = []

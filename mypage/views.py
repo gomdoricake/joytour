@@ -20,7 +20,6 @@ def admin(request):
     return render(request, 'mypage/admin.html')
 
 def review_grade(guide_id):
-    print("review_grade") 
     guide = Guide.objects.get(id=guide_id)
     current_grade = guide.grade
     init_training_date = guide.init_training_date
@@ -31,14 +30,12 @@ def review_grade(guide_id):
         if init_training_date + relativedelta(months=months) > today: 
             break
         months += 1
-    print('months: ' + str(months)) 
 
     if months <= 9: 
         guide.grade = 1
     else: 
         months -= 10
         guide.grade = int(months / 12) + 2
-        print("int(months / 12) + 2", int(months / 12) + 2)
 
     guide.save()
     return guide.grade

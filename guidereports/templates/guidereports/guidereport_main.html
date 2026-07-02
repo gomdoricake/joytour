@@ -207,56 +207,57 @@
 document.addEventListener('DOMContentLoaded', function() {
     const typeField = document.querySelector('[name="day_inbound"]'); 
     let roleField = document.querySelector('[name="role"]');
+    const datalist = document.getElementById('role_datalist');
     
-    // 1. Django 딕셔너리에서 Key값들을 JS 배열로 안전하게 뽑아오기
+    // 1. Django 컨텍스트의 딕셔너리 Key값들을 JS 배열로 안전하게 매핑
     const inboundRoles = [{% for role in INBOUND_ROLE %}"{{ role }}",{% endfor %}];
     const dayRoles = [{% for role in DAY_ROLE %}"{{ role }}",{% endfor %}];
     
-    if (roleField) {
-        // 기존 input/select 창을 지우고 세련된 커스텀 select 상자로 바꿉니다.
-        const newSelect = document.createElement('select');
-        newSelect.name = roleField.name;
-        newSelect.id = roleField.id;
-        newSelect.className = roleField.className;
-        
-        // 세션에 저장되어 있던 기존 선택값 백업
-        const savedValue = roleField.value; 
+    if (roleField && datalist) {
+        // 2. 만약 Django 폼이 select 태그 형태로 그려졌다면, 유연한 텍스트+드롭다운을 위해 input으로 변환
+        if (roleField.tagName === 'SELECT') {
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.name = roleField.name;
+            inputField.id = roleField.id;
+            inputField.className = roleField.className;
+            inputField.value = roleField.value;
+            inputField.placeholder = "역할을 선택하거나 직접 입력하세요";
+            
+            roleField.parentNode.replaceChild(inputField, roleField);
+            roleField = inputField;
+        }
 
-        roleField.parentNode.replaceChild(newSelect, roleField);
-        roleField = newSelect;
+        // 3. input 필드에 동적 datalist 결합
+        roleField.setAttribute('list', 'role_datalist');
 
-        // 2. day_inbound 선택에 따라 드롭다운 옵션을 실시간으로 갈아끼우는 함수
-        function updateRoleOptions() {
+        // 4. 핵심 로직: day_inbound 값 변화에 따라 드롭다운 옵션을 실시간 변경하는 함수
+        function updateRoleDatalist() {
             if (!typeField) return;
 
-            roleField.innerHTML = ''; // 기존 옵션 비우기
+            datalist.innerHTML = ''; // 기존 옵션 노드 초기화 청소
 
-            // 기본 안내 옵션 추가
-            const defaultOpt = document.createElement('option');
-            defaultOpt.value = "";
-            defaultOpt.innerText = "=== 역할을 선택하세요 ===";
-            roleField.appendChild(defaultOpt);
-
-            // DAY면 dayRoles, INBOUND면 inboundRoles 데이터 가져오기
+            // 조건 분기: DAY 선택 시 dayRoles, 그 외(INBOUND)에는 inboundRoles 매핑
             const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
             
-            // 드롭다운 채우기
+            // 데이터리스트에 맞춰 새로운 option 엘리먼트 동적 생성 및 바인딩
             activeRoles.forEach(val => {
                 const opt = document.createElement('option');
                 opt.value = val;
-                opt.innerText = val;
-                roleField.appendChild(opt);
+                datalist.appendChild(opt);
             });
-
-            // 기존 세션에 있던 값이 새 선택지 안에도 존재한다면 선택 상태 유지
-            if (activeRoles.includes(savedValue)) {
-                roleField.value = savedValue;
+            
+            // 데이터 성격이 스위칭되었을 때, 기존 입력창 값이 바뀐 선택지에 존재하지 않는다면 완전 초기화
+            if (!activeRoles.includes(roleField.value) && roleField.value !== "") {
+                roleField.value = "";
             }
         }
 
         if (typeField) {
-            typeField.addEventListener('change', updateRoleOptions);
-            updateRoleOptions(); // 페이지 로딩 시 첫 실행
+            // 변경 이벤트 감지 리스너 등록
+            typeField.addEventListener('change', updateRoleDatalist);
+            // 초기 페이지 로딩(세션 값 복원 포함) 상태 반영을 위해 최초 1회 실행
+            updateRoleDatalist();
         }
     }
 });
