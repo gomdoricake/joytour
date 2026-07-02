@@ -267,7 +267,7 @@ def guidereport_day_summary(request):
     guide_report.final_fuels_fee = str(total_fuel)
     guide_report.final_expenses_fee = str(total_guide)  
     guide_report.final_amount_due = str(grand_total)
-    
+    guide_report.invoice_number = list(GuideReport.objects.filter(guide=guide_report.guide).order_by('id').values_list('id', flat=True)).index(guide_report.id) + 1
     
     guide_report.invoice_date = date.today()
     guide_report.save()
@@ -291,5 +291,6 @@ def guidereport_day_summary(request):
         'total_fuel': total_fuel,
         'total_guide': total_guide,
         'grand_total': grand_total,
+        'invoice_number': guide_report.invoice_number,
     }
     return render(request, 'guidereports/day/guidereport_day_summary.html', context)

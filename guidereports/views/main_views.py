@@ -168,7 +168,7 @@ def guidereport_pdf(request, pk):
     guide_report = get_object_or_404(GuideReport, id=pk)
     events = guide_report.events.all()
     
-    invoice_number = f"INV-{guide_report.id:04d}"
+    invoice_number = f"INV-{int(guide_report.invoice_number):04d}"
     
     event_subtotal = 0
     event_list_data = []
