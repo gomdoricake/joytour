@@ -175,7 +175,7 @@ def guidereport_inbound_events(request):
                 if hours_raw:
                     hours_raw = hours_raw.strip()
                     if hours_raw.upper() == 'AM/AS':
-                        hours_value = 'AM/AS'  # CharField일 경우 문자열 그대로 저장
+                        hours_value = 'AM/AS'  
                     else:
                         try:
                             hours_value = hours_raw
@@ -199,13 +199,14 @@ def guidereport_inbound_events(request):
                         pass
 
                 try: 
-                    Event.objects.create(
+                    event = Event.objects.create(
                         guidereport_id=guide_report.id,
                         report_date=report_date, 
                         eventcode=eventcode,
                         hours=hours_value,
                         overtime=overtime_value
                     )
+                    print("event 저장 성공: " + str(event.eventcode) + " , report_date: " + str(event.report_date))
                 except Exception as e:
                     print(f"이벤트 저장 중 에러 발생: {e}")
                     pass
@@ -360,7 +361,7 @@ def guidereport_inbound_attraction_exp(request):
         request.session['inbound_attraction'] = inbound_restaurant
         
         
-        if inbound_restaurant['role'] == 'GUIDE ONLY':
+        if inbound_restaurant['role'] == 'GROUP':
             return redirect('guidereports:guidereport_inbound_guide_exp')
 
         return redirect('guidereports:guidereport_inbound_fuel_exp') 
@@ -423,16 +424,17 @@ GuideExpFormSet = inlineformset_factory(
 def guidereport_inbound_guide_exp(request): 
 
     inbound_fuel = request.session.get('inbound_fuel')
-    print("inbound_fuel: " + str(inbound_fuel['role']))
     if not inbound_fuel: 
         return redirect('guidereports:guidereport_inbound_fuel_exp')
     
     report_id = inbound_fuel.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
+    print("guide_report.id: " + str(guide_report.id))
     if request.method == "POST":
 
         day_inbound_check = str(guide_report.day_inbound).upper().strip()
         first_event = guide_report.events.order_by('id').first()
+        print("first_event: " + str(first_event))
         today_str = datetime.strptime(str(first_event.report_date), '%Y-%m-%d').strftime('%d%m%y')
 
         F_or_G = ""
@@ -496,7 +498,7 @@ def guidereport_inbound_guide_exp(request):
 
     print("inbound_fuel['role']: " + str(inbound_fuel['role']))
     
-    if inbound_fuel['role'] == 'GUIDE ONLY': 
+    if inbound_fuel['role'] == 'GROUP': 
         CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
     else: 
         CHOICES = EXPENSE_CHOICES
@@ -615,9 +617,7 @@ def guidereport_inbound_summary(request):
         if event.overtime is not None:
             overtime += int(event.overtime)
     
-    event_fee += (overtime * 30)
-
-    final_expense += (overtime * 30)
+    expense_fee += (overtime * 30)
     guide_report.final_amount_due = final_amount_due
 
     all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
@@ -636,10 +636,8 @@ def guidereport_inbound_summary(request):
 
     overtimes = []
     for event in events:
-        if event.overtime is not None:
-            overtimes.append(event.overtime * 30)
-        else: 
-            overtimes.append(0)
+        if event.overtime is not None and event.overtime > 0:
+            overtimes.append({'report_date': event.report_date, 'hours': event.overtime, 'amount': event.overtime * 30})
     
     context = {
         'guide_report': guide_report,
@@ -659,6 +657,6 @@ def guidereport_inbound_summary(request):
         'expense_fee': expense_fee, 
         'fuel_fee': fuel_fee,
         'final_amount_due': final_amount_due, 
-        'event_data': event_data,
+        'overtimes': overtimes,
     }
     return render(request, 'guidereports/inbound/guidereport_inbound_summary.html', context)

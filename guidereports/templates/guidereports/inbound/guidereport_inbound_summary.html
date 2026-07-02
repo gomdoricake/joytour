@@ -231,7 +231,7 @@
         <span class="section-total-badge">${{ event_fee|default:"0" }}</span>
       </div>
       {% if events %}
-        {% for event, overtime in event_data %}
+        {% for event in events %}
         <div class="event-sub-card">
           <table class="summary-table">
             <tbody>
@@ -247,12 +247,6 @@
                 <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
                 <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
               </tr>
-              {% if event.overtime %}
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">OVERTIME</td>
-                <td> <span style="color: #4f46e5;">${{ overtime|default:"0" }}</span> ({{ event.overtime }} hours) </td>
-              </tr>
-              {% endif %}
               {% if event.memo %}
               <tr>
                 <td style="color: #64748b; font-size: 13px;">MEMO</td>
@@ -360,7 +354,7 @@
         <span>Guide Expenses</span>
         <span class="section-total-badge">${{ expense_fee|default:"0" }}</span>
       </div>
-      {% if guide_expenses %}
+      {% if guide_expenses or overtimes %}
         <table class="summary-table">
           <thead>
             <tr>
@@ -377,6 +371,15 @@
                 <td class="text-right">${{ item.expense|default:"0" }}</td>
               </tr>
             {% endfor %}
+            {% if overtimes %}
+            {% for overtime in overtimes %}
+              <tr>
+                <td>OVERTIME</td>
+                <td><span class="text-muted">{{ overtime.hours|default:"-" }}hrs ({{overtime.report_date}})</span></td>
+                <td class="text-right">${{ overtime.amount|default:"0" }}</td>
+              </tr>
+            {% endfor %}
+            {% endif %}
           </tbody>
         </table>
       {% else %}

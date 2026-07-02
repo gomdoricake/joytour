@@ -120,13 +120,16 @@ def guidereport_main(request):
         form = GuideReportMainForm(request.POST)
         if form.is_valid(): 
             existing_data = request.session.get('main_data', {})
-            existing_data['day_inbound'] = form.cleaned_data['day_inbound']
+            day_inbound = form.cleaned_data['day_inbound']
+            existing_data['day_inbound'] = day_inbound
             existing_data['role'] = form.cleaned_data['role']
+            
             request.session['main_data'] = existing_data
-            if form.cleaned_data['day_inbound'] == 'DAY': 
+            
+            if day_inbound == 'DAY': 
                 return redirect('guidereports:guidereport_day')
-            if form.cleaned_data['day_inbound'] == 'INBOUND': 
-                return redirect('guidereports:guidereport_inbound_agency')            
+            elif day_inbound == 'INBOUND': 
+                return redirect('guidereports:guidereport_inbound_agency') 
     else: 
         if request.GET.get('new') == '1':
             request.session.pop('main_data', None)
@@ -139,7 +142,11 @@ def guidereport_main(request):
         else:
             form = GuideReportMainForm()
     
-    return render(request, 'guidereports/guidereport_main.html', {'form': form})
+    return render(request, 'guidereports/guidereport_main.html', {
+        'form': form, 
+        'INBOUND_ROLE': INBOUND_ROLE,
+        'DAY_ROLE': DAY_ROLE
+    })
 
 @login_required
 def guidereport_pdf(request, pk):

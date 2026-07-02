@@ -14,7 +14,7 @@
     max-width: 600px;
     margin: 60px auto;
     padding: 40px;
-    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
+    font-family: sans-serif;
     background: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -167,6 +167,8 @@
   }
 </style>
 
+<datalist id="role_datalist"></datalist>
+
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'mypage:index' %}" class="back-link">← 마이페이지로 돌아가기 </a>
@@ -182,7 +184,7 @@
     </p>
   {% endif %}
 
-  <form method="post" class="report-form">
+  <form method="post" class="report-form" id="report-main-form">
     {% csrf_token %} 
     
     {% if form.errors %}
@@ -203,36 +205,59 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const typeField = document.querySelector('select[name="day_inbound"]'); 
-    const roleField = document.querySelector('select[name="role"]');
+    const typeField = document.querySelector('[name="day_inbound"]'); 
+    let roleField = document.querySelector('[name="role"]');
     
-    if (typeField && roleField) {
-        const allOptions = Array.from(roleField.options);
+    // 1. Django 딕셔너리에서 Key값들을 JS 배열로 안전하게 뽑아오기
+    const inboundRoles = [{% for role in INBOUND_ROLE %}"{{ role }}",{% endfor %}];
+    const dayRoles = [{% for role in DAY_ROLE %}"{{ role }}",{% endfor %}];
+    
+    if (roleField) {
+        // 기존 input/select 창을 지우고 세련된 커스텀 select 상자로 바꿉니다.
+        const newSelect = document.createElement('select');
+        newSelect.name = roleField.name;
+        newSelect.id = roleField.id;
+        newSelect.className = roleField.className;
+        
+        // 세션에 저장되어 있던 기존 선택값 백업
+        const savedValue = roleField.value; 
 
+        roleField.parentNode.replaceChild(newSelect, roleField);
+        roleField = newSelect;
+
+        // 2. day_inbound 선택에 따라 드롭다운 옵션을 실시간으로 갈아끼우는 함수
         function updateRoleOptions() {
-            if (typeField.value === 'INBOUND') {
-                const allowed = ['12 SEAT', 'GUIDE ONLY'];
-                
-                Array.from(roleField.options).forEach(option => {
-                    if (allowed.includes(option.value) || option.value === "") {
-                        option.style.display = 'block';
-                    } else {
-                        option.style.display = 'none';
-                    }
-                });
-                
-                if (!allowed.includes(roleField.value) && roleField.value !== "") {
-                    roleField.value = "";
-                }
-            } else {
-                Array.from(roleField.options).forEach(option => {
-                    option.style.display = 'block';
-                });
+            if (!typeField) return;
+
+            roleField.innerHTML = ''; // 기존 옵션 비우기
+
+            // 기본 안내 옵션 추가
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = "";
+            defaultOpt.innerText = "=== 역할을 선택하세요 ===";
+            roleField.appendChild(defaultOpt);
+
+            // DAY면 dayRoles, INBOUND면 inboundRoles 데이터 가져오기
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            
+            // 드롭다운 채우기
+            activeRoles.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                opt.innerText = val;
+                roleField.appendChild(opt);
+            });
+
+            // 기존 세션에 있던 값이 새 선택지 안에도 존재한다면 선택 상태 유지
+            if (activeRoles.includes(savedValue)) {
+                roleField.value = savedValue;
             }
         }
 
-        typeField.addEventListener('change', updateRoleOptions);
-        updateRoleOptions();
+        if (typeField) {
+            typeField.addEventListener('change', updateRoleOptions);
+            updateRoleOptions(); // 페이지 로딩 시 첫 실행
+        }
     }
 });
 </script>

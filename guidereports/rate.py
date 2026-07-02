@@ -50,12 +50,22 @@ GUIDE_ONLY_EXPENSE_CHOICES = [
     ('ETC', 'ETC')
 ]
 
-
-ROLE = {
+DAY_ROLE = {
     '12 SEAT': '12 SEAT',
     '21 SEAT': '21 SEAT', 
     '53 SEAT': '53 SEAT', 
     'GUIDE ONLY': 'GUIDE ONLY'
+}
+
+INBOUND_ROLE = {
+    'FIT': 'FIT', 
+    'GROUP': 'GROUP',
+}
+
+COACH_TYPE = {
+    '12 SEAT': '12 SEAT',
+    '21 SEAT': '21 SEAT',
+    '53 SEAT': '53 SEAT',
 }
 
 DAY_EVENTCODE_12SEAT = {

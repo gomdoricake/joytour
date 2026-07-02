@@ -482,6 +482,66 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
+  // 🎯 [추가] 빈 값이 있으면 다음 페이지로 넘어가지 못하게 막는 검증 로직
+  const formElement = document.getElementById("real-event-form");
+  if (formElement) {
+    formElement.addEventListener("submit", function (e) {
+      const rows = formContainer.querySelectorAll(".event-form-row");
+      let hasEmptyField = false;
+      let firstEmptyInput = null;
+
+      rows.forEach((row) => {
+        // 사용자가 삭제 버튼을 누른(숨겨진) 카드는 유효성 검사 대상에서 제외
+        const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+        if (deleteCheckbox && deleteCheckbox.checked) return;
+
+        // 카드 안의 모든 input과 select 요소를 루프 돌며 체크
+        const inputs = row.querySelectorAll("input, select");
+        inputs.forEach((input) => {
+          // 장고 기본 히든 필드(id, DELETE, guidereport)는 필수 값 검사에서 제외
+          if (
+            input.type === "hidden" || 
+            input.name.endsWith("-id") || 
+            input.name.endsWith("-DELETE") || 
+            input.name.endsWith("-guidereport")
+          ) {
+            return;
+          }
+
+          // 값이 완전히 비어있거나 공백만 채워져 있는 경우
+          if (!input.value || input.value.trim() === "") {
+            hasEmptyField = true;
+            input.style.borderColor = "#f43f5e"; // 입력 안 된 창을 빨간 테두리로 강조
+            input.style.boxShadow = "0 0 0 4px rgba(244, 63, 94, 0.1)";
+            
+            if (!firstEmptyInput) {
+              firstEmptyInput = input; // 가장 첫 번째 빈 필드로 포커스를 주어 이동시키기 위함
+            }
+
+            // 사용자가 값을 입력하기 시작하면 다시 원래 고급스러운 테두리로 환원
+            input.addEventListener("input", function restoreColor() {
+              if (input.value.trim() !== "") {
+                input.style.borderColor = "#4f46e5";
+                input.style.boxShadow = "0 0 0 4px rgba(79, 70, 229, 0.1)";
+                input.removeEventListener("input", restoreColor);
+              }
+            });
+          }
+        });
+      });
+
+      // 누락된 빈 값이 하나라도 포착되었다면 제출(Submit)을 강제로 드롭
+      if (hasEmptyField) {
+        e.preventDefault(); // 다음 페이지 이동 차단
+        alert("⚠️ 입력하지 않은 스케줄 정보가 있습니다. 모든 빈 칸을 채워주세요.");
+        
+        if (firstEmptyInput) {
+          firstEmptyInput.focus(); // 미입력 위치로 스크롤 및 커서 자동 이동
+        }
+      }
+    });
+  }
+
   // 초기화 구동 시행
   formContainer.querySelectorAll(".event-form-row").forEach(row => checkHoursControl(row));
   addButton.addEventListener("click", addNewFormRow);
