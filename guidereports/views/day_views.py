@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-
+from django.views.decorators.cache import never_cache
 from django.http import HttpResponse
 from ..models import *
 from django.forms import inlineformset_factory
@@ -11,6 +11,7 @@ from django.shortcuts import redirect
 
 
 @login_required
+@never_cache
 def guidereport_day(request): 
     main_data = request.session.get('main_data')
     if not main_data: 
@@ -87,6 +88,7 @@ FuelFormSet = inlineformset_factory(
 )
 
 @login_required
+@never_cache
 def guidereport_day_fuel_exp(request): 
     day_data = request.session.get('day_data')
     if not day_data:
@@ -125,6 +127,7 @@ GuideExpFormSet = inlineformset_factory(
 
 
 @login_required
+@never_cache
 def guidereport_day_guide_exp(request):
     day_fuel = request.session.get('day_fuel')
     if not day_fuel:
@@ -221,6 +224,7 @@ def guidereport_day_guide_exp(request):
     })
 
 @login_required
+@never_cache
 def guidereport_day_summary(request): 
     session_data = request.session.get('guide_exp') or request.session.get('day_fuel')
     

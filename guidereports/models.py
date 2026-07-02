@@ -76,7 +76,6 @@ class Event(models.Model):
                     calculated_fee = float(rate_list[grade_index])
 
         self.guide_fee = calculated_fee
-
         super().save(*args, **kwargs)
 
     def __str__(self): 
