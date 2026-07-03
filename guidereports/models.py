@@ -38,6 +38,8 @@ class Event(models.Model):
     guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
     guide_fee = models.TextField()
     overtime = models.PositiveIntegerField(default=0, null=True, blank=True)
+    coach_start_time = models.TimeField(null=True, blank=True)
+    coach_end_time = models.TimeField(null=True, blank=True)
 
     def save(self, *args, **kwargs): 
         parent = self.guidereport

@@ -243,16 +243,23 @@
                 <td style="color: #64748b; font-size: 13px;">REPORT DATE</td>
                 <td>{{ event.report_date|default:report_date }}</td>
               </tr>
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
-                <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
-              </tr>
+              
               {% if event.memo %}
               <tr>
                 <td style="color: #64748b; font-size: 13px;">MEMO</td>
                 <td class="text-muted">{{ event.memo }}</td>
               </tr>
               {% endif %}
+              {% if event.coach_start_time and event.coach_end_time %}
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">COACH TIME</td>
+                <td>{{ event.coach_start_time|time:"H:i" }} - {{ event.coach_end_time|time:"H:i" }}</td>
+              </tr>
+              {% endif %}
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
+                <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
+              </tr>
             </tbody>
           </table>
         </div>

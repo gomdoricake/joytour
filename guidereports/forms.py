@@ -119,12 +119,14 @@ class InboundEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['report_date', 'eventcode', 'hours', 'overtime']
+        fields = ['report_date', 'eventcode', 'hours', 'overtime', 'coach_start_time', 'coach_end_time']
         widgets = {
             'report_date': forms.DateInput(
                 format='%Y-%m-%d',
                 attrs={'type': 'date'}
             ),
+            'coach_start_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+            'coach_end_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
         }
 
     def __init__(self, *args, **kwargs):
