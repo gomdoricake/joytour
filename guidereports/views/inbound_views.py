@@ -391,7 +391,7 @@ def guidereport_inbound_guide_exp(request):
             if first_event and first_event.report_date:
                 try:
                     if isinstance(first_event.report_date, str):
-                        today_str = datetime.strptime(first_event.report_date, '%Y-%m-%d').strftime('%d%m%y')
+                        today_str = datetime.strptime(first_event.report_date, '%d-%m-%y').strftime('%d%m%y')
                     else:
                         today_str = first_event.report_date.strftime('%d%m%y')
                     

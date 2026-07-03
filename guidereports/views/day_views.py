@@ -80,26 +80,38 @@ def guidereport_day(request):
     return render(request, 'guidereports/day/guidereport_day.html', {'form': form, 'DAY_EVENTCODE': DAY_EVENTCODE})
 
 
-FuelFormSet = inlineformset_factory(
-    GuideReport, 
-    FuelExp, 
-    form=FuelExpForm,  
-    extra=1,             
-    can_delete=True  
-)
-
 @login_required
 @never_cache
 def guidereport_day_fuel_exp(request): 
     day_data = request.session.get('day_data')
+
     if not day_data:
         return redirect('guidereports:guidereport_day')
     
     report_id = day_data.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
 
+    events = guide_report.events.all()
+    
+    initial_data = []
+    for event in events: 
+        initial_data.append({'report_date': event.report_date})
+    
+    if guide_report.fuels.count() == 0:
+        extra = 1
+    else: 
+        extra = 0
+
+    FuelFormSet = inlineformset_factory(
+        GuideReport, 
+        FuelExp, 
+        form=FuelExpForm,  
+        extra=extra,             
+        can_delete=True  
+    )
+
     if request.method == "POST": 
-        formset = FuelFormSet(request.POST, instance=guide_report)
+        formset = FuelFormSet(request.POST, instance=guide_report, initial=initial_data)
 
         if formset.is_valid():
             formset.save()
@@ -110,21 +122,13 @@ def guidereport_day_fuel_exp(request):
             print("폼셋 유효성 검사 실패:", formset.errors)
 
     else:
-        formset = FuelFormSet(instance=guide_report)
+        formset = FuelFormSet(instance=guide_report, initial=initial_data)
 
     return render(request, 'guidereports/day/guidereport_day_fuel_exp.html', {
         'formset': formset, 
         'guide_report': guide_report,
     })
 
-
-GuideExpFormSet = inlineformset_factory(
-    GuideReport, 
-    GuideExp, 
-    fields=['id', 'expense_type', 'expense', 'memo'], 
-    extra=1,             
-    can_delete=True  
-)
 
 
 @login_required
@@ -137,6 +141,19 @@ def guidereport_day_guide_exp(request):
     report_id = day_fuel.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
     event = get_object_or_404(Event, guidereport=guide_report)
+
+    if guide_report.expenses.count() == 0:
+        extra = 1
+    else:
+        extra = 0
+
+    GuideExpFormSet = inlineformset_factory(
+        GuideReport, 
+        GuideExp, 
+        fields=['id', 'expense_type', 'expense', 'memo'], 
+        extra=extra,             
+        can_delete=True  
+    )
 
     if request.method == 'POST':
         final_instance = guide_report
