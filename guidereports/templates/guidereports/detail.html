@@ -502,8 +502,8 @@
       {% if event.overtime and event.overtime != "0" %}
       <li class="data-item">
         <span>Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong></span>
-        <span class="text-price-black">${% widthratio event.overtime 1 30 %}</span>
-      </li>
+        {% widthratio event.overtime 1 30 as overtime_cost %}
+        <span class="text-price-black">${{ overtime_cost|floatformat:1 }}</span>      </li>
       {% endif %}
       {% endfor %}
       <li class="subtotal-item">

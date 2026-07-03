@@ -560,7 +560,7 @@ def guidereport_inbound_summary(request):
             overtimes.append({
                 'report_date': e.report_date, 
                 'hours': e.overtime, 
-                'amount': e.overtime * 30
+                'amount': f"{float(e.overtime * 30):.1f}"
             })
     
     context = {
