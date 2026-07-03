@@ -479,9 +479,6 @@
           <span style="font-size: 13px; color: #64748b;">
             └ Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong>
           </span>
-          <span class="text-price-black">
-            ${% widthratio event.overtime 1 30 %}
-          </span>
         </li>
       {% endif %}
       {% endfor %}
@@ -500,9 +497,15 @@
         <span class="text-price-black">${{ exp.expense }}</span>
       </li>
       {% empty %}
-      <li class="data-item" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 20px 0;">등록된 비용 부담 내역이 없습니다.</li>
       {% endfor %}
-      
+      {% for event in guide_report.events.all %}
+      {% if event.overtime and event.overtime != "0" %}
+      <li class="data-item">
+        <span>Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong></span>
+        <span class="text-price-black">${% widthratio event.overtime 1 30 %}</span>
+      </li>
+      {% endif %}
+      {% endfor %}
       <li class="subtotal-item">
         <span class="subtotal-label">Expense Subtotal (inc. GST)</span>
         <span class="subtotal-value">${{ expense_fee }}</span>
