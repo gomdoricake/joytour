@@ -90,7 +90,10 @@ def guidereport_inbound_agency(request):
         form = AgencyPaxForm(request.POST, instance=instance)
         if form.is_valid(): 
             guide_report = form.save(commit=False)
-            guide_report.guide = request.user.guide_profile
+            if request.user.username == 'admin': 
+                guide_report.guide = guide_report.guide
+            else: 
+                guide_report.guide = request.user.guide_profile
             guide_report.save()
 
             main_data['guidereport_id'] = guide_report.id
