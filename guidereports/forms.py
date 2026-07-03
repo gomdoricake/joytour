@@ -75,9 +75,10 @@ class GuideReportInboundForm(forms.ModelForm):
 class AgencyPaxForm(forms.ModelForm): 
     class Meta: 
         model = GuideReport
-        fields = ['agency_code', 'adt', 'chd', 'tc']
+        fields = ['agency_code', 'coach', 'adt', 'chd', 'tc']
         labels = {
             'agency_code': 'Agency Code',
+            'coach': 'Coach',
             'adt': 'ADT', 
             'chd': 'CHD',
             'tc': 'TC', 
@@ -95,12 +96,6 @@ class AgencyPaxForm(forms.ModelForm):
             'placeholder': '선택하거나 직접 입력하세요', 
             'class': 'form-control'
         })
-
-        for field_name in ['adt', 'tc', 'chd']:
-            if self.instance and getattr(self.instance, field_name) == 0:
-                self.fields[field_name].initial = None
-            
-            self.fields[field_name].widget.attrs['placeholder'] = ''
 
 
 class InboundEventForm(forms.ModelForm):

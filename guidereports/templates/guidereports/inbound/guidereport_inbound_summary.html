@@ -227,7 +227,7 @@
 
     <div class="summary-section-card" style="border-left: 4px solid #4f46e5;">
       <div class="section-title">
-        <span>Event Information</span>
+        <span>Event Information {% if guide_report.coach %}({{ guide_report.coach|default:"N/A" }}){% endif %}</span>
         <span class="section-total-badge">${{ event_fee|default:"0" }}</span>
       </div>
       {% if events %}

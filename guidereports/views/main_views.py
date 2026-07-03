@@ -186,8 +186,7 @@ def guidereport_pdf(request, pk):
     for exp in guide_report.expenses.all():
         e_fee = float(exp.expense or 0)
         expense_subtotal += e_fee
-        memo_str = f" ({exp.memo})" if exp.memo else ""
-        expense_list_data.append((f"", f"{exp.expense_type}{memo_str}", f"${e_fee:,.2f}"))
+        expense_list_data.append((f"", f"{exp.expense_type}", f"${e_fee:,.2f}"))
     
     for event in guide_report.events.all():
         if event.overtime and int(event.overtime) > 0:
@@ -329,7 +328,7 @@ def guidereport_pdf(request, pk):
     story.append(Spacer(1, 20))
 
     story.append(Paragraph("Guide Expenses", section_title_style))
-    exp_table_rows = [[Paragraph("<b>Expense Type / Memo</b>", th_style), Paragraph("<b>Amount</b>", th_style)]]
+    exp_table_rows = [[Paragraph("<b>Expense Type</b>", th_style), Paragraph("<b>Amount</b>", th_style)]]
     if expense_list_data:
         for report_date, desc, amt in expense_list_data:
             if report_date:
