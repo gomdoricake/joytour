@@ -173,7 +173,8 @@
     font-weight: 500;
   }
 </style>
-
+{% extends 'base.html' %}
+{% block content %}
 {% if request.user.username == 'admin' %}
 <div class="admin-container">
   <div class="nav-block">
@@ -212,3 +213,5 @@
   {% endif %}
 </div>
 {% endif %}
+
+{% endblock %}

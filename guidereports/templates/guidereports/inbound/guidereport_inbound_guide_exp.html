@@ -51,6 +51,8 @@
   .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35); background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <datalist id="guideexp_datalist"></datalist>
 
 <div class="report-container">
@@ -107,6 +109,8 @@
      data-choices="{% for key, val in EXPENSE_CHOICES %}{{ key }}:{{ val }},{% endfor %}"
      data-guide-choices="{% for key, val in GUIDE_ONLY_EXPENSE_CHOICES %}{{ key }}:{{ val }},{% endfor %}">
 </div>
+
+{% endblock %}
 
 {% block extra_script %}
 <script>

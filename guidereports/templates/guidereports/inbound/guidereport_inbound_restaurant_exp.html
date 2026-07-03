@@ -221,6 +221,9 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
+
 <datalist id="restaurant_datalist">
   {% for key, value in RESTAURANT_CHOICES %}
     <option value="{{ key }}">{{ value }}</option>
@@ -279,6 +282,8 @@
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
+
+{% endblock %}
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {

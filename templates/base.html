@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>가이드 리포트 시스템</title>
+        <style>
+        .top-navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 12px 20px;
+            margin-bottom: 24px;
+        }
+
+        /* 내부 정렬 */
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 홈 버튼 스타일 */
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #1e293b;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        /* 홈 버튼 마우스 오버 효과 */
+        .home-btn:hover {
+            background-color: #f1f5f9;
+            color: #0284c7;
+        }
+
+        .home-icon {
+            font-size: 16px;
+        }
+        </style>
+    </head>
+<body>
+
+    <nav class="top-navbar">
+        <a href="{% url 'mypage:index' %}" class="home-btn">Mypage</a>
+    </nav>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+</body>
+</html>

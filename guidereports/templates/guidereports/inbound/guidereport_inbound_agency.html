@@ -193,9 +193,10 @@
         gap: 10px;
     }
 }
-
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 이전 단계로 돌아가기</a>
@@ -258,6 +259,7 @@
       <button type="submit" class="btn-submit">다음 단계로 이동하기 (Next)</button>
   </form>
 </div>
+{% endblock %}
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {

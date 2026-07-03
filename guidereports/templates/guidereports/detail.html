@@ -395,6 +395,8 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <div class="report-container">
   <div class="nav-block">
     {% if request.user.username == 'admin' %}
@@ -693,3 +695,5 @@
     <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}" class="delete-link">GuideReport 삭제</a>
   </div>
 </div>
+
+{% endblock %}

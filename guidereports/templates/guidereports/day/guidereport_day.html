@@ -160,6 +160,8 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 이전 단계로 돌아가기</a>
@@ -200,3 +202,5 @@
     <option value="{{ key }}">{{ value }}</option>
   {% endfor %}
 </datalist>
+
+{% endblock %}

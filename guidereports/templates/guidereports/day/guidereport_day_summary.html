@@ -212,6 +212,8 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_day_guide_exp' %}" class="back-link">← 경비 수정하러 가기</a>
@@ -333,6 +335,7 @@
     <button type="submit" id="submit-final-btn" class="btn-submit">작성 완료 및 리포트 제출 (Submit)</button>
   </form>
 </div>
+{% endblock %}
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {

@@ -208,6 +208,9 @@
   }
 </style>
 
+{% extends 'base.html' %}
+
+{% block content %}
 <div class="report-container">
 
   <div class="nav-block">
@@ -256,6 +259,7 @@
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
+{% endblock %}
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {

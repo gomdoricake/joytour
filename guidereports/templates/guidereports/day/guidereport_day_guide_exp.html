@@ -229,6 +229,8 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <datalist id="guideexp_datalist"></datalist>
 
 
@@ -292,7 +294,7 @@
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
-
+{% endblock %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const formContainer = document.getElementById("expense-form-list");
