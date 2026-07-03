@@ -337,17 +337,6 @@ def guidereport_inbound_fuel_exp(request):
     })
 
 
-GuideExpFormSet = inlineformset_factory(
-    GuideReport, 
-    GuideExp, 
-    form=GuideExpForm,  
-    extra=1,             
-    can_delete=True  
-)
-
-from django.views.decorators.cache import never_cache
-from datetime import datetime, date
-
 @login_required
 @never_cache
 def guidereport_inbound_guide_exp(request): 
@@ -358,6 +347,20 @@ def guidereport_inbound_guide_exp(request):
     
     report_id = inbound_fuel.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
+
+    if guide_report.expenses.count() == 0:
+        extra = 1
+    else: 
+        extra = 0
+    
+    GuideExpFormSet = inlineformset_factory(
+        GuideReport, 
+        GuideExp, 
+        form=GuideExpForm,  
+        extra=extra,             
+        can_delete=True  
+    )
+
 
     if request.method == "POST":
         formset = GuideExpFormSet(request.POST, instance=guide_report)
