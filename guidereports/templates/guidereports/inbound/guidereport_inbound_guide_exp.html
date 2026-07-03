@@ -53,7 +53,17 @@
 
 {% extends 'base.html' %}
 {% block content %}
-<datalist id="guideexp_datalist"></datalist>
+<datalist id="guideexp_datalist">
+  {% if guide_report.role == 'GROUP' or formset.instance.role == 'GROUP' %}
+    {% for key, val in GUIDE_ONLY_EXPENSE_CHOICES %}
+      <option value="{{ key }}">{{ val }}</option>
+    {% endfor %}
+  {% else %}
+    {% for key, val in EXPENSE_CHOICES %}
+      <option value="{{ key }}">{{ val }}</option>
+    {% endfor %}
+  {% endif %}
+</datalist>
 
 <div class="report-container">
   <div class="nav-block">
@@ -89,7 +99,7 @@
       <button type="button" id="add-form-btn" class="btn-add">➕ Expense 항목 추가하기</button>
     </div>
     
-    <button type="submit" name="submit_final" class="btn-submit">다음 단계 (Summary)</button>
+    <button type="submit" id="submit-final-btn" name="submit_final" class="btn-submit">다음 단계 (Summary)</button>
   </form>
 </div>
 
@@ -104,23 +114,20 @@
   </div>
 </div>
 
-
 <div id="django-expense-data" style="display: none;"
      data-choices="{% for key, val in EXPENSE_CHOICES %}{{ key }}:{{ val }},{% endfor %}"
      data-guide-choices="{% for key, val in GUIDE_ONLY_EXPENSE_CHOICES %}{{ key }}:{{ val }},{% endfor %}">
 </div>
 
-{% endblock %}
-
-{% block extra_script %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-  console.log("=== [확인] Expense 폼셋 스크립트 가동 ===");
+  console.log("=== [확인] Expense inbound 폼셋 가동 ===");
 
   const formContainer = document.getElementById("expense-form-list");
   const addButton = document.getElementById("add-form-btn");
   const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
   const mainForm = document.getElementById("real-expense-form"); 
+  const prefix = "{{ formset.prefix }}";
 
   // 역할군 판단
   const roleBadge = document.querySelector(".role-badge");
@@ -131,44 +138,65 @@ document.addEventListener("DOMContentLoaded", function () {
   const dataBridge = document.getElementById("django-expense-data");
   const choiceData = {};
   const choiceKeys = [];
-  const guideOnlyKeys = [];
 
   if (dataBridge) {
     const rawChoices = dataBridge.getAttribute("data-choices") || "";
     const rawGuideChoices = dataBridge.getAttribute("data-guide-choices") || "";
+    const sourceString = isGuideOnly ? rawGuideChoices : rawChoices;
 
-    rawChoices.split(",").forEach(item => {
+    sourceString.split(",").forEach(item => {
       if (!item) return;
       const [key, val] = item.split(":");
-      if (key) { choiceData[key] = val || key; choiceKeys.push(key); }
-    });
-
-    rawGuideChoices.split(",").forEach(item => {
-      if (!item) return;
-      const [key, val] = item.split(":");
-      if (key) { choiceData[key] = val || key; guideOnlyKeys.push(key); }
+      if (key) { 
+        choiceData[key] = val || key; 
+        choiceKeys.push(key); 
+      }
     });
   }
 
   const defaultExpenseType = isGuideOnly ? "ETC" : (choiceKeys.includes("WASH") ? "WASH" : choiceKeys[0]);
 
-  function rebuildOptions(element) {
-    if (!element || element.tagName !== "SELECT") return;
-    const savedValue = element.value; 
-    element.innerHTML = "";
-    
-    const keys = isGuideOnly ? guideOnlyKeys : choiceKeys;
-    keys.forEach(key => {
-      const opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = choiceData[key] || key;
-      element.appendChild(opt);
+  // 장고 관리 번호(Index) 일괄 동기화 마스터 함수
+  function updateFormIndices() {
+    const rows = formContainer.querySelectorAll(".expense-form-row");
+    rows.forEach((row, currentIndex) => {
+      row.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.name) {
+          input.name = input.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
+        }
+        if (input.id) {
+          input.id = input.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
+        }
+      });
     });
+    if (totalForms) totalForms.value = rows.length;
+  }
 
-    if (savedValue && keys.includes(savedValue)) {
-      element.value = savedValue;
-    } else {
-      element.value = defaultExpenseType;
+  function rebuildOptions(element) {
+    if (!element) return;
+
+    if (element.tagName === "SELECT") {
+      const savedValue = element.value; 
+      element.innerHTML = ""; 
+      
+      if (isGuideOnly) {
+        const opt = document.createElement("option");
+        opt.value = "ETC";
+        opt.textContent = choiceData["ETC"] || "ETC"; 
+        element.appendChild(opt);
+        element.value = "ETC";
+      } else {
+        choiceKeys.forEach(key => {
+          const opt = document.createElement("option");
+          opt.value = key; 
+          opt.textContent = choiceData[key] || key; 
+          element.appendChild(opt);
+        });
+        
+        if (savedValue && choiceKeys.includes(savedValue)) {
+          element.value = savedValue;
+        }
+      }
     }
   }
 
@@ -201,7 +229,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const isWashUsed = Array.from(allElements).some((el) => {
       const row = el.closest(".expense-form-row");
       const delChk = row.querySelector('input[name$="-DELETE"]');
-      return el.value === "WASH" && !(delChk && (delChk.checked || delChk.value === "WASH")) && row.style.display !== "none";
+      return el.value === "WASH" && !(delChk && delChk.checked) && row.style.display !== "none";
     });
 
     allElements.forEach((el) => {
@@ -213,12 +241,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ➕ 추가 버튼
+  // ➕ 추가 버튼 로직
   if (addButton) {
     addButton.addEventListener("click", function () {
-      const template = document.getElementById("empty-form-template").firstElementChild;
+      const template = document.getElementById("empty-form-template").querySelector(".expense-form-row");
       const newRow = template.cloneNode(true);
-      const count = formContainer.getElementsByClassName("expense-form-row").length;
+      const count = formContainer.querySelectorAll(".expense-form-row").length;
 
       newRow.querySelectorAll("input, select").forEach((el) => {
         if (el.name) el.name = el.name.replace(/__prefix__/g, count);
@@ -232,12 +260,12 @@ document.addEventListener("DOMContentLoaded", function () {
       });
 
       formContainer.appendChild(newRow);
-      if (totalForms) totalForms.value = formContainer.getElementsByClassName("expense-form-row").length;
+      updateFormIndices(); 
       refreshWashOptions();
     });
   }
 
-  // ❌ [핵심 수정] 삭제 제어 로직 보정
+  // ❌ 항목 삭제 제어 로직 보정
   if (formContainer) {
     formContainer.addEventListener("click", function (e) {
       if (e.target.classList.contains("remove-form-btn")) {
@@ -246,20 +274,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
 
         if (idEl && idEl.value) {
-          // DB에 이미 잡혀있는 데이터라면 체크박스를 명시적으로 켜서 서버로 전송
-          if (deleteCheckbox) {
-            deleteCheckbox.checked = true;
-            deleteCheckbox.value = "on"; 
-          }
-          row.style.display = "none"; // 화면에서만 은닉
+          row.style.display = "none";
+          if (deleteCheckbox) deleteCheckbox.checked = true;
         } else {
-          // 새로 추가했다가 지우는 데이터는 아예 Node 제거
           row.remove();
-          
-          // 새로 만든 로우가 삭제되었을 때만 TOTAL_FORMS 카운트를 차감해 줌
-          if (totalForms) {
-            totalForms.value = formContainer.getElementsByClassName("expense-form-row").length;
-          }
+          updateFormIndices(); 
         }
         refreshWashOptions();
       }
@@ -269,43 +288,89 @@ document.addEventListener("DOMContentLoaded", function () {
       if (event.target.matches('input[name$="-expense"]')) checkExpenseRealtime(event.target);
     });
 
+    // 🌟 [Day 일치] 실시간 항목 임의 기입 변조 모니터링 가드
     formContainer.addEventListener("change", function (event) {
       if (event.target.matches('[name$="-expense_type"]')) {
         refreshWashOptions();
-        const row = event.target.closest(".expense-form-row");
+        
+        const el = event.target;
+        const row = el.closest(".expense-form-row");
+
+        if (isGuideOnly) {
+          if (el.value !== "ETC") el.value = "ETC";
+        } else {
+          if (el.value !== "" && !choiceKeys.includes(el.value)) {
+            alert("⚠️ 허용되지 않은 항목 유형입니다. 목록에 있는 항목만 선택할 수 있습니다.");
+            el.value = defaultExpenseType; 
+            el.focus();
+            refreshWashOptions();
+            return;
+          }
+        }
+
         const expInput = row.querySelector('input[name$="-expense"]');
         if (expInput && expInput.value) checkExpenseRealtime(expInput);
       }
     });
   }
 
-  // 🚀 제출 전 무효값 처리
+  // 🚀 제출 전 가공 및 인터셉트 레이어 개편 [Day 일치]
   if (mainForm) {
     mainForm.addEventListener("submit", function (event) {
       const rows = formContainer.querySelectorAll(".expense-form-row");
-      let activeValidCount = 0;
+      let isInvalid = false;
 
       rows.forEach(row => {
         const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
-        if ((deleteCheckbox && deleteCheckbox.checked) || row.style.display === "none") return;
+        if (deleteCheckbox && deleteCheckbox.checked) return;
 
+        const typeEl = row.querySelector('[name$="-expense_type"]');
         const priceEl = row.querySelector('[name$="-expense"]');
+        const idEl = row.querySelector('input[name$="-id"]');
+
+        const expenseType = typeEl ? typeEl.value.trim() : "";
         const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
         const expensePrice = parseFloat(expensePriceRaw) || 0;
 
-        if (!expensePriceRaw || expensePrice === 0) {
-          const idEl = row.querySelector('input[name$="-id"]');
+        // 제출 직전 비정상 변조 키 허용 여부 최종 가드
+        if (expenseType !== "") {
+          if (isGuideOnly && expenseType !== "ETC") {
+            isInvalid = true;
+          } else if (!isGuideOnly && !choiceKeys.includes(expenseType)) {
+            isInvalid = true;
+          }
+        }
+
+        if (isInvalid) {
+          event.preventDefault(); 
+          alert("⚠️ 허용되지 않는 올바르지 않은 Expense 항목이 포함되어 있습니다.");
+          if (typeEl) {
+            typeEl.value = defaultExpenseType;
+            typeEl.focus();
+          }
+          return;
+        }
+
+        // 0원인 쓰레기 빈 행 전송 제외 클린업
+        if (!expensePriceRaw || (expenseType === "ETC" && expensePrice === 0)) {
           if (idEl && idEl.value) {
-            if (deleteCheckbox) { deleteCheckbox.checked = true; deleteCheckbox.value = "on"; }
             row.style.display = "none";
+            if (deleteCheckbox) deleteCheckbox.checked = true;
           } else {
             row.remove();
           }
-        } else {
-          activeValidCount++;
         }
       });
 
+      if (isInvalid) return;
+
+      updateFormIndices(); // 샌딩 전 인덱스 완벽 동기화
+
+      const submitBtn = document.getElementById("submit-final-btn");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "제출 중인 리포트 완료 처리 중...";
+      }
     });
   }
 

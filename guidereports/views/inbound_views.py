@@ -297,13 +297,6 @@ def guidereport_inbound_attraction_exp(request):
         'ATTRACTION_CHOICES': ATTRACTION_CHOICES
     })
 
-FuelFormSet = inlineformset_factory(
-    GuideReport, 
-    FuelExp, 
-    form=FuelExpForm,  
-    extra=1,             
-    can_delete=True  
-)
 
 @login_required
 @never_cache  
@@ -318,8 +311,23 @@ def guidereport_inbound_fuel_exp(request):
     report_id = inbound_attraction.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
 
+    events = guide_report.events.all()
+    initial_data = []
+    for event in events:
+        if event.report_date:
+            initial_data.append({'report_date': event.report_date})
+
+    FuelFormSet = inlineformset_factory(
+        GuideReport, 
+        FuelExp, 
+        form=FuelExpForm,  
+        extra=events.count(),             
+        can_delete=True  
+    )
+
+
     if request.method == "POST": 
-        formset = FuelFormSet(request.POST, instance=guide_report)
+        formset = FuelFormSet(request.POST, instance=guide_report, initial=initial_data)
 
         if formset.is_valid():
             guide_report.save()
@@ -332,7 +340,7 @@ def guidereport_inbound_fuel_exp(request):
             print("Fuel 폼셋 유효성 검사 실패:", formset.errors)
 
     else:
-        formset = FuelFormSet(instance=guide_report)
+        formset = FuelFormSet(instance=guide_report, initial=initial_data)
 
     return render(request, 'guidereports/inbound/guidereport_inbound_fuel_exp.html', {
         'formset': formset, 
