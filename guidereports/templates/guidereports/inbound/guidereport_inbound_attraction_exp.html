@@ -225,8 +225,6 @@
   
   <h2 class="title">Attraction 경비 내역</h2>
 
-
-
   <form method="post" id="real-expense-form">
     {% csrf_token %} 
     {{ formset.management_form }}
@@ -273,118 +271,106 @@
   </div>
 </div>
 
-{% endblock %}
-
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const formContainer = document.getElementById("expense-form-list");
-    const addButton = document.getElementById("add-form-btn");
-    const mainForm = document.getElementById("real-expense-form");
-    const submitBtn = document.getElementById("submit-final-btn");
-    const prefix = "{{ formset.prefix }}";
+document.addEventListener("DOMContentLoaded", function () {
+  const formContainer = document.getElementById("expense-form-list");
+  const addButton = document.getElementById("add-form-btn");
+  const mainForm = document.getElementById("real-expense-form");
+  const submitBtn = document.getElementById("submit-final-btn");
+  const prefix = "{{ formset.prefix }}";
 
-    // [핵심 추가] 각 expense_type 입력창에 agency_datalist를 확실하게 연결해주는 함수
-    function bindAgencyDataList(container) {
-      const targetInputs = container.querySelectorAll("input[name*='expense_type']");
-      targetInputs.forEach(input => {
-        input.setAttribute("list", "agency_datalist");
-      });
-    }
-
-    // 초기 로드 시 기존에 생성되어 있는 폼에 datalist 바인딩
-    bindAgencyDataList(formContainer);
-
-    // 항목 동적 추가
-    addButton.addEventListener("click", function () {
-      const noDataAlert = document.getElementById("no-data-alert");
-      if (noDataAlert) noDataAlert.remove();
-
-      const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
-      const newRow = templateRow.cloneNode(true);
-      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
-
-      const prefixRegex = new RegExp("__prefix__", "g");
-      const inputs = newRow.querySelectorAll("input, select, textarea");
-
-      inputs.forEach((input) => {
-        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
-        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
-
-        if (input.type === "checkbox") {
-          input.checked = false;
-        } else if (input.type !== "hidden") {
-          input.value = "";
+  // 모든 정상 폼들의 인덱스를 0, 1, 2 순서대로 완벽하게 정렬하는 마스터 함수
+  function updateFormIndices() {
+    const rows = formContainer.querySelectorAll(".expense-form-row");
+    
+    rows.forEach((row, currentIndex) => {
+      row.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.name) {
+          input.name = input.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
+        }
+        if (input.id) {
+          input.id = input.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
         }
       });
-
-      formContainer.appendChild(newRow);
-
-      // 새로 추가된 행(Row)에도 datalist 자동 매핑
-      bindAgencyDataList(newRow);
-
-      const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-      const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
-      
-      if (totalFormsInputHyphen) {
-        totalFormsInputHyphen.value = currentFormCount + 1;
-        totalFormsInputHyphen.setAttribute("value", currentFormCount + 1);
-      }
-      if (totalFormsInputUnder) {
-        totalFormsInputUnder.value = currentFormCount + 1;
-        totalFormsInputUnder.setAttribute("value", currentFormCount + 1);
-      }
     });
 
-    // 항목 삭제 및 인덱스 동적 치환 정렬
-    // 항목 삭제 및 인덱스 동적 치환 정렬 (수정 버전)
-    formContainer.addEventListener("click", function (event) {
-      if (event.target.classList.contains("remove-form-btn")) {
-        const row = event.target.closest(".expense-form-row");
-        
-        // 1. 해당 폼 안에 장고의 DELETE 체크박스가 있는지 확인
-        const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
-        // 2. 해당 폼이 기존 DB 데이터인지 확인 (id 값을 가지고 있고, 그 값이 비어있지 않은지)
-        const idInput = row.querySelector("input[type='hidden'][name$='-id']");
-        const isExistingData = idInput && idInput.value !== "";
+    // 장고 Management Form의 전체 개수 동기화
+    const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+    const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
+    
+    if (totalFormsInputHyphen) totalFormsInputHyphen.value = rows.length;
+    if (totalFormsInputUnder) totalFormsInputUnder.value = rows.length;
+  }
 
-        if (isExistingData && deleteCheckbox) {
-          // [CASE 1: DB에 이미 저장되어 있던 기존 데이터]
-          // 인덱스를 재정렬하면 안 되므로, HTML을 remove 하지 않고 체크박스 체크 후 숨기기만 합니다.
-          deleteCheckbox.checked = true;
-          row.style.display = "none";
-          // 이 행은 숨겨졌을 뿐 여전히 클래스를 유지하므로 TOTAL_FORMS 카운트와 인덱스 재정렬 대상에서 제외하기 위해 클래스를 일시 제거합니다.
-          row.classList.remove("expense-form-row");
-          row.classList.add("expense-form-row-deleted");
-        } else {
-          // [CASE 2: 이번 페이지에서 [추가] 버튼으로 새로 만든 빈 폼]
-          // DB에 없는 데이터이므로 완전히 삭제하고 인덱스를 정렬해야 합니다.
-          row.remove();
+  // datalist 바인딩 함수
+  function bindAgencyDataList(container) {
+    const targetInputs = container.querySelectorAll("input[name*='expense_type']");
+    targetInputs.forEach(input => {
+      input.setAttribute("list", "agency_datalist");
+    });
+  }
 
-          // 새로 추가된 폼들만 남았거나 지워졌으므로 남은 정상 폼들만 다시 인덱스 정렬
-          const remainingRows = formContainer.getElementsByClassName("expense-form-row");
-          
-          const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-          const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
-          if (totalFormsInputHyphen) totalFormsInputHyphen.value = remainingRows.length;
-          if (totalFormsInputUnder) totalFormsInputUnder.value = remainingRows.length;
+  // 초기 바인딩 실행
+  bindAgencyDataList(formContainer);
 
-          const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
-          const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+  // 항목 추가 버튼 로직
+  addButton.addEventListener("click", function () {
+    const noDataAlert = document.getElementById("no-data-alert");
+    if (noDataAlert) noDataAlert.remove();
 
-          for (let i = 0; i < remainingRows.length; i++) {
-            const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
-            rowInputs.forEach((input) => {
-              if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
-              if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
-            });
-          }
-        }
+    const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
+    const newRow = templateRow.cloneNode(true);
+    const currentFormCount = formContainer.querySelectorAll(".expense-form-row").length;
+
+    const prefixRegex = new RegExp("__prefix__", "g");
+    const inputs = newRow.querySelectorAll("input, select, textarea");
+
+    inputs.forEach((input) => {
+      if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
+      if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
+
+      if (input.type === "checkbox") {
+        input.checked = false;
+      } else if (input.type !== "hidden") {
+        input.value = "";
       }
     });
 
-    mainForm.addEventListener("submit", function () {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "다음 단계 양식 생성 중 (Guide Exp)...";
-    });
+    formContainer.appendChild(newRow);
+    bindAgencyDataList(newRow);
+    
+    // 추가 후 인덱스 동적 최신화
+    updateFormIndices();
   });
+
+  // [🔥 해결 완료] 항목 삭제 통합 핸들러
+  formContainer.addEventListener("click", function (event) {
+    if (event.target.classList.contains("remove-form-btn")) {
+      const row = event.target.closest(".expense-form-row");
+      const idInput = row.querySelector("input[type='hidden'][name$='-id']");
+      const isExistingData = idInput && idInput.value !== "";
+
+      if (isExistingData) {
+        // [CASE 1] 이미 DB에 박혀있는 원본 데이터일 때
+        const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
+        if (deleteCheckbox) {
+          deleteCheckbox.checked = true;
+        }
+        row.style.display = "none"; // 사용자에겐 숨기고 서버엔 지우라는 신호 전달
+      } else {
+        // [CASE 2] 사용자가 방금 추가한 빈 가짜 폼일 때
+        row.remove(); // 돔에서 즉시 소멸
+        updateFormIndices(); // 소멸 후 남아있는 폼 번호 0번부터 빈틈없이 재정렬
+      }
+    }
+  });
+
+  // 서브밋 디펜스
+  mainForm.addEventListener("submit", function () {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "다음 단계 양식 생성 중 (Guide Exp)...";
+  });
+});
 </script>
+
+{% endblock %}
