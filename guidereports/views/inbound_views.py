@@ -133,24 +133,19 @@ def guidereport_inbound_events(request):
             tc=inbound_data['tc'],
             chd=inbound_data['chd']
         )
-    
+     
     if guide_report.events.count() == 0:
-        EventFormSet = inlineformset_factory(
-            GuideReport, 
-            Event, 
-            form=InboundEventForm, 
-            extra=3,             
-            can_delete=True  
-        )
+        extra = 3
     else: 
-        EventFormSet = inlineformset_factory(
-            GuideReport, 
-            Event, 
-            form=InboundEventForm, 
-            extra=0,             
-            can_delete=True  
-        )
-
+        extra = 0
+    
+    EventFormSet = inlineformset_factory(
+        GuideReport, 
+        Event, 
+        form=InboundEventForm, 
+        extra=extra,             
+        can_delete=True  
+    )
 
     if request.method == 'POST':
         formset = EventFormSet(request.POST, instance=guide_report)
@@ -209,11 +204,16 @@ def guidereport_inbound_restaurant_exp(request):
         initial_data.append({'report_date': event.report_date}) 
         initial_data.append({'report_date': event.report_date}) 
 
+    if guide_report.restaurants.count() == 0:
+        extra = events.count() * 2
+    else:
+        extra = 0
+
     RestaurantFormSet = inlineformset_factory(
         GuideReport, 
         RestaurantExp, 
         form=RestaurantExpForm, 
-        extra=events.count() * 2,             
+        extra=extra,             
         can_delete=True  
     )
 
@@ -236,16 +236,6 @@ def guidereport_inbound_restaurant_exp(request):
     })
 
 
-
-AttractionFormSet = inlineformset_factory(
-    GuideReport, 
-    AttractionExp, 
-    form=AttractionExpForm,
-    extra=1,             
-    can_delete=True  
-)
-
-
 @login_required
 @never_cache  
 def guidereport_inbound_attraction_exp(request): 
@@ -257,17 +247,34 @@ def guidereport_inbound_attraction_exp(request):
     report_id = inbound_restaurant.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
 
+    events = guide_report.events.all()
+    initial_data = []
+    for event in events: 
+        initial_data.append({'report_date': event.report_date})
+    
+    if guide_report.attractions.count() == 0:
+        extra = events.count()
+    else:
+        extra = 0
+
+    AttractionFormSet = inlineformset_factory(
+        GuideReport, 
+        AttractionExp, 
+        form=AttractionExpForm,
+        extra=extra,             
+        can_delete=True  
+    )
+
     if request.method == "POST": 
-        formset = AttractionFormSet(request.POST, instance=guide_report)
+        formset = AttractionFormSet(request.POST, instance=guide_report, initial=initial_data)
         
         if formset.is_valid():
             guide_report.save()
+            formset.save()
 
             main_data = request.session.get('main_data', {})
             main_data['guidereport_id'] = guide_report.id
             request.session['main_data'] = main_data
-            
-            formset.save()
             
             request.session['inbound_attraction'] = inbound_restaurant
             
@@ -279,7 +286,7 @@ def guidereport_inbound_attraction_exp(request):
             print("Attraction 폼셋 유효성 검사 실패:", formset.errors)
 
     else:
-        formset = AttractionFormSet(instance=guide_report)
+        formset = AttractionFormSet(instance=guide_report, initial=initial_data)
 
     return render(request, 'guidereports/inbound/guidereport_inbound_attraction_exp.html', {
         'formset': formset, 

@@ -161,6 +161,7 @@ class RestaurantExpForm(forms.ModelForm):
             'expense_type': forms.Select(attrs={'class': 'form-control'})
         }
     
+
 class AttractionExpForm(forms.ModelForm):
     expense_type = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -180,6 +181,7 @@ class AttractionExpForm(forms.ModelForm):
             'report_date': forms.DateInput(attrs={'type': 'date'}),
             'expense_type': forms.Select(attrs={'class': 'form-control'})
         }
+
 
 class FuelExpForm(forms.ModelForm): 
     class Meta: 

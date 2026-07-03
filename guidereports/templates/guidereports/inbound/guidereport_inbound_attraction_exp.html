@@ -332,24 +332,48 @@
     });
 
     // 항목 삭제 및 인덱스 동적 치환 정렬
+    // 항목 삭제 및 인덱스 동적 치환 정렬 (수정 버전)
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         const row = event.target.closest(".expense-form-row");
-        row.remove();
+        
+        // 1. 해당 폼 안에 장고의 DELETE 체크박스가 있는지 확인
+        const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
+        // 2. 해당 폼이 기존 DB 데이터인지 확인 (id 값을 가지고 있고, 그 값이 비어있지 않은지)
+        const idInput = row.querySelector("input[type='hidden'][name$='-id']");
+        const isExistingData = idInput && idInput.value !== "";
 
-        const remainingRows = formContainer.getElementsByClassName("expense-form-row");
-        const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-        if (totalFormsInput) totalFormsInput.value = remainingRows.length;
+        if (isExistingData && deleteCheckbox) {
+          // [CASE 1: DB에 이미 저장되어 있던 기존 데이터]
+          // 인덱스를 재정렬하면 안 되므로, HTML을 remove 하지 않고 체크박스 체크 후 숨기기만 합니다.
+          deleteCheckbox.checked = true;
+          row.style.display = "none";
+          // 이 행은 숨겨졌을 뿐 여전히 클래스를 유지하므로 TOTAL_FORMS 카운트와 인덱스 재정렬 대상에서 제외하기 위해 클래스를 일시 제거합니다.
+          row.classList.remove("expense-form-row");
+          row.classList.add("expense-form-row-deleted");
+        } else {
+          // [CASE 2: 이번 페이지에서 [추가] 버튼으로 새로 만든 빈 폼]
+          // DB에 없는 데이터이므로 완전히 삭제하고 인덱스를 정렬해야 합니다.
+          row.remove();
 
-        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
-        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+          // 새로 추가된 폼들만 남았거나 지워졌으므로 남은 정상 폼들만 다시 인덱스 정렬
+          const remainingRows = formContainer.getElementsByClassName("expense-form-row");
+          
+          const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+          const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
+          if (totalFormsInputHyphen) totalFormsInputHyphen.value = remainingRows.length;
+          if (totalFormsInputUnder) totalFormsInputUnder.value = remainingRows.length;
 
-        for (let i = 0; i < remainingRows.length; i++) {
-          const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
-          rowInputs.forEach((input) => {
-            if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
-            if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
-          });
+          const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
+          const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+
+          for (let i = 0; i < remainingRows.length; i++) {
+            const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
+            rowInputs.forEach((input) => {
+              if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
+              if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
+            });
+          }
         }
       }
     });
