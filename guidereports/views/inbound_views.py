@@ -372,7 +372,6 @@ def guidereport_inbound_guide_exp(request):
         can_delete=True  
     )
 
-
     if request.method == "POST":
         formset = GuideExpFormSet(request.POST, instance=guide_report)
         
@@ -380,23 +379,24 @@ def guidereport_inbound_guide_exp(request):
             instances = formset.save(commit=False)
             
             for obj in formset.deleted_objects:
-                obj.delete()
+                if obj.pk:
+                    obj.delete()
 
-            wash_added = False
-            if guide_report.expenses.filter(expense_type="WASH").exists():
-                wash_added = True
+            wash_exists_in_db = guide_report.expenses.filter(expense_type="WASH").exists()
 
             for instance in instances:
                 if not instance.expense:
                     continue
                 
-                if instance.expense_type == "WASH":
-                    if wash_added:
+                if instance.expense_type == "WASH" and not instance.pk:
+                    if wash_exists_in_db:
                         continue
-                    wash_added = True
+                    wash_exists_in_db = True
                 
                 instance.guide_report = guide_report
                 instance.save()
+
+            formset.save_m2m()
 
             first_event = guide_report.events.order_by('id').first()
             if first_event and first_event.report_date:
@@ -418,7 +418,7 @@ def guidereport_inbound_guide_exp(request):
             guide_report.invoice_date = date.today()
             guide_report.save()
 
-            return redirect('guidereports:guidereport_inbound_summary') 
+            return redirect('guidereports:guidereport_inbound_summary')
         else:
             print("GuideExp 폼셋 유효성 검사 실패:", formset.errors)
             
@@ -427,7 +427,8 @@ def guidereport_inbound_guide_exp(request):
 
     fuel_ids = list(guide_report.fuels.values_list('id', flat=True))
     restaurant_ids = list(guide_report.restaurants.values_list('id', flat=True))
-    attraction_ids = list(guide_report.attractions.values_list('id', flat=True))
+    source_attractions = guide_report.attractions.values_list('id', flat=True) if hasattr(guide_report, 'attractions') else []
+    attraction_ids = list(source_attractions)
     guide_exp_ids = list(guide_report.expenses.values_list('id', flat=True))
 
     first_event = guide_report.events.order_by('id').first()
@@ -461,7 +462,6 @@ def guidereport_inbound_guide_exp(request):
         'EXPENSE_CHOICES': EXPENSE_CHOICES,
         'GUIDE_ONLY_EXPENSE_CHOICES': GUIDE_ONLY_EXPENSE_CHOICES
     })
-
 
 
 @login_required
