@@ -167,7 +167,20 @@
   }
 </style>
 
-<datalist id="role_datalist"></datalist>
+{% extends 'base.html' %}
+{% block content %}
+
+<datalist id="role_datalist">
+  {% if guide_report.day_inbound == 'DAY' %}
+    {% for role in DAY_ROLE %}
+      <option value="{{ role }}"></option>
+    {% endfor %}
+  {% else %}
+    {% for role in INBOUND_ROLE %}
+      <option value="{{ role }}"></option>
+    {% endfor %}
+  {% endif %}
+</datalist>
 
 <div class="report-container">
   <div class="nav-block">
@@ -209,12 +222,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let roleField = document.querySelector('[name="role"]');
     const datalist = document.getElementById('role_datalist');
     
-    // 1. Django 컨텍스트의 딕셔너리 Key값들을 JS 배열로 안전하게 매핑
+    // 🌟 [🔥 완전 해결] 누락되었던 장고 상수의 JS 배열 매핑 가드를 복원했습니다.
     const inboundRoles = [{% for role in INBOUND_ROLE %}"{{ role }}",{% endfor %}];
     const dayRoles = [{% for role in DAY_ROLE %}"{{ role }}",{% endfor %}];
     
     if (roleField && datalist) {
-        // 2. 만약 Django 폼이 select 태그 형태로 그려졌다면, 유연한 텍스트+드롭다운을 위해 input으로 변환
         if (roleField.tagName === 'SELECT') {
             const inputField = document.createElement('input');
             inputField.type = 'text';
@@ -222,43 +234,80 @@ document.addEventListener('DOMContentLoaded', function() {
             inputField.id = roleField.id;
             inputField.className = roleField.className;
             inputField.value = roleField.value;
-            inputField.placeholder = "역할을 선택하거나 직접 입력하세요";
+            inputField.placeholder = "역할을 선택해 주세요";
             
             roleField.parentNode.replaceChild(inputField, roleField);
             roleField = inputField;
         }
 
-        // 3. input 필드에 동적 datalist 결합
         roleField.setAttribute('list', 'role_datalist');
 
-        // 4. 핵심 로직: day_inbound 값 변화에 따라 드롭다운 옵션을 실시간 변경하는 함수
         function updateRoleDatalist() {
             if (!typeField) return;
+            datalist.innerHTML = ''; 
 
-            datalist.innerHTML = ''; // 기존 옵션 노드 초기화 청소
-
-            // 조건 분기: DAY 선택 시 dayRoles, 그 외(INBOUND)에는 inboundRoles 매핑
             const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
             
-            // 데이터리스트에 맞춰 새로운 option 엘리먼트 동적 생성 및 바인딩
             activeRoles.forEach(val => {
                 const opt = document.createElement('option');
                 opt.value = val;
                 datalist.appendChild(opt);
             });
             
-            // 데이터 성격이 스위칭되었을 때, 기존 입력창 값이 바뀐 선택지에 존재하지 않는다면 완전 초기화
             if (!activeRoles.includes(roleField.value) && roleField.value !== "") {
                 roleField.value = "";
             }
         }
 
+        // 글자가 입력되는 순간마다 허용된 값인지 감시하는 실시간 필터
+        function validateLiveInput() {
+            if (!typeField) return;
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            const currentVal = roleField.value.trim();
+
+            if (currentVal === "") return;
+
+            // 타이핑 흐름을 방해하지 않도록 허용 리스트의 앞부분 매칭을 확인
+            const isPartialMatch = activeRoles.some(role => role.startsWith(currentVal));
+
+            if (!isPartialMatch) {
+                // 규정되지 않은 값 조합이 들어오는 즉시 글자를 지워 백엔드 폭파를 방지합니다.
+                roleField.value = ""; 
+            }
+        }
+
+        roleField.addEventListener('input', validateLiveInput);
+        roleField.addEventListener('change', validateLiveInput);
+
+        // 창을 이탈할 때 비완성 글자 완벽 필터
+        roleField.addEventListener('blur', function() {
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            if (roleField.value !== "" && !activeRoles.includes(roleField.value)) {
+                roleField.value = "";
+            }
+        });
+
         if (typeField) {
-            // 변경 이벤트 감지 리스너 등록
             typeField.addEventListener('change', updateRoleDatalist);
-            // 초기 페이지 로딩(세션 값 복원 포함) 상태 반영을 위해 최초 1회 실행
             updateRoleDatalist();
+        }
+
+        // 폼 최종 제출(Submit) 가드 디펜스
+        const formElement = roleField.closest('form');
+        if (formElement) {
+            formElement.addEventListener('submit', function(e) {
+                if (!typeField) return;
+                const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+                if (roleField.value !== "" && !activeRoles.includes(roleField.value)) {
+                    e.preventDefault();
+                    alert("⚠️ 올바르지 않은 역할 선택입니다. 목록에서 다시 골라주세요.");
+                    roleField.value = "";
+                    roleField.focus();
+                }
+            });
         }
     }
 });
 </script>
+
+{% endblock %}

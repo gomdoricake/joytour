@@ -210,6 +210,8 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <datalist id="agency_datalist">
   {% for key, value in ATTRACTION_CHOICES %}
     <option value="{{ key }}">{{ value }}</option>
@@ -222,8 +224,6 @@
   </div>
   
   <h2 class="title">Attraction 경비 내역</h2>
-
-
 
   <form method="post" id="real-expense-form">
     {% csrf_token %} 
@@ -272,91 +272,96 @@
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const formContainer = document.getElementById("expense-form-list");
-    const addButton = document.getElementById("add-form-btn");
-    const mainForm = document.getElementById("real-expense-form");
-    const submitBtn = document.getElementById("submit-final-btn");
-    const prefix = "{{ formset.prefix }}";
+document.addEventListener("DOMContentLoaded", function () {
+  const formContainer = document.getElementById("expense-form-list");
+  const addButton = document.getElementById("add-form-btn");
+  const mainForm = document.getElementById("real-expense-form");
+  const submitBtn = document.getElementById("submit-final-btn");
+  const prefix = "{{ formset.prefix }}";
 
-    // [핵심 추가] 각 expense_type 입력창에 agency_datalist를 확실하게 연결해주는 함수
-    function bindAgencyDataList(container) {
-      const targetInputs = container.querySelectorAll("input[name*='expense_type']");
-      targetInputs.forEach(input => {
-        input.setAttribute("list", "agency_datalist");
-      });
-    }
-
-    // 초기 로드 시 기존에 생성되어 있는 폼에 datalist 바인딩
-    bindAgencyDataList(formContainer);
-
-    // 항목 동적 추가
-    addButton.addEventListener("click", function () {
-      const noDataAlert = document.getElementById("no-data-alert");
-      if (noDataAlert) noDataAlert.remove();
-
-      const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
-      const newRow = templateRow.cloneNode(true);
-      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
-
-      const prefixRegex = new RegExp("__prefix__", "g");
-      const inputs = newRow.querySelectorAll("input, select, textarea");
-
-      inputs.forEach((input) => {
-        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
-        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
-
-        if (input.type === "checkbox") {
-          input.checked = false;
-        } else if (input.type !== "hidden") {
-          input.value = "";
+  function updateFormIndices() {
+    const rows = formContainer.querySelectorAll(".expense-form-row");
+    
+    rows.forEach((row, currentIndex) => {
+      row.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.name) {
+          input.name = input.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
+        }
+        if (input.id) {
+          input.id = input.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
         }
       });
-
-      formContainer.appendChild(newRow);
-
-      // 새로 추가된 행(Row)에도 datalist 자동 매핑
-      bindAgencyDataList(newRow);
-
-      const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-      const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
-      
-      if (totalFormsInputHyphen) {
-        totalFormsInputHyphen.value = currentFormCount + 1;
-        totalFormsInputHyphen.setAttribute("value", currentFormCount + 1);
-      }
-      if (totalFormsInputUnder) {
-        totalFormsInputUnder.value = currentFormCount + 1;
-        totalFormsInputUnder.setAttribute("value", currentFormCount + 1);
-      }
     });
 
-    // 항목 삭제 및 인덱스 동적 치환 정렬
-    formContainer.addEventListener("click", function (event) {
-      if (event.target.classList.contains("remove-form-btn")) {
-        const row = event.target.closest(".expense-form-row");
-        row.remove();
+    const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+    const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
+    
+    if (totalFormsInputHyphen) totalFormsInputHyphen.value = rows.length;
+    if (totalFormsInputUnder) totalFormsInputUnder.value = rows.length;
+  }
 
-        const remainingRows = formContainer.getElementsByClassName("expense-form-row");
-        const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
-        if (totalFormsInput) totalFormsInput.value = remainingRows.length;
+  function bindAgencyDataList(container) {
+    const targetInputs = container.querySelectorAll("input[name*='expense_type']");
+    targetInputs.forEach(input => {
+      input.setAttribute("list", "agency_datalist");
+    });
+  }
 
-        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
-        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
+  bindAgencyDataList(formContainer);
 
-        for (let i = 0; i < remainingRows.length; i++) {
-          const rowInputs = remainingRows[i].querySelectorAll("input, select, textarea");
-          rowInputs.forEach((input) => {
-            if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${i}-`);
-            if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${i}-`);
-          });
-        }
+  addButton.addEventListener("click", function () {
+    const noDataAlert = document.getElementById("no-data-alert");
+    if (noDataAlert) noDataAlert.remove();
+
+    const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
+    const newRow = templateRow.cloneNode(true);
+    const currentFormCount = formContainer.querySelectorAll(".expense-form-row").length;
+
+    const prefixRegex = new RegExp("__prefix__", "g");
+    const inputs = newRow.querySelectorAll("input, select, textarea");
+
+    inputs.forEach((input) => {
+      if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
+      if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
+
+      if (input.type === "checkbox") {
+        input.checked = false;
+      } else if (input.type !== "hidden") {
+        input.value = "";
       }
     });
 
-    mainForm.addEventListener("submit", function () {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "다음 단계 양식 생성 중 (Guide Exp)...";
-    });
+    formContainer.appendChild(newRow);
+    bindAgencyDataList(newRow);
+    
+    updateFormIndices();
   });
+
+  formContainer.addEventListener("click", function (event) {
+    if (event.target.classList.contains("remove-form-btn")) {
+      const row = event.target.closest(".expense-form-row");
+      const idInput = row.querySelector("input[type='hidden'][name$='-id']");
+      const isExistingData = idInput && idInput.value !== "";
+
+      if (isExistingData) {
+        const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
+        if (deleteCheckbox) {
+          deleteCheckbox.checked = true;
+        }
+        row.style.display = "none"; 
+      } else {
+        row.remove(); 
+        updateFormIndices();
+      }
+    }
+  });
+
+  // 서브밋 디펜스
+  mainForm.addEventListener("submit", function () {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "다음 단계 양식 생성 중 (Guide Exp)...";
+  });
+});
 </script>
+
+{% endblock %}

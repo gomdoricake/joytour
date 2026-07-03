@@ -165,8 +165,38 @@
     box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
+  /* 세 필드를 가로로 나열하는 컨테이너 */
+.inline-fields-container {
+    display: flex;
+    gap: 15px; /* 입력창 사이의 간격 */
+    margin-bottom: 16px; /* 아래 coach 필드와의 간격 */
+    width: 100%;
+}
+
+/* 각각의 입력 필드 요소를 감싸는 박스 */
+.inline-fields-container .field-item {
+    flex: 1; /* 세 필드가 동일한 너비를 나누어 가짐 */
+    display: flex;
+    flex-direction: column; /* 라벨과 인풋창은 세로로 나열 */
+}
+
+/* 라벨 스타일 (기존 p 태그 내부 라벨과 간격 맞춤) */
+.inline-fields-container .field-item label {
+    margin-bottom: 4px;
+    font-weight: bold;
+}
+
+/* 화면 너비가 좁아질 때 (모바일 대응) 자동으로 세로 정렬 전환 */
+@media (max-width: 480px) {
+    .inline-fields-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 이전 단계로 돌아가기</a>
@@ -203,24 +233,33 @@
         </datalist>
       </p>
 
-      <p>
-        <label for="{{ form.adt.id_for_label }}">ADT (성인 인원수)</label>
-        {{ form.adt }}      
-      </p>
+      <!-- 🌟 수평 나열을 위한 새로운 컨테이너 생성 -->
+      <div class="inline-fields-container">
+        <div class="field-item">
+          <label for="{{ form.adt.id_for_label }}">ADT (성인 인원수)</label>
+          {{ form.adt }}      
+        </div>
+
+        <div class="field-item">
+          <label for="{{ form.chd.id_for_label }}">CHD (소아 인원수)</label>
+          {{ form.chd }}      
+        </div>
+
+        <div class="field-item">
+          <label for="{{ form.tc.id_for_label }}">TC (인솔자 수)</label>
+          {{ form.tc }}
+        </div>
+      </div>
 
       <p>
-        <label for="{{ form.chd.id_for_label }}">CHD (소아 인원수)</label>
-        {{ form.chd }}      
-      </p>
-
-      <p>
-        <label for="{{ form.tc.id_for_label }}">TC (인솔자 가이드수)</label>
-        {{ form.tc }}
+        <label for="{{ form.coach.id_for_label }}">Coach</label>
+        {{ form.coach }}
       </p>
 
       <button type="submit" class="btn-submit">다음 단계로 이동하기 (Next)</button>
   </form>
 </div>
+{% endblock %}
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {

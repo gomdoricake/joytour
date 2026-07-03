@@ -395,6 +395,8 @@
   }
 </style>
 
+{% extends 'base.html' %}
+{% block content %}
 <div class="report-container">
   <div class="nav-block">
     {% if request.user.username == 'admin' %}
@@ -405,9 +407,7 @@
     
     <div class="nav-right-group">
       <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}" class="pdf-link">PDF 다운로드</a>
-      {% if request.user.username != 'admin' %}
       <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
-      {% endif %}
     </div>
   </div>
 
@@ -443,7 +443,13 @@
         <strong>역할</strong>
         <span class="info-highlight">{{ guide_report.role }}</span>
       </div>
-      
+      {% if guide_report.coach %}
+      <div class="info-item">
+        <strong>코치 타입</strong>
+        <span class="info-highlight">{{ guide_report.coach }}</span>
+      </div>
+      {% endif %}
+
       {% if guide_report.day_inbound == 'INBOUND' %}
       <div class="info-item">
         <strong>인원 요약</strong>
@@ -689,3 +695,5 @@
     <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}" class="delete-link">GuideReport 삭제</a>
   </div>
 </div>
+
+{% endblock %}

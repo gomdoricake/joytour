@@ -3,6 +3,7 @@ from django import forms
 from .models import *
 from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_21SEAT, DAY_EVENTCODE_53SEAT, INBOUND_EVENTCODE
 
+
 class GuideReportMainForm(forms.ModelForm):
     class Meta:
         model = GuideReport
@@ -11,6 +12,7 @@ class GuideReportMainForm(forms.ModelForm):
             'day_inbound': 'Day Inbound', 
             'role': 'Role', 
         }
+        
 
 class GuideReportDayForm(forms.ModelForm): 
     eventcode = forms.CharField(
@@ -61,23 +63,13 @@ class GuideExpForm(forms.ModelForm):
         }
 
 
-class GuideReportInboundForm(forms.ModelForm): 
-    class Meta: 
-        model = Event
-        fields = ['report_date']
-        labels = {
-            'report_date': 'Report Date', 
-        }
-        widgets = {
-            'report_date': forms.DateInput(attrs={'type': 'date'}),
-        }
-
 class AgencyPaxForm(forms.ModelForm): 
     class Meta: 
         model = GuideReport
-        fields = ['agency_code', 'adt', 'chd', 'tc']
+        fields = ['agency_code', 'coach', 'adt', 'chd', 'tc']
         labels = {
             'agency_code': 'Agency Code',
+            'coach': 'Coach',
             'adt': 'ADT', 
             'chd': 'CHD',
             'tc': 'TC', 
@@ -96,12 +88,6 @@ class AgencyPaxForm(forms.ModelForm):
             'class': 'form-control'
         })
 
-        for field_name in ['adt', 'tc', 'chd']:
-            if self.instance and getattr(self.instance, field_name) == 0:
-                self.fields[field_name].initial = None
-            
-            self.fields[field_name].widget.attrs['placeholder'] = ''
-
 
 class InboundEventForm(forms.ModelForm):
     eventcode = forms.CharField(
@@ -119,12 +105,14 @@ class InboundEventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['report_date', 'eventcode', 'hours', 'overtime']
+        fields = ['report_date', 'eventcode', 'hours', 'overtime', 'coach_start_time', 'coach_end_time']
         widgets = {
             'report_date': forms.DateInput(
                 format='%Y-%m-%d',
                 attrs={'type': 'date'}
             ),
+            'coach_start_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
+            'coach_end_time': forms.TimeInput(format='%H:%M', attrs={'type': 'time'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -159,6 +147,7 @@ class RestaurantExpForm(forms.ModelForm):
             'expense_type': forms.Select(attrs={'class': 'form-control'})
         }
     
+
 class AttractionExpForm(forms.ModelForm):
     expense_type = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -178,6 +167,7 @@ class AttractionExpForm(forms.ModelForm):
             'report_date': forms.DateInput(attrs={'type': 'date'}),
             'expense_type': forms.Select(attrs={'class': 'form-control'})
         }
+
 
 class FuelExpForm(forms.ModelForm): 
     class Meta: 
