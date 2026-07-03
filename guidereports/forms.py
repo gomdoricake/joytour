@@ -3,6 +3,7 @@ from django import forms
 from .models import *
 from .rate import DAY_EVENTCODE_12SEAT, DAY_EVENTCODE_GUIDE_ONLY, DAY_EVENTCODE_21SEAT, DAY_EVENTCODE_53SEAT, INBOUND_EVENTCODE
 
+
 class GuideReportMainForm(forms.ModelForm):
     class Meta:
         model = GuideReport
@@ -11,6 +12,7 @@ class GuideReportMainForm(forms.ModelForm):
             'day_inbound': 'Day Inbound', 
             'role': 'Role', 
         }
+        
 
 class GuideReportDayForm(forms.ModelForm): 
     eventcode = forms.CharField(
@@ -60,17 +62,6 @@ class GuideExpForm(forms.ModelForm):
             'expense': forms.NumberInput(attrs={'step': '0.01', 'placeholder': '0.00'}),
         }
 
-
-class GuideReportInboundForm(forms.ModelForm): 
-    class Meta: 
-        model = Event
-        fields = ['report_date']
-        labels = {
-            'report_date': 'Report Date', 
-        }
-        widgets = {
-            'report_date': forms.DateInput(attrs={'type': 'date'}),
-        }
 
 class AgencyPaxForm(forms.ModelForm): 
     class Meta: 

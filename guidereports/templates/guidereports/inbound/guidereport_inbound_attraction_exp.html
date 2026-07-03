@@ -279,7 +279,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitBtn = document.getElementById("submit-final-btn");
   const prefix = "{{ formset.prefix }}";
 
-  // 모든 정상 폼들의 인덱스를 0, 1, 2 순서대로 완벽하게 정렬하는 마스터 함수
   function updateFormIndices() {
     const rows = formContainer.querySelectorAll(".expense-form-row");
     
@@ -294,7 +293,6 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
 
-    // 장고 Management Form의 전체 개수 동기화
     const totalFormsInputHyphen = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
     const totalFormsInputUnder = document.getElementById(`id_${prefix}_TOTAL_FORMS`);
     
@@ -302,7 +300,6 @@ document.addEventListener("DOMContentLoaded", function () {
     if (totalFormsInputUnder) totalFormsInputUnder.value = rows.length;
   }
 
-  // datalist 바인딩 함수
   function bindAgencyDataList(container) {
     const targetInputs = container.querySelectorAll("input[name*='expense_type']");
     targetInputs.forEach(input => {
@@ -310,10 +307,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // 초기 바인딩 실행
   bindAgencyDataList(formContainer);
 
-  // 항목 추가 버튼 로직
   addButton.addEventListener("click", function () {
     const noDataAlert = document.getElementById("no-data-alert");
     if (noDataAlert) noDataAlert.remove();
@@ -339,11 +334,9 @@ document.addEventListener("DOMContentLoaded", function () {
     formContainer.appendChild(newRow);
     bindAgencyDataList(newRow);
     
-    // 추가 후 인덱스 동적 최신화
     updateFormIndices();
   });
 
-  // [🔥 해결 완료] 항목 삭제 통합 핸들러
   formContainer.addEventListener("click", function (event) {
     if (event.target.classList.contains("remove-form-btn")) {
       const row = event.target.closest(".expense-form-row");
@@ -351,16 +344,14 @@ document.addEventListener("DOMContentLoaded", function () {
       const isExistingData = idInput && idInput.value !== "";
 
       if (isExistingData) {
-        // [CASE 1] 이미 DB에 박혀있는 원본 데이터일 때
         const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
         if (deleteCheckbox) {
           deleteCheckbox.checked = true;
         }
-        row.style.display = "none"; // 사용자에겐 숨기고 서버엔 지우라는 신호 전달
+        row.style.display = "none"; 
       } else {
-        // [CASE 2] 사용자가 방금 추가한 빈 가짜 폼일 때
-        row.remove(); // 돔에서 즉시 소멸
-        updateFormIndices(); // 소멸 후 남아있는 폼 번호 0번부터 빈틈없이 재정렬
+        row.remove(); 
+        updateFormIndices();
       }
     }
   });
