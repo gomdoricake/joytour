@@ -238,12 +238,12 @@ def guidereport_pdf(request, pk):
     total_style_label = ParagraphStyle(
         'TotalLabel', parent=styles['Normal'], fontName=font_name, 
         fontSize=11, leading=14, textColor=colors.HexColor('#64748b'),
-        alignment=1 
+        alignment=0 
     )
     total_style_val = ParagraphStyle(
         'TotalVal', parent=styles['Normal'], fontName=font_name, 
         fontSize=20, leading=24, textColor=colors.HexColor('#2d3436'),
-        alignment=1 
+        alignment=0 
     )
 
     story = []
@@ -256,19 +256,25 @@ def guidereport_pdf(request, pk):
 
     guide_name = guide_report.guide.name if hasattr(guide_report.guide, 'name') else request.user.first_name
     payment_details = f"""
-    <b>Guide Payment Details</b><br/>
-    Name: {guide_name}<br/>
+    <b>Guide</b><br/>
+    <font color="#2d3436" size="11"><b>{guide_name}</b></font><br/>
     ABN: {getattr(guide_report.guide, 'abn', '')}<br/>
     Contact: {getattr(guide_report.guide, 'contact_info', '')}<br/>
-    Bank: {getattr(guide_report.guide, 'bank_account_name', '')}<br/>"""
+    <font color="#64748b">Australia</font><br/>
+    """
 
     bsb = getattr(guide_report.guide, 'bsb', '')
     account_number = getattr(guide_report.guide, 'account_number', '')
     
-    bill_to = """
+    admin = Guide.objects.get(contact_info='account@joystudytour.com.au')
+    print("admin: ", admin.abn)
+
+    bill_to = f"""
     <b>Bill To</b><br/>
-    <font color="#2d3436" size="11"><b>Joy Study Tour Pty Ltd</b></font><br/>
-    <font color="#64748b">Australia</font>
+    <font color="#2d3436" size="11"><b>Joy Study & Tour Pty Ltd</b></font><br/>
+    ABN: {admin.abn}<br/>
+    Contact: {admin.contact_info}<br/>
+    <font color="#64748b">Australia</font><br/>
     """
     
     info_table_data = [
@@ -294,23 +300,33 @@ def guidereport_pdf(request, pk):
         tc_val = guide_report.tc if guide_report.tc is not None else 0
         pax_str = f"ADT: {adt_val}   CHD: {chd_val}   TC: {tc_val}"
 
-    pax_table_data = [
-        [Paragraph("<b>DAY/INBOUND</b>", td_bold_style), Paragraph("<b>Role</b>", td_bold_style), Paragraph("<b>PAX</b>", td_bold_style)],
-        [Paragraph(str(guide_report.day_inbound or ''), td_style), Paragraph(str(guide_report.role or ''), td_style), Paragraph(pax_str, td_style)]
-    ]
-    pax_table = Table(pax_table_data, colWidths=[120, 120, 275])
-    pax_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#edf2f7')),
-        ('PADDING', (0,0), (-1,-1), 8),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#cbd5e0')),
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-    ]))
-    story.append(pax_table)
-    story.append(Spacer(1, 20))
+    pax_section_style = ParagraphStyle(
+        'PaxSection',
+        parent=styles['Normal'],
+        fontName=font_name,
+        fontSize=10,
+        textColor=colors.HexColor('#2d3436'),
+        leading=16,
+        backColor=colors.HexColor('#edf2f7'),  
+        borderColor=colors.HexColor('#cbd5e0'), 
+        borderWidth=0.5,
+        borderPadding=5,                     
+        spaceAfter=10                         
+    )
+    
+    day_inbound_val = guide_report.day_inbound or ''
+    role_val = guide_report.role or ''
+
+    pax_text = f"""
+    <b>DAY/INBOUND:</b> {day_inbound_val} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Role:</b> {role_val}
+    """
+
+    story.append(Paragraph(pax_text, pax_section_style))    
+    story.append(Spacer(1, 10))
 
     story.append(Paragraph("Events", section_title_style))
     event_table_rows = [[Paragraph("<b>Description</b>", th_style), Paragraph("<b>Amount</b>", th_style)]]
+    
     for desc, amt in event_list_data:
         event_table_rows.append([Paragraph(desc, td_style), Paragraph(amt, td_style)])
     
@@ -374,7 +390,7 @@ def guidereport_pdf(request, pk):
     total_table.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#edf2f7')),
         ('PADDING', (0,0), (-1,-1), 12),      
-        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('BOTTOMPADDING', (0,0), (-1,-1), 15),
     ]))
@@ -382,10 +398,12 @@ def guidereport_pdf(request, pk):
     story.append(KeepTogether([total_table]))
     story.append(Spacer(1, 20))
 
+    bank_account_name = guide_report.guide.bank_account_name
 
     bsb_account_table_data = [
+        [Paragraph("<b>Bank Account Name</b>", td_bold_style), Paragraph(bank_account_name, td_style)],
         [Paragraph("<b>BSB</b>", td_bold_style), Paragraph(bsb, td_style)],
-        [Paragraph("<b>Account Number</b>", td_bold_style), Paragraph(account_number, td_style)]
+        [Paragraph("<b>Account Number</b>", td_bold_style), Paragraph(account_number, td_style)],
     ]
     bsb_account_table = Table(bsb_account_table_data, colWidths=[150, 365])
     bsb_account_table.setStyle(TableStyle([
@@ -398,8 +416,6 @@ def guidereport_pdf(request, pk):
     ]))
     story.append(bsb_account_table)
     story.append(Spacer(1, 15))
-
-    
 
     doc.build(story)
     buffer.seek(0)
