@@ -222,7 +222,7 @@
   
   <div class="title-area">
     <h2 class="title">정산 내역 최종 확인 (Summary)</h2>
-    <span class="role-badge">INBOUND • {{ guide_report.role|default:"GUIDE" }}</span>
+    <span class="role-badge">{{ guide_report.day_inbound }} • {{ guide_report.role|default:"GUIDE" }}</span>
   </div>
 
   <form method="post" id="summary-final-form">
