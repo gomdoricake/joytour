@@ -278,7 +278,7 @@ def guidereport_day_summary(request):
     
     base_fee = float(event.guide_fee) if (event and event.guide_fee) else 0.0
     
-    grand_total = base_fee + total_fuel + total_guide
+    grand_total = base_fee + total_guide
 
     guide_report.final_events_fee = str(base_fee)
     guide_report.final_fuels_fee = str(total_fuel)
