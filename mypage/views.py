@@ -7,17 +7,19 @@ from django.views import generic
 from guidereports.models import GuideReport
 import datetime
 from dateutil.relativedelta import relativedelta
+    
 
 @login_required
 def login_redirect_view(request): 
     if request.user.username == 'admin':
-        return redirect('mypage:admin')
+        return redirect('mypage:admin', {'admin': admin})
     else: 
         return redirect('mypage:index')
 
 @login_required
 def admin(request): 
-    return render(request, 'mypage/admin.html')
+    admin = Guide.objects.get(user=request.user)
+    return render(request, 'mypage/admin.html', {'admin': admin})
 
 def review_grade(guide_id):
     guide = Guide.objects.get(id=guide_id)
