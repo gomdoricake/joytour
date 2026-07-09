@@ -280,6 +280,7 @@ def guidereport_day_summary(request):
     
     grand_total = base_fee + total_guide
 
+    guide_report.super_ann = base_fee * 0.115
     guide_report.final_events_fee = str(base_fee)
     guide_report.final_fuels_fee = str(total_fuel)
     guide_report.final_expenses_fee = str(total_guide)  
@@ -309,5 +310,7 @@ def guidereport_day_summary(request):
         'total_guide': total_guide,
         'grand_total': grand_total,
         'invoice_number': guide_report.invoice_number,
+        'super_ann': guide_report.super_ann,
+        'invoice_date': guide_report.invoice_date,
     }
     return render(request, 'guidereports/day/guidereport_day_summary.html', context)
