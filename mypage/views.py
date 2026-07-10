@@ -12,7 +12,7 @@ from dateutil.relativedelta import relativedelta
 @login_required
 def login_redirect_view(request): 
     if request.user.username == 'admin':
-        return redirect('mypage:admin', {'admin': admin})
+        return redirect('mypage:admin')
     else: 
         return redirect('mypage:index')
 
