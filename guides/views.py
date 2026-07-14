@@ -22,7 +22,10 @@ class DetailView(generic.DetailView):
     def get_context_data(self, **kwargs): 
         context = super().get_context_data(**kwargs)
         guide = context['guide']
-        grade = review_grade(guide.pk)
+        if guide.init_training_date: 
+            grade = review_grade(guide.pk)
+        else: 
+            grade = 0
         guide.grade = grade
         guide.save()
 

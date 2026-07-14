@@ -1,35 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
+     ========================================================== */
+  
+  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
+  .report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 20px 80px 20px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
     min-height: 100vh;
-    margin: 0;
   }
 
-  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
-  .report-container { 
-    max-width: 700px; 
-    margin: 60px auto; 
-    padding: 40px; 
-    font-family: sans-serif; /* 👈 시스템 고딕 서체 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px; 
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06); 
-  }
-
-  /* 상단 내비게이션 바 */
+  /* 상단 이동 링크 */
   .nav-block {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
+  
   .back-link {
     display: inline-flex;
     align-items: center;
@@ -48,171 +59,229 @@
     color: #0f172a;
   }
 
-  /* 타이틀 */
-  .title { 
-    font-size: 24px; 
-    font-weight: 800; 
-    color: #0f172a; 
-    margin: 0 0 25px 0; 
-    padding-bottom: 15px; 
-    border-bottom: 1px solid #f1f5f9; 
+  /* 타이틀 및 안내 텍스트 */
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 12px 0;
     letter-spacing: -0.5px;
+    word-break: keep-all;
   }
   
-  /* 상단 리포트 요약 정보 미니 박스 */
-  .report-info-box { 
-    background: #f8fafc; 
-    padding: 18px 22px; 
-    border-radius: 14px; 
-    border: 1px solid #e2e8f0; 
-    margin-bottom: 35px; 
+  /* 상단 정보 박스 */
+  .report-info-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 25px;
+    font-size: 14px;
+    color: #334155;
   }
   .report-info-box strong {
+    color: #0f172a;
+    margin-right: 6px;
+  }
+
+  /* 폼 구조 레이아웃 */
+  .report-form label {
+    display: block;
+    font-size: 11px;
     color: #64748b;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-right: 4px;
-  }
-  .report-info-box span {
-    color: #1e293b;
-    font-weight: 600;
-    font-size: 14px;
-  }
-  
-  /* 🌟 동적으로 추가되는 각각의 경비 입력 행 카드 */
-  .expense-form-row { 
-    background: #ffffff; 
-    padding: 24px; 
-    border-radius: 16px; 
-    border: 1px solid #e2e8f0; 
-    margin-bottom: 20px; 
-    position: relative; 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 16px; 
-    padding-right: 90px; 
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
-    transition: all 0.2s ease;
-  }
-  .expense-form-row:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.02);
-  }
-  
-  /* 개별 폼 그룹 요소 */
-  .form-group { 
-    flex: 1; 
-    min-width: 140px; 
-  }
-  .form-group label { 
-    display: block; 
-    font-size: 11px; 
-    font-weight: 700; 
-    color: #64748b; 
-    margin-bottom: 8px; 
+    margin-bottom: 6px;
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .form-group input, 
-  .form-group select { 
-    width: 100%; 
-    padding: 12px 14px; 
-    border: 1px solid #cbd5e1; 
-    border-radius: 10px; 
-    font-size: 14px; 
+
+  /* 🌟 입력창 공통 스킨 - 모바일 강제 줌인 현상 차단 */
+  .report-form input[type="text"],
+  .report-form input[type="number"],
+  .report-form input[type="date"],
+  .report-form select,
+  .report-form textarea {
+    width: 100% !important;
+    padding: 12px 14px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    font-size: 15px !important; /* iOS 자동 줌 방지 */
     font-weight: 600;
     color: #1e293b;
-    box-sizing: border-box; 
-    background: #fff; 
+    background-color: #ffffff;
+    box-sizing: border-box !important;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
-  .form-group input:focus, 
-  .form-group select:focus {
-    border-color: #4f46e5;
+
+  .report-form input:focus,
+  .report-form select:focus,
+  .report-form textarea:focus {
+    border-color: #4f46e5 !important;
     outline: none;
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
   }
 
-  /* ❌ 행 우측 상단 미니 삭제 버튼 */
-  .btn-remove { 
-    position: absolute; 
-    top: 24px; 
-    right: 24px; 
-    background: #fff1f2; 
-    color: #f43f5e; 
-    border: 1px solid #ffe4e6; 
-    padding: 8px 14px; 
-    border-radius: 8px; 
-    font-size: 12px; 
-    font-weight: 700; 
-    cursor: pointer; 
-    transition: all 0.2s ease;
+  /* 📱 [모바일 전용] Formset Row 카드 스타일 */
+  .expense-form-row {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   }
-  .btn-remove:hover { 
-    background: #ffe4e6;
-    color: #e11d48;
-    border-color: #fecdd3;
+  
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group:last-of-type {
+    margin-bottom: 0;
   }
 
-  /* ➕ 항목 추가 버튼 (소프트 네추럴 그린 무드 유지) */
-  .btn-add { 
-    background: #f0fdf4; 
-    color: #16a34a; 
-    border: 1px solid #dcfce7; 
-    padding: 14px 20px; 
-    border-radius: 12px; 
+  /* 버튼 스타일 수정 */
+  .btn-add {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #ffffff;
+    color: #4f46e5;
+    border: 2px dashed #c7d2fe;
+    border-radius: 12px;
     font-size: 14px;
-    font-weight: 700; 
-    cursor: pointer; 
-    width: 100%; 
-    margin-top: 10px; 
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
     transition: all 0.2s ease;
-    box-sizing: border-box;
+    margin-bottom: 20px;
   }
-  .btn-add:hover { 
-    background: #dcfce7;
-    color: #15803d;
-    border-color: #bbf7d0;
+  .btn-add:hover {
+    background: #f5f3ff;
+    border-color: #4f46e5;
   }
 
-  /* 🚀 하단 다음 단계 제출 버튼 (인디고 그라디언트 일치) */
-  .btn-submit { 
-    display: block; 
-    width: 100%; 
-    padding: 16px; 
-    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); 
-    color: #fff; 
-    border: none; 
-    border-radius: 14px; 
-    font-size: 15px; 
-    font-weight: 700; 
-    cursor: pointer; 
-    margin-top: 35px; 
-    box-sizing: border-box;
+  .btn-remove {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #ffe4e6;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+  }
+  .btn-remove:hover {
+    background: #ffe4e6;
+  }
+
+  /* 하단 제출 버튼 - 모바일 꽉 차게 */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
     transition: all 0.25s ease;
+    margin-top: 35px;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
     font-family: inherit;
+    box-sizing: border-box;
+    text-align: center;
   }
-  .btn-submit:hover { 
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
+  .btn-submit:hover {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
-  .btn-submit:disabled {
-    background: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    .report-container {
+      max-width: 800px !important; /* 테이블 형태 수용을 위해 폭 확장 */
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .title { font-size: 24px !important; }
+
+    /* 🖥️ PC에서는 입력 창 한 줄 배치 (Flex 테이블화) */
+    .expense-form-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      padding: 0 0 16px 0;
+      margin-bottom: 16px;
+      border: none;
+      border-bottom: 1px solid #e2e8f0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    .form-group {
+      margin-bottom: 0;
+      flex: 1;
+    }
+    
+    /* 날짜와 금액 창은 크기를 고정하고 메모 창을 넓게 설정 */
+    .form-group:nth-child(3) { flex: 1.2; } /* 날짜 */
+    .form-group:nth-child(4) { flex: 1; }   /* 금액 */
+    .form-group:nth-child(5) { flex: 2; }   /* 메모 */
+
+    .report-form input[type="text"],
+    .report-form input[type="number"],
+    .report-form input[type="date"] {
+      padding: 11px 14px !important;
+      font-size: 14px !important; /* PC 브라우저용 폰트 축소 */
+    }
+
+    .btn-remove {
+      width: auto;
+      padding: 11px 16px;
+      margin-top: 0;
+    }
+
+    .btn-submit {
+      margin-top: 40px !important;
+      font-size: 15px !important;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
   }
 </style>
 
-{% extends 'base.html' %}
-
-{% block content %}
 <div class="report-container">
-
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_day' %}" class="back-link">← 이전 단계로 돌아가기</a>
   </div>
@@ -225,7 +294,7 @@
     </div>
   </div>
 
-  <form method="post" id="real-expense-form">
+  <form method="post" id="real-expense-form" class="report-form">
     {% csrf_token %} 
     {{ formset.management_form }}
 
@@ -249,6 +318,7 @@
   </form>
 </div>
 
+<!-- 동적 추가용 빈 템플릿 -->
 <div id="empty-form-template" style="display: none">
   <div class="expense-form-row">
     {{ formset.empty_form.id }}
@@ -267,37 +337,83 @@
     const addButton = document.getElementById("add-form-btn");
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
-    const prefix = "{{ formset.prefix }}";
 
-    function getTotalFormsInputs() {
-      return [
-        document.getElementById(`id_${prefix}-TOTAL_FORMS`),
-        document.getElementById(`id_${prefix}_TOTAL_FORMS`)
-      ].filter(el => el !== null);
+    // 🌟 [보완] Django 기본 prefix 값을 안전하게 가져옵니다. 없을 경우 기본값 'form' 사용
+    let prefix = "{{ formset.prefix }}";
+    if (!prefix || prefix === "" || prefix.includes("formset.prefix")) {
+      prefix = "form"; 
     }
 
-    // 1. 항목 추가
-        // 1. 항목 추가
-    addButton.addEventListener("click", function () {
+    // 🌟 [보완] ID 매칭 에러 방지: 브라우저에 있는 TOTAL_FORMS 엘리먼트를 모든 수단을 동원해 찾습니다.
+    function getTotalFormsInputs() {
+      const selectors = [
+        `id_${prefix}-TOTAL_FORMS`,
+        `id_${prefix}_TOTAL_FORMS`,
+        `id_form-TOTAL_FORMS` // 가장 흔히 쓰이는 Django 기본 ID 백업
+      ];
+      
+      let inputs = [];
+      selectors.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) inputs.push(el);
+      });
+
+      // 만약 위에서 못 찾았다면 name 속성으로 한 번 더 검색합니다.
+      if (inputs.length === 0) {
+        const byName = document.querySelector(`input[name="${prefix}-TOTAL_FORMS"]`) || 
+                       document.querySelector(`input[name="form-TOTAL_FORMS"]`);
+        if (byName) inputs.push(byName);
+      }
+      return inputs;
+    }
+
+    // 1. 항목 추가 기능
+    addButton.addEventListener("click", function (e) {
+      e.preventDefault(); // 버튼 클릭 시 원치 않는 기본 폼 제출 방지
+
       const noDataAlert = document.getElementById("no-data-alert");
       if (noDataAlert) noDataAlert.remove();
 
-      const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
+      const templateContainer = document.getElementById("empty-form-template");
+      if (!templateContainer) {
+        console.error("템플릿 엘리먼트(empty-form-template)를 찾을 수 없습니다.");
+        return;
+      }
+
+      const templateRow = templateContainer.querySelector(".expense-form-row");
+      if (!templateRow) {
+        console.error(".expense-form-row 클래스를 가진 템플릿 로우를 찾을 수 없습니다.");
+        return;
+      }
+
+      // 템플릿 복제
       const newRow = templateRow.cloneNode(true);
       
-      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
+      // 🌟 [수정] TOTAL_FORMS 값을 기준으로 현재 추가할 최신 인덱스를 가져옵니다.
+      const totalInputs = getTotalFormsInputs();
+      let currentFormCount = 0;
+      if (totalInputs.length > 0) {
+        currentFormCount = parseInt(totalInputs[0].value, 10);
+      } else {
+        // 백업 대안: 화면에 있는 행 개수 계산
+        currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
+      }
+      
       const prefixRegex = new RegExp("__prefix__", "g");
       
-      // 🌟 [추가] 이전 행이 있다면 기존에 입력되어 있던 날짜를 가져옵니다.
-      const lastRow = formContainer.querySelector(".expense-form-row:last-child");
+      // 🌟 삭제되지 않고 화면에 보이는 마지막 행에서 날짜 가져오기
+      const visibleRows = Array.from(formContainer.querySelectorAll(".expense-form-row"))
+                               .filter(row => !row.classList.contains("form-deleted") && row.style.display !== "none");
+      const lastRow = visibleRows[visibleRows.length - 1];
+      
       let previousDate = "";
       if (lastRow) {
         const lastDateInput = lastRow.querySelector("input[name*='report_date']");
         if (lastDateInput) previousDate = lastDateInput.value;
       }
 
+      // 복제된 행의 input name, id에 고유 인덱스 번호 부여
       const inputs = newRow.querySelectorAll("input, select, textarea");
-
       inputs.forEach((input) => {
         if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
         if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
@@ -305,25 +421,30 @@
         if (input.type === "checkbox") {
           input.checked = false;
         } else if (input.name && input.name.includes("report_date")) {
-          // 🌟 날짜 필드인 경우: 이전 행의 날짜를 그대로 채워줍니다.
+          // 날짜 필드는 이전 행의 날짜 복사
           input.value = previousDate;
         } else if (input.type !== "hidden") {
-          input.value = ""; // 날짜 외의 다른 입력 필드만 초기화
+          input.value = ""; // 다른 입력 필드는 초기화
         }
       });
 
+      // 화면에 추가
       formContainer.appendChild(newRow);
 
-      getTotalFormsInputs().forEach(input => {
-        input.value = currentFormCount + 1;
-        input.setAttribute("value", currentFormCount + 1);
-      });
+      // Django Management Form의 TOTAL_FORMS 카운트를 1 증가
+      if (totalInputs.length > 0) {
+        totalInputs.forEach(input => {
+          input.value = currentFormCount + 1;
+          input.setAttribute("value", currentFormCount + 1);
+        });
+      }
     });
 
-
-    // 2. 항목 삭제 및 정렬 (수정 버전)
+    // 2. 항목 삭제 및 정렬
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
+        event.preventDefault();
+        
         const row = event.target.closest(".expense-form-row");
         const idInput = row.querySelector('input[name$="-id"]');
         const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
@@ -336,24 +457,21 @@
           return; 
         }
 
-        // [CASE 2] 이번 페이지에서 [추가] 버튼으로 새로 만든 빈 폼 삭제 처리
+        // [CASE 2] 이번 페이지에서 새로 만든 빈 폼 삭제 처리
         row.remove();
 
-        // 새로 추가된 새 폼들만 지워진 것이므로, 남은 새 폼들의 인덱스를 정렬합니다.
-        // 기존 폼과 새 폼을 통틀어 전체 폼 리스트를 가져옵니다.
+        // 남은 새 폼들의 인덱스를 다시 정렬합니다.
         const allRows = formContainer.getElementsByClassName("expense-form-row");
         let validIndex = 0;
         const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
         const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
 
         for (let i = 0; i < allRows.length; i++) {
-          // 이미 삭제 표시된 기존 DB 데이터는 인덱스 재정렬 대상에서 아예 제외하고 패스합니다.
           if (allRows[i].classList.contains("form-deleted")) {
-            validIndex++; // 기존 데이터가 가졌던 인덱스 자리를 보존해 줍니다.
+            validIndex++; // 기존 데이터 인덱스 자리 보존
             continue; 
           }
           
-          // 새로 추가된 빈 폼들의 인덱스만 빈틈없이 순서대로 채워줍니다.
           const rowInputs = allRows[i].querySelectorAll("input, select, textarea");
           rowInputs.forEach((input) => {
             if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${validIndex}-`);
@@ -362,11 +480,14 @@
           validIndex++;
         }
 
-        // TOTAL_FORMS 세팅 (숨겨진 삭제 데이터 개수까지 포함되어야 합니다)
-        getTotalFormsInputs().forEach(input => {
-          input.value = allRows.length;
-          input.setAttribute("value", allRows.length);
-        });
+        // TOTAL_FORMS 값 최종 세팅
+        const totalInputs = getTotalFormsInputs();
+        if (totalInputs.length > 0) {
+          totalInputs.forEach(input => {
+            input.value = allRows.length;
+            input.setAttribute("value", allRows.length);
+          });
+        }
       }
     });
 

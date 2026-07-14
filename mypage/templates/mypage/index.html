@@ -1,61 +1,83 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
-  }
-
-  .mypage-container {
-    max-width: 650px;
-    margin: 60px auto;
-    padding: 40px;
-    font-family: sans-serif;
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
-  }
-
-  /* 🌟 마이페이지 전용: 확실한 웰컴 프로필 히어로 배너 */
-  .profile-hero-card {
-    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-    padding: 28px;
-    border-radius: 18px;
-    color: #ffffff;
-    margin-bottom: 30px;
-    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .profile-hero-card .welcome-text h2 {
-    font-size: 22px;
-    font-weight: 800;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.5px;
-  }
-  .profile-hero-card .welcome-text p {
-    font-size: 13px;
-    margin: 0;
-    color: #c7d2fe;
-  }
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
+     ========================================================== */
   
-  /* 마이페이지 내비게이션 링크 */
+  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
+  .mypage-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 20px 80px 20px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 네비게이션 정렬 */
   .mypage-nav-links {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
+    gap: 15px;
+  }
+
+  /* 웰컴 프로필 히어로 배너 - 모바일 대응 (세로 배치 전환 가능 구조) */
+  .profile-hero-card {
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    padding: 24px 20px;
+    border-radius: 16px;
+    color: #ffffff;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
+    display: flex;
+    flex-direction: column; /* 모바일에서는 위아래로 */
+    align-items: flex-start;
+    gap: 20px;
+  }
+  
+  .profile-hero-card .welcome-text h2 {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+    word-break: keep-all;
+  }
+  
+  .profile-hero-card .welcome-text p {
+    font-size: 13px;
+    margin: 0;
+    color: #c7d2fe;
+    line-height: 1.4;
+    word-break: keep-all;
   }
 
   .btn-edit-mypage {
     display: inline-block;
-    padding: 10px 16px;
+    width: 100%; /* 모바일에서는 버튼 꽉 차게 */
+    text-align: center;
+    padding: 12px 16px;
     background: #ffffff;
     color: #4f46e5;
     border: 1px solid #ffffff;
@@ -63,18 +85,18 @@
     font-size: 13px;
     font-weight: 700;
     text-decoration: none;
+    box-sizing: border-box;
     transition: all 0.2s ease;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   }
-  .btn-edit-mypage:hover {
-    background: #f8fafc;
-    color: #3730a3;
-  }
+  
+  .btn-edit-mypage:hover { background: #f8fafc; color: #3730a3; }
 
-  /* 🌟 리포트 생성 버튼 (기존보다 더 명확하게 하단 배치 및 스타일 조정) */
+  /* 리포트 생성 버튼 */
   .action-row {
     margin-bottom: 35px;
   }
+  
   .btn-create-report {
     display: flex;
     align-items: center;
@@ -85,34 +107,45 @@
     color: #4f46e5;
     border: 2px dashed #c7d2fe;
     border-radius: 14px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     text-decoration: none;
     letter-spacing: -0.2px;
     box-sizing: border-box;
+    text-align: center;
+    line-height: 1.4;
     transition: all 0.2s ease;
   }
+  
   .btn-create-report:hover {
     background: #f5f3ff;
     border-color: #4f46e5;
-    transform: translateY(-1px);
   }
 
-  /* 정보 그리드 */
+  /* 📊 정보 그리드 - 모바일에서는 무조건 1열로 떨어지게 설정 */
   .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    padding: 24px;
+    grid-template-columns: 1fr; /* 1열 배치 */
+    gap: 16px;
+    padding: 20px;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 18px;
+    border-radius: 16px;
   }
+  
   .info-item {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 10px;
   }
+  
+  .info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  
   .info-item label {
     font-size: 11px;
     color: #64748b;
@@ -120,6 +153,7 @@
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
+  
   .info-item span {
     font-size: 15px;
     font-weight: 600;
@@ -136,7 +170,7 @@
     border-left: 3px solid #cbd5e1;
   }
 
-  /* 리포트 리스트 스타일 */
+  /* 리포트 리스트 */
   .report-list {
     list-style: none;
     padding: 0;
@@ -145,57 +179,122 @@
     flex-direction: column;
     gap: 10px;
   }
+  
   .report-item {
     border-radius: 12px;
     background: #ffffff;
     border: 1px solid #e2e8f0;
     transition: all 0.25s ease;
   }
-  .report-item:hover {
-    border-color: #4f46e5;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06);
-  }
+  
+  .report-item:hover { border-color: #4f46e5; }
   
   .report-item a.report-link {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: 16px;
     text-decoration: none;
     width: 100%;
     box-sizing: border-box;
     color: #334155;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px; /* 글자 겹침 방지를 위해 소폭 축소 */
+    gap: 10px;
+  }
+  
+  .report-item a.report-link div:first-child {
+    display: flex;
+    flex-wrap: wrap; /* 모바일에서 텍스트가 길어져도 깨지지 않게 줄바꿈 보장 */
+    gap: 4px;
   }
   
   .invoice-num {
     color: #94a3b8;
     font-weight: 700;
-    margin-right: 6px;
   }
 
   .status-mini-badge {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 12px;
+    padding: 5px 10px;
     border-radius: 20px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
+    white-space: nowrap; /* 배치 고정 */
   }
   .status-mini-badge.mini-waiting { background-color: #fff1f2; color: #f43f5e; border: 1px solid #ffe4e6; }
   .status-mini-badge.mini-confirmed { background-color: #fefce8; color: #b45309; border: 1px solid #fef9c3; }
   .status-mini-badge.mini-paid { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
 
-  .logout-link {
-    font-size: 13px;
-    color: #94a3b8;
-    text-decoration: none;
-    font-weight: 500;
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    .mypage-container {
+      max-width: 650px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .profile-hero-card {
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 28px !important;
+      gap: 0 !important;
+    }
+
+    .btn-edit-mypage {
+      width: auto !important;
+    }
+
+    .btn-create-report {
+      font-size: 15px !important;
+    }
+
+    /* PC에서는 원본대로 깔끔한 2열 격자 배치 실행 */
+    .info-grid {
+      grid-template-columns: 1fr 1fr !important;
+      gap: 18px !important;
+    }
+    
+    .info-item {
+      border-bottom: none !important;
+      padding-bottom: 0 !important;
+    }
+
+    .report-item a.report-link {
+      padding: 16px 20px !important;
+      font-size: 14px !important;
+    }
+    
+    .report-item:hover {
+      transform: translateX(4px) !important;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06) !important;
+    }
   }
-  .logout-link:hover { color: #64748b; text-decoration: underline; }
 </style>
 
 <div class="mypage-container">
@@ -207,8 +306,13 @@
         <span style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">내 계정 대시보드</span>
       {% endif %}
     </div>
-    <a href="{% url 'home' %}" class="logout-link">로그아웃</a>
-  </div>
+    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; font-weight: 600; padding: 0;">
+            로그아웃
+        </button>
+    </form>  
+</div>
 
   <div class="profile-hero-card">
     <div class="welcome-text">
@@ -287,3 +391,5 @@
     {% endfor %}
   </ul>
 </div>
+
+{% endblock %}

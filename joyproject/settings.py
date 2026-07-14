@@ -34,6 +34,12 @@ ALLOWED_HOSTS = ["3.106.149.167", "127.0.0.1", "joytourhub.com"]
 CSRF_TRUSTED_ORIGINS = ['https://joytourhub.com']
 # Application definition
 
+LOGIN_URL = 'login'
+
+LOGIN_REDIRECT_URL = 'mypage:login_redirect_view'
+
+LOGOUT_REDIRECT_URL = 'login'
+
 INSTALLED_APPS = [
     'mypage.apps.MypageConfig',
     'guidereports.apps.GuidereportsConfig',

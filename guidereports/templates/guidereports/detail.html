@@ -1,102 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <style>
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.05) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 꽉 참)
+     ========================================================== */
+  
+  /* 부모 가두기 해제 및 좌우 스크롤 강제 방지 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
-  .report-container {
-    max-width: 750px;
-    margin: 60px auto;
-    padding: 45px;
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.04);
+  /* 리포트 본문 - 모바일에서는 여백 없이 꽉 채움 */
+  .report-container { 
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important; 
+    padding: 30px 20px 80px 20px !important; 
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    min-height: calc(100vh - 57px) !important;
   }
 
+  /* 상단 네비게이션 - 모바일 최적화 (세로 정렬) */
   .nav-block {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px;
-    gap: 10px;
-  }
-
-  .back-link {
-    display: inline-flex;
-    align-items: center;
-    padding: 10px 16px;
-    color: #475569;
-    background: #f1f5f9;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-  }
-
-  .back-link:hover {
-    background: #e2e8f0;
-    color: #0f172a;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 25px;
   }
   
-  .nav-right-group {
-    display: flex;
-    gap: 10px;
+  .nav-right-group { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 8px; 
+    width: 100%;
   }
-  .edit-link, .pdf-link {
+
+  .back-link, .edit-link, .pdf-link {
     display: inline-flex;
     align-items: center;
-    padding: 10px 16px;
+    justify-content: center;
+    padding: 12px;
     border-radius: 10px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
     transition: all 0.2s ease;
+    box-sizing: border-box;
   }
 
-  .edit-link {
-    color: #4f46e5;
-    background: #e0e7ff;
-    border: 1px solid #c7d2fe;
-  }
+  .back-link { color: #475569; background: #f1f5f9; border: 1px solid #e2e8f0; }
+  .edit-link { color: #4f46e5; background: #e0e7ff; border: 1px solid #c7d2fe; }
+  .pdf-link { color: #475569; background: #ffffff; border: 1px solid #cbd5e1; }
 
-  .edit-link:hover {
-    background: #c7d2fe;
-  }
-
-  .pdf-link {
-    color: #475569;
-    background: #ffffff;
-    border: 1px solid #cbd5e1;
-  }
-
-  .pdf-link:hover {
-    background: #f8fafc;
-    color: #0f172a;
-  }
-
-  .header-section {
-    margin-bottom: 35px;
-    padding-bottom: 25px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-
-  .title {
-    font-size: 26px;
-    font-weight: 800;
-    color: #0f172a;
-    margin: 0 0 16px 0;
+  .header-section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px solid #e2e8f0; }
+  
+  .title { 
+    font-size: 24px; 
+    font-weight: 800; 
+    color: #0f172a; 
+    margin: 0 0 16px 0; 
     letter-spacing: -0.5px;
+    word-break: keep-all;
   }
-
+  
   .invoice-date-tag {
     display: inline-block;
     font-size: 13px;
@@ -109,12 +86,14 @@
     margin-bottom: 20px;
   }
 
-  .two-column-box {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+  /* 모바일 정보창 - 1열 기본 배치 */
+  .two-column-box { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 12px; 
+    width: 100%;
   }
-
+  
   .info-detail-box {
     background: #f8fafc;
     padding: 20px;
@@ -123,6 +102,7 @@
     font-size: 13px;
     line-height: 1.6;
     color: #334155;
+    box-sizing: border-box;
   }
 
   .info-detail-box strong {
@@ -136,267 +116,118 @@
     letter-spacing: 0.5px;
   }
 
-  .bill-to-text {
-    font-size: 15px;
-    font-weight: 700;
-    color: #0f172a;
+  .bill-to-text { font-size: 15px; font-weight: 700; color: #0f172a; }
+  
+  .info-box { background: #f8fafc; padding: 18px 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin: 30px 0; }
+  
+  /* 모바일 요약 리스트 세로 정렬 */
+  .info-grid { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start; 
+    gap: 15px; 
+    width: 100%;
   }
-
-  .info-box {
-    background: #f8fafc;
-    padding: 18px 24px;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    margin-bottom: 30px;
+  .info-item { 
+    width: 100%; 
+    border-bottom: 1px solid #f1f5f9; 
+    padding-bottom: 8px; 
+    box-sizing: border-box;
   }
-
-  .info-grid {
-    display: flex;
-    align-items: center;
-    gap: 40px;
-  }
-
-  .info-item {
-    font-size: 14px;
-  }
-
-  .info-item strong {
-    color: #64748b;
-    display: block;
-    font-size: 11px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-    letter-spacing: 0.5px;
-  }
-
-  .info-highlight {
-    font-size: 16px;
-    font-weight: 700;
-    color: #0f172a;
-  }
+  .info-item:last-child { border-bottom: none; }
+  .info-item strong { color: #64748b; display: block; font-size: 11px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
+  .info-highlight { font-size: 16px; font-weight: 700; color: #0f172a; }
 
   .section-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    padding: 28px;
+    border-radius: 12px;
+    padding: 20px 14px;
     margin-bottom: 30px;
-    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.01);
-  }
-
-  .section-title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #475569;
-    margin: 35px 0 14px;
-    padding-left: 6px;
-    border-left: 3px solid #4f46e5;
-  }
-
-  .section-card .section-title:first-of-type {
-    margin-top: 0;
-  }
-
-  .data-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .data-item {
-    padding: 14px 4px;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 14px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #334155;
-  }
-
-  .data-item:last-child {
-    border-bottom: none;
-  }
-
-  .text-price-black {
-    color: #0f172a;
-    font-weight: 600;
-    font-size: 15px;
-  }
-
-  .subtotal-item {
-    padding: 16px 4px 4px 4px;
-    margin-top: 8px;
-    border-top: 1px dashed #cbd5e1;
-    font-size: 14px;
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .subtotal-label {
-    font-size: 12px;
-    color: #64748b;
-    font-weight: 700;
-  }
-
-  .subtotal-value {
-    font-size: 16px;
-    font-weight: 700;
-    color: #4f46e5;
-  }
-
-  .total-section {
-    text-align: center;
-    margin: 40px 0;
-    padding: 28px;
-    background: #f8fafc;
-    border-radius: 18px;
-    border: 1px solid #e2e8f0;
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
-  }
-
-  .total-grid {
-    display: flex;
-    justify-content: center;
-    gap: 60px;
-  }
-
-  .total-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .total-label {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 700;
-    margin-bottom: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  .total-amount {
-    font-size: 30px;
-    font-weight: 800;
-    color: #4f46e5;
-  }
-
-  .super-amount {
-    font-size: 26px;
-    font-weight: 800;
-    color: #0f172a;
-  }
-
-  .status-form {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    margin-top: 40px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid #f1f5f9;
-  }
-
-  .status-badge {
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 320px;
-    padding: 16px 24px;
-    border-radius: 14px;
-    font-size: 13px;
-    font-weight: 800;
-    text-decoration: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    width: 100%;
   }
 
-  .status-waiting {
-    background-color: #fff1f2;
-    color: #f43f5e;
-    border: 1px solid #ffe4e6;
-  }
+  .section-title { font-size: 16px; font-weight: 700; color: #475569; margin: 0 0 14px 0; padding-left: 6px; border-left: 3px solid #4f46e5; }
+  .data-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+  .data-item { padding: 14px 4px; border-bottom: 1px solid #f1f5f9; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: #334155; gap: 15px; }
+  .data-item:last-child { border-bottom: none; }
+  .text-price-black { color: #0f172a; font-weight: 600; font-size: 15px; white-space: nowrap; }
 
-  .status-confirmed {
-    background-color: #fefce8;
-    color: #b45309;
-    border: 1px solid #fef9c3;
-  }
+  .subtotal-item { padding: 16px 4px 4px 4px; margin-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 14px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+  .subtotal-label { font-size: 12px; color: #64748b; font-weight: 700; }
+  .subtotal-value { font-size: 16px; font-weight: 700; color: #4f46e5; }
 
-  .status-paid {
-    background-color: #f0fdf4; 
-    color: #16a34a;            
-    border: 1px solid #dcfce7;  
-  }
+  .total-section { text-align: center; margin: 40px 0; padding: 24px 14px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; box-sizing: border-box; width: 100%; }
+  .total-group { display: flex; flex-direction: column; align-items: center; }
+  .total-label { font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
+  .total-amount { font-size: 30px; font-weight: 800; color: #4f46e5; }
 
-  .status-confirm-btn, .status-pay-btn {
-    border: none;
-    cursor: pointer;
-    font-family: inherit;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
-  }
-
-  .status-confirm-btn:hover, .status-pay-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  }
-
-  .status-confirm-btn.status-waiting {
-    background-color: #fefce8 !important;
-    color: #b45309 !important;
-    border: 1px solid #fef9c3 !important;
-  }
-
-  .status-confirm-btn.status-waiting:hover { background-color: #fef9c3 !important; }
-
-  .status-confirm-btn.status-confirmed {
-    background-color: #fff1f2 !important;
-    color: #f43f5e !important;
-    border: 1px solid #ffe4e6 !important;
-  }
-  .status-confirm-btn.status-confirmed:hover { background-color: #ffe4e6 !important; }
-
-  .status-pay-btn.status-waiting {
-    background-color: #f0fdf4 !important;
-    color: #16a34a !important;
-    border: 1px solid #dcfce7 !important;
-  }
-  .status-pay-btn.status-waiting:hover { background-color: #dcfce7 !important; }
-
-  .status-pay-btn.status-paid {
-    background-color: #fefce8 !important;
-    color: #b45309 !important;
-    border: 1px solid #fef9c3 !important;
-  }
-  .status-pay-btn.status-paid:hover { background-color: #fef9c3 !important; }
-
-  .delete-link-container {
-    text-align: center;
-    margin-top: 25px;
-  }
+  .status-form { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+  .status-badge { display: inline-flex; justify-content: center; align-items: center; width: 100%; max-width: 100%; padding: 16px 24px; border-radius: 14px; font-size: 13px; font-weight: 800; text-decoration: none; box-sizing: border-box; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-confirmed { background-color: #fefce8; color: #b45309; border: 1px solid #fef9c3; }
   
-  .delete-link {
-    font-size: 13px;
-    color: #94a3b8;
-    text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
+  .delete-link-container { text-align: center; margin-top: 25px; }
+  .delete-link { font-size: 13px; color: #94a3b8; text-decoration: none; font-weight: 500; }
+  .delete-link:hover { color: #f43f5e; text-decoration: underline; }
 
-  .delete-link:hover {
-    color: #f43f5e;
-    text-decoration: underline;
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 데스크톱 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+    }
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+    .report-container { 
+      max-width: 750px !important; 
+      margin: 60px auto !important; 
+      padding: 45px !important; 
+      border-radius: 24px !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+    .nav-block {
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+    }
+    .nav-right-group {
+      display: flex !important;
+      gap: 10px !important;
+      width: auto !important;
+    }
+    .back-link, .edit-link, .pdf-link {
+      padding: 10px 16px !important;
+    }
+    .two-column-box { 
+      grid-template-columns: 1fr 1fr !important; 
+      gap: 20px !important;
+    }
+    .info-grid { 
+      flex-direction: row !important; 
+      gap: 40px !important; 
+    }
+    .info-item { 
+      width: auto !important; 
+      border-bottom: none !important; 
+      padding-bottom: 0 !important;
+    }
+    .section-card {
+      padding: 28px !important;
+      border-radius: 18px !important;
+    }
+    .status-badge {
+      max-width: 320px !important;
+    }
   }
 </style>
 
-{% extends 'base.html' %}
-{% block content %}
+<!-- 이하 본문 HTML 구조는 그대로 유지됩니다 -->
 <div class="report-container">
   <div class="nav-block">
     {% if request.user.username == 'admin' %}
