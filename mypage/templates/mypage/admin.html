@@ -259,7 +259,12 @@
     </div>
 
     <div class="logout-box">
-      <a href="{% url 'home' %}" class="logout-link">LOG OUT</a>
+      <form action="{% url 'logout' %}" method="post" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; font-weight: 600; padding: 0;">
+              LOG OUT
+          </button>
+      </form>  
     </div>
   </div>
 </div>
