@@ -1,45 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 패밀리룩 일치 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* 🌟 화이트 글래스모피즘 컴팩트 로그인 컨테이너 */
+  /* 🖥️ [1] 기본 스타일 (미디어 쿼리 없이 기본값으로 PC 스타일을 선언합니다) */
   .report-container { 
     width: 100%;
     max-width: 420px; 
-    margin: 40px auto; 
+    margin: 80px auto; /* PC 화면 중앙에 카드 형태로 배치 */
     padding: 45px 40px; 
-    font-family: sans-serif; /* 시스템 고딕 서체 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    font-family: sans-serif;
+    background: #ffffff; 
     border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    border: 1px solid #e2e8f0;
     box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
     box-sizing: border-box;
+    position: static; 
   }
 
-  /* 타이틀 스타일 */
   .title { 
     font-size: 26px; 
     font-weight: 800; 
     color: #0f172a; 
     margin-top: 0;
     margin-bottom: 35px; 
-    text-align: center; 
+    text-align: center; /* PC에서는 가운데 정렬 */
     letter-spacing: -0.5px;
   }
   
-  /* 🌟 Django form.as_p 렌더링 태그 정밀 커스텀 */
   .form-group p { 
     margin-bottom: 24px; 
     position: relative;
@@ -68,15 +54,12 @@
     transition: all 0.2s ease;
   }
   
-  /* 인풋 포커스 하이라이트 효과 */
   .form-group input:focus {
     border-color: #4f46e5;
     outline: none;
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-    background: #ffffff;
   }
   
-  /* 🚀 인디고 그라디언트 로그인 버튼 */
   .btn-login { 
     display: block; 
     width: 100%; 
@@ -92,20 +75,13 @@
     box-sizing: border-box;
     transition: all 0.25s ease;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
-    font-family: inherit;
   }
   
   .btn-login:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
 
-  .btn-login:active {
-    transform: translateY(0);
-  }
-
-  /* 유효성 에러 메시지 등이 p 태그 내부나 주변에 노출될 때를 대비한 헬퍼 내역 */
   .errorlist {
     padding: 0;
     margin: 0 0 16px 0;
@@ -113,6 +89,49 @@
     font-size: 13px;
     color: #ef4444;
     font-weight: 600;
+  }
+
+  @media screen and (max-width: 450px) {
+    .report-container {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin: 0 !important;
+      padding: 50px 24px 100px 24px !important; 
+      border-radius: 0 !important;
+      border: none !important;
+      box-shadow: none !important;
+      background: #ffffff !important;
+      box-sizing: border-box !important;
+      min-height: calc(100vh - 57px) !important;
+      position: relative !important; /* 모바일 전용 absolute 기준점 */
+    }
+
+    .title {
+      text-align: left !important; /* 모바일에서는 왼쪽 정렬 */
+      font-size: 26px !important;
+      margin-bottom: 40px !important;
+    }
+
+    .form-group input {
+      padding: 16px !important;
+      font-size: 16px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+    }
+
+    .btn-login {
+      position: absolute !important;
+      bottom: 24px !important;
+      left: 24px !important;
+      right: 24px !important;
+      width: calc(100% - 48px) !important;
+      margin: 0 !important;
+      padding: 16px !important;
+      font-size: 16px !important;
+      border-radius: 12px !important;
+      transform: none !important;
+      box-shadow: none !important;
+    }
   }
 </style>
 
@@ -129,3 +148,4 @@
     <button type="submit" class="btn-login">로그인하기</button>
   </form>
 </div>
+{% endblock %}

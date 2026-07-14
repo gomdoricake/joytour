@@ -2,16 +2,29 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>가이드 리포트 시스템</title>
-        <style>
+    <style>
+        /* 공통 및 PC 초기화 */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            min-height: 100vh;
+        }
+
         .top-navbar {
             background-color: #ffffff;
             border-bottom: 1px solid #e2e8f0;
             padding: 12px 20px;
-            margin-bottom: 24px;
+            box-sizing: border-box;
+            height: 57px; 
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
-        /* 내부 정렬 */
         .nav-container {
             display: flex;
             justify-content: space-between;
@@ -20,7 +33,6 @@
             margin: 0 auto;
         }
 
-        /* 홈 버튼 스타일 */
         .home-btn {
             display: inline-flex;
             align-items: center;
@@ -29,26 +41,38 @@
             color: #1e293b;
             font-weight: 600;
             font-size: 15px;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 8px 14px;
+            border-radius: 8px;
             transition: background-color 0.2s ease;
         }
 
-        /* 홈 버튼 마우스 오버 효과 */
         .home-btn:hover {
             background-color: #f1f5f9;
             color: #0284c7;
         }
 
-        .home-icon {
-            font-size: 16px;
+        .container {
+            width: 100%;
+            box-sizing: border-box;
         }
-        </style>
-    </head>
+
+        /* 📱 모바일 화면 부모 최적화 */
+        @media (max-width: 450px) {
+            body {
+                background-color: #ffffff; 
+            }
+            .container {
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
 <body>
 
     <nav class="top-navbar">
-        <a href="{% url 'mypage:index' %}" class="home-btn">Mypage</a>
+        <div class="nav-container">
+            <a href="{% url 'mypage:index' %}" class="home-btn">Mypage</a>
+        </div>
     </nav>
 
     <div class="container">

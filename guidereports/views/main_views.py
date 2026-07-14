@@ -46,7 +46,7 @@ def DetailView(request, pk):
     expense_fee = guide_report.final_expenses_fee
     fuel_fee = guide_report.final_fuels_fee
     final_amount_due = guide_report.final_amount_due
-    super_ann = guide_report.super_ann
+    super_ann = f"{float(guide_report.super_ann):.2f}"
     invoice_number = guide_report.invoice_number
 
     return render(request, 'guidereports/detail.html', {
