@@ -207,8 +207,13 @@
         <span style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">내 계정 대시보드</span>
       {% endif %}
     </div>
-    <a href="{% url 'home' %}" class="logout-link">로그아웃</a>
-  </div>
+    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; font-weight: 600; padding: 0;">
+            로그아웃
+        </button>
+    </form>  
+</div>
 
   <div class="profile-hero-card">
     <div class="welcome-text">
