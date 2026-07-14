@@ -1,35 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
+     ========================================================== */
+  
+  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
   .admin-container { 
-    max-width: 600px; margin: 40px auto; padding: 40px; 
-    font-family: "Pretendard", sans-serif; background: #ffffff; 
-    border-radius: 20px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+    width: 100% !important;
+    max-width: 100% !important; 
+    margin: 0 auto !important; 
+    padding: 40px 20px 80px 20px !important; 
+    font-family: "Pretendard", sans-serif; 
+    background: #ffffff !important; 
+    border-radius: 0 !important; 
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
-  .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-  .title { font-size: 24px; font-weight: 700; color: #2d3436; }
-  
-  .admin-link { 
-    padding: 10px 20px; background: #4e73df; color: white; 
-    border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14px;
-  }
-  
-  .guide-list { list-style: none; padding: 0; }
-  .guide-item { 
-    padding: 15px; border-bottom: 1px solid #f1f2f6; 
-    transition: background 0.2s;
-  }
-  .guide-item a { text-decoration: none; color: #2d3436; font-weight: 500; font-size: 16px; }
-  .guide-item:hover { background: #f8f9fa; }
-  .no-data { color: #999; text-align: center; padding: 20px; }
-    .nav-block {
+
+  /* 상단 네비게이션 블록 */
+  .nav-block {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
+
   .back-link {
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
+    padding: 10px 16px;
     color: #64748b;
     background: #f1f5f9;
     border-radius: 8px;
@@ -43,7 +55,175 @@
     color: #334155;
   }
 
+  /* 헤더 정렬 */
+  .admin-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 20px; 
+  }
+  
+  .title { 
+    font-size: 22px; 
+    font-weight: 700; 
+    color: #2d3436; 
+    margin: 0;
+  }
+  
+  .admin-link { 
+    padding: 10px 20px; 
+    background: #4e73df; 
+    color: white; 
+    border-radius: 8px; 
+    text-decoration: none; 
+    font-weight: 600; 
+    font-size: 14px;
+  }
+  
+  /* 리스트 스타일 */
+  .guide-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+  }
+  
+  .guide-item { 
+    border-bottom: 1px solid #f1f2f6; 
+    transition: background 0.2s;
+  }
+  
+  /* 🌟 [모바일 수평 배열 핵심] 좌우 밸런스를 잡는 플렉스 레이아웃 선언 */
+  .guide-item a { 
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 18px 8px; 
+    text-decoration: none; 
+    color: #2d3436; 
+    font-weight: 500; 
+    font-size: 15px; 
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* 🌟 좌측 정보 파트 (네임태그 + 그룹코드 명) 가로 정렬 공간 */
+  .info-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0; /* 긴 텍스트 대비 방어선 */
+  }
+
+  /* 네임 배지 */
+  .code-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0;
+  }
+
+  /* 가이드 이름 (가로폭이 터져도 아래로 부드럽게 감기도록 제어) */
+  .guide-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
+    font-family: monospace;
+    word-break: break-all;
+    white-space: normal;
+  }
+
+  /* 🌟 우측 상태 배지 고정 영역 */
+  .status-area {
+    flex-shrink: 0;
+  }
+
+  /* 동글동글하고 컴팩트한 상태 미니 알약 배지 */
+  .status-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+
+  .status-mini-badge.mini-waiting {
+    background-color: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+  }
+  .status-mini-badge.mini-confirmed {
+    background-color: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fef08a;
+  }
+  .status-mini-badge.mini-paid {
+    background-color: #f0fdf4; 
+    color: #16a34a;            
+    border: 1px solid #dcfce7;  
+  }
+
+  .guide-item:hover { background: #f8f9fa; }
+  .no-data { color: #999; text-align: center; padding: 40px 20px; font-size: 14px; }
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+    }
+
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    .admin-container { 
+      max-width: 600px !important; 
+      margin: 40px auto !important; 
+      padding: 40px !important; 
+      border-radius: 20px !important; 
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .title {
+      font-size: 24px !important;
+    }
+
+    .nav-block {
+      margin-bottom: 30px !important;
+    }
+
+    .admin-header {
+      margin-bottom: 30px !important;
+    }
+
+    /* 🖥️ PC 화면 환경에 맞는 균형감 있는 여백 스케일 조절 */
+    .guide-item a {
+      padding: 16px 14px !important; 
+      gap: 16px !important;
+    }
+    
+    .guide-name {
+      font-size: 15px !important;
+    }
+    
+    .status-mini-badge {
+      padding: 6px 14px !important;
+    }
+  }
 </style>
+
 
 {% if request.user.username == 'admin' %}
 <div class="admin-container">
@@ -69,3 +249,5 @@
   {% endif %}
 </div>
 {% endif %}
+
+{% endblock %}

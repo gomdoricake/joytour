@@ -1,26 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
+  /* ==========================================================
+     📱 [기본 스타일] 모바일 터치 및 작은 화면 기준 (450px 이하 풀화면)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
-  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착형 카드 배치 */
   .report-container {
-    max-width: 600px;
-    margin: 60px auto;
-    padding: 40px;
-    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 20px 80px 20px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
 
   /* 상단 이동 링크 */
@@ -28,7 +38,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
   .back-link {
     display: inline-flex;
@@ -48,9 +58,9 @@
     color: #0f172a;
   }
 
-  /* 🌟 타이틀 및 서브 태그 스타일 */
+  /* 타이틀 및 서브 태그 */
   .title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 25px 0;
@@ -61,9 +71,10 @@
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+    word-break: keep-all;
   }
   .title-badge {
-    font-size: 13px;
+    font-size: 12px;
     background: #e2e8f0;
     color: #475569;
     padding: 4px 10px;
@@ -71,7 +82,7 @@
     font-weight: 700;
   }
 
-  /* 에러 메시지 상자 */
+  /* 에러 박스 */
   .error-box {
     background: #fff1f2;
     border: 1px solid #ffe4e6;
@@ -84,7 +95,7 @@
     line-height: 1.5;
   }
 
-  /* 🌟 폼 요소 고급화 */
+  /* 폼 요소 레이아웃 */
   .report-form p {
     margin-bottom: 24px;
   }
@@ -92,51 +103,105 @@
     display: block;
     font-size: 11px;
     color: #64748b;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
+  /* 🌟 입력창 스킨 - 모바일 iOS 강제 줌인 방지를 위해 15px 설정 */
   .report-form input[type="text"],
   .report-form input[type="number"],
   .report-form input[type="date"],
   .report-form select,
   .report-form textarea {
-    width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #cbd5e1;
-    border-radius: 12px;
-    font-size: 14px;
+    width: 100% !important;
+    padding: 13px 14px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    font-size: 15px !important; /* iOS 자동 줌인 버그 해결 */
     font-weight: 600;
     color: #1e293b;
     background-color: #ffffff;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
 
-  /* 입력창 포커스 시 하이라이트 효과 */
   .report-form input:focus,
   .report-form select:focus,
   .report-form textarea:focus {
-    border-color: #4f46e5;
+    border-color: #4f46e5 !important;
     outline: none;
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
-    background-color: #ffffff;
   }
 
-  /* 커스텀 드롭다운 화살표 */
+  /* 커스텀 드롭다운 화살표 리셋 */
   .report-form select {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 16px top 50%;
-    background-size: 11px auto;
-    padding-right: 44px;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 16px top 50% !important;
+    background-size: 11px auto !important;
+    padding-right: 44px !important;
     cursor: pointer;
   }
 
-  /* 🚀 다음 단계 버튼 (인디고 그라디언트) */
+  /* 📱 [모바일 전용] Formset Row 카드 레이아웃 */
+  .expense-form-row {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+  }
+  .form-group {
+    margin-bottom: 16px;
+  }
+  .form-group:last-of-type {
+    margin-bottom: 0;
+  }
+
+  /* 항목 동적 제어 버튼 */
+  .btn-add {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: #ffffff;
+    color: #4f46e5;
+    border: 2px dashed #c7d2fe;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    margin-bottom: 25px;
+  }
+  .btn-add:hover {
+    background: #f5f3ff;
+    border-color: #4f46e5;
+  }
+  .btn-remove {
+    display: block;
+    width: 100%;
+    padding: 11px;
+    background: #fff1f2;
+    color: #e11d48;
+    border: 1px solid #ffe4e6;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    margin-top: 12px;
+    transition: all 0.2s ease;
+  }
+  .btn-remove:hover {
+    background: #ffe4e6;
+  }
+
+  /* 하단 제출 버튼 */
   .btn-submit {
     display: block;
     width: 100%;
@@ -149,19 +214,99 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.25s ease;
-    margin-top: 40px;
+    margin-top: 35px;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
     font-family: inherit;
+    box-sizing: border-box;
+    text-align: center;
   }
   .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 고급 데스크톱 스킨 적용
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* PC 전용 글래스모피즘 컨테이너 복원 및 확장 (테이블형 배치를 위해 760px 확장) */
+    .report-container {
+      max-width: 760px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+      border-radius: 24px !important;
+    }
+
+    .title { font-size: 24px !important; }
+    .title-badge { font-size: 13px !important; }
+
+    /* 🖥️ PC에서는 가로 배치형 행(Table Layout) 구조로 자동 시프팅 */
+    .expense-form-row {
+      display: flex !important;
+      gap: 12px !important;
+      align-items: flex-end !important;
+      padding: 0 0 16px 0 !important;
+      margin-bottom: 16px !important;
+      border: none !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .form-group {
+      margin-bottom: 0 !important;
+      flex: 1;
+    }
+    
+    /* 열별 너비 비율 분배 */
+    .form-group:nth-child(3) { flex: 1.2; } /* 날짜 */
+    .form-group:nth-child(4) { flex: 1; }   /* 금액 */
+    .form-group:nth-child(5) { flex: 2; }   /* 비고(메모) */
+
+    .report-form input[type="text"],
+    .report-form input[type="number"],
+    .report-form input[type="date"],
+    .report-form select {
+      padding: 11px 14px !important;
+      font-size: 14px !important; /* 데스크톱에 최적화된 서체 스케일 */
+    }
+
+    .btn-remove {
+      width: auto !important;
+      padding: 11px 16px !important;
+      margin-top: 0 !important;
+    }
+
+    .btn-submit {
+      margin-top: 40px !important;
+      font-size: 15px !important;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
   }
 </style>
 
-{% extends 'base.html' %}
-{% block content %}
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_main' %}" class="back-link">← 이전 단계로 돌아가기</a>

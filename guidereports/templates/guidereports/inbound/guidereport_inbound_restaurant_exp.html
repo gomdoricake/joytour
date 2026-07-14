@@ -1,26 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 풀화면 변신)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
-  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 전체화면 밀착형으로 전환 */
   .report-container {
-    max-width: 720px;
-    margin: 60px auto;
-    padding: 40px;
-    font-family: sans-serif; /* 👈 시스템 고딕 폰트로 완벽 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 16px 80px 16px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
 
   /* 상단 이동 링크 */
@@ -28,7 +38,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
   .back-link {
     display: inline-flex;
@@ -50,22 +60,26 @@
 
   /* 타이틀 스타일 */
   .title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 25px 0;
     padding-bottom: 15px;
     border-bottom: 1px solid #f1f5f9;
     letter-spacing: -0.5px;
+    word-break: keep-all;
   }
   
-  /* 🌟 리포트 정보 박스 브랜딩 */
+  /* 리포트 정보 박스 브랜딩 */
   .report-info-box {
     background: #f8fafc;
     padding: 20px;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 35px;
+    margin-bottom: 25px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.5;
   }
   .report-info-box strong {
     color: #475569;
@@ -73,33 +87,26 @@
     margin-right: 4px;
   }
   
-  /* 🌟 동적 추가 경비 행(Row) 카드 포맷 */
+  /* 🌟 [모바일 최적화] 동적 추가 경비 행 카드 포맷 */
   .expense-form-row {
     background: #ffffff;
-    padding: 24px;
+    padding: 20px;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
     margin-bottom: 20px;
     position: relative;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column; /* 모바일은 무조건 세로로 정렬하여 인풋 찌그러짐 방지 */
     gap: 16px;
-    padding-right: 90px; /* 우측 삭제 버튼 공간 */
+    padding-right: 20px !important; /* 우측 절대좌표 여백 제거 */
     box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
-    transition: all 0.2s ease;
-  }
-  .expense-form-row:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.02);
+    box-sizing: border-box;
   }
 
-  /* 입력 항목 레이아웃 그룹 그룹화 */
+  /* 입력 항목 레이아웃 그룹 */
   .form-group { 
-    flex: 1; 
-    min-width: 140px; 
-  }
-  .form-group:has(input[name$="-memo"]) {
-    flex: 1.5; /* 메모 인풋의 가로 비율 확대 */
+    width: 100%;
+    box-sizing: border-box;
   }
   
   /* 라벨 스타일 */
@@ -108,60 +115,60 @@
     font-size: 11px;
     font-weight: 700;
     color: #64748b;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
   
-  /* 인풋 요소 공통 스타일 */
+  /* 🌟 인풋 요소 공통 - iOS 터치 시 자동 확대(줌인) 현상 방지를 위해 15px 할당 */
   .form-group input, 
   .form-group select {
-    width: 100%;
-    padding: 12px 14px;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    font-size: 14px;
+    width: 100% !important;
+    padding: 13px 14px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    font-size: 15px !important; /* iOS 자동 줌 억제 마지노선 */
     font-weight: 600;
     color: #1e293b;
-    box-sizing: border-box;
+    box-sizing: border-box !important;
     background: #fff;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
   }
   .form-group input:focus, 
   .form-group select:focus {
-    border-color: #4f46e5;
+    border-color: #4f46e5 !important;
     outline: none;
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
   }
 
-  /* 🎯 커스텀 드롭다운 화살표 스타일 정돈 */
+  /* 커스텀 드롭다운 화살표 스타일 정돈 */
   .form-group select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
-    background-repeat: no-repeat;
-    background-position: right 14px top 50%;
-    background-size: 10px auto;
-    padding-right: 36px;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px top 50% !important;
+    background-size: 10px auto !important;
+    padding-right: 36px !important;
     cursor: pointer;
   }
 
-  /* ❌ 우측 정렬 삭제 버튼 */
+  /* 📱 [모바일 전용] 삭제 버튼 하단 와이드 배치로 터치 영역 최적화 */
   .btn-remove {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    right: 20px;
+    position: static !important;
+    transform: none !important;
+    width: 100%;
     background: #fff1f2;
     color: #f43f5e;
     border: 1px solid #ffe4e6;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    z-index: 10;
+    box-sizing: border-box;
+    text-align: center;
     transition: all 0.2s ease;
+    margin-top: 4px;
   }
   .btn-remove:hover {
     background: #ffe4e6;
@@ -182,6 +189,7 @@
     width: 100%;
     transition: all 0.2s ease;
     box-sizing: border-box;
+    text-align: center;
   }
   .btn-add:hover {
     background: #dcfce7;
@@ -201,15 +209,14 @@
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    margin-top: 35px;
+    margin-top: 30px;
     box-sizing: border-box;
     transition: all 0.25s ease;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
     font-family: inherit;
+    text-align: center;
   }
   .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
   .btn-submit:disabled {
@@ -219,10 +226,91 @@
     box-shadow: none;
     transform: none;
   }
-</style>
 
-{% extends 'base.html' %}
-{% block content %}
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 PC 스킨 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* 원본 글래스모피즘 폼 컨테이너 구조 원상 복원 */
+    .report-container {
+      max-width: 720px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .title { font-size: 24px !important; margin-bottom: 25px !important; }
+    .report-info-box { margin-bottom: 35px !important; }
+
+    /* 🖥️ PC 전용: 고급 가로형 플렉스 인라인 멀티 인풋 구조 완전 복원 */
+    .expense-form-row {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      padding: 24px !important;
+      padding-right: 90px !important; /* 삭제 버튼 공간 확보 */
+      margin-bottom: 20px !important;
+    }
+
+    /* 가로 배열 내 세부 너비 비율 복원 */
+    .form-group { 
+      flex: 1 !important; 
+      min-width: 140px !important; 
+    }
+    .form-group:has(input[name$="-memo"]) {
+      flex: 1.5 !important;
+    }
+    .form-group label {
+      margin-bottom: 8px !important;
+    }
+
+    /* 데스크톱 가독성 스케일 인풋 크기 복원 */
+    .form-group input, 
+    .form-group select {
+      padding: 12px 14px !important;
+      font-size: 14px !important;
+    }
+
+    /* 🖥️ PC 전용: 수직 정중앙 미들 링크 타입 삭제 버튼 복원 */
+    .btn-remove {
+      position: absolute !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      right: 20px !important;
+      width: auto !important;
+      padding: 10px 14px !important;
+      font-size: 12px !important;
+      margin-top: 0 !important;
+    }
+
+    .btn-submit {
+      margin-top: 35px !important;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
+  }
+</style>
 
 <datalist id="restaurant_datalist">
   {% for key, value in RESTAURANT_CHOICES %}

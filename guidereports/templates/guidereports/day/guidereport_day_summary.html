@@ -1,26 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 및 서체 일치 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 풀화면 변신)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
-  /* 🌟 화이트 글래스모피즘 리포트 컨테이너 */
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 전체화면 밀착형으로 전환 */
   .report-container {
-    max-width: 720px;
-    margin: 60px auto;
-    padding: 40px;
-    font-family: sans-serif; /* 시스템 고딕 폰트 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 16px 80px 16px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
 
   /* 상단 이동 링크 */
@@ -28,7 +39,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
   }
   .back-link {
     display: inline-flex;
@@ -55,11 +66,12 @@
     border-bottom: 1px solid #f1f5f9;
   }
   .title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 8px 0;
     letter-spacing: -0.5px;
+    word-break: keep-all;
   }
   .role-badge {
     display: inline-block;
@@ -74,112 +86,135 @@
   /* 요약 섹션 카드 포맷 */
   .summary-section-card {
     background: #ffffff;
-    padding: 24px;
+    padding: 20px;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
     margin-bottom: 20px;
     box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    box-sizing: border-box;
   }
 
   .section-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #1e293b;
     margin-top: 0;
     margin-bottom: 16px;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
     border-bottom: 2px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
   }
 
   /* 우측 상단 개별 요약 금액 배지 */
   .section-total-badge {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 800;
     color: #4f46e5;
     background: #eef2ff;
     padding: 4px 10px;
     border-radius: 8px;
+    white-space: nowrap;
   }
 
-  /* 이벤트 개별 루프 서브카드 (통일감 부여) */
+  /* 이벤트 개별 루프 서브카드 */
   .event-sub-card {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 12px;
+    box-sizing: border-box;
   }
   .event-sub-card:last-child {
     margin-bottom: 0;
   }
 
-  /* 요약 테이블 스타일 통일 */
+  /* 📱 [모바일 전용] 요약 데이터 테이블 -> 반응형 리스트 레이아웃 변환 */
   .summary-table {
     width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    text-align: left;
-    table-layout: fixed; /* 테이블 너비 고정하여 균형 유지 */
+    display: block; /* 모바일에서 table 태그의 기본 속성 리셋 */
   }
-  .summary-table th {
-    color: #64748b;
-    font-weight: 700;
-    padding: 10px 8px;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 12px;
-    text-transform: uppercase;
+  .summary-table thead {
+    display: none; /* 모바일에서 굳이 필요 없는 좁은 th 행 숨김 */
   }
-  .summary-table td {
-    padding: 12px 8px;
+  .summary-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .summary-table tr {
+    display: flex;
+    flex-direction: column; /* 가로 한 줄이 아니라 수직으로 정보 누적 */
+    padding: 12px 0;
     border-bottom: 1px solid #f1f5f9;
-    color: #334155;
-    font-weight: 600;
-    word-break: break-all;
+    position: relative;
   }
-  .summary-table tr:last-child td {
+  .summary-table tr:last-child {
     border-bottom: none;
   }
-  
-  /* 컬럼 너비 지정 */
-  .col-type { width: 35%; }
-  .col-memo { width: 45%; }
-  .col-amount { width: 20%; }
-
-  .text-right {
-    text-align: right;
+  .summary-table td {
+    display: block;
+    padding: 2px 0;
+    border: none;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-all;
+    text-align: left !important; /* 모바일은 기본 좌측 정렬 */
   }
+
+  /* 각 열 데이터 성격에 맞는 모바일 폰트 강조 처리 */
+  .summary-table td.col-type-data {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .summary-table td.col-memo-data {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .summary-table td.col-amount-data {
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: right !important; /* 금액만 우측 정렬 유지 */
+    margin-top: 4px;
+  }
+
   .text-muted {
     color: #94a3b8;
     font-weight: 500;
     font-size: 13px;
   }
 
-  /* 최종 합계 데코레이션 박스 */
+  /* 최종 합계 데코레이션 박스 - 모바일 핏 */
   .grand-total-box {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border: 1px solid #ffffff;
-    padding: 22px;
+    padding: 18px 20px;
     border-radius: 16px;
-    margin-top: 30px;
+    margin-top: 25px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08);
+    box-shadow: 0 4px 12 rgba(22, 163, 74, 0.04);
+    box-sizing: border-box;
   }
   .grand-total-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     color: #14532d;
   }
   .grand-total-amount {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
-    color: #16a34a; /* 통일성 있는 초록 계열 피드백 혹은 강조 포인트 */
+    color: #16a34a;
   }
 
+  /* 승인/제출 버튼 */
   .btn-submit {
     display: block;
     width: 100%;
@@ -199,8 +234,6 @@
     text-align: center;
   }
   .btn-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35);
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
   .btn-submit:disabled {
@@ -210,10 +243,101 @@
     box-shadow: none;
     transform: none;
   }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 PC 스킨 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* 원본 글래스모피즘 박스 스타일 원상 복원 */
+    .report-container {
+      max-width: 720px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .title { font-size: 24px !important; }
+    .summary-section-card { padding: 24px !important; }
+    .section-title { font-size: 16px !important; margin-bottom: 16px !important; padding-bottom: 8px !important; }
+    .section-total-badge { font-size: 14px !important; }
+
+    /* 🖥️ PC 전용: 완벽한 3열 고정 비율 테이블 레이아웃 구조 복원 */
+    .summary-table {
+      display: table !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+    }
+    .summary-table thead {
+      display: table-header-group !important;
+    }
+    .summary-table tbody {
+      display: table-row-group !important;
+    }
+    .summary-table tr {
+      display: table-row !important;
+      padding: 0 !important;
+    }
+    .summary-table th {
+      display: table-cell !important;
+      color: #64748b !important;
+      font-weight: 700 !important;
+      padding: 10px 8px !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+      font-size: 12px !important;
+    }
+    .summary-table td {
+      display: table-cell !important;
+      padding: 12px 8px !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      font-size: 14px !important;
+    }
+    
+    /* 기존 요청 컬럼 너비 클래스 매핑 복구 */
+    .col-type { width: 35% !important; }
+    .col-memo { width: 45% !important; }
+    .col-amount { width: 20% !important; }
+
+    /* 데이터별 개별 정렬 복원 */
+    .summary-table td.col-amount-data {
+      text-align: right !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      margin-top: 0 !important;
+    }
+    .text-right {
+      text-align: right !important;
+    }
+
+    .grand-total-box { padding: 22px !important; margin-top: 30px !important; }
+    .grand-total-title { font-size: 16px !important; }
+    .grand-total-amount { font-size: 24px !important; }
+
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
+  }
 </style>
 
-{% extends 'base.html' %}
-{% block content %}
 <div class="report-container">
   <div class="nav-block">
     <a href="{% url 'guidereports:guidereport_day_guide_exp' %}" class="back-link">← 경비 수정하러 가기</a>

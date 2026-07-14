@@ -1,67 +1,85 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 및 전체 패밀리룩 서체 통일 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
+     ========================================================== */
+  
+  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
   }
 
-  /* 🌟 화이트 글래스모피즘 표준 마이페이지 컨테이너 */
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
   .mypage-container {
-    max-width: 620px;
-    margin: 60px auto;
-    padding: 40px;
-    font-family: sans-serif; /* 시스템 고딕 서체 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 20px 80px 20px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
 
-  /* 헤더 박스 */
+  /* 헤더 박스 - 모바일 가로 정렬 다듬기 */
   .header-box {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 35px;
+    flex-direction: column; /* 모바일에서는 수직 정렬로 글자 겹침 방지 */
+    align-items: flex-start;
+    margin-bottom: 30px;
     padding-bottom: 15px;
     border-bottom: 1px solid #f1f5f9;
   }
+  
   .title {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 800;
     color: #0f172a;
     margin: 0;
     letter-spacing: -0.5px;
+    word-break: keep-all;
   }
+  
   .sub-title {
     font-size: 13px;
     color: #64748b;
-    margin-top: 6px;
+    margin-top: 8px;
     margin-bottom: 0;
     font-weight: 500;
+    line-height: 1.4;
+    word-break: keep-all;
   }
 
-  /* 🌟 내부 폼 패널 레이아웃 */
+  /* 내부 폼 패널 패딩 조정 */
   .form-grid {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 28px;
-    background: rgba(248, 250, 252, 0.6);
+    padding: 20px; /* 모바일에서 넉넉하게 줄임 */
+    background: #f8fafc; /* 모바일 가독성을 위해 불투명 처리 */
     border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    margin-bottom: 30px;
+    border-radius: 16px;
+    margin-bottom: 25px;
   }
+  
   .form-item {
     display: flex;
     flex-direction: column;
   }
+  
   .form-item label {
     display: block;
     font-size: 11px;
@@ -72,14 +90,14 @@
     letter-spacing: 0.5px;
   }
   
-  /* 🌟 필드 요소 공통 트렌디 스킨 */
+  /* 필드 요소 - 모바일 터치 두께 및 폰트 크기 최적화 (iOS 자동 줌 방지) */
   .form-item input, 
   .form-item textarea, 
   .form-item select {
-    width: 100%;
-    padding: 12px 14px;
+    width: 100% !important;
+    padding: 14px 14px !important; /* 모바일 오타 방지를 위해 세로폭 살짝 확대 */
     font-family: inherit;
-    font-size: 14px;
+    font-size: 15px !important; /* 모바일에서 인풋 클릭 시 화면 줌인되는 현상 방지 브레이크 */
     font-weight: 600;
     color: #1e293b;
     background: #ffffff;
@@ -87,7 +105,9 @@
     border-radius: 10px;
     box-sizing: border-box;
     transition: all 0.2s ease;
+    -webkit-appearance: none; /* 모바일 브라우저 자체 스킨 초기화 */
   }
+  
   .form-item input:focus, 
   .form-item textarea:focus, 
   .form-item select:focus {
@@ -96,18 +116,20 @@
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
   }
 
-  /* 🌟 하단 액션 버튼 배치 정돈 */
+  /* 하단 버튼 배치 - 모바일에서는 양옆으로 꽉 차게 혹은 반반 */
   .action-row {
     display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+    flex-direction: row; /* 취소/저장 버튼 나란히 배치 */
+    justify-content: space-between;
+    gap: 10px;
     margin-top: 25px;
+    width: 100%;
   }
   
-  /* 취소 버튼 스타일 */
   .btn-cancel {
+    flex: 1; /* 가로 가득 채우기 */
     display: inline-block;
-    padding: 12px 24px;
+    padding: 14px 16px;
     background: #ffffff;
     color: #475569;
     border: 1px solid #cbd5e1;
@@ -116,18 +138,18 @@
     font-weight: 600;
     text-decoration: none;
     text-align: center;
+    box-sizing: border-box;
     transition: all 0.2s ease;
   }
   .btn-cancel:hover {
     background: #f1f5f9;
     color: #0f172a;
-    border-color: #94a3b8;
   }
 
-  /* 저장/수정 인디고 버튼 */
   .btn-submit {
+    flex: 1; /* 가로 가득 채우기 */
     display: inline-block;
-    padding: 12px 26px;
+    padding: 14px 16px;
     background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
     color: #fff;
     border: none;
@@ -135,17 +157,90 @@
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
+    text-align: center;
+    box-sizing: border-box;
     font-family: inherit;
     transition: all 0.25s ease;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15);
   }
   .btn-submit:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
-  .btn-submit:active {
-    transform: translateY(0);
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    .mypage-container {
+      max-width: 620px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .header-box {
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: flex-end !important;
+      margin-bottom: 35px !important;
+    }
+
+    .title { font-size: 24px !important; }
+    .sub-title { margin-top: 6px !important; }
+
+    .form-grid {
+      padding: 28px !important;
+      background: rgba(248, 250, 252, 0.6) !important;
+      border-radius: 18px !important;
+      margin-bottom: 30px !important;
+    }
+
+    .form-item input, 
+    .form-item textarea, 
+    .form-item select {
+      padding: 12px 14px !important;
+      font-size: 14px !important;
+    }
+
+    /* PC에서는 오른쪽 정렬된 일반 버튼 크기로 축소 고정 */
+    .action-row {
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 12px !important;
+      margin-top: 25px !important;
+      width: auto !important;
+    }
+    
+    .btn-cancel {
+      flex: none !important;
+      width: auto !important;
+      padding: 12px 24px !important;
+    }
+
+    .btn-submit {
+      flex: none !important;
+      width: auto !important;
+      padding: 12px 26px !important;
+    }
   }
 </style>
 
@@ -186,3 +281,4 @@
   </form>
 
 </div>
+{% endblock %}

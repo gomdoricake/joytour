@@ -1,19 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
+     ========================================================== */
+  
+  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
   .report-container { 
-    max-width: 600px; 
-    margin: 40px auto; 
-    padding: 30px; 
+    width: 100% !important;
+    max-width: 100% !important; 
+    margin: 0 auto !important; 
+    padding: 40px 16px 60px 16px !important; 
     font-family: "Pretendard", sans-serif; 
-    background: #ffffff; 
-    border-radius: 20px; 
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05); 
+    background: #ffffff !important; 
+    border-radius: 0 !important; 
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
   
+  /* 상단 네비게이션 */
   .header-nav { margin-bottom: 25px; }
   .header-nav a { 
     display: inline-flex;
     align-items: center;
-    padding: 8px 16px;
+    padding: 10px 16px; /* 터치 영역 확대 */
     color: #64748b;
     background: #f1f5f9;
     border-radius: 8px;
@@ -27,12 +49,18 @@
     color: #334155;
   }
   
-  .title { font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 25px; }
+  .title { 
+    font-size: 22px; 
+    font-weight: 800; 
+    color: #1e293b; 
+    margin: 0 0 25px 0; 
+    word-break: keep-all;
+  }
   
-  /* 🌟 정보 그리드 깔끔하게 모던화 */
+  /* 📱 [모바일 최적화] 정보 그리드를 수직 1열로 세워 가독성 보장 */
   .info-grid { 
     display: grid; 
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: 1fr; 
     gap: 16px; 
     padding: 20px;
     background: #f8fafc;
@@ -40,10 +68,10 @@
     border-radius: 16px;
   }
   .info-item { display: flex; flex-direction: column; gap: 6px; }
-  .label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-  .value { font-size: 15px; color: #1e293b; font-weight: 600; }
+  .label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .value { font-size: 15px; color: #1e293b; font-weight: 600; word-break: break-all; }
   
-  .full-width { grid-column: span 2; }
+  .full-width { grid-column: span 1; }
 
   /* 리포트 영역 스타일링 */
   .report-section {
@@ -68,70 +96,66 @@
     gap: 12px; 
   }
 
-  /* 🌟 카드 아이템 구조 분할 최적화 */
   .report-item { 
     padding: 0; 
     border-radius: 12px;
     background: #f8fafc; 
     border: 1px solid #e2e8f0;
-    transition: all 0.2s ease-in-out;
+    box-sizing: border-box;
   }
   
+  /* 🌟 [수평 배열 핵심] 좌측 정보와 우측 배지를 무조건 가로로 나란히 정렬 */
   .report-item a { 
-    display: flex;
-    align-items: center;
-    justify-content: space-between; /* 👈 좌우 정렬 분할 */
-    padding: 16px 20px; 
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 16px; 
     text-decoration: none; 
     color: #334155; 
     width: 100%;
     box-sizing: border-box;
   }
 
+  /* 좌측 텍스트 정렬 영역 */
   .info-area {
     display: flex;
     align-items: center;
+    flex: 1;
+    min-width: 0; /* 폰트 넘침 완전 방어 */
   }
 
-  /* 인보이스 번호 스펙 */
+  /* 인보이스 번호 스펙 (모바일 화면에 맞춰 폰트 미세 조정) */
   .invoice-num {
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
     color: #1e293b;
-    margin-right: 14px; /* 👈 뱃지 사이의 안정적인 간격 */
+    margin-right: 10px;
     transition: color 0.2s;
+    flex-shrink: 0;
   }
 
   /* 그룹 코드 뱃지 스펙 */
   .group-code-badge {
     background: #e2e8f0;
     color: #475569;
-    padding: 4px 10px;
+    padding: 4px 8px;
     border-radius: 6px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     font-family: monospace; 
     transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  /* 🌟 마우스 호버 액션 패밀리룩 일치 */
-  .report-item:hover { 
-    background: #ffffff; 
-    border-color: #4f46e5; 
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.08);
-  }
-  
-  .report-item:hover .invoice-num {
-    color: #4f46e5;
+  /* 우측 미니 상태 뱃지 영역 고정 */
+  .status-area {
+    flex-shrink: 0;
   }
 
-  .report-item:hover .group-code-badge {
-    background: #e0e7ff;
-    color: #4f46e5;
-  }
-
-  /* 🏷️ 우측 미니 상태 뱃지 스타일 이식 */
+  /* 🏷️ 상태 미니 알약 배지 (모바일 가로 병렬 최적화 컴팩트 스타일) */
   .status-mini-badge {
     display: inline-flex;
     align-items: center;
@@ -142,6 +166,7 @@
     font-weight: 800;
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    width: auto !important;
   }
 
   .status-mini-badge.mini-waiting {
@@ -149,17 +174,21 @@
     color: #E11D48;
     border: 1px solid #FFF1F2;
   }
-
   .status-mini-badge.mini-confirmed {
     background-color: #fef9c3;
     color: #713f12;
     border: 1px solid #fef9c3;
   }
-
   .status-mini-badge.mini-paid {
     background-color: #dcfce7; 
     color: #14532d;            
     border: 1px solid #dcfce7;  
+  }
+
+  /* 모바일 터치 피드백 액션 */
+  .report-item:active {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
   }
 
   .no-data { 
@@ -172,6 +201,68 @@
     text-align: center;
     margin: 0;
     font-weight: 500;
+  }
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+    }
+
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* 화면 정중앙 플로팅 모던 리포트 박스 복원 */
+    .report-container { 
+      max-width: 600px !important; 
+      margin: 40px auto !important; 
+      padding: 30px !important; 
+      border-radius: 20px !important; 
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+      min-height: auto !important;
+    }
+
+    /* 🖥️ PC 전용: 정보 그리드 원래의 세련된 2열 구조(1fr 1fr) 완벽 복원 */
+    .info-grid { 
+      grid-template-columns: 1fr 1fr !important; 
+    }
+    .full-width { 
+      grid-column: span 2 !important; 
+    }
+
+    /* 🖥️ PC 전용: 안정적이고 넓은 여백 밸런스 복원 */
+    .report-item a { 
+      padding: 16px 20px !important; 
+      gap: 16px !important;
+    }
+    .invoice-num {
+      font-size: 15px !important;
+      margin-right: 14px !important;
+    }
+    .group-code-badge {
+      padding: 4px 10px !important;
+      font-size: 13px !important;
+    }
+
+    /* 데스크톱 전용 고급 마우스 호버 모션 활성화 */
+    .report-item:hover { 
+      background: #ffffff !important; 
+      border-color: #4f46e5 !important; 
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 15px rgba(79, 70, 229, 0.08) !important;
+    }
+    .report-item:hover .invoice-num {
+      color: #4f46e5 !important;
+    }
+    .report-item:hover .group-code-badge {
+      background: #e0e7ff !important;
+      color: #4f46e5 !important;
+    }
   }
 </style>
 
@@ -226,3 +317,5 @@
     {% endif %}
   </div>
 </div>
+
+{% endblock %}

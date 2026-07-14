@@ -1,55 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 및 전체 패밀리룩 서체 통일 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 전체화면 대응)
+     ========================================================== */
+  
+  html, body {
+    background-color: #ffffff !important;
+    background-image: none !important;
     min-height: 100vh;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important; /* 모바일 뷰포트 높이 짤림 현상 방지 */
+    overflow-x: hidden;
   }
   
-  /* 🌟 화이트 글래스모피즘 어드민 대시보드 컨테이너 */
+  /* 🌟 화이트 글래스모피즘 어드민 컨테이너 -> 모바일 전체화면 구조로 유연화 */
   .admin-container { 
-    width: 100%;
-    max-width: 500px; 
-    margin: 40px auto; 
-    padding: 40px 30px; 
+    width: 100% !important;
+    max-width: 100% !important; 
+    margin: 0 auto !important; 
+    padding: 60px 20px 40px 20px !important; 
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
+    background: #ffffff !important; 
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
     display: flex; 
     flex-direction: column; 
     align-items: center; 
-    box-sizing: border-box;
+    box-sizing: border-box !important;
+    min-height: 100vh;
   }
   
   /* 대시보드 타이틀 스타일 */
   .title { 
-    font-size: 26px; 
+    font-size: 24px; 
     font-weight: 800; 
     color: #0f172a; 
     text-align: center;
     margin: 0 0 24px 0; 
     width: 100%; 
     letter-spacing: -0.5px;
+    word-break: keep-all;
   }
 
-  /* 🔔 환영 메시지 및 안내 문구 서식 교정 */
+  /* 🔔 환영 메시지 및 안내 문구 */
   .welcome-box {
     width: 100%;
     text-align: center;
     font-size: 16px;
     font-weight: 700;
     color: #334155;
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
   .welcome-box .username {
     color: #4f46e5;
@@ -59,25 +65,26 @@
     font-size: 12px; 
     color: #64748b;
     font-weight: 400;
-    margin-top: 6px;
-    line-height: 1.4;
+    margin-top: 8px;
+    line-height: 1.5;
+    word-break: keep-all;
   }
 
   /* 🪪 관리자 상세 정보 카드 레이아웃 */
   .admin-info-card {
     width: 100%;
-    background: rgba(241, 245, 249, 0.6);
+    background: rgba(241, 245, 249, 0.7);
     border: 1px solid #e2e8f0;
     border-radius: 16px;
     padding: 20px;
-    margin-bottom: 28px;
+    margin-bottom: 32px;
     box-sizing: border-box;
   }
   .info-group {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
     font-size: 13px;
   }
   .info-group:last-child {
@@ -100,7 +107,7 @@
     word-break: break-all;
   }
   
-  /* 메뉴 감싸는 래퍼 폭 정돈 */
+  /* 메뉴 래퍼 폭 조절 */
   .menu-wrapper { 
     display: flex; 
     flex-direction: column; 
@@ -108,7 +115,7 @@
     width: 100%; 
   } 
   
-  /* 🚀 인디고 그라디언트 메뉴 링크 버튼 */
+  /* 🚀 인디고 그라디언트 메뉴 링크 버튼 (터치 영역 확보) */
   .menu-link { 
     display: block;
     width: 100%; 
@@ -121,29 +128,23 @@
     font-weight: 700; 
     text-align: center;
     box-sizing: border-box;
-    transition: all 0.25s ease-in-out;
+    transition: all 0.2s ease-in-out;
     box-shadow: 0 4px 14px rgba(79, 70, 229, 0.12);
   }
-  
-  /* 버튼 호버 인터랙션 고도화 */
-  .menu-link:hover { 
-    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
-  }
   .menu-link:active {
-    transform: translateY(0);
+    background: linear-gradient(135deg, #3730a3 0%, #1e1b4b 100%);
   }
 
-  /* 🚪 하단 로그아웃 영역 레이아웃 교정 (틀어짐 방지) */
+  /* 🚪 하단 로그아웃 영역 */
   .logout-box {
     text-align: center; 
-    margin-top: 32px;
+    margin-top: auto; /* 모바일 화면 최하단에 안정적으로 고정 */
+    padding-top: 40px;
     width: 100%;
   }
   .logout-link { 
     display: inline-block;
-    padding: 8px 20px;
+    padding: 10px 24px;
     color: #94a3b8; 
     text-decoration: none; 
     font-size: 12px; 
@@ -156,6 +157,53 @@
   .logout-link:hover {
     color: #ef4444; 
     background: #fef2f2;
+  }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 데스크톱 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+    
+    /* 화면 중앙정렬 글래스모피즘 대시보드 완벽 복구 */
+    .admin-container { 
+      width: 100% !important;
+      max-width: 500px !important; 
+      margin: 40px auto !important; 
+      padding: 40px 30px !important; 
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+      min-height: auto !important;
+    }
+    
+    .title { font-size: 26px !important; }
+    
+    .menu-link:hover { 
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25) !important;
+    }
+    .menu-link:active {
+      transform: translateY(0) !important;
+    }
+
+    .logout-box {
+      margin-top: 32px !important;
+      padding-top: 0 !important;
+    }
   }
 </style>
 
@@ -216,3 +264,5 @@
     <a href="{% url 'home' %}" class="logout-link">LOG OUT</a>
   </div>
 </div>
+
+{% endblock %}
