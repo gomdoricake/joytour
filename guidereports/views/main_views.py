@@ -38,6 +38,7 @@ def index(request):
     guidereports = GuideReport.objects.all().order_by('-id')
     return render(request, 'guidereports/index.html', {'guidereports': guidereports})
 
+
 @login_required
 def DetailView(request, pk):
     guide_report = get_object_or_404(GuideReport, pk=pk)
@@ -62,6 +63,7 @@ def DetailView(request, pk):
         'super_ann': super_ann,         
         'invoice_number': invoice_number       
     })
+
 
 @login_required
 def delete_guidereport(request, pk):
@@ -150,6 +152,7 @@ def guidereport_main(request):
         'INBOUND_ROLE': INBOUND_ROLE,
         'DAY_ROLE': DAY_ROLE
     })
+
 
 @login_required
 def guidereport_pdf(request, pk):

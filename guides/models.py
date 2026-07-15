@@ -5,6 +5,7 @@ from django.utils import timezone
 class Guide(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='guide_profile', null=True, blank=True)
     name = models.CharField(max_length=100, null=True, blank=True)
+    is_sponsored = models.BooleanField(default=False, null=True, blank=True)
     init_training_date = models.DateField(null=True, blank=True)
     init_super_date = models.DateField(null=True, blank=True)
     birth_date = models.DateField(null=True, blank=True)

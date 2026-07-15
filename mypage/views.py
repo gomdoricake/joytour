@@ -28,6 +28,11 @@ def review_grade(guide_id):
         
     months, today = 0, datetime.date.today()
 
+    if guide.is_sponsored: 
+        guide.grade = 1
+        guide.save()
+        return 1
+
     while True: 
         if init_training_date + relativedelta(months=months) > today: 
             break
@@ -44,13 +49,12 @@ def review_grade(guide_id):
 
 @login_required
 def index(request): 
-    print("mypage")
     if request.user.username == 'admin': 
         return redirect('mypage:admin')
     try: 
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')
-        review_grade(request.user.guide_profile.id)
+        review_grade(current_guide.id)
         context = {"guide": current_guide, "user": request.user, "guide_reports": guide_reports}
         return render(request, "mypage/index.html", context)
     except AttributeError: 
