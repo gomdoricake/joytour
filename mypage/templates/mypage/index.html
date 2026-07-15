@@ -328,9 +328,11 @@
     </a>
   </div>
 
-  <h3 class="section-title">기본 프로필 정보</h3>
+  <h3 class="section-title">기본 프로필 정보  {% if guide.is_sponsored %}(SPONSORED){% endif %}</h3>      
+
   <div class="info-grid">
     <div class="info-item">
+
       <label>첫 트레이닝</label><span>{{ guide.init_training_date|date:"d-M-Y" }}</span>
     </div>
     <div class="info-item">

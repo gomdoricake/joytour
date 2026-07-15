@@ -271,9 +271,13 @@
     <a href="{% url 'guides:index' %}">← Back to Guide List</a>
   </div>
 
+
   <h2 class="title">{{ guide.name }}</h2>
 
   <div class="info-grid">
+    {% if guide.is_sponsored %}
+    <div class="info-item"><span class="label">SPONSORED</span></div>
+    {% endif %}
     <div class="info-item"><span class="label">Initial Training</span><span class="value">{{ guide.init_training_date|date:"Y-m-d" }}</span></div>
     <div class="info-item"><span class="label">Initial Super</span><span class="value">{{ guide.init_super_date|date:"Y-m-d" }}</span></div>
     <div class="info-item"><span class="label">Birth Date</span><span class="value">{{ guide.birth_date|date:"Y-m-d" }}</span></div>

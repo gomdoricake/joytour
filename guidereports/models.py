@@ -56,8 +56,20 @@ class Event(models.Model):
             ('INBOUND', 'FIT'): INBOUND_RATE_12SEAT,
             ('INBOUND', 'GROUP'): INBOUND_RATE_GUIDE_ONLY,
         }
-        
-        target_rate_dict = rate_mapping.get((day_inbound_val, role_val))
+
+        sponsored_rate_mapping = {
+            ('DAY', '12 SEAT'): SPONSORED_DAY_RATE_12SEAT,
+            ('DAY', '21 SEAT'): SPONSORED_DAY_RATE_21SEAT,
+            ('DAY', '53 SEAT'): SPONSORED_DAY_RATE_53SEAT,
+            ('DAY', 'GUIDE ONLY'): SPONSORED_DAY_RATE_GUIDE_ONLY,
+            ('INBOUND', 'FIT'): SPONSORED_INBOUND_RATE_12SEAT,
+            ('INBOUND', 'GROUP'): SPONSORED_INBOUND_RATE_GUIDE_ONLY,
+        }
+
+        if guide_profile.is_sponsored: 
+            target_rate_dict = sponsored_rate_mapping.get((day_inbound_val, role_val))
+        else: 
+            target_rate_dict = rate_mapping.get((day_inbound_val, role_val))
         calculated_fee = "0.00"
 
         if day_inbound_val == "DAY" and target_rate_dict: 
