@@ -51,7 +51,7 @@ def guidereport_day(request):
             guide_report = form.save(commit=False)
             guide_report.day_inbound = main_data['day_inbound']
             guide_report.role = main_data['role']
-            guide_report.guide = request.user.guide_profile
+            guide_report.guide = guide_report.guide  if request.user.username == 'admin' else request.user.guide_profile
             guide_report.save()
 
             eventcode = form.cleaned_data['eventcode']
