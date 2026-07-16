@@ -231,9 +231,17 @@
 <div class="report-container">
   <div class="nav-block">
     {% if request.user.username == 'admin' %}
-    <a href="{% url 'guidereports:index' %}" class="back-link">← 목록으로 돌아가기</a>
+      {% if guide_report.pay_status == 'payable' %}
+        <a href="{% url 'joyadmin:payable_reports' %}" class="back-link">← PAYABLE LIST</a>
+      {% elif guide_report.pay_status == 'paid' %}
+        <a href="{% url 'joyadmin:paid_reports' %}" class="back-link">← PAID LIST</a>
+      {% elif guide_report.pay_status == 'unpaid' %}
+        <a href="{% url 'joyadmin:unpaid_reports' %}" class="back-link">← UNPAID LIST</a>
+      {% else %}
+        <a href="{% url 'joyadmin:all_reports' %}" class="back-link">← ALL LIST</a>
+      {% endif %}
     {% else %}
-    <a href="{% url 'mypage:index' %}" class="back-link">← 목록으로 돌아가기</a>
+    <a href="{% url 'mypage:index' %}" class="back-link">← Mypage</a>
     {% endif %}
     
     <div class="nav-right-group">

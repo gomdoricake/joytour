@@ -203,7 +203,6 @@
   }
 </style>
 
-<!-- 전체 콘텐츠를 새로운 wrapper 클래스로 감싸 body 타겟팅 스타일을 우회합니다 -->
 <div class="admin-page-wrapper">
   <div class="admin-container">
     <h2 class="title">Admin Dashboard</h2>
@@ -216,7 +215,6 @@
       </span>
     </div>
 
-    <!-- 🪪 관리자 상세 정보 카드 -->
     <div class="admin-info-card">
       <div class="info-group">
         <span class="info-label">이름</span>
@@ -250,8 +248,17 @@
     {% endif %}
 
     <div class="menu-wrapper">
-      <a href="{% url 'guidereports:index' %}" class="menu-link">
-        Guide Reports
+      <a href="{% url 'joyadmin:payable_reports' %}" class="menu-link">
+        Payable Reports (Last Wed ~ This Tue)
+      </a>
+      <a href="{% url 'joyadmin:unpaid_reports' %}" class="menu-link">
+        Unpaid Reports
+      </a>
+      <a href="{% url 'joyadmin:paid_reports' %}" class="menu-link">
+        Paid Reports
+      </a>
+      <a href="{% url 'joyadmin:all_reports' %}" class="menu-link">
+        All Guide Reports
       </a>
       <a href="{% url 'guides:index' %}" class="menu-link">
         Tour Guides

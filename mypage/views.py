@@ -12,14 +12,9 @@ from dateutil.relativedelta import relativedelta
 @login_required
 def login_redirect_view(request): 
     if request.user.username == 'admin':
-        return redirect('mypage:admin')
+        return redirect('joyadmin:index')
     else: 
         return redirect('mypage:index')
-
-@login_required
-def admin(request): 
-    admin = Guide.objects.get(user=request.user)
-    return render(request, 'mypage/admin.html', {'admin': admin})
 
 def review_grade(guide_id):
     guide = Guide.objects.get(id=guide_id)
@@ -50,7 +45,7 @@ def review_grade(guide_id):
 @login_required
 def index(request): 
     if request.user.username == 'admin': 
-        return redirect('mypage:admin')
+        return redirect('joyadmin:index')
     try: 
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')
