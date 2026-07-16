@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 전체화면 밀착)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    min-height: 100vh;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 밀착 프레임으로 가변화 */
+  .admin-container { 
+    width: 100% !important;
+    max-width: 100% !important; 
+    margin: 0 auto !important; 
+    padding: 40px 16px 60px 16px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important; 
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 네비게이션 블록 */
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* 헤더 섹션 */
+  .admin-header { 
+    margin-bottom: 25px; 
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .title { 
+    font-size: 22px; 
+    font-weight: 800; 
+    color: #0f172a; 
+    margin: 0;
+    letter-spacing: -0.5px;
+    word-break: keep-all;
+  }
+  
+  /* 리스트 적재 레이아웃 */
+  .guide-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+  }
+
+  /* 🌟 리스트 카드 아이템 */
+  .guide-item { 
+    border-radius: 16px;
+    background: #ffffff; 
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    box-sizing: border-box;
+  }
+  
+  /* 📱 [모바일 최적화] 양끝 배치 해제 및 위아래 카드 배치 전환 */
+  .guide-item a { 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px; 
+    text-decoration: none; 
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 📱 정보 영역 폭 확보 */
+  .info-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 가이드 이름 네임태그 */
+  .code-badge {
+    background: #f1f5f9;
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0; 
+  }
+
+  .date-badge {
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0; 
+  }
+
+  .guide-name {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
+    font-family: monospace;
+    word-break: break-all; /* 모바일 영문 텍스트 밀림 방지 */
+    white-space: normal;
+  }
+
+  /* 모바일 액티브 터치 피드백 (모바일 전용 라이트 인디고 플래시) */
+  .guide-item:active {
+    border-color: #818cf8;
+    background-color: #f8fafc;
+  }
+
+  /* 🏷️ 상태 알약(Pill) 뱃지 - 모바일 폭 전체 스케일 최적화 */
+  .status-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 0;
+    width: 100%; /* 모바일에서 시원한 와이드 스타일로 정돈 */
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    box-sizing: border-box;
+  }
+
+  .status-mini-badge.mini-waiting {
+    background-color: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+  }
+  .status-mini-badge.mini-confirmed {
+    background-color: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fef08a;
+  }
+  .status-mini-badge.mini-paid {
+    background-color: #f0fdf4; 
+    color: #16a34a;            
+    border: 1px solid #dcfce7;  
+  }
+
+  /* 데이터 공백 안내구 */
+  .no-data { 
+    color: #94a3b8; 
+    text-align: center; 
+    padding: 50px 20px; 
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 데스크톱 디자인 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+
+    /* 화면 조율 어드민 글래스모피즘 박스 완벽 복구 */
+    .admin-container { 
+      max-width: 640px !important; 
+      margin: 60px auto !important; 
+      padding: 40px !important; 
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+      min-height: auto !important;
+    }
+
+    .title { font-size: 24px !important; }
+    .guide-list { gap: 14px !important; }
+
+    /* 🖥️ PC 전용: 원래 의도하신 가로 플렉스 수평 정렬 완벽 복원 */
+    .guide-item a { 
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 18px 22px !important; 
+      gap: 0 !important;
+    }
+
+    .info-area {
+      width: auto !important;
+      gap: 14px !important;
+    }
+    .code-badge {
+      padding: 6px 12px !important;
+      font-size: 13px !important;
+    }
+    .guide-name {
+      font-size: 15px !important;
+    }
+
+    /* 🖥️ PC 전용: 컴팩트한 알약 스타일 배지로 가변 복원 */
+    .status-mini-badge {
+      width: auto !important;
+      padding: 6px 14px !important;
+      border-radius: 20px !important;
+    }
+
+    /* 카드 마우스 호버 고도화 애니메이션 복구 */
+    .guide-item:hover { 
+      border-color: #4f46e5 !important; 
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08) !important;
+      background-color: #ffffff !important;
+    }
+    
+    .guide-item:hover .code-badge {
+      color: #4f46e5 !important;
+      background: #e0e7ff !important;
+      border-color: #c7d2fe !important;
+    }
+
+    .guide-item:hover .guide-name {
+      color: #4f46e5 !important;
+    }
+  }
+</style>
+
+{% if request.user.username == 'admin' %}
+<div class="admin-container">
+  <div class="nav-block">
+    <a href="{% url 'joyadmin:index' %}" class="back-link">← Admin Home</a>
+  </div>
+
+  <div class="admin-header">
+    <h2 class="title">Guidereport List</h2>
+  </div>
+
+  {% if guidereports %}
+  <ul class="guide-list">
+    {% for guidereport in guidereports %}
+    <li class="guide-item">
+      <a href="{% url 'guidereports:detail' guidereport.id %}">
+        <div class="info-area">
+          <span class="date-badge">{{ guidereport.invoice_date }}</span>
+          <span class="code-badge">{{ guidereport.guide.name }}</span>   
+          <span class="guide-name">{{ guidereport.group_code }}</span>
+        </div>
+
+        <div class="status-area">
+          {% if guidereport.is_paid %}
+            <span class="status-mini-badge mini-paid">PAID</span>
+          {% elif guidereport.is_confirmed %}
+            <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
+          {% else %}
+            <span class="status-mini-badge mini-waiting">WAITING</span>
+          {% endif %}
+        </div>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

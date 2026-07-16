@@ -121,10 +121,19 @@
     font-size: 12px;
     font-weight: 700;
     border: 1px solid #e2e8f0;
-    flex-shrink: 0; /* 배지가 찌그러지지 않도록 방어 */
+    flex-shrink: 0; 
   }
 
-  /* 그룹 코드: 모바일 화면 밖으로 넘침을 완전히 차단 */
+  .date-badge {
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid #e2e8f0;
+    flex-shrink: 0; 
+  }
+
   .guide-name {
     font-weight: 700;
     font-size: 14px;
@@ -259,19 +268,20 @@
 {% if request.user.username == 'admin' %}
 <div class="admin-container">
   <div class="nav-block">
-    <a href="{% url 'mypage:admin' %}" class="back-link">← 어드민 홈으로 돌아가기</a>
+    <a href="{% url 'joyadmin:index' %}" class="back-link">← Admin Home</a>
   </div>
 
   <div class="admin-header">
-    <h2 class="title">Guidereport List</h2>
+    <h2 class="title">UNPAID REPORTS</h2>
   </div>
 
-  {% if guidereports %}
+  {% if unpaid_reports %}
   <ul class="guide-list">
-    {% for guidereport in guidereports %}
+    {% for guidereport in unpaid_reports %}
     <li class="guide-item">
       <a href="{% url 'guidereports:detail' guidereport.id %}">
         <div class="info-area">
+          <span class="date-badge">{{ guidereport.invoice_date }}</span>
           <span class="code-badge">{{ guidereport.guide.name }}</span>   
           <span class="guide-name">{{ guidereport.group_code }}</span>
         </div>

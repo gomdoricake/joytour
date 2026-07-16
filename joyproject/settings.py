@@ -42,6 +42,7 @@ LOGOUT_REDIRECT_URL = 'login'
 
 INSTALLED_APPS = [
     'mypage.apps.MypageConfig',
+    'joyadmin.apps.JoyadminConfig',
     'guidereports.apps.GuidereportsConfig',
     'guides.apps.GuidesConfig',
     'django.contrib.admin',

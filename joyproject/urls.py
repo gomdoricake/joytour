@@ -23,6 +23,7 @@ app_name = 'joyproject'
 urlpatterns = [
     path('', views.home, name='home'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('joyadmin/', include('joyadmin.urls')), 
     path('mypage/', include('mypage.urls')),
     path('guidereports/', include('guidereports.urls')),
     path('guides/', include('guides.urls')),

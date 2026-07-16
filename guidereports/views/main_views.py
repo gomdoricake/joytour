@@ -34,12 +34,6 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 
 @login_required
-def index(request): 
-    guidereports = GuideReport.objects.all().order_by('-id')
-    return render(request, 'guidereports/index.html', {'guidereports': guidereports})
-
-
-@login_required
 def DetailView(request, pk):
     guide_report = get_object_or_404(GuideReport, pk=pk)
     events = guide_report.events.all()

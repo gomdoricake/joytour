@@ -6,7 +6,6 @@ from .views import main_views, day_views, inbound_views
 app_name='guidereports'
 
 urlpatterns = [
-    path('', main_views.index, name='index'),
     path('guidereport_main/', main_views.guidereport_main, name='guidereport_main'), 
     path('guidereport_confirm/<int:pk>/', main_views.guidereport_confirm, name='guidereport_confirm'),
     path('guidereport_pay/<int:pk>/', main_views.guidereport_pay, name='guidereport_pay'),

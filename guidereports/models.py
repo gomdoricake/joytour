@@ -10,6 +10,7 @@ class GuideReport(models.Model):
     guide = models.ForeignKey(Guide, on_delete=models.CASCADE, related_name='guidereports')
     is_confirmed = models.BooleanField(default=False, null=True, blank=True)
     is_paid = models.BooleanField(default=False, null=True, blank=True) 
+    pay_status = models.CharField(max_length=10, null=True, blank=True)
     invoice_date = models.DateField(null=True, blank=True)
     invoice_number = models.CharField(max_length=10, null=True, blank=True)
     day_inbound = models.CharField(max_length=100, choices=DAY_INBOUND)
