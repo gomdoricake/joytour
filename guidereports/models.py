@@ -16,7 +16,7 @@ class GuideReport(models.Model):
     role = models.CharField(max_length=100)
     coach = models.CharField(max_length=100, null=True, blank=True)
     group_code = models.CharField(max_length=100, blank=True, null=True)
-    agency_code = models.CharField(max_length=10, blank=True, null=True) 
+    agency_code = models.CharField(max_length=100, blank=True, null=True) 
     adt = models.PositiveIntegerField(default=0)
     tc = models.PositiveIntegerField(default=0, null=True, blank=True)    
     chd = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -32,7 +32,7 @@ class GuideReport(models.Model):
         return str(self.guide.name) + ': ' + str(self.group_code)
 
 class Event(models.Model): 
-    eventcode = models.CharField(max_length=10)
+    eventcode = models.CharField(max_length=100)
     report_date = models.DateField()
     hours = models.CharField(max_length=10, choices=INBOUND_HOURS,null=True,blank=True)
     guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
