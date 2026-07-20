@@ -3,7 +3,7 @@ from guidereports.models import GuideReport
 from datetime import datetime, date, timedelta
 
 register = template.Library()
-
+    
 @register.filter(name='sort_payable')
 def sort_payable(guide, pay_status):
 
@@ -101,7 +101,7 @@ def all_reports(guide):
         f"${final_amount_due:.2f}"
         )
     )
-    
+
     return return_list
 
  

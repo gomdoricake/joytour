@@ -18,11 +18,11 @@ def payable_reports(request):
 
     sub_days = 0
 
+    guides = Guide.objects.all()
+
     # wednesday
     sub_days = -1 * today_weekday - 5
     last_wed = today + timedelta(days=sub_days)
-
-    guides = Guide.objects.all()  
 
     total_payable_fee = 0  
 
@@ -61,7 +61,6 @@ def payable_reports(request):
             report.save()
         else: report.save()
 
-    print('payable+reports: ' + str(payable_reports))
     return render(request, 'joyadmin/payable_reports.html', {'payable_reports': payable_reports, 
                     'last_wed': last_wed, 'until': today, 'guides': guides, 'total_payable_fee': total_payable_fee})
 
