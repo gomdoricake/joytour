@@ -1,11 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<style>
-  /* ==========================================================
-     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 전체화면 밀착)
-     ========================================================== */
-  
+<style>  
   html, body, .container {
     background-color: #ffffff !important;
     background-image: none !important;
@@ -15,13 +11,12 @@
     overflow-x: hidden !important;
   }
 
-  /* 화이트 글래스모피즘 컨테이너 -> 모바일 밀착 프레임으로 가변화 */
   .admin-container { 
     width: 100% !important;
     max-width: 100% !important; 
     margin: 0 auto !important; 
     padding: 40px 16px 60px 16px !important; 
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #ffffff !important; 
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -32,7 +27,6 @@
     min-height: 100vh;
   }
 
-  /* 상단 네비게이션 블록 */
   .nav-block {
     display: flex;
     justify-content: space-between;
@@ -46,7 +40,7 @@
     color: #475569;
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 8px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -57,7 +51,6 @@
     color: #0f172a;
   }
 
-  /* 헤더 섹션 */
   .admin-header { 
     margin-bottom: 25px; 
     padding-bottom: 15px;
@@ -72,122 +65,9 @@
     word-break: keep-all;
   }
   
-  /* 리스트 적재 레이아웃 */
-  .guide-list { 
-    list-style: none; 
-    padding: 0; 
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px; 
-  }
-
-  /* 🌟 리스트 카드 아이템 */
-  .guide-item { 
-    border-radius: 16px;
-    background: #ffffff; 
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
-    box-sizing: border-box;
-  }
-  
-  /* 📱 [모바일 최적화] 양끝 배치 해제 및 위아래 카드 배치 전환 */
-  .guide-item a { 
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 16px; 
-    text-decoration: none; 
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* 📱 정보 영역 폭 확보 */
-  .info-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* 가이드 이름 네임태그 */
-  .code-badge {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 700;
-    border: 1px solid #e2e8f0;
-    flex-shrink: 0; 
-  }
-
-  .date-badge {
-    color: #475569;
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 10px;
-    font-weight: 700;
-    border: 1px solid #e2e8f0;
-    flex-shrink: 0; 
-  }
-
-  .guide-name {
-    font-weight: 700;
-    font-size: 14px;
-    color: #1e293b;
-    font-family: monospace;
-    word-break: break-all; /* 모바일 영문 텍스트 밀림 방지 */
-    white-space: normal;
-  }
-
-  /* 모바일 액티브 터치 피드백 (모바일 전용 라이트 인디고 플래시) */
-  .guide-item:active {
-    border-color: #818cf8;
-    background-color: #f8fafc;
-  }
-
-  /* 🏷️ 상태 알약(Pill) 뱃지 - 모바일 폭 전체 스케일 최적화 */
-  .status-mini-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 0;
-    width: 100%; /* 모바일에서 시원한 와이드 스타일로 정돈 */
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    box-sizing: border-box;
-  }
-
-  .status-mini-badge.mini-waiting {
-    background-color: #fff1f2;
-    color: #f43f5e;
-    border: 1px solid #ffe4e6;
-  }
-  .status-mini-badge.mini-confirmed {
-    background-color: #fef9c3;
-    color: #a16207;
-    border: 1px solid #fef08a;
-  }
-  .status-mini-badge.mini-paid {
-    background-color: #f0fdf4; 
-    color: #16a34a;            
-    border: 1px solid #dcfce7;  
-  }
-
-  /* 데이터 공백 안내구 */
-  .no-data { 
-    color: #94a3b8; 
-    text-align: center; 
-    padding: 50px 20px; 
-    font-size: 14px;
-    font-weight: 500;
-  }
-
+  /* ==========================================================
+     DASHBOARD SUMMARY (VERTICAL LIST STYLE)
+     ========================================================== */
   .dashboard-summary {
     margin-bottom: 35px;
     display: flex;
@@ -196,12 +76,12 @@
     box-sizing: border-box;
   }
 
-  /* 상단 타이틀 & 기간 안내 */
   .summary-meta {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 4px;
+    margin-bottom: 4px;
   }
   .summary-meta .sec-title {
     font-size: 13px;
@@ -219,7 +99,42 @@
     border: 1px solid #e2e8f0;
   }
 
-    .guides-summary-vertical {
+  /* 메인 총정산금액 위젯 카드 */
+  .total-payable-card {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.12);
+  }
+  .total-payable-card .info-label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .total-payable-card .info-label span:first-child {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    opacity: 0.85;
+  }
+  .total-payable-card .info-label span:last-child {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.95;
+  }
+  .total-payable-card .total-amount {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+  }
+
+  /* 가이드별 현황 세로 리스트 */
+  .guides-summary-vertical {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -236,7 +151,6 @@
     position: relative;
     overflow: hidden;
   }
-  /* 세로 정렬 카드 데코 포인트 */
   .guide-summary-row::before {
     content: '';
     position: absolute;
@@ -273,40 +187,142 @@
     font-size: 14px;
   }
 
-    /* 메인 총정산금액 위젯 카드 (Gradient) */
-  .total-payable-card {
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-    color: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.12);
-  }
-  .total-payable-card .info-label {
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-  }
-  .total-payable-card .info-label span:first-child {
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    opacity: 0.85;
-  }
-  .total-payable-card .info-label span:last-child {
-    font-size: 13px;
-    font-weight: 700;
-    opacity: 0.95;
-  }
-  .total-payable-card .total-amount {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-    color: #ffffff;
+  /* ==========================================================
+     XERO-STYLE TABULAR REPORT LIST (SIMPLE, FLAT)
+     ========================================================== */
+  .xero-table-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+    margin-top: 10px;
   }
 
+  /* Table Header */
+  .xero-table-header {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 2fr 1.2fr 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .xero-table-header span:nth-child(4) {
+    text-align: right;
+  }
+  .xero-table-header span:nth-child(5) {
+    text-align: right;
+  }
+
+  /* Table Body List */
+  .xero-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .xero-row-item {
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .xero-row-item:last-child {
+    border-bottom: none;
+  }
+
+  .xero-row-item a {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 2fr 1.2fr 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.15s ease;
+  }
+
+  .xero-row-item a:hover {
+    background-color: #f8fafc;
+  }
+
+  /* Flat Text styling instead of thick badges */
+  .xero-date {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .xero-guide-name {
+    font-size: 12px;
+    color: #334155;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .xero-group-code {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .xero-price {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0f172a;
+    text-align: right;
+  }
+
+  /* Simple Xero Flat Status Text/Muted Pill */
+  .xero-status {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .xero-flat-status {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .xero-flat-status.paid {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .xero-flat-status.confirmed {
+    background-color: #fef9c3;
+    color: #a16207;
+  }
+
+  .xero-flat-status.waiting {
+    background-color: #fff1f2;
+    color: #f43f5e;
+  }
+
+  .no-data { 
+    color: #94a3b8; 
+    text-align: center; 
+    padding: 50px 20px; 
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  /* PC Desktop View */
   @media screen and (min-width: 451px) {
     html, body {
       background-color: #f8fafc !important;
@@ -329,49 +345,10 @@
     }
 
     .title { font-size: 24px !important; }
-    .guide-list { gap: 14px !important; }
-
-    .guide-item a { 
-      flex-direction: row !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      padding: 18px 22px !important; 
-      gap: 0 !important;
-    }
-
-    .info-area {
-      width: auto !important;
-      gap: 14px !important;
-    }
-    .code-badge {
-      padding: 6px 12px !important;
-      font-size: 13px !important;
-    }
-    .guide-name {
-      font-size: 15px !important;
-    }
-
-    .status-mini-badge {
-      width: auto !important;
-      padding: 6px 14px !important;
-      border-radius: 20px !important;
-    }
-
-    .guide-item:hover { 
-      border-color: #4f46e5 !important; 
-      transform: translateY(-2px) !important;
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08) !important;
-      background-color: #ffffff !important;
-    }
     
-    .guide-item:hover .code-badge {
-      color: #4f46e5 !important;
-      background: #e0e7ff !important;
-      border-color: #c7d2fe !important;
-    }
-
-    .guide-item:hover .guide-name {
-      color: #4f46e5 !important;
+    .xero-table-header, .xero-row-item a {
+      grid-template-columns: 1.2fr 1fr 2.5fr 1.2fr 1fr;
+      padding: 14px 20px;
     }
   }
 </style>
@@ -388,8 +365,9 @@
     <h2 class="title">PAID REPORTS</h2>
   </div>
 
-  {% if paid_reports %}
-
+  <!-- ==========================================================
+       DASHBOARD SUMMARY (VERTICAL LIST STYLE)
+       ========================================================== -->
   <div class="dashboard-summary">
     <div class="summary-meta">
       <span class="sec-title">SUMMARY</span>
@@ -401,11 +379,11 @@
         <span>지금까지 지급된 리포트 총액</span>
       </div>
       <div class="total-amount">
-        ${{ total_paid_fee }}
+        ${{ total_paid_fee|floatformat:2 }}
       </div>
-  </div>
+    </div>
 
-  <div class="guides-summary-vertical">
+    <div class="guides-summary-vertical">
       {% for guide in guides %}
         {% for guide_name, counts, final_amount_due in guide|sort_paid:"paid" %}
           <div class="guide-summary-row">
@@ -419,42 +397,58 @@
           </div>
         {% endfor %}
       {% endfor %}
+    </div>
   </div>
 
-  <ul class="guide-list">
-  {% if paid_reports %}    
-  
-  <div class="summary-meta">
-      <span class="sec-title">SUMMARY</span>
+  {% if paid_reports %}
+
+  <div class="xero-table-container">
+    <div class="summary-meta">
+        <span class="sec-title" style="margin: 10px;">DETAILS</span>
+    </div>
+    <div class="xero-table-header">
+      <span>Date</span>
+      <span>Guide</span>
+      <span>Group Code</span>
+      <span>Amount</span>
+      <span>Status</span>
     </div>
 
-    {% for guidereport in paid_reports %}
-    <li class="guide-item">
-      <a href="{% url 'guidereports:detail' guidereport.id %}">
-        <div class="info-area">
-          <span class="date-badge">{{ guidereport.invoice_date }}</span>
-          <span class="code-badge">{{ guidereport.guide.name }}</span>   
-          <span class="guide-name">{{ guidereport.group_code }}</span>
-        </div>
+    <ul class="xero-list">
+      {% for guidereport in paid_reports %}
+      <li class="xero-row-item">
+        <a href="{% url 'guidereports:detail' guidereport.id %}">
+          <!-- 1. 날짜 (Flat Text) -->
+          <span class="xero-date">{{ guidereport.invoice_date }}</span>
+          
+          <!-- 2. 가이드 (Flat Text) -->
+          <span class="xero-guide-name">{{ guidereport.guide.name }}</span>   
+          
+          <!-- 3. 그룹 코드 (Flat Text) -->
+          <span class="xero-group-code">{{ guidereport.group_code }}</span>
+          
+          <!-- 4. 정산금액 (Flat Text) -->
+          <span class="xero-price">${{ guidereport.final_amount_due|floatformat:2 }}</span>
 
-        <div class="status-area">
-          {% if guidereport.is_paid %}
-            <span class="status-mini-badge mini-paid">PAID</span>
-          {% elif guidereport.is_confirmed %}
-            <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
-          {% else %}
-            <span class="status-mini-badge mini-waiting">WAITING</span>
-          {% endif %}
-        </div>
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
+          <!-- 5. 상태 (Simple Flat Label) -->
+          <div class="xero-status">
+            {% if guidereport.is_paid %}
+              <span class="xero-flat-status paid">PAID</span>
+            {% elif guidereport.is_confirmed %}
+              <span class="xero-flat-status confirmed">CONFIRMED</span>
+            {% else %}
+              <span class="xero-flat-status waiting">WAITING</span>
+            {% endif %}
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
   {% else %}
   <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>
   {% endif %}
 </div>
-{% endif %}
 {% endif %}
 
 {% endblock %}
