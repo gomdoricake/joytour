@@ -227,7 +227,6 @@
   }
 </style>
 
-<!-- 이하 본문 HTML 구조는 그대로 유지됩니다 -->
 <div class="report-container">
   <div class="nav-block">
     {% if request.user.username == 'admin' %}
@@ -261,7 +260,11 @@
     <div class="two-column-box">
       <div class="info-detail-box">
         <strong>Guide Payment Details</strong>
+        {% if request.user.username == 'admin' %}
+        <a href="{% url 'guides:guide_detail' guide_report.guide.id %}" style="font-weight: 700; color: #0f172a;">{{ guide_report.guide.name }} </a>
+        {% else %}
         <span style="font-weight: 700; color: #0f172a;">{{ guide_report.guide.name }} 
+        {% endif %}
         {% if guide_report.guide.is_sponsored %}
         (SPONSORED)
         {% endif %}

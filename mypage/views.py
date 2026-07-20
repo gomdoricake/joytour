@@ -7,7 +7,7 @@ from django.views import generic
 from guidereports.models import GuideReport
 import datetime
 from dateutil.relativedelta import relativedelta
-    
+
 
 @login_required
 def login_redirect_view(request): 
@@ -15,6 +15,7 @@ def login_redirect_view(request):
         return redirect('joyadmin:index')
     else: 
         return redirect('mypage:index')
+
 
 def review_grade(guide_id):
     guide = Guide.objects.get(id=guide_id)
@@ -27,6 +28,11 @@ def review_grade(guide_id):
         guide.grade = 1
         guide.save()
         return 1
+    
+    if not init_training_date: 
+        guide.grade = 0
+        guide.save()
+        return 0
 
     while True: 
         if init_training_date + relativedelta(months=months) > today: 
@@ -41,6 +47,7 @@ def review_grade(guide_id):
 
     guide.save()
     return guide.grade
+
 
 @login_required
 def index(request): 
@@ -66,6 +73,7 @@ def index(request):
         
         return render(request, "mypage/create_profile.html", {"form": form})
 
+
 @login_required 
 def update_mypage(request, pk):
     guide = get_object_or_404(Guide, pk=pk)
@@ -79,6 +87,7 @@ def update_mypage(request, pk):
         form = GuideProfileForm(instance=guide)
     
     return render(request, 'mypage/create_profile.html', {'form': form})        
+
 
 @login_required
 def create_report(request): 
