@@ -53,12 +53,13 @@ def payable_reports(request):
     for report in payable_reports: 
         if report.is_paid: 
             report.pay_status = 'paid'
-            report.save()
         else: 
             report.pay_status = 'payable'
+        
+        if report.final_amount_due: 
+            total_payable_fee += float(report.final_amount_due)
             report.save()
-        total_payable_fee += float(report.final_amount_due)
-        report.save()
+        else: report.save()
 
     print('payable+reports: ' + str(payable_reports))
     return render(request, 'joyadmin/payable_reports.html', {'payable_reports': payable_reports, 
@@ -72,30 +73,26 @@ def paid_reports(request):
     for report in paid_reports: 
         report.pay_status = 'paid'
         report.save()
-
+    
     return render(request, 'joyadmin/paid_reports.html', {'paid_reports': paid_reports})
 
 
 @login_required
 def unpaid_reports(request): 
 
-    today = date.today() 
-    today_weekday = today.weekday()
+    unpaid_reports = GuideReport.objects.filter(is_paid=False)
 
-    sub_days = 0
-    # wednesday
-    sub_days = -1 * today_weekday - 5
-    last_wed = today + timedelta(days=sub_days)
-    previous_reports = GuideReport.objects.filter(invoice_date__lt=str(last_wed))
-
-
-    unpaid_reports = previous_reports.filter(is_paid=False)
+    total_unpaid_fee = 0
 
     for report in unpaid_reports: 
         report.pay_status = 'unpaid'
-        report.save()
+        if report.final_amount_due:
+            total_unpaid_fee += float(report.final_amount_due)
+            report.save()
+            
+    guides = Guide.objects.all()
 
-    return render(request, 'joyadmin/unpaid_reports.html', {'unpaid_reports': unpaid_reports})
+    return render(request, 'joyadmin/unpaid_reports.html', {'unpaid_reports': unpaid_reports, 'total_unpaid_fee': total_unpaid_fee, 'guides': guides})
 
 
 @login_required

@@ -366,7 +366,7 @@
 </style>
 
 
-{% load guide_payable %}
+{% load guide_pay_status %}
 
 {% if request.user.username == 'admin' %}
 <div class="admin-container">
@@ -405,7 +405,7 @@
               <span class="r-count">{{ counts }}건</span>
             </div>
             <div class="g-amount">
-              {{ final_amount_due }}
+              ${{ final_amount_due|floatformat:2 }}
             </div>
           </div>
         {% endfor %}
