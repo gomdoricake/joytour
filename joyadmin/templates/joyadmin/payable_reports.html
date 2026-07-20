@@ -16,7 +16,7 @@
     max-width: 100% !important; 
     margin: 0 auto !important; 
     padding: 40px 16px 60px 16px !important; 
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #ffffff !important; 
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -40,7 +40,7 @@
     color: #475569;
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    border-radius: 8px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -66,7 +66,7 @@
   }
   
   /* ==========================================================
-     NEW VERTICAL DASHBOARD SUMMARY DESIGN
+     DASHBOARD SUMMARY (VERTICAL LIST STYLE)
      ========================================================== */
   .dashboard-summary {
     margin-bottom: 35px;
@@ -76,7 +76,6 @@
     box-sizing: border-box;
   }
 
-  /* 상단 타이틀 & 기간 안내 */
   .summary-meta {
     display: flex;
     justify-content: space-between;
@@ -99,7 +98,7 @@
     border: 1px solid #e2e8f0;
   }
 
-  /* 메인 총정산금액 위젯 카드 (Gradient) */
+  /* 메인 총정산금액 위젯 카드 */
   .total-payable-card {
     background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
     color: #ffffff;
@@ -151,7 +150,6 @@
     position: relative;
     overflow: hidden;
   }
-  /* 세로 정렬 카드 데코 포인트 */
   .guide-summary-row::before {
     content: '';
     position: absolute;
@@ -188,117 +186,130 @@
     font-size: 14px;
   }
 
-
   /* ==========================================================
-     GRID ALIGNED GUIDE LIST
+     XERO-STYLE TABULAR REPORT LIST (SIMPLE, FLAT)
      ========================================================== */
-  .guide-list { 
-    list-style: none; 
-    padding: 0; 
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 12px; 
+  .xero-table-container {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
   }
 
-  .guide-item { 
-    border-radius: 16px;
-    background: #ffffff; 
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
-    box-sizing: border-box;
-  }
-  
-  .guide-item a { 
+  /* Table Header */
+  .xero-table-header {
     display: grid;
-    grid-template-columns: 1.2fr 1fr 2fr 1.2fr 1fr; /* 5개 컬럼 정밀 정렬 */
+    grid-template-columns: 1.2fr 1fr 2fr 1.2fr 1fr;
     align-items: center;
     gap: 10px;
-    padding: 16px; 
-    text-decoration: none; 
-    width: 100%;
-    box-sizing: border-box;
+    padding: 12px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .xero-table-header span:nth-child(4) {
+    text-align: right;
+  }
+  .xero-table-header span:nth-child(5) {
+    text-align: right;
   }
 
-  .guide-item:active {
-    border-color: #818cf8;
+  /* Table Body List */
+  .xero-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .xero-row-item {
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .xero-row-item:last-child {
+    border-bottom: none;
+  }
+
+  .xero-row-item a {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 2fr 1.2fr 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.15s ease;
+  }
+
+  .xero-row-item a:hover {
     background-color: #f8fafc;
   }
 
-  /* 각 컬럼별 정렬 및 스타일 */
-  .date-badge {
-    color: #475569;
-    padding: 6px 0;
-    font-size: 11px;
-    font-weight: 700;
-    text-align: left;
+  /* Flat Text styling instead of thick badges */
+  .xero-date {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
   }
 
-  .code-badge {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 6px 8px;
-    border-radius: 8px;
-    font-size: 11px;
-    font-weight: 700;
-    border: 1px solid #e2e8f0;
-    text-align: center;
+  .xero-guide-name {
+    font-size: 12px;
+    color: #334155;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .guide-name {
-    font-weight: 700;
-    font-size: 13px;
-    color: #1e293b;
-    font-family: monospace;
+  .xero-group-code {
+    font-size: 12px;
+    font-weight: 500;
+    color: #0f172a;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
-  .price-area {
-    font-weight: 700;
+  .xero-price {
     font-size: 13px;
+    font-weight: 600;
     color: #0f172a;
     text-align: right;
   }
 
-  .status-area {
+  /* Simple Xero Flat Status Text/Muted Pill */
+  .xero-status {
     display: flex;
     justify-content: flex-end;
   }
 
-  .status-mini-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 6px 10px;
-    border-radius: 10px;
+  .xero-flat-status {
     font-size: 10px;
-    font-weight: 800;
+    font-weight: 700;
     letter-spacing: 0.5px;
-    box-sizing: border-box;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-align: center;
     white-space: nowrap;
   }
 
-  .status-mini-badge.mini-waiting {
-    background-color: #fff1f2;
-    color: #f43f5e;
-    border: 1px solid #ffe4e6;
+  .xero-flat-status.paid {
+    background-color: #dcfce7;
+    color: #15803d;
   }
 
-  .status-mini-badge.mini-confirmed {
+  .xero-flat-status.confirmed {
     background-color: #fef9c3;
     color: #a16207;
-    border: 1px solid #fef08a;
   }
 
-  .status-mini-badge.mini-paid {
-    background-color: #f0fdf4; 
-    color: #16a34a;            
-    border: 1px solid #dcfce7;  
+  .xero-flat-status.waiting {
+    background-color: #f1f5f9;
+    color: #475569;
   }
 
   .no-data { 
@@ -332,35 +343,10 @@
     }
 
     .title { font-size: 24px !important; }
-    .guide-list { gap: 14px !important; }
-
-    .guide-item a { 
-      grid-template-columns: 1.2fr 1fr 2.5fr 1.2fr 1fr; /* PC 화면 비율 */
-      padding: 18px 22px !important; 
-      gap: 14px;
-    }
-
-    .date-badge { font-size: 12px; }
-    .code-badge { padding: 6px 12px !important; font-size: 12px !important; }
-    .guide-name { font-size: 14px !important; }
-    .price-area { font-size: 14px !important; }
-    .status-mini-badge { padding: 6px 14px !important; border-radius: 20px !important; font-size: 11px; }
-
-    .guide-item:hover { 
-      border-color: #4f46e5 !important; 
-      transform: translateY(-2px) !important;
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.08) !important;
-      background-color: #ffffff !important;
-    }
     
-    .guide-item:hover .code-badge {
-      color: #4f46e5 !important;
-      background: #e0e7ff !important;
-      border-color: #c7d2fe !important;
-    }
-
-    .guide-item:hover .guide-name {
-      color: #4f46e5 !important;
+    .xero-table-header, .xero-row-item a {
+      grid-template-columns: 1.2fr 1fr 2.5fr 1.2fr 1fr;
+      padding: 14px 20px;
     }
   }
 </style>
@@ -405,7 +391,7 @@
               <span class="r-count">{{ counts }}건</span>
             </div>
             <div class="g-amount">
-              ${{ final_amount_due|floatformat:2 }}
+              {{ final_amount_due }}
             </div>
           </div>
         {% endfor %}
@@ -413,35 +399,52 @@
     </div>
   </div>
   
-  <ul class="guide-list">
-    <div class="summary-meta">
-      <span class="sec-title">DETAILS</span>
+
+  <div class="xero-table-container">
+  <div class="summary-meta">
+      <span class="sec-title" style="margin: 10px;">DETAILS</span>
+  </div>
+
+    <!-- Table Column Headers -->
+    <div class="xero-table-header">
+      <span>Date</span>
+      <span>Guide</span>
+      <span>Group Code</span>
+      <span>Amount</span>
+      <span>Status</span>
     </div>
 
-    {% for guidereport in payable_reports %}
-    <li class="guide-item">
-      <a href="{% url 'guidereports:detail' guidereport.id %}">
-        <span class="date-badge">{{ guidereport.invoice_date }}</span>
-        
-        <span class="code-badge">{{ guidereport.guide.name }}</span>   
-        
-        <span class="guide-name">{{ guidereport.group_code }}</span>
-        
-        <span class="price-area">${{ guidereport.final_amount_due|floatformat:2 }}</span>
+    <ul class="xero-list">
+      {% for guidereport in payable_reports %}
+      <li class="xero-row-item">
+        <a href="{% url 'guidereports:detail' guidereport.id %}">
+          <!-- 1. 날짜 -->
+          <span class="xero-date">{{ guidereport.invoice_date }}</span>
+          
+          <!-- 2. 가이드 -->
+          <span class="xero-guide-name">{{ guidereport.guide.name }}</span>   
+          
+          <!-- 3. 그룹 코드 -->
+          <span class="xero-group-code">{{ guidereport.group_code }}</span>
+          
+          <!-- 4. 정산금액 -->
+          <span class="xero-price">${{ guidereport.final_amount_due|floatformat:2 }}</span>
 
-        <div class="status-area">
-          {% if guidereport.is_paid %}
-            <span class="status-mini-badge mini-paid">PAID</span>
-          {% elif guidereport.is_confirmed %}
-            <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
-          {% else %}
-            <span class="status-mini-badge mini-waiting">WAITING</span>
-          {% endif %}
-        </div>
-      </a>
-    </li>
-    {% endfor %}
-  </ul>
+          <!-- 5. 상태 -->
+          <div class="xero-status">
+            {% if guidereport.is_paid %}
+              <span class="xero-flat-status paid">PAID</span>
+            {% elif guidereport.is_confirmed %}
+              <span class="xero-flat-status confirmed">CONFIRMED</span>
+            {% else %}
+              <span class="xero-flat-status waiting">WAITING</span>
+            {% endif %}
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
   {% else %}
   <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>
   {% endif %}
@@ -449,3 +452,10 @@
 {% endif %}
 
 {% endblock %}
+```
+eof
+
+### 💫 주요 변경 사항
+* **Xero 스타일의 테이블 구성:** 과도한 볼륨감의 카드와 테두리를 제거하고, 하나의 큰 테두리 박스(`xero-table-container`) 안에 테이블 헤더와 얇은 경계선의 로우들이 평평하게 들어가도록 변경했습니다.
+* **배지 스타일에서 플랫 텍스트로 전환:** 날짜, 가이드명, 가격 부분에 씌워져 있던 회색 배경과 둥근 보더를 과감히 지우고 깔끔한 정형화 텍스트 형태로 정돈했습니다.
+* **상태 뱃지 간소화:** 상태 표시 역시 두꺼운 테두리 대신 Xero 특유의 차분하고 은은한 파스텔톤 플랫 라벨로 최소화하여 격자형 비즈니스 리포트에 걸맞도록 연출했습니다.

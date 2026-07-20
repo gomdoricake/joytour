@@ -65,17 +65,6 @@ def payable_reports(request):
     return render(request, 'joyadmin/payable_reports.html', {'payable_reports': payable_reports, 
                     'last_wed': last_wed, 'until': today, 'guides': guides, 'total_payable_fee': total_payable_fee})
 
-    
-@login_required
-def paid_reports(request): 
-    paid_reports = GuideReport.objects.filter(is_paid=True)
-
-    for report in paid_reports: 
-        report.pay_status = 'paid'
-        report.save()
-    
-    return render(request, 'joyadmin/paid_reports.html', {'paid_reports': paid_reports})
-
 
 @login_required
 def unpaid_reports(request): 
@@ -94,8 +83,34 @@ def unpaid_reports(request):
 
     return render(request, 'joyadmin/unpaid_reports.html', {'unpaid_reports': unpaid_reports, 'total_unpaid_fee': total_unpaid_fee, 'guides': guides})
 
+@login_required
+def paid_reports(request): 
+    paid_reports = GuideReport.objects.filter(is_paid=True)
+
+    total_paid_fee = 0
+
+    guides = Guide.objects.all()
+
+    for report in paid_reports: 
+        report.pay_status = 'paid'
+        if report.final_amount_due: 
+            total_paid_fee += float(report.final_amount_due)
+            report.save()
+    
+    return render(request, 'joyadmin/paid_reports.html', {'paid_reports': paid_reports, 'guides': guides ,'total_paid_fee': total_paid_fee})
+
 
 @login_required
 def all_reports(request): 
     guidereports = GuideReport.objects.all().order_by('-id')
-    return render(request, 'joyadmin/all_reports.html', {'guidereports': guidereports})
+
+    guides = Guide.objects.all()
+
+    total_all_fee = 0
+
+    for report in guidereports: 
+        if report.final_amount_due: 
+            total_all_fee += float(report.final_amount_due)
+            report.save()
+
+    return render(request, 'joyadmin/all_reports.html', {'guidereports': guidereports, 'guides': guides, 'total_all_fee': total_all_fee})

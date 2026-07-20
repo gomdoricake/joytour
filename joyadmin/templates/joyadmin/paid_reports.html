@@ -188,10 +188,125 @@
     font-weight: 500;
   }
 
+  .dashboard-summary {
+    margin-bottom: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-sizing: border-box;
+  }
 
-  /* ==========================================================
-     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 데스크톱 디자인 복원
-     ========================================================== */
+  /* 상단 타이틀 & 기간 안내 */
+  .summary-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+  }
+  .summary-meta .sec-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: #64748b;
+    letter-spacing: 0.5px;
+  }
+  .summary-meta .date-range {
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+  }
+
+    .guides-summary-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .guide-summary-row {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    position: relative;
+    overflow: hidden;
+  }
+  /* 세로 정렬 카드 데코 포인트 */
+  .guide-summary-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background-color: #6366f1;
+  }
+  .guide-summary-row .g-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 4px;
+  }
+  .guide-summary-row .g-name {
+    font-weight: 800;
+    color: #0f172a;
+    font-size: 13px;
+  }
+  .guide-summary-row .r-count {
+    font-size: 10px;
+    font-weight: 700;
+    background: #eef2ff;
+    color: #4f46e5;
+    padding: 2px 6px;
+    border-radius: 6px;
+    border: 1px solid #e0e7ff;
+    white-space: nowrap;
+  }
+  .guide-summary-row .g-amount {
+    font-weight: 800;
+    color: #1e293b;
+    font-size: 14px;
+  }
+
+    /* 메인 총정산금액 위젯 카드 (Gradient) */
+  .total-payable-card {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.12);
+  }
+  .total-payable-card .info-label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .total-payable-card .info-label span:first-child {
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    opacity: 0.85;
+  }
+  .total-payable-card .info-label span:last-child {
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0.95;
+  }
+  .total-payable-card .total-amount {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+  }
+
   @media screen and (min-width: 451px) {
     html, body {
       background-color: #f8fafc !important;
@@ -200,7 +315,6 @@
         radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
     }
 
-    /* 화면 조율 어드민 글래스모피즘 박스 완벽 복구 */
     .admin-container { 
       max-width: 640px !important; 
       margin: 60px auto !important; 
@@ -217,7 +331,6 @@
     .title { font-size: 24px !important; }
     .guide-list { gap: 14px !important; }
 
-    /* 🖥️ PC 전용: 원래 의도하신 가로 플렉스 수평 정렬 완벽 복원 */
     .guide-item a { 
       flex-direction: row !important;
       align-items: center !important;
@@ -238,14 +351,12 @@
       font-size: 15px !important;
     }
 
-    /* 🖥️ PC 전용: 컴팩트한 알약 스타일 배지로 가변 복원 */
     .status-mini-badge {
       width: auto !important;
       padding: 6px 14px !important;
       border-radius: 20px !important;
     }
 
-    /* 카드 마우스 호버 고도화 애니메이션 복구 */
     .guide-item:hover { 
       border-color: #4f46e5 !important; 
       transform: translateY(-2px) !important;
@@ -265,6 +376,8 @@
   }
 </style>
 
+{% load guide_pay_status %}
+
 {% if request.user.username == 'admin' %}
 <div class="admin-container">
   <div class="nav-block">
@@ -276,7 +389,45 @@
   </div>
 
   {% if paid_reports %}
+
+  <div class="dashboard-summary">
+    <div class="summary-meta">
+      <span class="sec-title">SUMMARY</span>
+    </div>
+
+    <div class="total-payable-card">
+      <div class="info-label">
+        <span>TOTAL PAYABLE AMOUNT</span>
+        <span>지금까지 지급된 리포트 총액</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_paid_fee }}
+      </div>
+  </div>
+
+  <div class="guides-summary-vertical">
+      {% for guide in guides %}
+        {% for guide_name, counts, final_amount_due in guide|sort_paid:"paid" %}
+          <div class="guide-summary-row">
+            <div class="g-info">
+              <span class="g-name" title="{{ guide_name }}">{{ guide_name }}</span>
+              <span class="r-count">{{ counts }}건</span>
+            </div>
+            <div class="g-amount">
+              {{ final_amount_due }}
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+  </div>
+
   <ul class="guide-list">
+  {% if paid_reports %}    
+  
+  <div class="summary-meta">
+      <span class="sec-title">SUMMARY</span>
+    </div>
+
     {% for guidereport in paid_reports %}
     <li class="guide-item">
       <a href="{% url 'guidereports:detail' guidereport.id %}">
@@ -303,6 +454,7 @@
   <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>
   {% endif %}
 </div>
+{% endif %}
 {% endif %}
 
 {% endblock %}

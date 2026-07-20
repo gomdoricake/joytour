@@ -39,7 +39,6 @@ def sort_payable(guide, pay_status):
 
 @register.filter(name='sort_unpaid')
 def sort_unpaid(guide, pay_status):
-
     unpaid_reports = guide.guidereports.filter(is_paid=False)
     counts = unpaid_reports.count()
     final_amount_due = 0
@@ -50,7 +49,6 @@ def sort_unpaid(guide, pay_status):
         if report.final_amount_due:  
             final_amount_due += float(report.final_amount_due)
         
-
     return_list.append(
         (
         guide.name, 
@@ -58,11 +56,55 @@ def sort_unpaid(guide, pay_status):
         f"${final_amount_due:.2f}"
         )
     )
-
-    print("final_amount_due: " + str(final_amount_due))
     
     return return_list
 
+@register.filter(name='sort_paid')
+def sort_paid(guide, pay_status): 
+    paid_reports = guide.guidereports.filter(is_paid=True)
+    counts = paid_reports.count()
+    final_amount_due = 0
+
+    return_list = []
+
+    for report in paid_reports:
+        if report.final_amount_due:  
+            final_amount_due += float(report.final_amount_due)
+        
+    return_list.append(
+        (
+        guide.name, 
+        counts,
+        f"${final_amount_due:.2f}"
+        )
+    )
+    
+    return return_list
+
+
+@register.filter(name='all_reports')
+def all_reports(guide): 
+    all_reports = guide.guidereports.all()
+    counts = all_reports.count()
+    final_amount_due = 0
+
+    return_list = []
+
+    for report in all_reports:
+        if report.final_amount_due:  
+            final_amount_due += float(report.final_amount_due)
+        
+    return_list.append(
+        (
+        guide.name, 
+        counts,
+        f"${final_amount_due:.2f}"
+        )
+    )
+    
+    return return_list
+
+ 
 
 
     
