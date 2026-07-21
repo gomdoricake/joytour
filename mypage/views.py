@@ -7,7 +7,7 @@ from django.views import generic
 from guidereports.models import GuideReport
 import datetime
 from dateutil.relativedelta import relativedelta
-
+from django.http import HttpResponseBadRequest
 
 @login_required
 def login_redirect_view(request): 
@@ -103,3 +103,30 @@ def create_report(request):
         guide = Guide.objects.get(user=request.user)
         form = GuideReportMainForm(initial={'guide': guide})
         return render(request, "mypage/create_report.html", {"form": form})
+
+@login_required
+def confirmed_reports(request, pk): 
+
+    guide = Guide.objects.get(pk=pk)
+    guidereports = guide.guidereports
+    not_paid_reports = guidereports.filter(is_paid=False)
+    confirmed_reports = not_paid_reports.filter(is_confirmed=True)
+
+    return render(request, 'mypage/confirmed_reports.html', {'confirmed_reports': confirmed_reports, 'guide': guide})
+    
+
+@login_required
+def unpaid_reports(request, pk): 
+    
+    guide = Guide.objects.get(pk=pk)
+    unpaid_reports = guide.guidereports.filter(is_paid=False)
+
+    return render(request, 'mypage/unpaid_reports.html', {'unpaid_reports': unpaid_reports, 'guide': guide})
+
+
+@login_required
+def paid_reports(request, pk): 
+    guide = Guide.objects.get(pk=pk)
+    paid_reports = guide.guidereports.filter(is_paid=True)
+
+    return render(request, 'mypage/paid_reports.html', {'paid_reports': paid_reports, 'guide': guide})

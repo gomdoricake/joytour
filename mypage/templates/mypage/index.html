@@ -1,319 +1,29 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-
-<style>
-  /* ==========================================================
-     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
-     ========================================================== */
-  
-  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
-  html, body, .container {
-    background-color: #ffffff !important;
-    background-image: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    overflow-x: hidden !important;
-  }
-
-  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
-  .mypage-container {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-    padding: 40px 20px 80px 20px !important; 
-    font-family: sans-serif;
-    background: #ffffff !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    min-height: 100vh;
-  }
-
-  /* 상단 네비게이션 정렬 */
-  .mypage-nav-links {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    gap: 15px;
-  }
-
-  /* 웰컴 프로필 히어로 배너 - 모바일 대응 (세로 배치 전환 가능 구조) */
-  .profile-hero-card {
-    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-    padding: 24px 20px;
-    border-radius: 16px;
-    color: #ffffff;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.15);
-    display: flex;
-    flex-direction: column; /* 모바일에서는 위아래로 */
-    align-items: flex-start;
-    gap: 20px;
-  }
-  
-  .profile-hero-card .welcome-text h2 {
-    font-size: 20px;
-    font-weight: 800;
-    margin: 0 0 6px 0;
-    letter-spacing: -0.5px;
-    word-break: keep-all;
-  }
-  
-  .profile-hero-card .welcome-text p {
-    font-size: 13px;
-    margin: 0;
-    color: #c7d2fe;
-    line-height: 1.4;
-    word-break: keep-all;
-  }
-
-  .btn-edit-mypage {
-    display: inline-block;
-    width: 100%; /* 모바일에서는 버튼 꽉 차게 */
-    text-align: center;
-    padding: 12px 16px;
-    background: #ffffff;
-    color: #4f46e5;
-    border: 1px solid #ffffff;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 700;
-    text-decoration: none;
-    box-sizing: border-box;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  }
-  
-  .btn-edit-mypage:hover { background: #f8fafc; color: #3730a3; }
-
-  /* 리포트 생성 버튼 */
-  .action-row {
-    margin-bottom: 35px;
-  }
-  
-  .btn-create-report {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 16px;
-    background: #ffffff;
-    color: #4f46e5;
-    border: 2px dashed #c7d2fe;
-    border-radius: 14px;
-    font-size: 14px;
-    font-weight: 700;
-    text-decoration: none;
-    letter-spacing: -0.2px;
-    box-sizing: border-box;
-    text-align: center;
-    line-height: 1.4;
-    transition: all 0.2s ease;
-  }
-  
-  .btn-create-report:hover {
-    background: #f5f3ff;
-    border-color: #4f46e5;
-  }
-
-  /* 📊 정보 그리드 - 모바일에서는 무조건 1열로 떨어지게 설정 */
-  .info-grid {
-    display: grid;
-    grid-template-columns: 1fr; /* 1열 배치 */
-    gap: 16px;
-    padding: 20px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-  }
-  
-  .info-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    border-bottom: 1px solid #edf2f7;
-    padding-bottom: 10px;
-  }
-  
-  .info-item:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  
-  .info-item label {
-    font-size: 11px;
-    color: #64748b;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  .info-item span {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1e293b;
-  }
-  
-  .section-title {
-    font-size: 15px;
-    font-weight: 700;
-    margin: 40px 0 16px;
-    color: #475569;
-    letter-spacing: -0.3px;
-    padding-left: 6px;
-    border-left: 3px solid #cbd5e1;
-  }
-
-  /* 리포트 리스트 */
-  .report-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .report-item {
-    border-radius: 12px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    transition: all 0.25s ease;
-  }
-  
-  .report-item:hover { border-color: #4f46e5; }
-  
-  .report-item a.report-link {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px;
-    text-decoration: none;
-    width: 100%;
-    box-sizing: border-box;
-    color: #334155;
-    font-weight: 600;
-    font-size: 13px; /* 글자 겹침 방지를 위해 소폭 축소 */
-    gap: 10px;
-  }
-  
-  .report-item a.report-link div:first-child {
-    display: flex;
-    flex-wrap: wrap; /* 모바일에서 텍스트가 길어져도 깨지지 않게 줄바꿈 보장 */
-    gap: 4px;
-  }
-  
-  .invoice-num {
-    color: #94a3b8;
-    font-weight: 700;
-  }
-
-  .status-mini-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 10px;
-    font-weight: 800;
-    white-space: nowrap; /* 배치 고정 */
-  }
-  .status-mini-badge.mini-waiting { background-color: #fff1f2; color: #f43f5e; border: 1px solid #ffe4e6; }
-  .status-mini-badge.mini-confirmed { background-color: #fefce8; color: #b45309; border: 1px solid #fef9c3; }
-  .status-mini-badge.mini-paid { background-color: #f0fdf4; color: #16a34a; border: 1px solid #dcfce7; }
-
-
-  /* ==========================================================
-     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
-     ========================================================== */
-  @media screen and (min-width: 451px) {
-    html, body {
-      background-color: #f8fafc !important;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
-    }
-    
-    .container {
-      width: 100% !important;
-      max-width: 1200px !important;
-      margin: 0 auto !important;
-    }
-
-    .mypage-container {
-      max-width: 650px !important;
-      margin: 60px auto !important;
-      padding: 40px !important;
-      background: rgba(255, 255, 255, 0.85) !important; 
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px) !important;
-      border-radius: 24px !important;
-      border: 1px solid rgba(255, 255, 255, 0.6) !important;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
-    }
-
-    .profile-hero-card {
-      flex-direction: row !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      padding: 28px !important;
-      gap: 0 !important;
-    }
-
-    .btn-edit-mypage {
-      width: auto !important;
-    }
-
-    .btn-create-report {
-      font-size: 15px !important;
-    }
-
-    /* PC에서는 원본대로 깔끔한 2열 격자 배치 실행 */
-    .info-grid {
-      grid-template-columns: 1fr 1fr !important;
-      gap: 18px !important;
-    }
-    
-    .info-item {
-      border-bottom: none !important;
-      padding-bottom: 0 !important;
-    }
-
-    .report-item a.report-link {
-      padding: 16px 20px !important;
-      font-size: 14px !important;
-    }
-    
-    .report-item:hover {
-      transform: translateX(4px) !important;
-      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.06) !important;
-    }
-  }
-</style>
+<link rel="stylesheet" type="text/css" href="{% static 'mypage_style.css' %}">
 
 <div class="mypage-container">
+
+  <!-- 상단 네비게이션 -->
   <div class="mypage-nav-links">
     <div>
       {% if user.username == 'admin' %}
-        <a href="{% url 'guides:index' %}" style="color: #64748b; font-size: 13px; text-decoration: none; font-weight: 600;">← 가이드 목록으로 돌아가기</a>
+        <a href="{% url 'guides:index' %}" class="nav-back-link">
+          ← 가이드 목록으로 돌아가기
+        </a>
       {% else %}
-        <span style="color: #94a3b8; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">내 계정 대시보드</span>
+        <span class="nav-badge-title">JOY TOUR GUIDE DASHBOARD</span>
       {% endif %}
     </div>
     <form action="{% url 'logout' %}" method="post" style="display: inline;">
-        {% csrf_token %}
-        <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; font-weight: 600; padding: 0;">
-            로그아웃
-        </button>
-    </form>  
-</div>
+      {% csrf_token %}
+      <button type="submit" class="btn-logout">로그아웃</button>
+    </form>   
+  </div>
 
+  <!-- 프로필 히어로 영역 -->
   <div class="profile-hero-card">
     <div class="welcome-text">
       <h2>{{ guide.name }}님의 개인 공간</h2>
@@ -322,76 +32,137 @@
     <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">정보 수정</a>
   </div>
 
+  <!-- 리포트 생성 CTA -->
   <div class="action-row">
     <a href="{% url 'guidereports:guidereport_main' %}?new=1" class="btn-create-report">
       ➕ 새로운 가이드 리포트 정산서 작성하기
     </a>
   </div>
 
-  <h3 class="section-title">기본 프로필 정보  {% if guide.is_sponsored %}(SPONSORED){% endif %}</h3>      
+  <!-- 프로필 상세 정보 -->
+  <div class="section-header">
+    <h3 class="section-title">
+      기본 프로필 정보
+      {% if guide.is_sponsored %}
+        <span class="sponsored-badge">SPONSORED</span>
+      {% endif %}
+    </h3>
+  </div>
 
   <div class="info-grid">
     <div class="info-item">
-
-      <label>첫 트레이닝</label><span>{{ guide.init_training_date|date:"d-M-Y" }}</span>
+      <label>첫 트레이닝</label>
+      <span>{{ guide.init_training_date|date:"d-M-Y" }}</span>
     </div>
     <div class="info-item">
-      <label>Grade</label><span>{{ guide.grade }}</span>
+      <label>Grade</label>
+      <span>{{ guide.grade }}</span>
     </div>
     <div class="info-item">
-      <label>생년월일</label><span>{{ guide.birth_date|date:"d-M-Y" }}</span>
+      <label>생년월일</label>
+      <span>{{ guide.birth_date|date:"d-M-Y" }}</span>
     </div>
     <div class="info-item">
-      <label>연락처</label><span>{{ guide.contact_info }}</span>
+      <label>연락처</label>
+      <span>{{ guide.contact_info }}</span>
     </div>
     <div class="info-item">
-      <label>주소</label><span>{{ guide.address }}</span>
+      <label>주소</label>
+      <span>{{ guide.address }}</span>
     </div>
-    <div class="info-item" style="grid-column: span 2">
-      <label>ABN</label><span style="letter-spacing: 0.5px;">{{ guide.abn }}</span>
+    <div class="info-item span-2">
+      <label>ABN</label>
+      <span style="letter-spacing: 0.5px;">{{ guide.abn }}</span>
     </div>
   </div>
 
-  <h3 class="section-title">지급 계좌 정보</h3>
+  <!-- 계좌 정보 -->
+  <div class="section-header">
+    <h3 class="section-title">지급 계좌 정보</h3>
+  </div>
+
   <div class="info-grid">
     <div class="info-item">
-      <label>은행명</label><span>{{ guide.bank_account_name }}</span>
+      <label>은행명</label>
+      <span>{{ guide.bank_account_name }}</span>
     </div>
     <div class="info-item">
-      <label>BSB</label><span>{{ guide.bsb }}</span>
+      <label>BSB</label>
+      <span>{{ guide.bsb }}</span>
     </div>
-    <div class="info-item" style="grid-column: span 2">
-      <label>계좌번호</label><span>{{ guide.account_number }}</span>
+    <div class="info-item span-2">
+      <label>계좌번호</label>
+      <span>{{ guide.account_number }}</span>
     </div>
   </div>
+  
+  <!-- 정산 리포트 목록 및 필터 탭 -->
+  <div class="section-header">
+    <h3 class="section-title">작성된 가이드 리포트 정산서 목록</h3>
+  </div>
 
-  <h3 class="section-title">작성된 가이드 리포트 정산서 목록</h3>
-  <ul class="report-list">
-    {% for report in guide_reports %}
-    <li class="report-item">
-      <a href="{% url 'guidereports:detail' report.pk %}" class="report-link">
-        <div>
-          <span class="invoice-num">#{{ report.invoice_number }}</span> 
-          <span>{{ report.group_code }}</span>
-        </div>
-        
-        <div>
-          {% if report.is_paid %} 
-            <span class="status-mini-badge mini-paid">PAID</span> 
-          {% elif report.is_confirmed %} 
-            <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
-          {% else %} 
-            <span class="status-mini-badge mini-waiting">WAITING</span>
-          {% endif %}
-        </div>
-      </a>
-    </li>    
-    {% empty %}
-    <li class="report-item" style="color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 14px; font-weight: 500; background: #f8fafc; border-style: dashed;">
-      등록된 리포트가 없습니다.
-    </li>
-    {% endfor %}
-  </ul>
+  <!-- 상태 필터 탭 -->
+  <div class="filter-tabs">
+    <a href="{% url 'mypage:index' %}" class="filter-tab {% if request.resolver_match.url_name == 'index' %}active{% endif %}">ALL</a>
+    <a href="{% url 'mypage:unpaid_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'unpaid_reports' %}active{% endif %}">UNPAID</a>
+    <a href="{% url 'mypage:confirmed_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'confirmed_reports' %}active{% endif %}">CONFIRMED</a>
+    <a href="{% url 'mypage:paid_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'paid_reports' %}active{% endif %}">PAID</a>
+  </div>
+
+  <!-- Xero 테이블 리포트 리스트 -->
+  <div class="xero-table-container">
+    <div class="xero-table-header">
+      <span>Invoice / Reference</span>
+      <span>Status</span>
+    </div>
+
+    <ul class="xero-list">
+      {% for report in guide_reports %}
+      <li class="report-item">
+        <a href="{% url 'guidereports:detail' report.pk %}" class="report-link">
+          <div class="report-info-group">
+            <span class="invoice-num">#{{ report.invoice_number }}</span> 
+            <span class="group-code">{{ report.group_code }}</span>
+          </div>
+          
+          <div>
+            {% if report.is_paid %} 
+              <span class="status-mini-badge mini-paid">PAID</span> 
+            {% elif report.is_confirmed %} 
+              <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
+            {% else %} 
+              <span class="status-mini-badge mini-waiting">WAITING</span>
+            {% endif %}
+          </div>
+        </a>
+      </li>    
+      {% empty %}
+      <li class="report-item" style="color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 13px; font-weight: 500; background: #ffffff;">
+        등록된 리포트가 없습니다.
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 1. 페이지 로드 시 저장된 스크롤 위치 복원
+    const savedScrollPos = sessionStorage.getItem("scrollPosition");
+    if (savedScrollPos) {
+      window.scrollTo(0, parseInt(savedScrollPos, 10));
+      sessionStorage.removeItem("scrollPosition");
+    }
+
+    // 2. 필터 탭 클릭 시 스크롤 위치 저장
+    const filterTabs = document.querySelectorAll(".filter-tab");
+    filterTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        sessionStorage.setItem("scrollPosition", window.scrollY);
+      });
+    });
+  });
+</script>
 
 {% endblock %}
