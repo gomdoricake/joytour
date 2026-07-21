@@ -286,7 +286,7 @@
     <a href="{% url 'guidereports:guidereport_day' %}" class="back-link">← 이전 단계로 돌아가기</a>
   </div>
 
-  <h2 class="title">Fuel 경비 내역 입력</h2>
+  <h2 class="title">BP 입력 (주유카드 분실 시 다음 단계 EXP에서 추가)</h2>
 
   <div class="report-info-box">
     <div style="display: flex; gap: 24px;">
@@ -329,7 +329,6 @@
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
-{% endblock %}
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
@@ -338,72 +337,37 @@
     const mainForm = document.getElementById("real-expense-form");
     const submitBtn = document.getElementById("submit-final-btn");
 
-    // 🌟 [보완] Django 기본 prefix 값을 안전하게 가져옵니다. 없을 경우 기본값 'form' 사용
-    let prefix = "{{ formset.prefix }}";
-    if (!prefix || prefix === "" || prefix.includes("formset.prefix")) {
-      prefix = "form"; 
-    }
-
-    // 🌟 [보완] ID 매칭 에러 방지: 브라우저에 있는 TOTAL_FORMS 엘리먼트를 모든 수단을 동원해 찾습니다.
-    function getTotalFormsInputs() {
-      const selectors = [
-        `id_${prefix}-TOTAL_FORMS`,
-        `id_${prefix}_TOTAL_FORMS`,
-        `id_form-TOTAL_FORMS` // 가장 흔히 쓰이는 Django 기본 ID 백업
-      ];
-      
-      let inputs = [];
-      selectors.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) inputs.push(el);
-      });
-
-      // 만약 위에서 못 찾았다면 name 속성으로 한 번 더 검색합니다.
-      if (inputs.length === 0) {
-        const byName = document.querySelector(`input[name="${prefix}-TOTAL_FORMS"]`) || 
-                       document.querySelector(`input[name="form-TOTAL_FORMS"]`);
-        if (byName) inputs.push(byName);
-      }
-      return inputs;
-    }
+    if (!addButton) return;
 
     // 1. 항목 추가 기능
     addButton.addEventListener("click", function (e) {
-      e.preventDefault(); // 버튼 클릭 시 원치 않는 기본 폼 제출 방지
+      e.preventDefault(); // 기본 제출 방지
 
       const noDataAlert = document.getElementById("no-data-alert");
       if (noDataAlert) noDataAlert.remove();
 
+      // TOTAL_FORMS 매니지먼트 폼 찾기 (가장 안전한 셀렉터)
+      const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+      if (!totalFormsInput) {
+        console.error("Django TOTAL_FORMS 매니지먼트 폼을 찾을 수 없습니다.");
+        return;
+      }
+
       const templateContainer = document.getElementById("empty-form-template");
       if (!templateContainer) {
-        console.error("템플릿 엘리먼트(empty-form-template)를 찾을 수 없습니다.");
+        console.error("empty-form-template을 찾을 수 없습니다.");
         return;
       }
 
       const templateRow = templateContainer.querySelector(".expense-form-row");
-      if (!templateRow) {
-        console.error(".expense-form-row 클래스를 가진 템플릿 로우를 찾을 수 없습니다.");
-        return;
-      }
+      if (!templateRow) return;
 
-      // 템플릿 복제
-      const newRow = templateRow.cloneNode(true);
-      
-      // 🌟 [수정] TOTAL_FORMS 값을 기준으로 현재 추가할 최신 인덱스를 가져옵니다.
-      const totalInputs = getTotalFormsInputs();
-      let currentFormCount = 0;
-      if (totalInputs.length > 0) {
-        currentFormCount = parseInt(totalInputs[0].value, 10);
-      } else {
-        // 백업 대안: 화면에 있는 행 개수 계산
-        currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
-      }
-      
-      const prefixRegex = new RegExp("__prefix__", "g");
-      
-      // 🌟 삭제되지 않고 화면에 보이는 마지막 행에서 날짜 가져오기
+      // 현재 추가될 고유 인덱스 번호 (TOTAL_FORMS 값 기준)
+      const currentFormCount = parseInt(totalFormsInput.value, 10);
+
+      // 이전 행의 날짜 값 가져오기
       const visibleRows = Array.from(formContainer.querySelectorAll(".expense-form-row"))
-                               .filter(row => !row.classList.contains("form-deleted") && row.style.display !== "none");
+                               .filter(row => row.style.display !== "none");
       const lastRow = visibleRows[visibleRows.length - 1];
       
       let previousDate = "";
@@ -412,35 +376,29 @@
         if (lastDateInput) previousDate = lastDateInput.value;
       }
 
-      // 복제된 행의 input name, id에 고유 인덱스 번호 부여
-      const inputs = newRow.querySelectorAll("input, select, textarea");
-      inputs.forEach((input) => {
-        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
-        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
-        
+      // 템플릿 복제
+      const newRow = templateRow.cloneNode(true);
+
+      // ★ [핵심] __prefix__ 문자를 통째로 인덱스 숫자로 교체 (label, id, name 모두 변경됨)
+      newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount);
+
+      // 복제 후 값 초기화 및 날짜 복사
+      newRow.querySelectorAll("input, select, textarea").forEach((input) => {
         if (input.type === "checkbox") {
           input.checked = false;
         } else if (input.name && input.name.includes("report_date")) {
-          // 날짜 필드는 이전 행의 날짜 복사
-          input.value = previousDate;
+          input.value = previousDate; // 이전 날짜 복사
         } else if (input.type !== "hidden") {
-          input.value = ""; // 다른 입력 필드는 초기화
+          input.value = ""; // 다른 필드는 빈 값
         }
       });
 
-      // 화면에 추가
+      // 화면에 추가 및 TOTAL_FORMS 1 증가
       formContainer.appendChild(newRow);
-
-      // Django Management Form의 TOTAL_FORMS 카운트를 1 증가
-      if (totalInputs.length > 0) {
-        totalInputs.forEach(input => {
-          input.value = currentFormCount + 1;
-          input.setAttribute("value", currentFormCount + 1);
-        });
-      }
+      totalFormsInput.value = currentFormCount + 1;
     });
 
-    // 2. 항목 삭제 및 정렬
+    // 2. 항목 삭제 기능
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         event.preventDefault();
@@ -449,7 +407,7 @@
         const idInput = row.querySelector('input[name$="-id"]');
         const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
 
-        // [CASE 1] 기존에 저장되어 있던 DB 데이터 삭제 처리
+        // [CASE 1] 이미 DB에 저장되어 있던 폼: DELETE 체크 후 숨김
         if (idInput && idInput.value) {
           if (deleteCheckbox) deleteCheckbox.checked = true;
           row.style.display = "none";
@@ -457,44 +415,20 @@
           return; 
         }
 
-        // [CASE 2] 이번 페이지에서 새로 만든 빈 폼 삭제 처리
+        // [CASE 2] 새로 추가했던 폼: HTML 요소를 단순히 제거 (인덱스는 재정렬하지 않음)
         row.remove();
-
-        // 남은 새 폼들의 인덱스를 다시 정렬합니다.
-        const allRows = formContainer.getElementsByClassName("expense-form-row");
-        let validIndex = 0;
-        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
-        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
-
-        for (let i = 0; i < allRows.length; i++) {
-          if (allRows[i].classList.contains("form-deleted")) {
-            validIndex++; // 기존 데이터 인덱스 자리 보존
-            continue; 
-          }
-          
-          const rowInputs = allRows[i].querySelectorAll("input, select, textarea");
-          rowInputs.forEach((input) => {
-            if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${validIndex}-`);
-            if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${validIndex}-`);
-          });
-          validIndex++;
-        }
-
-        // TOTAL_FORMS 값 최종 세팅
-        const totalInputs = getTotalFormsInputs();
-        if (totalInputs.length > 0) {
-          totalInputs.forEach(input => {
-            input.value = allRows.length;
-            input.setAttribute("value", allRows.length);
-          });
-        }
       }
     });
 
-    // 3. 서브밋 중복 클릭 처리
-    mainForm.addEventListener("submit", function () {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "다음 단계 처리 중...";
-    });
+    // 3. 서브밋 중복 클릭 방지
+    if (mainForm) {
+      mainForm.addEventListener("submit", function () {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerText = "다음 단계 처리 중...";
+        }
+      });
+    }
   });
 </script>
+{% endblock %}
