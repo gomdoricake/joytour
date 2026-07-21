@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'mypage_style.css' %}">
+
+<div class="mypage-container">
+
+  <!-- 상단 네비게이션 -->
+  <div class="mypage-nav-links">
+    <div>
+      {% if user.username == 'admin' %}
+        <a href="{% url 'guides:index' %}" class="nav-back-link">
+          ← 가이드 목록으로 돌아가기
+        </a>
+      {% else %}
+        <span class="nav-badge-title">JOY TOUR GUIDE DASHBOARD</span>
+      {% endif %}
+    </div>
+    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn-logout">로그아웃</button>
+    </form>   
+  </div>
+
+  <!-- 프로필 히어로 영역 -->
+  <div class="profile-hero-card">
+    <div class="welcome-text">
+      <h2>{{ guide.name }}님의 개인 공간</h2>
+      <p>등록된 개인 정보와 정산 리포트 목록을 관리합니다.</p>
+    </div>
+    <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">정보 수정</a>
+  </div>
+
+  <!-- 리포트 생성 CTA -->
+  <div class="action-row">
+    <a href="{% url 'guidereports:guidereport_main' %}?new=1" class="btn-create-report">
+      ➕ 새로운 가이드 리포트 정산서 작성하기
+    </a>
+  </div>
+
+  <!-- 기본 프로필 정보 -->
+  <div class="section-header">
+    <h3 class="section-title">
+      기본 프로필 정보
+      {% if guide.is_sponsored %}
+        <span class="sponsored-badge">SPONSORED</span>
+      {% endif %}
+    </h3>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-item">
+      <label>첫 트레이닝</label>
+      <span>{{ guide.init_training_date|date:"d-M-Y" }}</span>
+    </div>
+    <div class="info-item">
+      <label>Grade</label>
+      <span>{{ guide.grade }}</span>
+    </div>
+    <div class="info-item">
+      <label>생년월일</label>
+      <span>{{ guide.birth_date|date:"d-M-Y" }}</span>
+    </div>
+    <div class="info-item">
+      <label>연락처</label>
+      <span>{{ guide.contact_info }}</span>
+    </div>
+    <div class="info-item">
+      <label>주소</label>
+      <span>{{ guide.address }}</span>
+    </div>
+    <div class="info-item span-2">
+      <label>ABN</label>
+      <span style="letter-spacing: 0.5px;">{{ guide.abn }}</span>
+    </div>
+  </div>
+
+  <!-- 지급 계좌 정보 -->
+  <div class="section-header">
+    <h3 class="section-title">지급 계좌 정보</h3>
+  </div>
+
+  <div class="info-grid">
+    <div class="info-item">
+      <label>은행명</label>
+      <span>{{ guide.bank_account_name }}</span>
+    </div>
+    <div class="info-item">
+      <label>BSB</label>
+      <span>{{ guide.bsb }}</span>
+    </div>
+    <div class="info-item span-2">
+      <label>계좌번호</label>
+      <span>{{ guide.account_number }}</span>
+    </div>
+  </div>
+  
+  <!-- 정산 리포트 목록 및 필터 탭 -->
+  <div class="section-header">
+    <h3 class="section-title">작성된 가이드 리포트 정산서 목록</h3>
+  </div>
+
+  <!-- 상태 필터 탭 -->
+  <div class="filter-tabs">
+    <a href="{% url 'mypage:index' %}" class="filter-tab {% if request.resolver_match.url_name == 'index' %}active{% endif %}">ALL</a>
+    <a href="{% url 'mypage:unpaid_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'unpaid_reports' %}active{% endif %}">UNPAID</a>
+    <a href="{% url 'mypage:confirmed_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'confirmed_reports' %}active{% endif %}">CONFIRMED</a>
+    <a href="{% url 'mypage:paid_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'paid_reports' %}active{% endif %}">PAID</a>
+  </div>
+
+  <!-- Xero 데이터 테이블 형태 리스트 -->
+  <div class="xero-table-container">
+    <div class="xero-table-header">
+      <span>Invoice / Reference</span>
+      <span>Status</span>
+    </div>
+
+    <ul class="xero-list">
+      {% for report in paid_reports %}
+      <li class="report-item">
+        <a href="{% url 'guidereports:detail' report.pk %}" class="report-link">
+          <div class="report-info-group">
+            <span class="invoice-num">#{{ report.invoice_number }}</span> 
+            <span class="group-code">{{ report.group_code }}</span>
+          </div>
+          
+          <div>
+            {% if report.is_paid %} 
+              <span class="status-mini-badge mini-paid">PAID</span> 
+            {% elif report.is_confirmed %} 
+              <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
+            {% else %} 
+              <span class="status-mini-badge mini-waiting">WAITING</span>
+            {% endif %}
+          </div>
+        </a>
+      </li>    
+      {% empty %}
+      <li class="report-item" style="color: #94a3b8; text-align: center; padding: 40px 20px; font-size: 13px; font-weight: 500; background: #ffffff;">
+        등록된 리포트가 없습니다.
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // 1. 페이지 로드 시 저장된 스크롤 위치 복원
+    const savedScrollPos = sessionStorage.getItem("scrollPosition");
+    if (savedScrollPos) {
+      window.scrollTo(0, parseInt(savedScrollPos, 10));
+      sessionStorage.removeItem("scrollPosition");
+    }
+
+    // 2. 필터 탭 클릭 시 스크롤 위치 저장
+    const filterTabs = document.querySelectorAll(".filter-tab");
+    filterTabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        sessionStorage.setItem("scrollPosition", window.scrollY);
+      });
+    });
+  });
+</script>
+
+{% endblock %}
