@@ -3,55 +3,53 @@
 {% block content %}
 <style>
   /* ==========================================================
-     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 꽉 참)
+     🏢 [Xero Design System] Detail View (Mobile First Design)
      ========================================================== */
   
-  /* 부모 가두기 해제 및 좌우 스크롤 강제 방지 */
+  /* 부모 컨테이너 오버라이딩 */
   html, body, .container {
-    background-color: #ffffff !important;
+    background-color: #f8fafc !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow-x: hidden !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
 
-  /* 리포트 본문 - 모바일에서는 여백 없이 꽉 채움 */
-  .report-container { 
+  /* 메인 리포트 카운터 메인 박스 */
+  .xero-detail-card { 
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 auto !important; 
-    padding: 30px 20px 80px 20px !important; 
-    border-radius: 0 !important;
-    border: none !important;
-    box-shadow: none !important;
+    padding: 24px 16px 80px 16px !important; 
     background: #ffffff !important;
     box-sizing: border-box !important;
     min-height: calc(100vh - 57px) !important;
   }
 
-  /* 상단 네비게이션 - 모바일 최적화 (세로 정렬) */
-  .nav-block {
+  /* 상단 네비게이션 헤더 */
+  .xero-nav-bar {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
-    margin-bottom: 25px;
+    margin-bottom: 24px;
   }
   
-  .nav-right-group { 
+  .xero-nav-actions { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
     gap: 8px; 
     width: 100%;
   }
 
-  .back-link, .edit-link, .pdf-link {
+  .btn-xero-back, .btn-xero-edit, .btn-xero-pdf {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 12px;
-    border-radius: 10px;
+    padding: 10px 14px;
+    border-radius: 8px;
     text-decoration: none;
     font-size: 13px;
     font-weight: 600;
@@ -59,45 +57,51 @@
     box-sizing: border-box;
   }
 
-  .back-link { color: #475569; background: #f1f5f9; border: 1px solid #e2e8f0; }
-  .edit-link { color: #4f46e5; background: #e0e7ff; border: 1px solid #c7d2fe; }
-  .pdf-link { color: #475569; background: #ffffff; border: 1px solid #cbd5e1; }
+  .btn-xero-back { color: #475569; background: #f1f5f9; border: 1px solid #cbd5e1; }
+  .btn-xero-back:hover { background: #e2e8f0; color: #1e293b; }
 
-  .header-section { margin-bottom: 35px; padding-bottom: 25px; border-bottom: 1px solid #e2e8f0; }
+  .btn-xero-edit { color: #0284c7; background: #e0f2fe; border: 1px solid #bae6fd; }
+  .btn-xero-edit:hover { background: #bae6fd; }
+
+  .btn-xero-pdf { color: #334155; background: #ffffff; border: 1px solid #cbd5e1; }
+  .btn-xero-pdf:hover { background: #f8fafc; }
+
+  /* 인보이스 Title & Header */
+  .xero-invoice-header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid #e2e8f0; }
   
-  .title { 
-    font-size: 24px; 
+  .xero-title { 
+    font-size: 22px; 
     font-weight: 800; 
     color: #0f172a; 
-    margin: 0 0 16px 0; 
+    margin: 0 0 12px 0; 
     letter-spacing: -0.5px;
-    word-break: keep-all;
+    word-break: break-all;
   }
   
-  .invoice-date-tag {
+  .xero-date-badge {
     display: inline-block;
-    font-size: 13px;
+    font-size: 12px;
     color: #475569;
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
-    padding: 6px 14px;
-    border-radius: 8px;
+    padding: 6px 12px;
+    border-radius: 6px;
     font-weight: 600;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
-  /* 모바일 정보창 - 1열 기본 배치 */
-  .two-column-box { 
+  /* 2열 정보 박스 (Guide & Bill To) */
+  .xero-info-grid { 
     display: grid; 
     grid-template-columns: 1fr; 
     gap: 12px; 
     width: 100%;
   }
   
-  .info-detail-box {
+  .xero-info-box {
     background: #f8fafc;
-    padding: 20px;
-    border-radius: 14px;
+    padding: 16px;
+    border-radius: 10px;
     border: 1px solid #e2e8f0;
     font-size: 13px;
     line-height: 1.6;
@@ -105,338 +109,358 @@
     box-sizing: border-box;
   }
 
-  .info-detail-box strong {
+  .xero-info-box strong.box-label {
     color: #64748b;
     display: block;
     font-size: 11px;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     border-bottom: 1px solid #e2e8f0;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
     letter-spacing: 0.5px;
   }
 
-  .bill-to-text { font-size: 15px; font-weight: 700; color: #0f172a; }
+  .bill-to-company { font-size: 15px; font-weight: 700; color: #0f172a; }
   
-  .info-box { background: #f8fafc; padding: 18px 24px; border-radius: 16px; border: 1px solid #e2e8f0; margin: 30px 0; }
+  /* 인바운드/역할/코치 요약바 */
+  .xero-summary-bar { 
+    background: #f8fafc; 
+    padding: 16px; 
+    border-radius: 10px; 
+    border: 1px solid #e2e8f0; 
+    margin: 24px 0; 
+  }
   
-  /* 모바일 요약 리스트 세로 정렬 */
-  .info-grid { 
+  .xero-summary-items { 
     display: flex; 
     flex-direction: column; 
-    align-items: flex-start; 
-    gap: 15px; 
+    gap: 12px; 
     width: 100%;
   }
-  .info-item { 
+
+  .xero-summary-item { 
     width: 100%; 
-    border-bottom: 1px solid #f1f5f9; 
+    border-bottom: 1px solid #e2e8f0; 
     padding-bottom: 8px; 
     box-sizing: border-box;
   }
-  .info-item:last-child { border-bottom: none; }
-  .info-item strong { color: #64748b; display: block; font-size: 11px; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px; }
-  .info-highlight { font-size: 16px; font-weight: 700; color: #0f172a; }
+  .xero-summary-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .xero-summary-item strong { color: #64748b; display: block; font-size: 11px; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
+  .summary-val { font-size: 15px; font-weight: 700; color: #0f172a; }
 
-  .section-card {
+  /* 섹션 카드 (Events, Expenses, Fuels) */
+  .xero-section-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px 14px;
-    margin-bottom: 30px;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
     box-sizing: border-box;
     width: 100%;
   }
 
-  .section-title { font-size: 16px; font-weight: 700; color: #475569; margin: 0 0 14px 0; padding-left: 6px; border-left: 3px solid #4f46e5; }
-  .data-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
-  .data-item { padding: 14px 4px; border-bottom: 1px solid #f1f5f9; font-size: 14px; display: flex; justify-content: space-between; align-items: center; color: #334155; gap: 15px; }
-  .data-item:last-child { border-bottom: none; }
-  .text-price-black { color: #0f172a; font-weight: 600; font-size: 15px; white-space: nowrap; }
+  .xero-section-title { 
+    font-size: 15px; 
+    font-weight: 700; 
+    color: #0f172a; 
+    margin: 0 0 14px 0; 
+    padding-left: 8px; 
+    border-left: 3px solid #0284c7; 
+  }
 
-  .subtotal-item { padding: 16px 4px 4px 4px; margin-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 14px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
-  .subtotal-label { font-size: 12px; color: #64748b; font-weight: 700; }
-  .subtotal-value { font-size: 16px; font-weight: 700; color: #4f46e5; }
+  .xero-data-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+  .xero-data-row { padding: 12px 4px; border-bottom: 1px solid #f1f5f9; font-size: 13px; display: flex; justify-content: space-between; align-items: center; color: #334155; gap: 12px; }
+  .xero-data-row:last-child { border-bottom: none; }
+  .price-black { color: #0f172a; font-weight: 700; font-size: 14px; white-space: nowrap; }
 
-  .total-section { text-align: center; margin: 40px 0; padding: 24px 14px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; box-sizing: border-box; width: 100%; }
-  .total-group { display: flex; flex-direction: column; align-items: center; }
-  .total-label { font-size: 11px; color: #64748b; font-weight: 700; margin-bottom: 8px; letter-spacing: 0.5px; }
-  .total-amount { font-size: 30px; font-weight: 800; color: #4f46e5; }
+  .xero-subtotal-row { padding: 14px 4px 4px 4px; margin-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 13px; display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+  .subtotal-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+  .subtotal-val { font-size: 15px; font-weight: 700; color: #0284c7; }
 
-  .status-form { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 40px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
-  .status-badge { display: inline-flex; justify-content: center; align-items: center; width: 100%; max-width: 100%; padding: 16px 24px; border-radius: 14px; font-size: 13px; font-weight: 800; text-decoration: none; box-sizing: border-box; text-transform: uppercase; letter-spacing: 0.5px; }
-  .status-confirmed { background-color: #fefce8; color: #b45309; border: 1px solid #fef9c3; }
+  /* 슈퍼 총액 섹션 */
+  .xero-total-summary { text-align: center; margin: 32px 0; padding: 20px; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd; box-sizing: border-box; width: 100%; }
+  .xero-total-grid { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+  .xero-total-group { display: flex; flex-direction: column; align-items: center; }
+  .xero-total-label { font-size: 11px; color: #0369a1; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.5px; }
+  .xero-total-amount { font-size: 28px; font-weight: 800; color: #0284c7; }
+  .xero-super-amount { font-size: 20px; font-weight: 700; color: #334155; }
+
+  /* 상태 수정 및 승인 버튼 영역 */
+  .xero-status-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 32px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
+  .xero-badge-btn { display: inline-flex; justify-content: center; align-items: center; width: 100%; max-width: 100%; padding: 14px 20px; border-radius: 10px; font-size: 13px; font-weight: 800; text-decoration: none; box-sizing: border-box; text-transform: uppercase; letter-spacing: 0.5px; border: none; cursor: pointer; transition: all 0.2s ease; }
   
-  .delete-link-container { text-align: center; margin-top: 25px; }
-  .delete-link { font-size: 13px; color: #94a3b8; text-decoration: none; font-weight: 500; }
-  .delete-link:hover { color: #f43f5e; text-decoration: underline; }
+  .badge-waiting { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+  .badge-waiting:hover { background-color: #fde68a; }
+
+  .badge-confirmed { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .badge-confirmed:hover { background-color: #bae6fd; }
+
+  .badge-paid { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .badge-paid:hover { background-color: #bbf7d0; }
+
+  .delete-link-wrap { text-align: center; margin-top: 24px; }
+  .btn-delete { font-size: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; }
+  .btn-delete:hover { color: #ef4444; text-decoration: underline; }
 
   /* ==========================================================
-     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 데스크톱 폼으로 변신
+     🖥️ [Desktop View] 451px 이상 레이아웃
      ========================================================== */
   @media screen and (min-width: 451px) {
-    html, body {
-      background-color: #f8fafc !important;
-    }
-    .container {
-      width: 100% !important;
-      max-width: 1200px !important;
-      margin: 0 auto !important;
-    }
-    .report-container { 
-      max-width: 750px !important; 
-      margin: 60px auto !important; 
-      padding: 45px !important; 
-      border-radius: 24px !important;
+    .xero-detail-card { 
+      max-width: 768px !important; 
+      margin: 40px auto !important; 
+      padding: 40px !important; 
+      border-radius: 16px !important;
       border: 1px solid #e2e8f0 !important;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05) !important;
     }
-    .nav-block {
+    .xero-nav-bar {
       flex-direction: row !important;
       justify-content: space-between !important;
       align-items: center !important;
     }
-    .nav-right-group {
+    .xero-nav-actions {
       display: flex !important;
       gap: 10px !important;
       width: auto !important;
     }
-    .back-link, .edit-link, .pdf-link {
-      padding: 10px 16px !important;
-    }
-    .two-column-box { 
+    .xero-info-grid { 
       grid-template-columns: 1fr 1fr !important; 
-      gap: 20px !important;
+      gap: 16px !important;
     }
-    .info-grid { 
+    .xero-summary-items { 
       flex-direction: row !important; 
-      gap: 40px !important; 
+      gap: 32px !important; 
     }
-    .info-item { 
+    .xero-summary-item { 
       width: auto !important; 
       border-bottom: none !important; 
       padding-bottom: 0 !important;
     }
-    .section-card {
-      padding: 28px !important;
-      border-radius: 18px !important;
+    .xero-section-card {
+      padding: 24px !important;
     }
-    .status-badge {
+    .xero-total-grid {
+      flex-direction: row !important;
+      justify-content: space-around !important;
+    }
+    .xero-badge-btn {
       max-width: 320px !important;
     }
   }
 </style>
 
-<div class="report-container">
-  <div class="nav-block">
+<div class="xero-detail-card">
+  
+  <!-- 상단 네비게이션 -->
+  <div class="xero-nav-bar">
     {% if request.user.username == 'admin' %}
       {% if guide_report.pay_status == 'payable' %}
-        <a href="{% url 'joyadmin:payable_reports' %}" class="back-link">← PAYABLE LIST</a>
+        <a href="{% url 'joyadmin:payable_reports' %}" class="btn-xero-back">← PAYABLE LIST</a>
       {% elif guide_report.pay_status == 'paid' %}
-        <a href="{% url 'joyadmin:paid_reports' %}" class="back-link">← PAID LIST</a>
+        <a href="{% url 'joyadmin:paid_reports' %}" class="btn-xero-back">← PAID LIST</a>
       {% elif guide_report.pay_status == 'unpaid' %}
-        <a href="{% url 'joyadmin:unpaid_reports' %}" class="back-link">← UNPAID LIST</a>
+        <a href="{% url 'joyadmin:unpaid_reports' %}" class="btn-xero-back">← UNPAID LIST</a>
       {% else %}
-        <a href="{% url 'joyadmin:all_reports' %}" class="back-link">← ALL LIST</a>
+        <a href="{% url 'joyadmin:all_reports' %}" class="btn-xero-back">← ALL LIST</a>
       {% endif %}
     {% else %}
-    <a href="{% url 'mypage:index' %}" class="back-link">← Mypage</a>
+      <a href="{% url 'mypage:index' %}" class="btn-xero-back">← Mypage</a>
     {% endif %}
     
-    <div class="nav-right-group">
-      <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}" class="pdf-link">PDF 다운로드</a>
-      {% if guide_report.is_paid == False %}
-      <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="edit-link">리포트 수정하기</a>
+    <div class="xero-nav-actions">
+      <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}" class="btn-xero-pdf">PDF 다운로드</a>
+      {% if not guide_report.is_paid %}
+        <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="btn-xero-edit">리포트 수정하기</a>
       {% endif %}
     </div>
   </div>
 
-  <div class="header-section">
-    <h2 class="title">#{{ invoice_number }}. {{ guide_report.group_code }}</h2>
-    <div class="invoice-date-tag">
+  <!-- 헤더 영역 -->
+  <div class="xero-invoice-header">
+    <h2 class="xero-title">#{{ invoice_number }}. {{ guide_report.group_code }}</h2>
+    <div class="xero-date-badge">
       <strong>Invoice Date:</strong> {{ guide_report.invoice_date|date:"d-M-Y" }}
     </div>
 
-    <div class="two-column-box">
-      <div class="info-detail-box">
-        <strong>Guide Payment Details</strong>
+    <!-- 2열 프로필 / 회사 정보 -->
+    <div class="xero-info-grid">
+      <div class="xero-info-box">
+        <strong class="box-label">Guide Payment Details</strong>
         {% if request.user.username == 'admin' %}
-        <a href="{% url 'guides:guide_detail' guide_report.guide.id %}" style="font-weight: 700; color: #0f172a;">{{ guide_report.guide.name }} </a>
+          <a href="{% url 'guides:guide_detail' guide_report.guide.id %}" style="font-weight: 700; color: #0284c7; text-decoration: none;">{{ guide_report.guide.name }}</a>
         {% else %}
-        <span style="font-weight: 700; color: #0f172a;">{{ guide_report.guide.name }} 
+          <span style="font-weight: 700; color: #0f172a;">{{ guide_report.guide.name }}</span>
         {% endif %}
         {% if guide_report.guide.is_sponsored %}
-        (SPONSORED)
+          <span style="color: #0284c7; font-size: 11px; font-weight: 700;">(SPONSORED)</span>
         {% endif %}
-        </span><br>
+        <br>
         ABN: {{ guide_report.guide.abn }}<br>
         Contact: {{ guide_report.guide.contact_info }}<br>
         <span style="color: #64748b; font-size: 12px; display: inline-block; margin-top: 4px;">BSB: {{ guide_report.guide.bsb }} | Acc: {{ guide_report.guide.account_number }}</span>
       </div>
-      <div class="info-detail-box">
-        <strong>Bill To</strong>
-        <div class="bill-to-text">Joy Study Tour Pty Ltd</div>
+      
+      <div class="xero-info-box">
+        <strong class="box-label">Bill To</strong>
+        <div class="bill-to-company">Joy Study Tour Pty Ltd</div>
         <div style="color: #64748b; margin-top: 2px;">Australia</div>
       </div>
     </div>
   </div>
 
-  <div class="info-box">
-    <div class="info-grid">
-      <div class="info-item">
+  <!-- 구분/역할 정보 Summary -->
+  <div class="xero-summary-bar">
+    <div class="xero-summary-items">
+      <div class="xero-summary-item">
         <strong>구분</strong>
-        <span class="info-highlight">{{ guide_report.day_inbound }}</span>
+        <span class="summary-val">{{ guide_report.day_inbound }}</span>
       </div>
-      <div class="info-item">
+      <div class="xero-summary-item">
         <strong>역할</strong>
-        <span class="info-highlight">{{ guide_report.role }}</span>
+        <span class="summary-val">{{ guide_report.role }}</span>
       </div>
       {% if guide_report.coach %}
-      <div class="info-item">
+      <div class="xero-summary-item">
         <strong>코치 타입</strong>
-        <span class="info-highlight">{{ guide_report.coach }}</span>
+        <span class="summary-val">{{ guide_report.coach }}</span>
       </div>
       {% endif %}
 
       {% if guide_report.day_inbound == 'INBOUND' %}
-      <div class="info-item">
+      <div class="xero-summary-item">
         <strong>인원 요약</strong>
-          <span class="info-highlight" style="font-size: 13px;"><span style="color: #94a3b8; font-size: 11px; margin-right: 3px;">ADT</span>{{ guide_report.adt|default:0 }}</span>
-          <span class="info-highlight" style="font-size: 13px;"><span style="color: #94a3b8; font-size: 11px; margin-right: 3px;">CHD</span>{{ guide_report.chd|default:0 }}</span>
-          <span class="info-highlight" style="font-size: 13px;"><span style="color: #94a3b8; font-size: 11px; margin-right: 3px;">TC</span>{{ guide_report.tc|default:0 }}</span>
+        <span class="summary-val" style="font-size: 13px;">
+          <span style="color: #94a3b8; font-size: 11px; margin-right: 2px;">ADT</span>{{ guide_report.adt|default:0 }}
+          <span style="color: #94a3b8; font-size: 11px; margin-left: 6px; margin-right: 2px;">CHD</span>{{ guide_report.chd|default:0 }}
+          <span style="color: #94a3b8; font-size: 11px; margin-left: 6px; margin-right: 2px;">TC</span>{{ guide_report.tc|default:0 }}
+        </span>
       </div>
       {% endif %}    
     </div>
   </div>
 
-  <div class="section-card">
-    <h3 class="section-title" style="margin-top: 0;">Events</h3>
-    <ul class="data-list">
+  <!-- Events & Expenses 카드 -->
+  <div class="xero-section-card">
+    <h3 class="xero-section-title">Events</h3>
+    <ul class="xero-data-list">
       {% for event in events %}
-      <li class="data-item">
+      <li class="xero-data-row">
         <span>
-          <span style="color: #64748b; font-size: 13px;">{{ event.report_date|date:"d-M-Y" }}</span> &nbsp;&nbsp;
-          <span style="font-weight: 700; color: #4f46e5;">{{ event.eventcode }}</span>
-          {% if guide_report.day_inbound == 'INBOUND' %} <span style="color: #94a3b8; font-size: 13px;">({{ event.hours }} hrs)</span> {% endif %}
+          <span style="color: #64748b; font-size: 12px;">{{ event.report_date|date:"d-M-Y" }}</span> &nbsp;
+          <span style="font-weight: 700; color: #0f172a;">{{ event.eventcode }}</span>
+          {% if guide_report.day_inbound == 'INBOUND' %} <span style="color: #94a3b8; font-size: 12px;">({{ event.hours }} hrs)</span> {% endif %}
         </span>
-        <span class="text-price-black">${{ event.guide_fee }}</span>
+        <span class="price-black">${{ event.guide_fee }}</span>
       </li>
 
       {% if event.overtime and event.overtime != "0" %}
-        <li class="data-item" style="background-color: #f8fafc; padding-left: 20px; border-left: 3px solid #818cf8; border-bottom: 1px solid #f1f5f9;">
-          <span style="font-size: 13px; color: #64748b;">
-            └ Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong>
+        <li class="xero-data-row" style="background-color: #f8fafc; padding-left: 16px; border-left: 3px solid #38bdf8;">
+          <span style="font-size: 12px; color: #475569;">
+            └ Overtime Fee — <strong style="color: #0284c7;">{{ event.overtime }} hrs</strong>
           </span>
         </li>
       {% endif %}
       {% endfor %}
       
-      <li class="subtotal-item">
+      <li class="xero-subtotal-row">
         <span class="subtotal-label">Event Subtotal (inc. GST)</span>
-        <span class="subtotal-value">${{ event_fee }}</span>
+        <span class="subtotal-val">${{ event_fee }}</span>
       </li>
     </ul>
 
-    <h3 class="section-title">Guide Expenses</h3>
-    <ul class="data-list">
+    <h3 class="xero-section-title" style="margin-top: 24px;">Guide Expenses</h3>
+    <ul class="xero-data-list">
       {% for exp in guide_report.expenses.all %}
-      <li class="data-item">
-        <span>{{ exp.expense_type }} {% if exp.memo %}<span style="color:#64748b; font-size: 13px;">({{ exp.memo }})</span>{% endif %}</span>
-        <span class="text-price-black">${{ exp.expense }}</span>
+      <li class="xero-data-row">
+        <span>{{ exp.expense_type }} {% if exp.memo %}<span style="color:#64748b; font-size: 12px;">({{ exp.memo }})</span>{% endif %}</span>
+        <span class="price-black">${{ exp.expense }}</span>
       </li>
       {% empty %}
       {% endfor %}
       {% for event in guide_report.events.all %}
       {% if event.overtime and event.overtime != "0" %}
-      <li class="data-item">
-        <span>Overtime Fee — <strong style="color: #4f46e5;">{{ event.overtime }} hrs</strong></span>
+      <li class="xero-data-row">
+        <span>Overtime Fee — <strong style="color: #0284c7;">{{ event.overtime }} hrs</strong></span>
         {% widthratio event.overtime 1 30 as overtime_cost %}
-        <span class="text-price-black">${{ overtime_cost|floatformat:1 }}</span>      </li>
+        <span class="price-black">${{ overtime_cost|floatformat:1 }}</span>
+      </li>
       {% endif %}
       {% endfor %}
-      <li class="subtotal-item">
+      <li class="xero-subtotal-row">
         <span class="subtotal-label">Expense Subtotal (inc. GST)</span>
-        <span class="subtotal-value">${{ expense_fee }}</span>
+        <span class="subtotal-val">${{ expense_fee }}</span>
       </li>
     </ul>
   </div>
 
-  <div class="total-section">
-    <div class="total-grid">
-      <div class="total-group">
-        <span class="total-label">TOTAL (INC. GST)</span>
-        <div class="total-amount">${{ final_amount_due }}</div>
+  <!-- Total 요약 영역 -->
+  <div class="xero-total-summary">
+    <div class="xero-total-grid">
+      <div class="xero-total-group">
+        <span class="xero-total-label">TOTAL (INC. GST)</span>
+        <div class="xero-total-amount">${{ final_amount_due }}</div>
       </div>
       
       {% if request.user.username == 'admin' %}
-      <div class="total-group">
-        <span class="total-label">SUPER ANNUATION</span>
-        <div class="super-amount">${{ super_ann }}</div>
+      <div class="xero-total-group">
+        <span class="xero-total-label">SUPER ANNUATION</span>
+        <div class="xero-super-amount">${{ super_ann }}</div>
       </div>
       {% endif %}
     </div>
   </div>
 
-  <div class="section-card">
-    <h3 class="section-title" style="margin-top: 0;">Fuel Expenses</h3>
-    <ul class="data-list">
+  <!-- Fuel, Restaurant, Attraction 카드 -->
+  <div class="xero-section-card">
+    <h3 class="xero-section-title">Fuel Expenses</h3>
+    <ul class="xero-data-list">
       {% if guide_report.fuels.all %}
         {% for fuel in guide_report.fuels.all %}
-        <li class="data-item">
-          <span><span style="color: #64748b;">{{ fuel.report_date|date:"d-M-Y" }}</span> &nbsp;{% if fuel.memo %}<span style="color:#64748b; font-size: 13px;">({{ fuel.memo }})</span>{% endif %}</span>
-          <span class="text-price-black">${{ fuel.expense }}</span>
+        <li class="xero-data-row">
+          <span><span style="color: #64748b;">{{ fuel.report_date|date:"d-M-Y" }}</span> &nbsp;{% if fuel.memo %}<span style="color:#64748b; font-size: 12px;">({{ fuel.memo }})</span>{% endif %}</span>
+          <span class="price-black">${{ fuel.expense }}</span>
         </li>
         {% endfor %}
       {% else %}
-        <li class="data-item" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 20px 0;">No fuel records</li>
+        <li class="xero-data-row" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 16px 0;">No fuel records</li>
       {% endif %}
     </ul>
 
     {% if guide_report.day_inbound == 'INBOUND' %}
     {% if guide_report.restaurants.all %}
-      <h3 class="section-title">Restaurants</h3>
+      <h3 class="xero-section-title" style="margin-top: 24px;">Restaurants</h3>
 
-      <form method="POST" action="{% url 'guidereports:update_restaurant' guide_report.pk %}" style="margin: 0; padding: 0;">
+      <form method="POST" action="{% url 'guidereports:update_restaurant' guide_report.pk %}" style="margin: 0;">
         {% csrf_token %}
-        <ul class="data-list" style="list-style: none; padding: 0; margin: 0;">
+        <ul class="xero-data-list">
           {% for r in guide_report.restaurants.all %}
-            <li class="data-item" style="display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
+            <li class="xero-data-row" style="flex-wrap: wrap;">
               <span>
                 <span style="color: #64748b;">{{ r.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; 
                 <span style="font-weight: 600;">{{ r.expense_type }}</span> 
-                {% if r.memo %}<span style="color:#64748b; font-size: 13px;">({{ r.memo }})</span>{% endif %}
+                {% if r.memo %}<span style="color:#64748b; font-size: 12px;">({{ r.memo }})</span>{% endif %}
               </span>
               
               <span style="display: inline-flex; align-items: center; gap: 8px;">
                 {% if request.user.username == 'admin' %}
-                  <span style="display: inline-flex; align-items: center; gap: 5px;">
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      ADT <input type="number" min="0" name="adt_{{ r.pk }}" value="{{ r.adt }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      CHD <input type="number" min="0" name="chd_{{ r.pk }}" value="{{ r.chd }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      TC <input type="number" min="0" name="tc_{{ r.pk }}" value="{{ r.tc }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      TG <input type="number" min="0" name="tg_{{ r.pk }}" value="{{ r.tg }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px; margin-right: 4px;">
-                      DR <input type="number" min="0" name="dr_{{ r.pk }}" value="{{ r.dr }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
+                  <span style="display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">ADT <input type="number" min="0" name="adt_{{ r.pk }}" value="{{ r.adt }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">CHD <input type="number" min="0" name="chd_{{ r.pk }}" value="{{ r.chd }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">TC <input type="number" min="0" name="tc_{{ r.pk }}" value="{{ r.tc }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">TG <input type="number" min="0" name="tg_{{ r.pk }}" value="{{ r.tg }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">DR <input type="number" min="0" name="dr_{{ r.pk }}" value="{{ r.dr }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
                   </span>
-                  <span style="font-weight: 600; color: #0f172a; min-width: 60px; text-align: right;">${{ r.expense }}</span> 
+                  <span style="font-weight: 700; color: #0f172a; min-width: 50px; text-align: right;">${{ r.expense }}</span> 
                 {% endif %}
-                
               </span>
             </li>
           {% endfor %} 
         </ul>
         
         {% if request.user.username == 'admin' %}
-          <div style="text-align: right; margin-top: 20px;">
-            <button type="submit" style="display: inline-flex; align-items: center; padding: 10px 20px; color: #4f46e5; background: #e0e7ff; border: 1px solid #c7d2fe; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#c7d2fe'" onmouseout="this.style.background='#e0e7ff'">
+          <div style="text-align: right; margin-top: 16px;">
+            <button type="submit" style="padding: 8px 16px; color: #0284c7; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
               Restaurant 인원 수 즉시 저장
             </button>
           </div>
@@ -445,86 +469,75 @@
     {% endif %}
 
     {% if guide_report.attractions.all %}
-      <h3 class="section-title" style="margin-top: 30px;">Attractions</h3>
+      <h3 class="xero-section-title" style="margin-top: 24px;">Attractions</h3>
 
-      <form method="POST" action="{% url 'guidereports:update_attraction' guide_report.pk %}" style="margin: 0; padding: 0;">
+      <form method="POST" action="{% url 'guidereports:update_attraction' guide_report.pk %}" style="margin: 0;">
         {% csrf_token %}
-        <ul class="data-list" style="list-style: none; padding: 0; margin: 0;">
+        <ul class="xero-data-list">
           {% for a in guide_report.attractions.all %}
-            <li class="data-item" style="display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 8px 0; border-bottom: 1px solid #f1f5f9;">
-              
+            <li class="xero-data-row" style="flex-wrap: wrap;">
               <span>
-                <span style="color: #64748b; font-size: 13px;">{{ a.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; 
+                <span style="color: #64748b; font-size: 12px;">{{ a.report_date|date:"d-M-Y" }}</span> &nbsp;|&nbsp; 
                 <span style="font-weight: 600; color: #0f172a;">{{ a.expense_type }}</span> 
-                {% if a.memo %}<span style="color:#64748b; font-size: 13px;">({{ a.memo }})</span>{% endif %}
+                {% if a.memo %}<span style="color:#64748b; font-size: 12px;">({{ a.memo }})</span>{% endif %}
               </span>
               
               <span style="display: inline-flex; align-items: center; gap: 8px;">
                 {% if request.user.username == 'admin' %}
-                  <span style="display: inline-flex; align-items: center; gap: 5px;">
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      ADT <input type="number" min="0" name="adt_{{ a.pk }}" value="{{ a.adt }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      CHD <input type="number" min="0" name="chd_{{ a.pk }}" value="{{ a.chd }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      TC <input type="number" min="0" name="tc_{{ a.pk }}" value="{{ a.tc }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px;">
-                      TG <input type="number" min="0" name="tg_{{ a.pk }}" value="{{ a.tg }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
-                    <label style="font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-flex; align-items: center; gap: 3px; margin-right: 4px;">
-                      TOD <input type="number" min="0" name="tod_{{ a.pk }}" value="{{ a.tod }}" style="width: 36px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px; font-weight: 600; color: #0f172a; outline: none; transition: border-color 0.15s ease;" onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#cbd5e1'">
-                    </label>
+                  <span style="display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap;">
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">ADT <input type="number" min="0" name="adt_{{ a.pk }}" value="{{ a.adt }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">CHD <input type="number" min="0" name="chd_{{ a.pk }}" value="{{ a.chd }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">TC <input type="number" min="0" name="tc_{{ a.pk }}" value="{{ a.tc }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">TG <input type="number" min="0" name="tg_{{ a.pk }}" value="{{ a.tg }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
+                    <label style="font-size: 10px; color: #64748b; font-weight: 700;">TOD <input type="number" min="0" name="tod_{{ a.pk }}" value="{{ a.tod }}" style="width: 34px; height: 22px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-size: 11px;"></label>
                   </span>
-                <span style="font-weight: 600; color: #0f172a; min-width: 60px; text-align: right;">${{ a.expense }}</span> 
+                  <span style="font-weight: 700; color: #0f172a; min-width: 50px; text-align: right;">${{ a.expense }}</span> 
                 {% endif %}
-                
               </span>
             </li>
           {% endfor %} 
         </ul>
 
         {% if request.user.username == 'admin' %}
-          <div style="text-align: right; margin-top: 20px;">
-              <button type="submit" style="display: inline-flex; align-items: center; padding: 10px 20px; color: #4f46e5; background: #e0e7ff; border: 1px solid #c7d2fe; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.background='#c7d2fe'" onmouseout="this.style.background='#e0e7ff'">
-                Attraction 인원 수 즉시 저장
-              </button>
+          <div style="text-align: right; margin-top: 16px;">
+            <button type="submit" style="padding: 8px 16px; color: #0284c7; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+              Attraction 인원 수 즉시 저장
+            </button>
           </div>
         {% endif %}
-        </form>
-      {% endif %}    
+      </form>
+    {% endif %}
 
-      {% endif %}
-      </div>
+    {% endif %}
+  </div>
 
-  <div class="status-form">
+  <!-- 승인 및 정산 상태 처리 버튼 영역 -->
+  <div class="xero-status-actions">
     {% if request.user.username == 'admin' %}
       {% if not guide_report.is_confirmed %}
         <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center;">
           {% csrf_token %}
-          <button type="submit" class="status-badge status-confirm-btn status-waiting">
+          <button type="submit" class="xero-badge-btn badge-waiting">
             CONFIRM REPORT
           </button>
         </form>
       {% elif not guide_report.is_paid %}
-        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 6px;">
+        <form method="POST" action="{% url 'guidereports:guidereport_confirm' guide_report.id %}" style="width: 100%; text-align: center; margin-bottom: 8px;">
           {% csrf_token %}
-          <button type="submit" class="status-badge status-confirm-btn status-confirmed">
+          <button type="submit" class="xero-badge-btn badge-confirmed">
             CONFIRMED (Undo)
           </button>
         </form>
         <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
           {% csrf_token %}
-          <button type="submit" class="status-badge status-pay-btn status-waiting">
+          <button type="submit" class="xero-badge-btn badge-waiting">
             PAY REPORT
           </button>
         </form> 
       {% elif guide_report.is_paid and guide_report.is_confirmed %}
         <form method="POST" action="{% url 'guidereports:guidereport_pay' guide_report.id %}" style="width: 100%; text-align: center;">
           {% csrf_token %}
-          <button type="submit" class="status-badge status-pay-btn status-paid">
+          <button type="submit" class="xero-badge-btn badge-paid">
             PAID (Undo)
           </button>
         </form> 
@@ -532,18 +545,18 @@
     {% else %}
       <div style="width: 100%; text-align: center;">
         {% if guide_report.is_paid %}
-          <span class="status-badge status-paid">PAID</span>
+          <span class="xero-badge-btn badge-paid" style="cursor: default;">PAID</span>
         {% elif guide_report.is_confirmed %}
-          <span class="status-badge status-confirmed">CONFIRMED</span>
+          <span class="xero-badge-btn badge-confirmed" style="cursor: default;">CONFIRMED</span>
         {% else %}
-          <span class="status-badge status-waiting">WAITING FOR CONFIRMATION</span>
+          <span class="xero-badge-btn badge-waiting" style="cursor: default;">WAITING FOR CONFIRMATION</span>
         {% endif %}
       </div>    
     {% endif %}
   </div>
 
-  <div class="delete-link-container">
-    <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}" class="delete-link">GuideReport 삭제</a>
+  <div class="delete-link-wrap">
+    <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}" class="btn-delete">GuideReport 삭제</a>
   </div>
 </div>
 
