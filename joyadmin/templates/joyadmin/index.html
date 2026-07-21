@@ -1,279 +1,84 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
 
-<style>
-  /* ==========================================================
-     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 전체화면 대응)
-     ========================================================== */
+<!-- CSS 캐시 방지용 버전 파라미터(?v=1.2) 포함 -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_style.css' %}?v=1.2">
+
+<div class="xero-admin-card">
   
-  /* ⚠️ html, body 전체 스타일 지정을 제거하고, 대시보드를 감싸는 독립적인 래퍼를 생성합니다. */
-  .admin-page-wrapper {
-    background-color: #ffffff;
-    min-height: calc(100vh - 60px); /* 네비게이션 높이를 고려한 최소 높이 */
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
-  }
-  
-  /* 🌟 화이트 글래스모피즘 어드민 컨테이너 */
-  .admin-container { 
-    width: 100%;
-    max-width: 100%; 
-    margin: 0 auto; 
-    padding: 40px 20px; 
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: #ffffff; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    box-sizing: border-box;
-    min-height: calc(100vh - 140px);
-  }
-  
-  /* 대시보드 타이틀 스타일 */
-  .title { 
-    font-size: 24px; 
-    font-weight: 800; 
-    color: #0f172a; 
-    text-align: center;
-    margin: 0 0 24px 0; 
-    width: 100%; 
-    letter-spacing: -0.5px;
-    word-break: keep-all;
-  }
+  <div class="xero-header">
+    <h2 class="xero-title">Admin Dashboard</h2>
+  </div>
 
-  /* 🔔 환영 메시지 및 안내 문구 */
-  .welcome-box {
-    width: 100%;
-    text-align: center;
-    font-size: 16px;
-    font-weight: 700;
-    color: #334155;
-    margin-bottom: 24px;
-  }
-  .welcome-box .username {
-    color: #4f46e5;
-  }
-  .notice-text {
-    display: block;
-    font-size: 12px; 
-    color: #64748b;
-    font-weight: 400;
-    margin-top: 8px;
-    line-height: 1.5;
-    word-break: keep-all;
-  }
+  {% if request.user.username == 'admin' %}
+  <!-- 환영 안내 박스 -->
+  <div class="xero-welcome-box">
+    <span class="username">{{ request.user.username }}</span>님, 환영합니다!
+    <span class="notice-text">
+      관리자 계정 전용 페이지입니다. 일반 사용자 계정으로 접근 시, 일부 기능이 제한될 수 있습니다.
+    </span>
+  </div>
 
-  /* 🪪 관리자 상세 정보 카드 레이아웃 */
-  .admin-info-card {
-    width: 100%;
-    background: rgba(241, 245, 249, 0.7);
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 32px;
-    box-sizing: border-box;
-  }
-  .info-group {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-    font-size: 13px;
-  }
-  .info-group:last-child {
-    border-bottom: none;
-    padding-bottom: 0;
-  }
-  .info-group:first-child {
-    padding-top: 0;
-  }
-  .info-label {
-    color: #64748b;
-    font-weight: 600;
-    flex-shrink: 0;
-    margin-right: 15px;
-  }
-  .info-value {
-    color: #1e293b;
-    font-weight: 500;
-    text-align: right;
-    word-break: break-all;
-  }
-  
-  /* 메뉴 래퍼 폭 조절 */
-  .menu-wrapper { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
-    width: 100%; 
-  } 
-  
-  /* 🚀 인디고 그라디언트 메뉴 링크 버튼 (터치 영역 확보) */
-  .menu-link { 
-    display: block;
-    width: 100%; 
-    padding: 16px 0; 
-    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-    color: #ffffff; 
-    border-radius: 14px; 
-    text-decoration: none; 
-    font-size: 15px; 
-    font-weight: 700; 
-    text-align: center;
-    box-sizing: border-box;
-    transition: all 0.2s ease-in-out;
-    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.12);
-  }
-  .menu-link:active {
-    background: linear-gradient(135deg, #3730a3 0%, #1e1b4b 100%);
-  }
-
-  /* 🚪 하단 로그아웃 영역 */
-  .logout-box {
-    text-align: center; 
-    margin-top: auto; /* 모바일 화면 최하단에 안정적으로 고정 */
-    padding-top: 40px;
-    width: 100%;
-  }
-  .logout-link { 
-    display: inline-block;
-    padding: 10px 24px;
-    color: #94a3b8; 
-    text-decoration: none; 
-    font-size: 12px; 
-    font-weight: 700; 
-    letter-spacing: 0.8px;
-    transition: all 0.2s ease;
-    border-radius: 8px;
-    background: transparent;
-  } 
-  .logout-link:hover {
-    color: #ef4444; 
-    background: #fef2f2;
-  }
-
-  /* ==========================================================
-     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 데스크톱 복원
-     ========================================================== */
-  @media screen and (min-width: 451px) {
-    .admin-page-wrapper {
-      background-color: #f8fafc;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 40px 0;
-    }
-    
-    /* 화면 중앙정렬 글래스모피즘 대시보드 완벽 복구 */
-    .admin-container { 
-      width: 100%;
-      max-width: 500px; 
-      margin: 0 auto; 
-      padding: 40px 30px; 
-      background: rgba(255, 255, 255, 0.85); 
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 24px;
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06);
-      min-height: auto;
-    }
-    
-    .title { font-size: 26px; }
-    
-    .menu-link:hover { 
-      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
-    }
-    .menu-link:active {
-      transform: translateY(0);
-    }
-
-    .logout-box {
-      margin-top: 32px;
-      padding-top: 0;
-    }
-  }
-</style>
-
-<div class="admin-page-wrapper">
-  <div class="admin-container">
-    <h2 class="title">Admin Dashboard</h2>
-
-    {% if request.user.username == 'admin' %}
-    <div class="welcome-box">
-      <span class="username">{{ request.user.username }}</span>님, 환영합니다!
-      <span class="notice-text">
-        관리자 계정 전용 페이지입니다. 일반 사용자 계정으로 접근 시, 일부 기능이 제한될 수 있습니다.
-      </span>
+  <!-- 관리자 인포메이션 그리드 -->
+  <div class="summary-meta-bar" style="margin-bottom: 8px;">
+    <span class="sec-title">ADMIN INFORMATION</span>
+  </div>
+  <div class="xero-info-grid">
+    <div class="xero-info-item">
+      <span class="info-label">이름</span>
+      <span class="info-value">{{ admin.name }}</span>
     </div>
-
-    <div class="admin-info-card">
-      <div class="info-group">
-        <span class="info-label">이름</span>
-        <span class="info-value">{{ admin.name }}</span>
-      </div>
-      <div class="info-group">
-        <span class="info-label">예금주</span>
-        <span class="info-value">{{ admin.bank_account_name }}</span>
-      </div>
-      <div class="info-group">
-        <span class="info-label">ABN</span>
-        <span class="info-value">{{ admin.abn }}</span>
-      </div>
-      <div class="info-group">
-        <span class="info-label">BSB</span>
-        <span class="info-value">{{ admin.bsb }}</span>
-      </div>
-      <div class="info-group">
-        <span class="info-label">계좌 번호</span>
-        <span class="info-value">{{ admin.account_number }}</span>
-      </div>
-      <div class="info-group">
-        <span class="info-label">연락처</span>
-        <span class="info-value">{{ admin.contact_info }}</span>
-      </div>
-      <div class="info-group">
-        <span class="info-label">주소</span>
-        <span class="info-value">{{ admin.address }}</span>
-      </div>
+    <div class="xero-info-item">
+      <span class="info-label">예금주</span>
+      <span class="info-value">{{ admin.bank_account_name }}</span>
     </div>
-    {% endif %}
-
-    <div class="menu-wrapper">
-      <a href="{% url 'joyadmin:payable_reports' %}" class="menu-link">
-        Payable Reports (Last Wed ~ This Tue)
-      </a>
-      <a href="{% url 'joyadmin:unpaid_reports' %}" class="menu-link">
-        Unpaid Reports
-      </a>
-      <a href="{% url 'joyadmin:paid_reports' %}" class="menu-link">
-        Paid Reports
-      </a>
-      <a href="{% url 'joyadmin:all_reports' %}" class="menu-link">
-        All Guide Reports
-      </a>
-      <a href="{% url 'guides:index' %}" class="menu-link">
-        Tour Guides
-      </a>
+    <div class="xero-info-item">
+      <span class="info-label">ABN</span>
+      <span class="info-value">{{ admin.abn }}</span>
     </div>
-
-    <div class="logout-box">
-      <form action="{% url 'logout' %}" method="post" style="display: inline;">
-          {% csrf_token %}
-          <button type="submit" style="background: none; border: none; color: #64748b; cursor: pointer; font-size: 14px; font-weight: 600; padding: 0;">
-              LOG OUT
-          </button>
-      </form>  
+    <div class="xero-info-item">
+      <span class="info-label">BSB</span>
+      <span class="info-value">{{ admin.bsb }}</span>
+    </div>
+    <div class="xero-info-item">
+      <span class="info-label">계좌 번호</span>
+      <span class="info-value">{{ admin.account_number }}</span>
+    </div>
+    <div class="xero-info-item">
+      <span class="info-label">연락처</span>
+      <span class="info-value">{{ admin.contact_info }}</span>
+    </div>
+    <div class="xero-info-item" style="grid-column: 1 / -1;">
+      <span class="info-label">주소</span>
+      <span class="info-value">{{ admin.address }}</span>
     </div>
   </div>
+  {% endif %}
+
+  <!-- 메인 메뉴 버튼 그리드 -->
+  <div class="summary-meta-bar" style="margin-bottom: 8px;">
+    <span class="sec-title">QUICK NAVIGATION</span>
+  </div>
+  <div class="xero-menu-grid">
+    <a href="{% url 'joyadmin:payable_reports' %}" class="xero-menu-btn">
+      DASHBOARD
+    </a>
+    <a href="{% url 'guides:index' %}" class="xero-menu-btn">
+      Tour Guides
+    </a>  
+  </div>
+
+  <!-- 로그아웃 섹션 -->
+  <div class="xero-logout-wrap">
+    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn-xero-logout">
+        LOG OUT
+      </button>
+    </form>   
+  </div>
+
 </div>
 
 {% endblock %}
