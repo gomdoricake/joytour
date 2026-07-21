@@ -307,7 +307,7 @@
     <a href="{% url 'guidereports:guidereport_inbound_attraction_exp' %}" class="back-link">← 이전 단계로 돌아가기</a>
   </div>
   
-  <h2 class="title">Fuel 경비 내역</h2>
+  <h2 class="title">BP 입력 (주유카드 분실 시 다음 단계 EXP에서 추가)</h2>
 
 
   <form method="post" id="real-expense-form">
@@ -348,102 +348,36 @@
   </div>
 </div>
 
-{% endblock %}
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const formContainer = document.getElementById("expense-form-list");
-    const addButton = document.getElementById("add-form-btn");
-    const mainForm = document.getElementById("real-expense-form");
-    const submitBtn = document.getElementById("submit-final-btn");
-    const prefix = "{{ formset.prefix }}";
+  const formContainer = document.getElementById("expense-form-list");
+  const addButton = document.getElementById("add-form-btn");
 
-    // TOTAL_FORMS input 요소 가져오기 함수 (하이픈, 언더바 둘 다 대응)
-    function getTotalFormsInputs() {
-      return [
-        document.getElementById(`id_${prefix}-TOTAL_FORMS`),
-        document.getElementById(`id_${prefix}_TOTAL_FORMS`)
-      ].filter(el => el !== null);
-    }
+  if (addButton) {
+    addButton.onclick = function() {
+      const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+      const template = document.getElementById("empty-form-template");
 
-    // 1. 항목 추가 (Add Form)
-    addButton.addEventListener("click", function () {
-      const noDataAlert = document.getElementById("no-data-alert");
-      if (noDataAlert) noDataAlert.remove();
+      if (!totalFormsInput || !template) {
+        alert("요소를 찾을 수 없습니다.");
+        return;
+      }
 
-      const templateRow = document.getElementById("empty-form-template").querySelector(".expense-form-row");
-      const newRow = templateRow.cloneNode(true);
-      
-      // 현재 전체 DOM에 존재하는 row 개수 (숨겨진 것 포함)
-      const currentFormCount = formContainer.getElementsByClassName("expense-form-row").length;
+      const count = parseInt(totalFormsInput.value, 10);
+      const newRow = template.querySelector(".expense-form-row").cloneNode(true);
 
-      const prefixRegex = new RegExp("__prefix__", "g");
-      const inputs = newRow.querySelectorAll("input, select, textarea");
+      newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, count);
 
-      inputs.forEach((input) => {
-        if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
-        if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
-
-        if (input.type === "checkbox") {
-          input.checked = false;
-        } else if (input.type !== "hidden") {
-          input.value = "";
-        }
+      newRow.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.type === "checkbox") input.checked = false;
+        else if (input.type !== "hidden") input.value = "";
       });
 
       formContainer.appendChild(newRow);
-
-      getTotalFormsInputs().forEach(input => {
-        input.value = currentFormCount + 1;
-        input.setAttribute("value", currentFormCount + 1);
-      });
-    });
-
-    formContainer.addEventListener("click", function (event) {
-      if (event.target.classList.contains("remove-form-btn")) {
-        const row = event.target.closest(".expense-form-row");
-        
-        const idInput = row.querySelector('input[name$="-id"]');
-        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
-
-        if (idInput && idInput.value) {
-          if (deleteCheckbox) deleteCheckbox.checked = true;
-          row.style.display = "none";
-          row.classList.add("form-deleted"); 
-        } else {
-          row.remove();
-        }
-
-        const allRows = formContainer.getElementsByClassName("expense-form-row");
-        let validIndex = 0;
-
-        const nameRegex = new RegExp(`${prefix}-\\d+-`, "g");
-        const idRegex = new RegExp(`id_${prefix}-\\d+-`, "g");
-
-        for (let i = 0; i < allRows.length; i++) {
-          if (allRows[i].classList.contains("form-deleted")) {
-            continue; 
-          }
-
-          const rowInputs = allRows[i].querySelectorAll("input, select, textarea");
-          rowInputs.forEach((input) => {
-            if (input.name) input.name = input.name.replace(nameRegex, `${prefix}-${validIndex}-`);
-            if (input.id) input.id = input.id.replace(idRegex, `id_${prefix}-${validIndex}-`);
-          });
-          
-          validIndex++;
-        }
-
-        getTotalFormsInputs().forEach(input => {
-          input.value = allRows.length;
-          input.setAttribute("value", allRows.length);
-        });
-      }
-    });
-
-    // 3. 서브밋 시 더블 클릭 방지
-    mainForm.addEventListener("submit", function () {
-      submitBtn.disabled = true;
-      submitBtn.innerText = "다음 단계 양식 생성 중 (Guide Exp)...";
-    });
-  });
+      totalFormsInput.value = count + 1;
+    };
+  } else {
+    console.error("add-form-btn 버튼을 찾지 못했습니다.");
+  }
 </script>
+
+{% endblock %}
