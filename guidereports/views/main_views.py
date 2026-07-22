@@ -148,11 +148,17 @@ def guidereport_main(request):
     })
 
 
+from django.conf import settings
+
 @login_required
 def guidereport_pdf(request, pk):
     font_name = "NanumGothic"
     font_url = "https://fonts.gstatic.com/s/nanumgothic/v23/PN_oRfi-QnsS4F7NQ_7927GEL6V2Kg.ttf"
-    font_path = os.path.join("/tmp", "NanumGothic.ttf") if os.name != 'nt' else os.path.join(os.environ.get('TEMP', ''), 'NanumGothic.ttf')
+    
+    font_dir_static = os.path.join(settings.BASE_DIR, 'static')
+    font_dir = os.path.join(font_dir_static, 'fonts')
+
+    font_path = os.path.join(font_dir, 'NanumGothic-Regular.ttf')
 
     if not os.path.exists(font_path):
         try:
@@ -267,7 +273,6 @@ def guidereport_pdf(request, pk):
     account_number = getattr(guide_report.guide, 'account_number', '')
     
     admin = Guide.objects.get(contact_info='account@joystudytour.com.au')
-    print("admin: ", admin.abn)
 
     bill_to = f"""
     <b>Bill To</b><br/>
