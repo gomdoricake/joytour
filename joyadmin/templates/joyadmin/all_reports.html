@@ -75,28 +75,41 @@
       <span>Status</span>
     </div>
 
-    <ul class="xero-list-body">
-      {% for guidereport in guidereports %}
-      <li class="xero-row-item">
-        <a href="{% url 'guidereports:detail' guidereport.id %}">
-          <span class="xero-date">{{ guidereport.invoice_date }}</span>
-          <span class="xero-guide-name">{{ guidereport.guide.name }}</span>   
-          <span class="xero-group-code">{{ guidereport.group_code }}</span>
-          <span class="xero-price">${{ guidereport.final_amount_due|floatformat:2 }}</span>
+  <ul class="xero-list-body">
+    {% for guidereport in guidereports %}
+    <li class="xero-row-item {% if guidereport.is_printed %}is-printed{% else %}not-printed{% endif %}">
+      <a href="{% url 'guidereports:detail' guidereport.id %}">
+        
+        <span class="xero-date">
+          {% if guidereport.is_printed %}
+          <span class="print-dot printed" title="Printed">●</span>
+          {% else %}
+            <span class="print-dot not-printed" title="Not Printed"></span>
+          {% endif %}
+          {{ guidereport.invoice_date }}
+        </span>
+        
+        <span class="xero-guide-name">
+          {{ guidereport.guide.name }}
+        </span>   
+        
+        <span class="xero-group-code">{{ guidereport.group_code }}</span>
+        
+        <span class="xero-price">${{ guidereport.final_amount_due|floatformat:2 }}</span>
 
-          <div class="xero-status-wrap">
-            {% if guidereport.is_paid %}
-              <span class="xero-flat-status paid">PAID</span>
-            {% elif guidereport.is_confirmed %}
-              <span class="xero-flat-status confirmed">CONFIRMED</span>
-            {% else %}
-              <span class="xero-flat-status waiting">WAITING</span>
-            {% endif %}
-          </div>
-        </a>
-      </li>
-      {% endfor %}
-    </ul>
+        <div class="xero-status-wrap">
+          {% if guidereport.is_paid %}
+            <span class="xero-flat-status paid">PAID</span>
+          {% elif guidereport.is_confirmed %}
+            <span class="xero-flat-status confirmed">CONFIRMED</span>
+          {% else %}
+            <span class="xero-flat-status waiting">WAITING</span>
+          {% endif %}
+        </div>
+      </a>
+    </li>
+    {% endfor %}     
+  </ul>
   </div>
   {% else %}
   <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>

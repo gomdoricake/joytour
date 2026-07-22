@@ -359,126 +359,158 @@
     font-weight: 600;
   }
 
-  /* ==========================================================
-   🏢 [Xero Design System] Dashboard Page Styles
+/* ==========================================================
+   🏢 [Xero Design System] Table Layout (6 Columns)
    ========================================================== */
 
-.xero-welcome-box {
-  background: #f8fafc;
+/* 테이블 전체 감싸는 컨테이너 */
+.xero-table-wrapper {
   border: 1px solid #e2e8f0;
   border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
-  font-size: 13px;
-  color: #334155;
-  line-height: 1.6;
-}
-.xero-welcome-box .username {
-  font-weight: 800;
-  color: #0284c7;
-}
-.xero-welcome-box .notice-text {
-  display: block;
-  font-size: 11px;
-  color: #64748b;
-  margin-top: 4px;
-}
-
-.xero-info-grid {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: 8px;
+  overflow: hidden;
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 16px;
-  margin-bottom: 24px;
 }
 
-.xero-info-item {
-  display: flex;
-  justify-content: space-between;
+/* Table Header (6개 칼럼 정확히 배분) */
+.xero-table-header {
+  display: grid;
+  /* Date(1fr) | Guide(1.1fr) | Group Code(1.8fr) | Amount(1.1fr) | Status(0.9fr) | Printed(0.8fr) */
+  grid-template-columns: 1fr 1.1fr 1.8fr 1.1fr 0.9fr 0.8fr;
   align-items: center;
-  padding: 6px 10px;
+  gap: 8px;
+  padding: 10px 14px;
   background: #f8fafc;
-  border-radius: 6px;
-}
-.xero-info-item .info-label {
+  border-bottom: 1px solid #e2e8f0;
   font-size: 11px;
   font-weight: 700;
   color: #64748b;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.xero-info-item .info-value {
+
+/* 오른쪽 정렬 필요한 헤더 컬럼 (Amount, Status, Printed) */
+.xero-table-header span:nth-child(4),
+.xero-table-header span:nth-child(5),
+.xero-table-header span:nth-child(6) {
+  text-align: right;
+}
+
+/* Table Body List */
+.xero-list-body {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.xero-row-item {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.xero-row-item:last-child {
+  border-bottom: none;
+}
+
+/* 데이터 행 - 헤더와 동일한 grid 구조 적용 */
+.xero-row-item a {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1.8fr 1.1fr 0.9fr 0.8fr;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+}
+
+.xero-row-item a:hover {
+  background-color: #f8fafc;
+}
+
+/* 셀별 세부 스타일 정의 */
+.xero-date {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.xero-guide-name {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xero-group-code {
   font-size: 12px;
   font-weight: 600;
   color: #0f172a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.xero-menu-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
-}
-
-.xero-menu-btn {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  padding: 12px 16px;
-  color: #0f172a;
-  text-decoration: none;
+.xero-price {
   font-size: 13px;
   font-weight: 700;
-  transition: all 0.15s ease;
-}
-.xero-menu-btn:hover {
-  background: #f8fafc;
-  border-color: #0284c7;
-  color: #0284c7;
-}
-.xero-menu-btn::after {
-  content: '→';
-  font-weight: 800;
-  color: #94a3b8;
-}
-.xero-menu-btn:hover::after {
-  color: #0284c7;
+  color: #0f172a;
+  text-align: right;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.xero-logout-wrap {
+.xero-status-wrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.xero-flat-status {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  padding: 3px 6px;
+  border-radius: 4px;
   text-align: center;
-  padding-top: 16px;
-  border-top: 1px solid #e2e8f0;
-}
-.btn-xero-logout {
-  background: none;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-}
-.btn-xero-logout:hover {
-  color: #ef4444;
-  background: #fef2f2;
+  white-space: nowrap;
 }
 
+.xero-flat-status.paid {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.xero-flat-status.confirmed {
+  background-color: #fef9c3;
+  color: #a16207;
+}
+
+.xero-flat-status.waiting {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Printed 배지 스타일 개선 (5px에서 가독성 좋은 크기로 변경 및 우측 정렬) */
+.xero-printed,
+.xero-not-printed {
+  text-align: right;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+/* Desktop View (넓은 화면에서 여유 있는 비율 조정) */
 @media screen and (min-width: 451px) {
-  .xero-info-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+  .xero-table-header, 
+  .xero-row-item a {
+    grid-template-columns: 1fr 1.2fr 2fr 1.2fr 1fr 0.9fr;
+    padding: 14px 20px;
+    gap: 12px;
   }
 }
-
   /* Desktop View */
   @media screen and (min-width: 451px) {
     .xero-admin-card { 

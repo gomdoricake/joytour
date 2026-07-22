@@ -147,6 +147,20 @@ def guidereport_main(request):
         'DAY_ROLE': DAY_ROLE
     })
 
+@login_required
+def guidereport_printed(request, pk): 
+    
+    if request.method == "POST": 
+        guidereport = GuideReport.objects.get(pk=pk)
+
+        guidereport.is_printed = not guidereport.is_printed
+
+        print("guidereport.is_printed: " + str(guidereport.is_printed))
+
+        guidereport.save()
+
+        return redirect('guidereports:detail', pk)
+
 
 from django.conf import settings
 
