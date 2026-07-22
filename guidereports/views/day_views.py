@@ -276,11 +276,12 @@ def guidereport_day_summary(request):
     total_fuel = float(sum(item.expense for item in fuel_expenses if item.expense))
     total_guide = float(sum(item.expense for item in guide_expenses if item.expense))
     
+    
     base_fee = float(event.guide_fee) if (event and event.guide_fee) else 0.0
     
     grand_total = base_fee + total_guide
 
-    guide_report.super_ann = base_fee * 0.12
+    guide_report.super_ann = base_fee / 1.1 * 0.12
     guide_report.final_events_fee = str(base_fee)
     guide_report.final_fuels_fee = str(total_fuel)
     guide_report.final_expenses_fee = str(total_guide)  

@@ -41,6 +41,7 @@ def payable_reports(request):
                 report.pay_status = 'paid'
                 report.save()
             else: 
+                total_payable_fee += float(report.final_amount_due)
                 report.pay_status = 'payable'
                 report.save()
 
