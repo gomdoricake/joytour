@@ -202,6 +202,17 @@
   .btn-delete { font-size: 12px; color: #94a3b8; text-decoration: none; font-weight: 500; }
   .btn-delete:hover { color: #ef4444; text-decoration: underline; }
 
+  .btn-printed-true {
+      background-color: #28a745; 
+      color: white;
+  }
+
+  /* False: 아직 인쇄 안 된 상태 (예: 강조할 붉은색 또는 파란색) */
+  .btn-printed-false {
+      background-color: #dc3545;
+      color: white;
+  }
+
   /* ==========================================================
      🖥️ [Desktop View] 451px 이상 레이아웃
      ========================================================== */
@@ -272,6 +283,21 @@
       <a href="{% url 'guidereports:guidereport_pdf' guide_report.pk %}" class="btn-xero-pdf">PDF 다운로드</a>
       {% if not guide_report.is_paid %}
         <a href="{% url 'guidereports:update_guidereport' guide_report.pk %}" class="btn-xero-edit">리포트 수정하기</a>
+      {% endif %}
+      {% if request.user.username == 'admin' %}
+      
+        {% if guide_report.is_printed %}
+          <form method="POST" action="{% url 'guidereports:guidereport_printed' guide_report.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-xero-pdf btn-printed-true">PRINTED</button>
+          </form>
+        {% else %}
+          <form method="POST" action="{% url 'guidereports:guidereport_printed' guide_report.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="btn-xero-pdf btn-printed-false">NOT PRINTED</button>
+          </form>
+        {% endif %}
+
       {% endif %}
     </div>
   </div>

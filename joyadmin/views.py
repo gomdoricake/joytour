@@ -12,7 +12,7 @@ def index(request):
 
 @login_required
 def payable_reports(request): 
-    all_reports = GuideReport.objects.all()
+    all_reports = GuideReport.objects.all().order_by('-id')
     today = date.today() 
     today_weekday = today.weekday()
 
@@ -68,7 +68,7 @@ def payable_reports(request):
 @login_required
 def unpaid_reports(request): 
 
-    unpaid_reports = GuideReport.objects.filter(is_paid=False)
+    unpaid_reports = GuideReport.objects.filter(is_paid=False).order_by('-id')
 
     total_unpaid_fee = 0
 
@@ -84,7 +84,7 @@ def unpaid_reports(request):
 
 @login_required
 def paid_reports(request): 
-    paid_reports = GuideReport.objects.filter(is_paid=True)
+    paid_reports = GuideReport.objects.filter(is_paid=True).order_by('-id')
 
     total_paid_fee = 0
 
