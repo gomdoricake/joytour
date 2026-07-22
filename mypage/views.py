@@ -23,11 +23,6 @@ def review_grade(guide_id):
     init_training_date = guide.init_training_date
         
     months, today = 0, datetime.date.today()
-
-    if guide.is_sponsored: 
-        guide.grade = 1
-        guide.save()
-        return 1
     
     if not init_training_date: 
         guide.grade = 0
