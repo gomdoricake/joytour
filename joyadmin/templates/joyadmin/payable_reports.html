@@ -39,23 +39,26 @@
     <div class="xero-total-payable-card">
       <div class="info-label">
         <span>TOTAL PAYABLE AMOUNT</span>
-        <span>이번 주 지급 대상 총액</span>
+        <span>Amount Due</span>
       </div>
       <div class="total-amount">
-        {{ total_payable_fee }}
+        ${{ total_payable_fee|floatformat:2 }}
       </div>
     </div>
 
     <div class="xero-guides-vertical">
       {% for guide in guides %}
-        {% for guide_name, counts, final_amount_due in guide|sort_payable:"payable" %}
+        {% for guide_name, counts, final_events_fee, final_expenses_fee, final_amount_due in guide|sort_payable:"payable" %}
           <div class="xero-guide-row">
             <div class="g-info">
               <span class="g-name" title="{{ guide_name }}">{{ guide_name }}</span>
               <span class="r-count">{{ counts }}건</span>
             </div>
+
             <div class="g-amount">
-              {{ final_amount_due }}
+              FEE: {{ final_events_fee }}
+              EXP: {{ final_expenses_fee }}
+              TOTAL: {{ final_amount_due }}
             </div>
           </div>
         {% endfor %}

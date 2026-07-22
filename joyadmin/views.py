@@ -9,6 +9,8 @@ def index(request):
     admin = Guide.objects.get(user=request.user)
     return render(request, 'joyadmin/index.html', {'admin': admin})
 
+from django.db.models import Sum, DecimalField
+from django.db.models.functions import Cast, Coalesce
 
 @login_required
 def payable_reports(request): 
@@ -18,7 +20,17 @@ def payable_reports(request):
 
     sub_days = 0
 
-    guides = Guide.objects.all()
+    guides = Guide.objects.annotate(
+        max_amount=Coalesce(
+            Sum(
+                Cast('guidereports__final_amount_due', 
+                    output_field=DecimalField(max_digits=12, decimal_places=2)
+                ), 
+            ),
+            0.0, 
+            output_field=DecimalField(max_digits=12, decimal_places=2)
+        )
+    ).order_by('max_amount')
 
     # wednesday
     sub_days = -1 * today_weekday - 5
@@ -41,6 +53,7 @@ def payable_reports(request):
                 report.pay_status = 'paid'
                 report.save()
             else: 
+                total_payable_fee += float(report.final_amount_due)
                 report.pay_status = 'payable'
                 report.save()
 

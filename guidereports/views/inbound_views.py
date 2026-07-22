@@ -515,7 +515,8 @@ def guidereport_inbound_summary(request):
         fee = float(e.guide_fee or 0)
         event_fee += fee
     guide_report.final_events_fee = event_fee
-    guide_report.super_ann = event_fee * 0.12
+    guide_report.super_ann = event_fee / 1.1 * 0.12
+
 
     for exp in expenses: 
         fee = float(exp.expense or 0)
@@ -539,6 +540,9 @@ def guidereport_inbound_summary(request):
     all_reports = GuideReport.objects.filter(guide=guide_report.guide).order_by('id')
     guide_report.invoice_number = GuideReport.objects.filter(invoice_number__isnull=False).count() + 1
     guide_report.save()
+
+    print("super_ann: " + str(guide_report.super_ann))
+
 
     if request.method == 'POST':
         session_keys_to_delete = [

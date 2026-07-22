@@ -16,21 +16,43 @@ def sort_payable(guide, pay_status):
     sub_days = -1 * today_weekday - 5
     last_wed = today + timedelta(days=sub_days)
 
-    payable_reports = guide.guidereports.filter(invoice_date__range=(str(last_wed), str(today)))
+    guidereports = guide.guidereports.all()
+
+    # if today is wed/thurs/fri
+    if 2<= today_weekday <= 4:
+        # till this tuesday
+        if today_weekday == 2: sub_days = -1
+        if today_weekday == 3: sub_days = -2
+        if today_weekday == 4: sub_days = -3
+        
+        this_tue= today + timedelta(days=sub_days)
+        payable_reports = guidereports.filter(invoice_date__range=(str(last_wed), str(this_tue))).order_by('-id')
+
+    else: 
+        payable_reports = guidereports.filter(invoice_date__range=(str(last_wed), str(today))).order_by('-id')
+
+
     counts = payable_reports.count()
-    final_amount_due = 0
 
     return_list = []
+    final_amount_due, final_events_fee, final_expenses_fee = 0, 0, 0
 
     for report in payable_reports: 
-        if report.final_amount_due: 
-            final_amount_due += float(report.final_amount_due)
+        if report.is_paid != 'paid': 
+            if report.final_amount_due: 
+                final_amount_due += float(report.final_amount_due)
+            if report.final_expenses_fee: 
+                final_expenses_fee += float(report.final_expenses_fee)
+            if report.final_events_fee: 
+                final_events_fee += float(report.final_events_fee)
 
     return_list.append(
         (
         guide.name, 
         counts,
-        f"${final_amount_due:.2f}"
+        f"${final_events_fee:.2f}",
+        f"${final_expenses_fee:.2f}",
+        f"${final_amount_due:.2f}",
         )
     )
     
