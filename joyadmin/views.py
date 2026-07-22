@@ -12,7 +12,7 @@ def index(request):
 
 @login_required
 def payable_reports(request): 
-    all_reports = GuideReport.objects.all().order_by('-id')
+    all_reports = GuideReport.objects.all()
     today = date.today() 
     today_weekday = today.weekday()
 
@@ -34,7 +34,7 @@ def payable_reports(request):
         if today_weekday == 4: sub_days = -3
         
         this_tue= today + timedelta(days=sub_days)
-        payable_reports = GuideReport.objects.filter(invoice_date__range=(str(last_wed), str(this_tue)))
+        payable_reports = GuideReport.objects.filter(invoice_date__range=(str(last_wed), str(this_tue))).order_by('-id')
         
         for report in payable_reports: 
             if report.is_paid:
@@ -48,7 +48,7 @@ def payable_reports(request):
                     'last_wed': last_wed, 'until': this_tue, 'guides': guides, 'total_payable_fee': total_payable_fee})
 
     
-    payable_reports = GuideReport.objects.filter(invoice_date__range=(str(last_wed), str(today)))
+    payable_reports = GuideReport.objects.filter(invoice_date__range=(str(last_wed), str(today))).order_by('-id')
 
     for report in payable_reports: 
         if report.is_paid: 
