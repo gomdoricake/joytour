@@ -35,12 +35,16 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 @login_required
 def DetailView(request, pk):
-    guide_report = get_object_or_404(GuideReport, pk=pk)
+    guide_report = get_object_or_404(
+        GuideReport.objects.prefetch_related('expenses__receipt_images'), 
+        pk=pk
+    )
     events = guide_report.events.all()
     event_fee = guide_report.final_events_fee
     expense_fee = guide_report.final_expenses_fee
     fuel_fee = guide_report.final_fuels_fee
     final_amount_due = guide_report.final_amount_due
+    
     if guide_report.super_ann: 
         super_ann = f"{float(guide_report.super_ann):.2f}"
     else: 

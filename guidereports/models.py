@@ -4,6 +4,7 @@ from guides.models import Guide
 from .rate import *
 from datetime import datetime
 from django.core.exceptions import ValidationError
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
 class GuideReport(models.Model):
@@ -106,6 +107,35 @@ class GuideExp(models.Model):
     def __str__(self): 
         return str(self.expense_type) + " " + str(self.expense)
     
+s3_storage = S3Boto3Storage(
+    default_acl='private', 
+    querystring_auth=True,
+    querystring_expire=3600 
+)
+
+from django.utils import timezone
+
+def receipt_image_upload_path(instance, filename): 
+    today = timezone.now().strftime('%Y-%m-%d')
+    exp_pk = instance.guide_exp.pk if instance.guide_exp and instance.guide_exp.pk else 'unknown'
+    
+    group_code = 'unknown'
+    if exp_pk != 'unknown': 
+        guide_exp = GuideExp.objects.get(id=exp_pk)
+
+        report = guide_exp.guide_report
+
+        group_code = report.group_code
+    
+    return f'receipt_images/{today}/{group_code}/{filename}'
+
+
+class ReceiptImage(models.Model): 
+    guide_exp = models.ForeignKey('GuideExp', on_delete=models.CASCADE, related_name='receipt_images')
+    image_file = models.ImageField(upload_to=receipt_image_upload_path)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+
 class RestaurantExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
     report_date = models.DateField(null=True, blank=True)
