@@ -129,6 +129,7 @@ def guidereport_day_fuel_exp(request):
         'guide_report': guide_report,
     })
 
+from django.db import transaction
 
 
 @login_required
@@ -160,13 +161,13 @@ def guidereport_day_guide_exp(request):
         final_instance.role = day_fuel.get('role')
         final_instance.day_inbound = day_fuel.get('day_inbound')
 
-        formset = GuideExpFormSet(request.POST, instance=final_instance)
+        formset = GuideExpFormSet(request.POST, request.FILES, instance=final_instance)
         
         if formset.is_valid():
             today_str = day_fuel.get('today_str')
             if not today_str and event.report_date:
                 if isinstance(event.report_date, str):
-                    today_str = datetime.strptime(event.report_date, '%Y-%m-%d').strftime('%d%m%y')
+                    today_str = datetime.datetime.strptime(event.report_date, '%Y-%m-%d').strftime('%d%m%y')
                 else:
                     today_str = event.report_date.strftime('%d%m%y')
 
@@ -175,50 +176,66 @@ def guidereport_day_guide_exp(request):
                 final_instance.group_code = 'J' + today_str + event.eventcode
             
             final_instance.invoice_date = datetime.date.today()
-            final_instance.save()
 
-            GuideExp.objects.filter(guide_report=final_instance).delete()
+            with transaction.atomic(): 
+                final_instance.save()
 
-            prefix = formset.prefix
-            total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
-            wash_added = False
+                existing_expenses = GuideExp.objects.filter(guide_report=final_instance)
 
-            for i in range(total_forms_count):
-                exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
-                exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
-                memo = request.POST.get(f'{prefix}-{i}-memo')
-                is_delete = request.POST.get(f'{prefix}-{i}-DELETE') 
+                for old_exp in existing_expenses: 
+                    for old_img in old_exp.receipt_images.all():
+                        old_img.image_file.delete(save=False) 
+                    old_exp.delete()
 
-                if exp_type and exp_val_raw and not is_delete:
-                    try:
-                        if exp_type == 'WASH':
-                            if wash_added:
-                                continue
-                            wash_added = True
+                prefix = formset.prefix
+                total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+                wash_added = False
 
-                        exp_val = float(exp_val_raw)
-                        if exp_val > 0:
-                            GuideExp.objects.create(
-                                guide_report=final_instance,
-                                expense_type=exp_type,
-                                expense=exp_val,
-                                memo=memo
-                            )
-                    except ValueError:
-                        pass 
+                for i in range(total_forms_count):
+                    exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
+                    exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
+                    memo = request.POST.get(f'{prefix}-{i}-memo')
+                    is_delete = request.POST.get(f'{prefix}-{i}-DELETE') 
 
-            event.guidereport = final_instance
-            event.save()
+                    if exp_type and exp_val_raw and not is_delete:
+                        try:
+                            if exp_type == 'WASH':
+                                if wash_added:
+                                    continue
+                                wash_added = True
 
-            request.session['guide_exp'] = {
-                'guidereport_id': guide_report.id,
-                'event_id': event.id,
-                'role': day_fuel['role'],
-                'day_inbound': day_fuel['day_inbound'], 
-                'today_str': today_str     
-            }
+                            exp_val = float(exp_val_raw)
+                            if exp_val > 0:
+                                new_exp = GuideExp.objects.create(
+                                    guide_report=final_instance,
+                                    expense_type=exp_type,
+                                    expense=exp_val,
+                                    memo=memo
+                                )
+
+                                receipt_files = request.FILES.getlist(f'receipt_images_{i}')
+
+                                for file in receipt_files: 
+                                    ReceiptImage.objects.create(
+                                        guide_exp=new_exp, 
+                                        image_file=file
+                                    )
+                        except ValueError:
+                            pass 
+
+                event.guidereport = final_instance
+                event.save()
+
+                request.session['guide_exp'] = {
+                    'guidereport_id': guide_report.id,
+                    'event_id': event.id,
+                    'role': day_fuel['role'],
+                    'day_inbound': day_fuel['day_inbound'], 
+                    'today_str': today_str     
+                }
             
             return redirect('guidereports:guidereport_day_summary') 
+            
     else:
         final_instance = guide_report
         formset = GuideExpFormSet(instance=final_instance)
@@ -226,7 +243,7 @@ def guidereport_day_guide_exp(request):
     if event.report_date:
         report_date_str = event.report_date if isinstance(event.report_date, str) else event.report_date.strftime("%Y-%m-%d")
     else:
-        report_date_str = day_data.get('report_date')
+        report_date_str = day_fuel.get('report_date')
 
     if day_fuel.get('role') == 'GUIDE ONLY':
         CHOICES = GUIDE_ONLY_EXPENSE_CHOICES

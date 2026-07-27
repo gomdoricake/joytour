@@ -401,8 +401,21 @@
       <li class="xero-data-row">
         <span>{{ exp.expense_type }} {% if exp.memo %}<span style="color:#64748b; font-size: 12px;">({{ exp.memo }})</span>{% endif %}</span>
         <span class="price-black">${{ exp.expense }}</span>
-      </li>
+
+        <div class="receipt-gallery" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+          {% for receipt in exp.receipt_images.all %}
+            <div class="receipt-card">
+              <a href="{{ receipt.image_file.url }}" target="_blank">
+                <img src="{{ receipt.image_file.url }}" alt="영수증 이미지" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc;">
+              </a>
+            </div>
+          {% empty %}
+                  <span style="color: #999; font-size: 13px;">등록된 영수증 이미지 없음</span>
+          {% endfor %}
+        </div>  
+        </li>
       {% empty %}
+      <li style="color: #94a3b8; text-align: center; padding: 15px;">등록된 지출 내역이 없습니다.</li>
       {% endfor %}
       {% for event in guide_report.events.all %}
       {% if event.overtime and event.overtime != "0" %}
@@ -439,7 +452,7 @@
 
   <!-- Fuel, Restaurant, Attraction 카드 -->
   <div class="xero-section-card">
-    <h3 class="xero-section-title">Fuel Expenses</h3>
+    <h3 class="xero-section-title">BP</h3>
     <ul class="xero-data-list">
       {% if guide_report.fuels.all %}
         {% for fuel in guide_report.fuels.all %}

@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block content %}
 
-<!-- CSS 캐시 방지용 버전 파라미터(?v=1.2) 포함 -->
-<link rel="stylesheet" type="text/css" href="{% static 'css/admin_style.css' %}?v=1.2">
+{% block content %}
+<!-- External Design System CSS -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_style.css' %}?v=1.3">
 
 <div class="xero-admin-card">
   
@@ -12,7 +12,7 @@
   </div>
 
   {% if request.user.username == 'admin' %}
-  <!-- 환영 안내 박스 -->
+  <!-- Welcome Banner -->
   <div class="xero-welcome-box">
     <span class="username">{{ request.user.username }}</span>님, 환영합니다!
     <span class="notice-text">
@@ -20,10 +20,11 @@
     </span>
   </div>
 
-  <!-- 관리자 인포메이션 그리드 -->
-  <div class="summary-meta-bar" style="margin-bottom: 8px;">
+  <!-- Admin Meta Grid -->
+  <div class="summary-meta-bar">
     <span class="sec-title">ADMIN INFORMATION</span>
   </div>
+
   <div class="xero-info-grid">
     <div class="xero-info-item">
       <span class="info-label">이름</span>
@@ -49,17 +50,18 @@
       <span class="info-label">연락처</span>
       <span class="info-value">{{ admin.contact_info }}</span>
     </div>
-    <div class="xero-info-item" style="grid-column: 1 / -1;">
+    <div class="xero-info-item full-width">
       <span class="info-label">주소</span>
       <span class="info-value">{{ admin.address }}</span>
     </div>
   </div>
   {% endif %}
 
-  <!-- 메인 메뉴 버튼 그리드 -->
-  <div class="summary-meta-bar" style="margin-bottom: 8px;">
+  <!-- Navigation Grid -->
+  <div class="summary-meta-bar">
     <span class="sec-title">QUICK NAVIGATION</span>
   </div>
+
   <div class="xero-menu-grid">
     <a href="{% url 'joyadmin:payable_reports' %}" class="xero-menu-btn">
       DASHBOARD
@@ -69,9 +71,9 @@
     </a>  
   </div>
 
-  <!-- 로그아웃 섹션 -->
+  <!-- Actions Section -->
   <div class="xero-logout-wrap">
-    <form action="{% url 'logout' %}" method="post" style="display: inline;">
+    <form action="{% url 'logout' %}" method="post">
       {% csrf_token %}
       <button type="submit" class="btn-xero-logout">
         LOG OUT
@@ -80,5 +82,4 @@
   </div>
 
 </div>
-
 {% endblock %}

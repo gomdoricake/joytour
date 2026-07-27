@@ -278,9 +278,6 @@ def guidereport_inbound_attraction_exp(request):
             
             request.session['inbound_attraction'] = inbound_restaurant
             
-            if inbound_restaurant.get('role') == 'GROUP':
-                return redirect('guidereports:guidereport_inbound_guide_exp')
-
             return redirect('guidereports:guidereport_inbound_fuel_exp') 
         else:
             print("Attraction 폼셋 유효성 검사 실패:", formset.errors)
@@ -299,12 +296,10 @@ def guidereport_inbound_attraction_exp(request):
 @never_cache  
 def guidereport_inbound_fuel_exp(request): 
     inbound_attraction = request.session.get('inbound_attraction')
+
     if not inbound_attraction: 
         return redirect('guidereports:guidereport_inbound_attraction_exp')
-    
-    if inbound_attraction.get('role') == 'GROUP':
-        return redirect('guidereports:guidereport_inbound_attraction_exp')
-    
+        
     report_id = inbound_attraction.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
 
