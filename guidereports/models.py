@@ -103,15 +103,11 @@ class GuideExp(models.Model):
     expense_type = models.CharField(max_length=10, default='WASH') 
     expense = models.DecimalField(max_digits=10, decimal_places=2) 
     memo = models.CharField(max_length=30, null=True, blank=True)
+    file_key = models.CharField(max_length=500, null=True, blank=True)
 
     def __str__(self): 
         return str(self.expense_type) + " " + str(self.expense)
     
-s3_storage = S3Boto3Storage(
-    default_acl='private', 
-    querystring_auth=True,
-    querystring_expire=3600 
-)
 
 from django.utils import timezone
 
@@ -128,12 +124,6 @@ def receipt_image_upload_path(instance, filename):
         group_code = report.group_code
     
     return f'receipt_images/{today}/{group_code}/{filename}'
-
-
-class ReceiptImage(models.Model): 
-    guide_exp = models.ForeignKey('GuideExp', on_delete=models.CASCADE, related_name='receipt_images')
-    image_file = models.ImageField(upload_to=receipt_image_upload_path)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
 
 
 class RestaurantExp(models.Model): 
@@ -171,6 +161,7 @@ class FuelExp(models.Model):
     report_date = models.DateField(null=True, blank=True)
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, null=True, blank=True)
     memo = models.CharField(max_length=30, null=True, blank=True)
+    file_key = models.CharField(max_length=500, null=True, blank=True)
 
     def __str__(self): 
         return str(self.report_date) + str(self.guide_report.group_code)

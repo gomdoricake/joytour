@@ -19,7 +19,9 @@ urlpatterns = [
     path('day/guidereport_day/', day_views.guidereport_day, name='guidereport_day'),
     path('day/guidereport_day_guide_exp/', day_views.guidereport_day_guide_exp, name='guidereport_day_guide_exp'),
     path('day/guidereport_day_fuel_exp/', day_views.guidereport_day_fuel_exp, name='guidereport_day_fuel_exp'),
-    path('day/guiderport_day_summary/', day_views.guidereport_day_summary, name='guidereport_day_summary'),
+    path('day/guidereport_day_summary/', day_views.guidereport_day_summary, name='guidereport_day_summary'),
+    path('day/guidereport_day_fuel_s3_url/', day_views.guidereport_day_fuel_s3_url, name='guidereport_day_fuel_s3_url'),
+    path('day/guidereport_day_exp_s3_url/', day_views.guidereport_day_exp_s3_url, name='guidereport_day_exp_s3_url'),
     
     path('inbound/update_attraction/<int:pk>/', inbound_views.update_attraction, name='update_attraction'), 
     path('inbound/update_restaurant/<int:pk>/', inbound_views.update_restaurant, name='update_restaurant'),
