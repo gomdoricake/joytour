@@ -1,17 +1,20 @@
 from django import template
-from guidereports.models import GuideReport
+from django.apps import apps
 from datetime import datetime, date, timedelta
 
 register = template.Library()
+
+GuideReport = apps.get_model('guidereports', 'GuideReport')
+
+
 
 @register.filter(name='count_payable')
 def count_payable(pay_status): 
     payable_guides = GuideReport.objects.filter(pay_status=pay_status)
 
     count = payable_guides.count()
-    print("count: " + str(count))
     
-    return payable_guides.count()
+    return count
 
     
 @register.filter(name='sort_payable')
