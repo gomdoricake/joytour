@@ -6,10 +6,20 @@ from ..models import *
 from django.forms import inlineformset_factory
 from ..forms import *
 
+from django.views.decorators.csrf import csrf_exempt
+
+
 import datetime
 from datetime import date
 from django.shortcuts import redirect
 
+import boto3
+from botocore.config import Config
+import os
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path)
 
 @login_required
 @never_cache
@@ -80,24 +90,87 @@ def guidereport_day(request):
     return render(request, 'guidereports/day/guidereport_day.html', {'form': form, 'DAY_EVENTCODE': DAY_EVENTCODE})
 
 
+import uuid
+import mimetypes
+from django.http import JsonResponse
+
+
+
+def get_image_path(request, client_file_name): 
+    guidereport_id = request.session.get('day_data')['guidereport_id']
+    
+    group_code = 'unknown'
+    if guidereport_id: 
+        report = GuideReport.objects.get(id=guidereport_id)
+
+        group_code = report.group_code
+
+    print('gruop_code: ' + str(group_code))
+    
+    return f'{group_code}/{client_file_name}'
+
+
+
+def guidereport_day_fuel_s3_url(request):
+    client_file_name = request.GET.get('file_name', 'receipt.jpg')
+    
+    content_type, _ = mimetypes.guess_type(client_file_name)
+    if not content_type:
+        content_type = 'application/octet-stream'
+
+    ext = os.path.splitext(client_file_name)[1]
+    unique_name = get_image_path(request, client_file_name)
+    s3_key = f"bp/{unique_name}"
+
+    bp_s3_client = boto3.client(
+        's3', 
+        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), 
+        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'), 
+        region_name='ap-southeast-2', 
+        config=Config(
+            signature_version='s3v4',
+            s3={'addressing_style': 'virtual'} 
+        )
+    )
+
+    presigned_url = bp_s3_client.generate_presigned_url(
+        ClientMethod='put_object', 
+        Params={
+            'Bucket': os.getenv('AWS_STORAGE_BUCKET_NAME'), 
+            'Key': s3_key, 
+            'ContentType': content_type
+        },
+        ExpiresIn=600
+    )
+
+    return JsonResponse({
+        'upload_url': presigned_url,
+        's3_key': s3_key,
+        'content_type': content_type
+    })
+
+
+import mimetypes
+
 @login_required
 @never_cache
+@csrf_exempt
 def guidereport_day_fuel_exp(request): 
     day_data = request.session.get('day_data')
 
-    if not day_data:
+    if not day_data: 
         return redirect('guidereports:guidereport_day')
-    
+
     report_id = day_data.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, id=report_id)
 
     events = guide_report.events.all()
-    
+
     initial_data = []
     for event in events: 
-        initial_data.append({'report_date': event.report_date})
+        initial_data.append({'report_data': event.report_date})
     
-    if guide_report.fuels.count() == 0:
+    if guide_report.fuels.count() == 0: 
         extra = 1
     else: 
         extra = 0
@@ -105,31 +178,88 @@ def guidereport_day_fuel_exp(request):
     FuelFormSet = inlineformset_factory(
         GuideReport, 
         FuelExp, 
-        form=FuelExpForm,  
-        extra=extra,             
-        can_delete=True  
+        form=FuelExpForm,
+        extra=extra,
+        can_delete=True
     )
 
-    if request.method == "POST": 
+    if request.method == 'POST': 
         formset = FuelFormSet(request.POST, instance=guide_report, initial=initial_data)
+    
+        if formset.is_valid(): 
+            with transaction.atomic():
+                instances = formset.save(commit=False)
+                
+                for i, instance in enumerate(instances):
+                    s3_key_value = request.POST.get(f's3_key_images_{i}')
+                    
+                    if s3_key_value:
+                        instance.file_key = s3_key_value 
+                    
+                    instance.save()
+                
+                for deleted_obj in formset.deleted_objects:
+                    deleted_obj.delete()
+                    
+                formset.save_m2m()
 
-        if formset.is_valid():
-            formset.save()
-            
             request.session['day_fuel'] = day_data
-            return redirect('guidereports:guidereport_day_guide_exp') 
-        else:
-            print("폼셋 유효성 검사 실패:", formset.errors)
-
-    else:
+            return redirect('guidereports:guidereport_day_guide_exp')
+        else: 
+            print('폼셋 유효성 검사 실패: ', formset.errors)
+        
+    else: 
         formset = FuelFormSet(instance=guide_report, initial=initial_data)
 
     return render(request, 'guidereports/day/guidereport_day_fuel_exp.html', {
         'formset': formset, 
-        'guide_report': guide_report,
+        'guide_report': guide_report
     })
 
+
 from django.db import transaction
+
+
+
+def guidereport_day_exp_s3_url(request): 
+
+    client_file_name = request.GET.get('file_name') or 'receipt.jpg'
+    print("client_file_name: " + str(client_file_name))
+    content_type, _ = mimetypes.guess_type(client_file_name)
+    if not content_type: 
+        content_type = 'application/octet-stream'
+    
+    ext = os.path.splitext(client_file_name)[1]
+
+    unique_name = get_image_path(request, client_file_name)
+    s3_key = f"guide_exp/{unique_name}"
+
+    exp_s3_client = boto3.client(
+        's3', 
+        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID'), 
+        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY'), 
+        region_name = 'ap-southeast-2', 
+        config = Config(
+            signature_version='s3v4',
+            s3={'addressing_style': 'virtual'}
+        )
+    )
+
+    presigned_url = exp_s3_client.generate_presigned_url(
+        ClientMethod = 'put_object', 
+        Params = {
+            'Bucket': os.getenv('AWS_STORAGE_BUCKET_NAME'), 
+            'Key': s3_key, 
+            'ContentType': content_type
+        },
+        ExpiresIn = 600
+    )
+
+    return JsonResponse({
+        'upload_url': presigned_url, 
+        's3_key': s3_key, 
+        'content_type': content_type
+    })
 
 
 @login_required
@@ -161,7 +291,7 @@ def guidereport_day_guide_exp(request):
         final_instance.role = day_fuel.get('role')
         final_instance.day_inbound = day_fuel.get('day_inbound')
 
-        formset = GuideExpFormSet(request.POST, request.FILES, instance=final_instance)
+        formset = GuideExpFormSet(request.POST, instance=final_instance)
         
         if formset.is_valid():
             today_str = day_fuel.get('today_str')
@@ -181,10 +311,7 @@ def guidereport_day_guide_exp(request):
                 final_instance.save()
 
                 existing_expenses = GuideExp.objects.filter(guide_report=final_instance)
-
                 for old_exp in existing_expenses: 
-                    for old_img in old_exp.receipt_images.all():
-                        old_img.image_file.delete(save=False) 
                     old_exp.delete()
 
                 prefix = formset.prefix
@@ -206,20 +333,18 @@ def guidereport_day_guide_exp(request):
 
                             exp_val = float(exp_val_raw)
                             if exp_val > 0:
+                                s3_keys = request.POST.getlist(f's3_key_images_{i}')
+                                
+                                chosen_file_key = s3_keys[0] if s3_keys else None
+
                                 new_exp = GuideExp.objects.create(
                                     guide_report=final_instance,
                                     expense_type=exp_type,
                                     expense=exp_val,
-                                    memo=memo
+                                    memo=memo,
+                                    file_key=chosen_file_key  
                                 )
 
-                                receipt_files = request.FILES.getlist(f'receipt_images_{i}')
-
-                                for file in receipt_files: 
-                                    ReceiptImage.objects.create(
-                                        guide_exp=new_exp, 
-                                        image_file=file
-                                    )
                         except ValueError:
                             pass 
 
@@ -257,7 +382,6 @@ def guidereport_day_guide_exp(request):
         'report_date': report_date_str, 
         'EXPENSE_CHOICES': CHOICES,
     })
-
 
 @login_required
 @never_cache

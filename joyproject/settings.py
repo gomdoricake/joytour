@@ -94,7 +94,6 @@ db_name = os.getenv('DB_NAME')
 db_user = os.getenv('DB_USER')
 db_pass = os.getenv('DB_PASS')
 
-print("dbhost: ", db_host)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

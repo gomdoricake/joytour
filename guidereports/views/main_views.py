@@ -36,7 +36,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 @login_required
 def DetailView(request, pk):
     guide_report = get_object_or_404(
-        GuideReport.objects.prefetch_related('expenses__receipt_images'), 
+        GuideReport,
         pk=pk
     )
     events = guide_report.events.all()
