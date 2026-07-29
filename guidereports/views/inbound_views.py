@@ -510,7 +510,8 @@ def guidereport_inbound_summary(request):
         fee = float(e.guide_fee or 0)
         event_fee += fee
     guide_report.final_events_fee = event_fee
-    guide_report.super_ann = event_fee / 1.1 * 0.12
+    guide_report.super_ann = (event_fee / 1.1) * 0.12
+    
 
 
     for exp in expenses: 
