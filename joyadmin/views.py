@@ -4,7 +4,6 @@ from guides.models import Guide
 from guidereports.models import GuideReport
 from datetime import date, timedelta
 
-
 @login_required
 def index(request): 
     admin = Guide.objects.get(user=request.user)
