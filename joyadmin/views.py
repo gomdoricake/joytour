@@ -4,78 +4,85 @@ from guides.models import Guide
 from guidereports.models import GuideReport
 from datetime import date, timedelta
 
+
 @login_required
 def index(request): 
     admin = Guide.objects.get(user=request.user)
     return render(request, 'joyadmin/index.html', {'admin': admin})
 
-from django.db.models import Sum, DecimalField
+from django.db.models import Sum, DecimalField, Q
 from django.db.models.functions import Cast, Coalesce
 
+
 @login_required
-def payable_reports(request): 
-    all_reports = GuideReport.objects.all()
-    today = date.today() 
+def payable_reports(request):
+    today = date.today()
     today_weekday = today.weekday()
 
-    sub_days = 0
-
-    guides = Guide.objects.annotate(
-        max_amount=Coalesce(
-            Sum(
-                Cast('guidereports__final_amount_due', 
-                    output_field=DecimalField(max_digits=12, decimal_places=2)
-                ), 
-            ),
-            0.0, 
-            output_field=DecimalField(max_digits=12, decimal_places=2)
-        )
-    ).order_by('max_amount')
-
-    # wednesday
     sub_days = -1 * today_weekday - 5
     last_wed = today + timedelta(days=sub_days)
 
-    total_payable_fee = 0  
+    if 2 <= today_weekday <= 4:
+        sub_days = 2 - today_weekday - 1
+        until_date = today + timedelta(days=sub_days)
+    else:
+        until_date = today
 
-    # if today is wed/thurs/fri
-    if 2<= today_weekday <= 4:
-        # till this tuesday
-        if today_weekday == 2: sub_days = -1
-        if today_weekday == 3: sub_days = -2
-        if today_weekday == 4: sub_days = -3
-        
-        this_tue= today + timedelta(days=sub_days)
-        payable_reports = GuideReport.objects.filter(invoice_date__range=(str(last_wed), str(this_tue))).order_by('-id')
-        
-        for report in payable_reports: 
-            if report.is_paid:
-                report.pay_status = 'paid'
-                report.save()
-            else: 
-                total_payable_fee += float(report.final_amount_due)
-                report.pay_status = 'payable'
-                report.save()
+    start_date_str = str(last_wed)
+    end_date_str = str(until_date)
 
-        return render(request, 'joyadmin/payable_reports.html', {'payable_reports': payable_reports, 
-                    'last_wed': last_wed, 'until': this_tue, 'guides': guides, 'total_payable_fee': total_payable_fee})
 
-    
-    payable_reports = GuideReport.objects.filter(invoice_date__range=(str(last_wed), str(today))).order_by('-id')
+    guides = Guide.objects.annotate(
+        payable_sum=Coalesce(
+            Sum(
+                Cast('guidereports__final_amount_due', 
+                     output_field=DecimalField(max_digits=12, decimal_places=2)),
+                filter=Q(
+                    guidereports__invoice_date__range=(start_date_str, end_date_str),
+                    guidereports__is_paid=False
+                )
+            ),
+            0.0,
+            output_field=DecimalField(max_digits=12, decimal_places=2)
+        )
+    ).filter(payable_sum__gt=0).order_by('-payable_sum')
 
-    for report in payable_reports: 
-        if report.is_paid: 
+    payable_reports = GuideReport.objects.filter(
+        invoice_date__range=(start_date_str, end_date_str)
+    ).annotate(
+        amount_num=Cast('final_amount_due', output_field=DecimalField(max_digits=12, decimal_places=2)),
+        guide_payable_sum=Coalesce(
+            Sum(
+                Cast('guide__guidereports__final_amount_due', 
+                     output_field=DecimalField(max_digits=12, decimal_places=2)),
+                filter=Q(
+                    guide__guidereports__invoice_date__range=(start_date_str, end_date_str),
+                    guide__guidereports__is_paid=False
+                )
+            ),
+            0.0,
+            output_field=DecimalField(max_digits=12, decimal_places=2)
+        )
+    ).order_by('-guide_payable_sum', '-amount_num')
+
+    total_payable_fee = 0.0
+
+    for report in payable_reports:
+        if report.is_paid:
             report.pay_status = 'paid'
-        else: 
+        else:
             report.pay_status = 'payable'
-        
-        if report.final_amount_due: 
-            total_payable_fee += float(report.final_amount_due)
-            report.save()
-        else: report.save()
+            if report.final_amount_due:
+                total_payable_fee += float(report.final_amount_due)
+        report.save()
 
-    return render(request, 'joyadmin/payable_reports.html', {'payable_reports': payable_reports, 
-                    'last_wed': last_wed, 'until': today, 'guides': guides, 'total_payable_fee': total_payable_fee})
+    return render(request, 'joyadmin/payable_reports.html', {
+        'payable_reports': payable_reports,
+        'last_wed': last_wed,
+        'until': until_date,
+        'guides': guides,
+        'total_payable_fee': total_payable_fee
+    })
 
 
 @login_required
