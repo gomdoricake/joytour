@@ -167,6 +167,11 @@ def guidereport_printed(request, pk):
 
 
 from django.conf import settings
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+
+
 
 @login_required
 def guidereport_pdf(request, pk):
@@ -176,18 +181,29 @@ def guidereport_pdf(request, pk):
     font_dir_static = os.path.join(settings.BASE_DIR, 'static')
     font_dir = os.path.join(font_dir_static, 'fonts')
 
-    font_path = os.path.join(font_dir, 'NanumGothic-Regular.ttf')
+    font_path_reg = os.path.join(font_dir, 'NanumGothic-Regular.ttf')
+    font_path_bold = os.path.join(font_dir, 'NanumGothic-Bold.ttf')
 
-    if not os.path.exists(font_path):
-        try:
-            urllib.request.urlretrieve(font_url, font_path)
-        except Exception:
-            pass
+    url_reg = "https://fonts.gstatic.com/s/nanumgothic/v23/PN_oRfi-QnsS4F7NQ_7927GEL6V2Kg.ttf"
+    url_bold = "https://gstatic.com"
 
-    if os.path.exists(font_path):
-        pdfmetrics.registerFont(TTFont(font_name, font_path))
+
+    if not os.path.exists(font_path_reg):
+        try: urllib.request.urlretrieve(url_reg, font_path_reg)
+        except Exception: pass
+
+    if not os.path.exists(font_path_bold):
+        try: urllib.request.urlretrieve(url_bold, font_path_bold)
+        except Exception: pass
+
+    if os.path.exists(font_path_reg) and os.path.exists(font_path_bold):
+        pdfmetrics.registerFont(TTFont('NanumGothic', font_path_reg))
+        pdfmetrics.registerFont(TTFont('NanumGothic-Bold', font_path_bold))
+        
+        registerFontFamily('NanumGothic', normal='NanumGothic', bold='NanumGothic-Bold')
     else:
         font_name = "Helvetica"
+
 
     guide_report = get_object_or_404(GuideReport, id=pk)
     events = guide_report.events.all()
