@@ -7,12 +7,10 @@
 {% if request.user.username == 'admin' %}
 <div class="xero-admin-card">
   
-  <!-- Back Link -->
   <div class="xero-nav-bar">
     <a href="{% url 'joyadmin:index' %}" class="btn-xero-back">← Admin Home</a>
   </div>
 
-  <!-- Tab Navigation -->
   <div class="xero-nav-tabs">
     <a href="{% url 'joyadmin:payable_reports' %}" class="xero-tab-item {% if request.resolver_match.url_name == 'payable_reports' %}active{% endif %}">Payable Reports</a>
     <a href="{% url 'joyadmin:unpaid_reports' %}" class="xero-tab-item {% if request.resolver_match.url_name == 'unpaid_reports' %}active{% endif %}">Unpaid Reports</a>
@@ -21,7 +19,6 @@
   </div>
 
   {% if payable_reports %}
-  <!-- Dashboard Hero Summary -->
   <div class="xero-dashboard-summary">
     <div class="summary-meta-bar">
       <span class="sec-title">Overview</span>
@@ -39,7 +36,6 @@
       </div>
     </div>
 
-    <!-- Guides Summary Cards (Grid) -->
     <div class="xero-guides-vertical">
       {% for guide in guides %}
         {% for guide_name, counts, final_events_fee, final_expenses_fee, final_amount_due in guide|sort_payable:"payable" %}
@@ -59,10 +55,9 @@
     </div>
   </div>
 
-  <!-- Detailed Table Section -->
   <div class="xero-table-wrapper">
     <div class="summary-meta-bar" style="padding: 20px 24px 10px 24px; margin: 0;">
-      <span class="sec-title">Reports Detail List</span>
+      <span class="sec-title">Reports Detail List (  {{ "payable"|count_payable }}  invoices    )  </span>
     </div>
 
     <div class="xero-table-header">
