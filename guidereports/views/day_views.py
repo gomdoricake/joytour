@@ -67,11 +67,6 @@ def guidereport_day(request):
             report_date = form.cleaned_data['report_date'].strftime('%Y-%m-%d')
             today_str = form.cleaned_data['report_date'].strftime('%d%m%y')
 
-            event, created = Event.objects.update_or_create(
-                guidereport=guide_report,
-                defaults={'eventcode': eventcode, 'report_date': report_date}
-            )
-
             main_data['guidereport_id'] = guide_report.id
             request.session['main_data'] = main_data
             
@@ -80,7 +75,10 @@ def guidereport_day(request):
 
             guide_report.save()
 
-
+            event, created = Event.objects.update_or_create(
+                guidereport=guide_report,
+                defaults={'eventcode': eventcode, 'report_date': report_date}
+            )
 
             request.session['day_data'] = {
                 'guidereport_id': guide_report.id,
@@ -101,8 +99,6 @@ import uuid
 import mimetypes
 from django.http import JsonResponse
 
-
-
 def get_image_path(request, client_file_name): 
     guidereport_id = request.session.get('day_data')['guidereport_id']
     group_code = request.session.get('day_data')['group_code']
@@ -110,7 +106,6 @@ def get_image_path(request, client_file_name):
     print('gruop_code: ' + str(group_code))
     
     return f'{group_code}/{client_file_name}'
-
 
 
 def guidereport_day_fuel_s3_url(request):
@@ -124,21 +119,13 @@ def guidereport_day_fuel_s3_url(request):
     unique_name = get_image_path(request, client_file_name)
     s3_key = f"day/bp/{unique_name}"
 
-    bp_s3_client = boto3.client(
-        's3', 
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), 
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'), 
-        region_name='ap-southeast-2', 
-        config=Config(
-            signature_version='s3v4',
-            s3={'addressing_style': 'virtual'} 
-        )
-    )
+    bp_s3_client = default_storage.connection.meta.client
+    bucket_name = default_storage.bucket_name
 
     presigned_url = bp_s3_client.generate_presigned_url(
         ClientMethod='put_object', 
         Params={
-            'Bucket': os.getenv('AWS_STORAGE_BUCKET_NAME'), 
+            'Bucket': bucket_name, 
             'Key': s3_key, 
             'ContentType': content_type
         },
@@ -220,14 +207,15 @@ def guidereport_day_fuel_exp(request):
 
 
 from django.db import transaction
+from django.core.files.storage import default_storage
 
 
 
 def guidereport_day_exp_s3_url(request): 
 
     client_file_name = request.GET.get('file_name') or 'receipt.jpg'
-    print("client_file_name: " + str(client_file_name))
     content_type, _ = mimetypes.guess_type(client_file_name)
+
     if not content_type: 
         content_type = 'application/octet-stream'
     
@@ -236,21 +224,14 @@ def guidereport_day_exp_s3_url(request):
     unique_name = get_image_path(request, client_file_name)
     s3_key = f"day/guide_exp/{unique_name}"
 
-    exp_s3_client = boto3.client(
-        's3', 
-        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID'), 
-        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY'), 
-        region_name = 'ap-southeast-2', 
-        config = Config(
-            signature_version='s3v4',
-            s3={'addressing_style': 'virtual'}
-        )
-    )
+
+    exp_s3_client = default_storage.connection.meta.client
+    bucket_name = default_storage.bucket_name
 
     presigned_url = exp_s3_client.generate_presigned_url(
         ClientMethod = 'put_object', 
         Params = {
-            'Bucket': os.getenv('AWS_STORAGE_BUCKET_NAME'), 
+            'Bucket': bucket_name,
             'Key': s3_key, 
             'ContentType': content_type
         },
