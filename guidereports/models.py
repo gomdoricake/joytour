@@ -101,7 +101,7 @@ class Event(models.Model):
 class GuideExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='expenses')
     expense_type = models.CharField(max_length=10, default='WASH') 
-    expense = models.DecimalField(max_digits=10, decimal_places=2) 
+    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0) 
     memo = models.CharField(max_length=30, null=True, blank=True)
     file_key = models.CharField(max_length=500, null=True, blank=True)
 
@@ -129,7 +129,7 @@ def receipt_image_upload_path(instance, filename):
 class RestaurantExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, null=True, blank=True)
+    expense_type = models.CharField(max_length=100, blank=True, default='')
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
     adt = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -144,7 +144,7 @@ class RestaurantExp(models.Model):
 class AttractionExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='attractions')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, null=True, blank=True)
+    expense_type = models.CharField(max_length=100, blank=True, default='')
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
     adt = models.PositiveIntegerField(default=0, null=True, blank=True)

@@ -428,7 +428,7 @@
       {% endfor %}
       <li class="xero-subtotal-row">
         <span class="subtotal-label">Expense Subtotal (inc. GST)</span>
-        <span class="subtotal-val">${{ expense_fee }}</span>
+        <span class="subtotal-val">${{ expense_fee|floatformat:1 }}</span>
       </li>
     </ul>
   </div>

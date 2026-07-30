@@ -58,12 +58,16 @@ def sort_payable(guide, pay_status):
             if report.final_events_fee: 
                 final_events_fee += float(report.final_events_fee)
 
+    total_super = final_events_fee / 1.1 * 0.12
+    final_amount_due += total_super
+
     return_list.append(
         (
         guide.name, 
         counts,
         f"${final_events_fee:.2f}",
         f"${final_expenses_fee:.2f}",
+        f"${total_super:.2f}",
         f"${final_amount_due:.2f}",
         )
     )
