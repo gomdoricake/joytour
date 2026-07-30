@@ -62,7 +62,6 @@ def guidereport_day(request):
             guide_report.day_inbound = main_data['day_inbound']
             guide_report.role = main_data['role']
             guide_report.guide = guide_report.guide  if request.user.username == 'admin' else request.user.guide_profile
-            guide_report.save()
 
             eventcode = form.cleaned_data['eventcode']
             report_date = form.cleaned_data['report_date'].strftime('%Y-%m-%d')
@@ -75,13 +74,21 @@ def guidereport_day(request):
 
             main_data['guidereport_id'] = guide_report.id
             request.session['main_data'] = main_data
+            
+            group_code = 'J' + today_str + eventcode
+            guide_report.group_code = group_code
+
+            guide_report.save()
+
+
 
             request.session['day_data'] = {
                 'guidereport_id': guide_report.id,
                 'event_id': event.id,
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
-                'today_str': today_str     
+                'today_str': today_str, 
+                'group_code': group_code     
             }
             return redirect('guidereports:guidereport_day_fuel_exp')
     else: 
@@ -98,13 +105,8 @@ from django.http import JsonResponse
 
 def get_image_path(request, client_file_name): 
     guidereport_id = request.session.get('day_data')['guidereport_id']
+    group_code = request.session.get('day_data')['group_code']
     
-    group_code = 'unknown'
-    if guidereport_id: 
-        report = GuideReport.objects.get(id=guidereport_id)
-
-        group_code = report.group_code
-
     print('gruop_code: ' + str(group_code))
     
     return f'{group_code}/{client_file_name}'
@@ -120,7 +122,7 @@ def guidereport_day_fuel_s3_url(request):
 
     ext = os.path.splitext(client_file_name)[1]
     unique_name = get_image_path(request, client_file_name)
-    s3_key = f"bp/{unique_name}"
+    s3_key = f"day/bp/{unique_name}"
 
     bp_s3_client = boto3.client(
         's3', 
@@ -232,7 +234,7 @@ def guidereport_day_exp_s3_url(request):
     ext = os.path.splitext(client_file_name)[1]
 
     unique_name = get_image_path(request, client_file_name)
-    s3_key = f"guide_exp/{unique_name}"
+    s3_key = f"day/guide_exp/{unique_name}"
 
     exp_s3_client = boto3.client(
         's3', 
@@ -290,6 +292,7 @@ def guidereport_day_guide_exp(request):
         final_instance = guide_report
         final_instance.role = day_fuel.get('role')
         final_instance.day_inbound = day_fuel.get('day_inbound')
+        final_instance.group_code = day_fuel.get('group_code')
 
         formset = GuideExpFormSet(request.POST, instance=final_instance)
         
@@ -302,8 +305,6 @@ def guidereport_day_guide_exp(request):
                     today_str = event.report_date.strftime('%d%m%y')
 
             day_inbound_check = str(final_instance.day_inbound).upper().strip()
-            if day_inbound_check == "DAY" and today_str and event.eventcode:
-                final_instance.group_code = 'J' + today_str + event.eventcode
             
             final_instance.invoice_date = datetime.date.today()
 

@@ -111,21 +111,6 @@ class GuideExp(models.Model):
 
 from django.utils import timezone
 
-def receipt_image_upload_path(instance, filename): 
-    today = timezone.now().strftime('%Y-%m-%d')
-    exp_pk = instance.guide_exp.pk if instance.guide_exp and instance.guide_exp.pk else 'unknown'
-    
-    group_code = 'unknown'
-    if exp_pk != 'unknown': 
-        guide_exp = GuideExp.objects.get(id=exp_pk)
-
-        report = guide_exp.guide_report
-
-        group_code = report.group_code
-    
-    return f'receipt_images/{today}/{group_code}/{filename}'
-
-
 class RestaurantExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
     report_date = models.DateField(null=True, blank=True)
