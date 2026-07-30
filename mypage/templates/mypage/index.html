@@ -19,30 +19,30 @@
     </div>
     <form action="{% url 'logout' %}" method="post" style="display: inline;">
       {% csrf_token %}
-      <button type="submit" class="btn-logout">로그아웃</button>
+      <button type="submit" class="btn-logout">Logout</button>
     </form>   
   </div>
 
   <!-- 프로필 히어로 영역 -->
   <div class="profile-hero-card">
     <div class="welcome-text">
-      <h2>{{ guide.name }}님의 개인 공간</h2>
-      <p>등록된 개인 정보와 정산 리포트 목록을 관리합니다.</p>
+      <h2>Hello, {{ guide.name }}!</h2>
+      <p>Report & Invoice Management System</p>
     </div>
-    <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">정보 수정</a>
+    <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">Update Profile</a>
   </div>
 
   <!-- 리포트 생성 CTA -->
   <div class="action-row">
     <a href="{% url 'guidereports:guidereport_main' %}?new=1" class="btn-create-report">
-      ➕ 새로운 가이드 리포트 정산서 작성하기
+      ➕ New Report
     </a>
   </div>
 
   <!-- 프로필 상세 정보 -->
   <div class="section-header">
     <h3 class="section-title">
-      기본 프로필 정보
+      Profile
       {% if guide.is_sponsored %}
         <span class="sponsored-badge">SPONSORED</span>
       {% endif %}
@@ -51,7 +51,7 @@
 
   <div class="info-grid">
     <div class="info-item">
-      <label>첫 트레이닝</label>
+      <label>Initial Training</label>
       <span>{{ guide.init_training_date|date:"d-M-Y" }}</span>
     </div>
     <div class="info-item">
@@ -59,15 +59,15 @@
       <span>{{ guide.grade }}</span>
     </div>
     <div class="info-item">
-      <label>생년월일</label>
+      <label>Birthday</label>
       <span>{{ guide.birth_date|date:"d-M-Y" }}</span>
     </div>
     <div class="info-item">
-      <label>연락처</label>
+      <label>Contact</label>
       <span>{{ guide.contact_info }}</span>
     </div>
     <div class="info-item">
-      <label>주소</label>
+      <label>Adress</label>
       <span>{{ guide.address }}</span>
     </div>
     <div class="info-item span-2">
@@ -76,14 +76,13 @@
     </div>
   </div>
 
-  <!-- 계좌 정보 -->
   <div class="section-header">
-    <h3 class="section-title">지급 계좌 정보</h3>
+    <h3 class="section-title">Account</h3>
   </div>
 
   <div class="info-grid">
     <div class="info-item">
-      <label>은행명</label>
+      <label>Bank</label>
       <span>{{ guide.bank_account_name }}</span>
     </div>
     <div class="info-item">
@@ -91,14 +90,14 @@
       <span>{{ guide.bsb }}</span>
     </div>
     <div class="info-item span-2">
-      <label>계좌번호</label>
+      <label>Account Number</label>
       <span>{{ guide.account_number }}</span>
     </div>
   </div>
   
   <!-- 정산 리포트 목록 및 필터 탭 -->
   <div class="section-header">
-    <h3 class="section-title">작성된 가이드 리포트 정산서 목록</h3>
+    <h3 class="section-title">Report & Invoie List</h3>
   </div>
 
   <!-- 상태 필터 탭 -->

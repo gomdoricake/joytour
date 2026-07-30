@@ -138,7 +138,7 @@
     display: block; /* 모바일에서 table 태그의 기본 속성 리셋 */
   }
   .summary-table thead {
-    display: none; /* 모바일에서 굳이 필요 없는 좁은 th 행 숨김 */
+    display: none; /* 모바일에서 좁은 th 행 숨김 */
   }
   .summary-table tbody {
     display: block;
@@ -163,6 +163,15 @@
     font-weight: 600;
     word-break: break-all;
     text-align: left !important; /* 모바일은 기본 좌측 정렬 */
+  }
+
+  /* 영수증 버튼 스타일 디테일 */
+  .btn-receipt {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    margin-top: 6px;
   }
 
   /* 각 열 데이터 성격에 맞는 모바일 폰트 강조 처리 */
@@ -200,7 +209,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 12 rgba(22, 163, 74, 0.04);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.04);
     box-sizing: border-box;
   }
   .grand-total-title {
@@ -245,6 +254,9 @@
   }
 
 
+  
+
+
   /* ==========================================================
      🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 PC 스킨 복원
      ========================================================== */
@@ -280,7 +292,7 @@
     .section-title { font-size: 16px !important; margin-bottom: 16px !important; padding-bottom: 8px !important; }
     .section-total-badge { font-size: 14px !important; }
 
-    /* 🖥️ PC 전용: 완벽한 3열 고정 비율 테이블 레이아웃 구조 복원 */
+    /* 🖥️ PC 전용: 완벽한 4열 고정 비율 테이블 레이아웃 구조 복원 */
     .summary-table {
       display: table !important;
       border-collapse: collapse !important;
@@ -309,12 +321,14 @@
       padding: 12px 8px !important;
       border-bottom: 1px solid #f1f5f9 !important;
       font-size: 14px !important;
+      vertical-align: middle;
     }
     
-    /* 기존 요청 컬럼 너비 클래스 매핑 복구 */
-    .col-type { width: 35% !important; }
-    .col-memo { width: 45% !important; }
-    .col-amount { width: 20% !important; }
+    /* 컬럼 너비 설정 */
+    .col-type { width: 30% !important; }
+    .col-memo { width: 35% !important; }
+    .col-amount { width: 18% !important; }
+    .col-receipt { width: 17% !important; }
 
     /* 데이터별 개별 정렬 복원 */
     .summary-table td.col-amount-data {
@@ -325,6 +339,13 @@
     }
     .text-right {
       text-align: right !important;
+    }
+    .text-center {
+      text-align: center !important;
+    }
+
+    .btn-receipt {
+      margin-top: 0;
     }
 
     .grand-total-box { padding: 22px !important; margin-top: 30px !important; }
@@ -370,7 +391,7 @@
               </tr>
               <tr>
                 <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
-                <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
+                <td style="color: #4f46e5; font-weight: 700;">${{ event.guide_fee|default:"0" }}</td>
               </tr>
               {% if event.memo %}
               <tr>
@@ -386,7 +407,6 @@
       {% endif %}
     </div>
 
-
     <div class="summary-section-card">
       <div class="section-title">
         <span>BP</span>
@@ -399,20 +419,50 @@
               <th class="col-type">주유소/항목</th>
               <th class="col-memo">메모(Memo)</th>
               <th class="col-amount text-right">금액</th>
+              <th class="col-receipt text-center">영수증</th>
             </tr>
           </thead>
           <tbody>
             {% for item in fuel_expenses %}
               <tr>
-                <td>
+                <td class="col-type-data">
                   {% if item.expense_type %}
                     {{ item.get_expense_type_display|default:item.expense_type }}
                   {% else %}
                     주유 내역
                   {% endif %}
                 </td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">${{ item.expense|default:"0" }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|default:"0" }}</td>
+
+                <td class="text-center">
+                  {% if item.image_url %}
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-receipt" data-bs-toggle="modal" data-bs-target="#fuelModal-{{ item.id|default:forloop.counter }}">
+                      영수증 확인
+                    </button>
+
+                    <div class="modal fade" id="fuelModal-{{ item.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="fuelModalLabel-{{ item.id|default:forloop.counter }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="fuelModalLabel-{{ item.id|default:forloop.counter }}" style="font-size: 15px; font-weight: 700;">
+                              영수증 파일: {{ item.file_key|default:"이미지 상세보기" }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body text-center p-3">
+                            <img src="{{ item.image_url }}" alt="S3 영수증 이미지" style="max-width: 100%; height: auto; border-radius: 8px;">
+                          </div>
+                          <div class="modal-footer p-2">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% else %}
+                    <span class="text-muted" style="font-size: 12px;">영수증 없음</span>
+                  {% endif %}
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -434,14 +484,45 @@
               <th class="col-type">지출 항목</th>
               <th class="col-memo">메모(Memo)</th>
               <th class="col-amount text-right">금액</th>
+              <th class="col-receipt text-center">영수증</th>
             </tr>
           </thead>
           <tbody>
             {% for item in guide_expenses %}
               <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">${{ item.expense|default:"0" }}</td>
+                <td class="col-type-data">{{ item.get_expense_type_display|default:item.expense_type }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|default:"0" }}</td>
+
+                <td class="text-center">
+                  {% if item.image_url %}
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-receipt" data-bs-toggle="modal" data-bs-target="#expModal-{{ item.id|default:forloop.counter }}">
+                      영수증 확인
+                    </button>
+                      <div class="modal fade" id="expModal-{{ item.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="fuelModalLabel-{{ item.id|default:forloop.counter }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="fuelModalLabel-{{ item.id|default:forloop.counter }}" style="font-size: 15px; font-weight: 700;">
+                              영수증 파일: {{ item.file_key|default:"이미지 상세보기" }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body text-center p-3">
+                            <img src="{{ item.image_url }}" alt="S3 영수증 이미지" style="max-width: 100%; height: auto; border-radius: 8px;">
+                          </div>
+                          <div class="modal-footer p-2">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  {% else %}
+                    <span class="text-muted" style="font-size: 12px;">영수증 없음</span>
+                  {% endif %}
+
+
+                </td>
               </tr>
             {% endfor %}
           </tbody>
@@ -451,6 +532,7 @@
       {% endif %}
     </div>
 
+    <!-- Grand Total -->
     <div class="grand-total-box">
       <div class="grand-total-title">최종 정산 예정 금액 (Grand Total)</div>
       <div class="grand-total-amount">${{ grand_total|default:"0" }}</div>
@@ -471,6 +553,10 @@
         submitBtn.innerText = "리포트를 서버에 안전하게 등록 중입니다...";
       });
     }
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+      document.body.appendChild(modal);
+    });
   });
 </script>
 

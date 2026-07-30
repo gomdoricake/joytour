@@ -62,26 +62,31 @@ def guidereport_day(request):
             guide_report.day_inbound = main_data['day_inbound']
             guide_report.role = main_data['role']
             guide_report.guide = guide_report.guide  if request.user.username == 'admin' else request.user.guide_profile
-            guide_report.save()
 
             eventcode = form.cleaned_data['eventcode']
             report_date = form.cleaned_data['report_date'].strftime('%Y-%m-%d')
             today_str = form.cleaned_data['report_date'].strftime('%d%m%y')
+
+            main_data['guidereport_id'] = guide_report.id
+            request.session['main_data'] = main_data
+            
+            group_code = 'J' + today_str + eventcode
+            guide_report.group_code = group_code
+
+            guide_report.save()
 
             event, created = Event.objects.update_or_create(
                 guidereport=guide_report,
                 defaults={'eventcode': eventcode, 'report_date': report_date}
             )
 
-            main_data['guidereport_id'] = guide_report.id
-            request.session['main_data'] = main_data
-
             request.session['day_data'] = {
                 'guidereport_id': guide_report.id,
                 'event_id': event.id,
                 'role': main_data['role'],
                 'day_inbound': main_data['day_inbound'], 
-                'today_str': today_str     
+                'today_str': today_str, 
+                'group_code': group_code     
             }
             return redirect('guidereports:guidereport_day_fuel_exp')
     else: 
@@ -94,21 +99,11 @@ import uuid
 import mimetypes
 from django.http import JsonResponse
 
-
-
 def get_image_path(request, client_file_name): 
     guidereport_id = request.session.get('day_data')['guidereport_id']
-    
-    group_code = 'unknown'
-    if guidereport_id: 
-        report = GuideReport.objects.get(id=guidereport_id)
-
-        group_code = report.group_code
-
-    print('gruop_code: ' + str(group_code))
-    
+    group_code = request.session.get('day_data')['group_code']
+        
     return f'{group_code}/{client_file_name}'
-
 
 
 def guidereport_day_fuel_s3_url(request):
@@ -120,23 +115,15 @@ def guidereport_day_fuel_s3_url(request):
 
     ext = os.path.splitext(client_file_name)[1]
     unique_name = get_image_path(request, client_file_name)
-    s3_key = f"bp/{unique_name}"
+    s3_key = f"day/bp/{unique_name}"
 
-    bp_s3_client = boto3.client(
-        's3', 
-        aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'), 
-        aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY'), 
-        region_name='ap-southeast-2', 
-        config=Config(
-            signature_version='s3v4',
-            s3={'addressing_style': 'virtual'} 
-        )
-    )
+    bp_s3_client = default_storage.connection.meta.client
+    bucket_name = default_storage.bucket_name
 
     presigned_url = bp_s3_client.generate_presigned_url(
         ClientMethod='put_object', 
         Params={
-            'Bucket': os.getenv('AWS_STORAGE_BUCKET_NAME'), 
+            'Bucket': bucket_name, 
             'Key': s3_key, 
             'ContentType': content_type
         },
@@ -187,16 +174,27 @@ def guidereport_day_fuel_exp(request):
         formset = FuelFormSet(request.POST, instance=guide_report, initial=initial_data)
     
         if formset.is_valid(): 
-            with transaction.atomic():
+            with transaction.atomic():  
                 instances = formset.save(commit=False)
+
+                for i, form in enumerate(formset.forms): 
+                    if formset.can_delete and formset._should_delete_form(form): 
+                        continue
+
+                    instance = form.instance                
                 
-                for i, instance in enumerate(instances):
-                    s3_key_value = request.POST.get(f's3_key_images_{i}')
+                    s3_key_value = request.POST.get(f'{form.prefix}-s3_key')
                     
                     if s3_key_value:
                         instance.file_key = s3_key_value 
                     
-                    instance.save()
+                        instance = form.save(commit=False)
+                        instance.save()
+                    
+                    elif form.has_changed(): 
+                        instance = form.save(commit=False)
+                        instance.save()
+
                 
                 for deleted_obj in formset.deleted_objects:
                     deleted_obj.delete()
@@ -218,37 +216,31 @@ def guidereport_day_fuel_exp(request):
 
 
 from django.db import transaction
+from django.core.files.storage import default_storage
 
 
 
 def guidereport_day_exp_s3_url(request): 
 
     client_file_name = request.GET.get('file_name') or 'receipt.jpg'
-    print("client_file_name: " + str(client_file_name))
     content_type, _ = mimetypes.guess_type(client_file_name)
+
     if not content_type: 
         content_type = 'application/octet-stream'
     
     ext = os.path.splitext(client_file_name)[1]
 
     unique_name = get_image_path(request, client_file_name)
-    s3_key = f"guide_exp/{unique_name}"
+    s3_key = f"day/guide_exp/{unique_name}"
 
-    exp_s3_client = boto3.client(
-        's3', 
-        aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID'), 
-        aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY'), 
-        region_name = 'ap-southeast-2', 
-        config = Config(
-            signature_version='s3v4',
-            s3={'addressing_style': 'virtual'}
-        )
-    )
+
+    exp_s3_client = default_storage.connection.meta.client
+    bucket_name = default_storage.bucket_name
 
     presigned_url = exp_s3_client.generate_presigned_url(
         ClientMethod = 'put_object', 
         Params = {
-            'Bucket': os.getenv('AWS_STORAGE_BUCKET_NAME'), 
+            'Bucket': bucket_name,
             'Key': s3_key, 
             'ContentType': content_type
         },
@@ -290,6 +282,7 @@ def guidereport_day_guide_exp(request):
         final_instance = guide_report
         final_instance.role = day_fuel.get('role')
         final_instance.day_inbound = day_fuel.get('day_inbound')
+        final_instance.group_code = day_fuel.get('group_code')
 
         formset = GuideExpFormSet(request.POST, instance=final_instance)
         
@@ -302,51 +295,43 @@ def guidereport_day_guide_exp(request):
                     today_str = event.report_date.strftime('%d%m%y')
 
             day_inbound_check = str(final_instance.day_inbound).upper().strip()
-            if day_inbound_check == "DAY" and today_str and event.eventcode:
-                final_instance.group_code = 'J' + today_str + event.eventcode
             
             final_instance.invoice_date = datetime.date.today()
 
             with transaction.atomic(): 
                 final_instance.save()
-
-                existing_expenses = GuideExp.objects.filter(guide_report=final_instance)
-                for old_exp in existing_expenses: 
-                    old_exp.delete()
-
-                prefix = formset.prefix
-                total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+                
+                instances = formset.save(commit=False)
                 wash_added = False
 
-                for i in range(total_forms_count):
-                    exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
-                    exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
-                    memo = request.POST.get(f'{prefix}-{i}-memo')
-                    is_delete = request.POST.get(f'{prefix}-{i}-DELETE') 
+                for i, form in enumerate(formset.forms): 
+                    if formset.can_delete and formset._should_delete_form(form): 
+                        continue
+                    
+                    instance = form.instance
 
-                    if exp_type and exp_val_raw and not is_delete:
-                        try:
-                            if exp_type == 'WASH':
-                                if wash_added:
-                                    continue
-                                wash_added = True
+                    exp_type = form.cleaned_data.get('expense_type')
+                    exp_val = form.cleaned_data.get('expense')
 
-                            exp_val = float(exp_val_raw)
-                            if exp_val > 0:
-                                s3_keys = request.POST.getlist(f's3_key_images_{i}')
-                                
-                                chosen_file_key = s3_keys[0] if s3_keys else None
+                    if exp_type and exp_val and exp_val > 0: 
+                        if exp_type == 'WASH': 
+                            if wash_added: 
+                                continue
+                            wash_added = True
+                        
+                        s3_key_value = request.POST.get(f'{form.prefix}-s3_key')
 
-                                new_exp = GuideExp.objects.create(
-                                    guide_report=final_instance,
-                                    expense_type=exp_type,
-                                    expense=exp_val,
-                                    memo=memo,
-                                    file_key=chosen_file_key  
-                                )
+                        if s3_key_value: 
+                            instance.file_key = s3_key_value
+                        
+                        instance.guide_report = final_instance
+                        instance.save()
+                    
+                for deleted_obj in formset.deleted_objects: 
+                    if deleted_obj.pk: 
+                        deleted_obj.delete()
 
-                        except ValueError:
-                            pass 
+                formset.save_m2m()
 
                 event.guidereport = final_instance
                 event.save()

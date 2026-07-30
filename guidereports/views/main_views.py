@@ -39,6 +39,7 @@ def DetailView(request, pk):
         GuideReport,
         pk=pk
     )
+
     events = guide_report.events.all()
     event_fee = guide_report.final_events_fee
     expense_fee = guide_report.final_expenses_fee
@@ -50,6 +51,8 @@ def DetailView(request, pk):
     else: 
         super_ann = None
     invoice_number = guide_report.invoice_number
+
+    
 
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,
@@ -226,7 +229,10 @@ def guidereport_pdf(request, pk):
     for exp in guide_report.expenses.all():
         e_fee = float(exp.expense or 0)
         expense_subtotal += e_fee
-        expense_list_data.append((f"", f"{exp.expense_type}", f"${e_fee:,.2f}"))
+        if exp.memo: 
+            expense_list_data.append((f"", f"{exp.expense_type} - {exp.memo}", f"${e_fee:,.2f}"))
+        else: 
+            expense_list_data.append((f"", f"{exp.expense_type}", f"${e_fee:,.2f}"))
     
     for event in guide_report.events.all():
         if event.overtime and int(event.overtime) > 0:
@@ -236,7 +242,7 @@ def guidereport_pdf(request, pk):
             expense_list_data.append((f"{event.report_date}", f"Overtime {ov_time} hrs", f"${ov_fee:,.2f}"))
 
     final_amount_due = event_subtotal + expense_subtotal
-    super_ann = final_amount_due * 0.115 
+    super_ann = float(guide_report.super_ann)
 
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(

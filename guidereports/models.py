@@ -5,6 +5,7 @@ from .rate import *
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.files.storage import default_storage
 
 
 class GuideReport(models.Model):
@@ -101,9 +102,15 @@ class Event(models.Model):
 class GuideExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='expenses')
     expense_type = models.CharField(max_length=10, default='WASH') 
-    expense = models.DecimalField(max_digits=10, decimal_places=2) 
+    expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0) 
     memo = models.CharField(max_length=30, null=True, blank=True)
     file_key = models.CharField(max_length=500, null=True, blank=True)
+
+    @property
+    def image_url(self): 
+        if self.file_key: 
+            return default_storage.url(self.file_key)
+        return None
 
     def __str__(self): 
         return str(self.expense_type) + " " + str(self.expense)
@@ -111,25 +118,10 @@ class GuideExp(models.Model):
 
 from django.utils import timezone
 
-def receipt_image_upload_path(instance, filename): 
-    today = timezone.now().strftime('%Y-%m-%d')
-    exp_pk = instance.guide_exp.pk if instance.guide_exp and instance.guide_exp.pk else 'unknown'
-    
-    group_code = 'unknown'
-    if exp_pk != 'unknown': 
-        guide_exp = GuideExp.objects.get(id=exp_pk)
-
-        report = guide_exp.guide_report
-
-        group_code = report.group_code
-    
-    return f'receipt_images/{today}/{group_code}/{filename}'
-
-
 class RestaurantExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='restaurants')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, null=True, blank=True)
+    expense_type = models.CharField(max_length=100, blank=True, default='')
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
     adt = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -144,7 +136,7 @@ class RestaurantExp(models.Model):
 class AttractionExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='attractions')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, null=True, blank=True)
+    expense_type = models.CharField(max_length=100, blank=True, default='')
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
     adt = models.PositiveIntegerField(default=0, null=True, blank=True)
@@ -162,6 +154,13 @@ class FuelExp(models.Model):
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, null=True, blank=True)
     memo = models.CharField(max_length=30, null=True, blank=True)
     file_key = models.CharField(max_length=500, null=True, blank=True)
+
+    @property
+    def image_url(self): 
+        if self.file_key: 
+            return default_storage.url(self.file_key)
+        return None
+
 
     def __str__(self): 
         return str(self.report_date) + str(self.guide_report.group_code)

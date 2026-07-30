@@ -64,7 +64,6 @@
 
   {% if unpaid_reports %}
 
-  <!-- 상세 내역 테이블 wrapper -->
   <div class="xero-table-wrapper">
     <div class="summary-meta-bar" style="padding: 12px 16px 8px 16px; background: #ffffff;">
       <span class="sec-title">DETAILS</span>
@@ -85,7 +84,7 @@
         
         <span class="xero-date">
           {% if guidereport.is_printed %}
-          <span class="print-dot printed" title="Printed">●</span>
+          <span class="print-dot printed" title="Printed"></span>
           {% else %}
             <span class="print-dot not-printed" title="Not Printed"></span>
           {% endif %}

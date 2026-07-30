@@ -38,15 +38,16 @@
 
     <div class="xero-guides-vertical">
       {% for guide in guides %}
-        {% for guide_name, counts, final_events_fee, final_expenses_fee, final_amount_due in guide|sort_payable:"payable" %}
+        {% for guide_name, counts, final_events_fee, final_expenses_fee, total_super, final_amount_due in guide|sort_payable:"payable" %}
           <div class="xero-guide-row">
             <div class="g-info">
-              <span class="g-name">{{ guide_name }}</span>
+              <span class="g-name">{{ guide_name }} [Grade {{ guide.grade }}]</span>
               <span class="r-count">{{ counts }}건</span>
             </div>
             <div class="g-amount">
               Fee: <strong>{{ final_events_fee }}</strong><br>
               Exp: <strong>{{ final_expenses_fee }}</strong><br>
+              Super: <strong> {{ total_super }}</strong><br>
               Total: <strong style="color: #3182f6;">{{ final_amount_due }}</strong>
             </div>
           </div>
@@ -72,16 +73,19 @@
       {% for guidereport in payable_reports %}
       <li class="xero-row-item">
         <a href="{% url 'guidereports:detail' guidereport.id %}">
+          
           <span class="xero-date">
             {% if guidereport.is_printed %}
               <span class="print-dot printed" title="Printed"></span>
             {% else %}
               <span class="print-dot not-printed" title="Not Printed"></span>
             {% endif %}
+            <span style="margin-right:10px;">#{{ forloop.counter }} </span>
+
             {{ guidereport.invoice_date }}
           </span>
           
-          <span class="xero-guide-name">{{ guidereport.guide.name }}</span>
+          <span class="xero-guide-name">{{ guidereport.guide.name }} </span>
           <span class="xero-group-code">{{ guidereport.group_code }}</span>
           <span class="xero-price">${{ guidereport.final_amount_due|floatformat:2 }}</span>
 
