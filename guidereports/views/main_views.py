@@ -39,6 +39,7 @@ def DetailView(request, pk):
         GuideReport,
         pk=pk
     )
+
     events = guide_report.events.all()
     event_fee = guide_report.final_events_fee
     expense_fee = guide_report.final_expenses_fee
@@ -50,6 +51,8 @@ def DetailView(request, pk):
     else: 
         super_ann = None
     invoice_number = guide_report.invoice_number
+
+    
 
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,

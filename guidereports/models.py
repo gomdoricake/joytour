@@ -5,6 +5,7 @@ from .rate import *
 from datetime import datetime
 from django.core.exceptions import ValidationError
 from storages.backends.s3boto3 import S3Boto3Storage
+from django.core.files.storage import default_storage
 
 
 class GuideReport(models.Model):
@@ -105,6 +106,12 @@ class GuideExp(models.Model):
     memo = models.CharField(max_length=30, null=True, blank=True)
     file_key = models.CharField(max_length=500, null=True, blank=True)
 
+    @property
+    def image_url(self): 
+        if self.file_key: 
+            return default_storage.url(self.file_key)
+        return None
+
     def __str__(self): 
         return str(self.expense_type) + " " + str(self.expense)
     
@@ -147,6 +154,13 @@ class FuelExp(models.Model):
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0, null=True, blank=True)
     memo = models.CharField(max_length=30, null=True, blank=True)
     file_key = models.CharField(max_length=500, null=True, blank=True)
+
+    @property
+    def image_url(self): 
+        if self.file_key: 
+            return default_storage.url(self.file_key)
+        return None
+
 
     def __str__(self): 
         return str(self.report_date) + str(self.guide_report.group_code)

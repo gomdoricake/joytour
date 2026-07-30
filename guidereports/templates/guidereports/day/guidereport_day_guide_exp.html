@@ -365,19 +365,9 @@
           <div class="receipt-section">
             <div class="form-group">
               <label>🧾 영수증 첨부</label>
-              <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" accept="image/*">
+              <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" data-prefix="{{ form.prefix }}" accept="image/*">
+              <input type="hidden" name="{{ form.prefix }}-s3_key" id="id_{{ form.prefix }}-s3_key" value="{{ form.instance.file_key|default:'' }}">
             </div>
-
-            {% if form.instance.pk and form.instance.receipt_images.all %}
-              <div class="existing-receipts">
-                <span>기존 파일:</span>
-                {% for receipt in form.instance.receipt_images.all %}
-                  <a href="{{ receipt.image_file.url }}" target="_blank" class="receipt-link">
-                    영수증 #{{ forloop.counter }}
-                  </a>
-                {% endfor %}
-              </div>
-            {% endif %}
           </div>
         </div>
       </div>
@@ -433,11 +423,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const formContainer = document.getElementById("expense-form-list");
     const addButton = document.getElementById("add-form-btn");
     const mainForm = document.getElementById("real-expense-form");
-    
     const submitBtn = document.getElementById("submit-final-btn");
 
     if (!addButton) return;
 
+    // 💡 [핵심 교정] data-index 대신 장고 고유의 data-prefix 명칭을 추적하여 정확히 매칭합니다.
     async function uploadToS3() {
       const fileInputs = formContainer.querySelectorAll(".receipt-file-input"); 
       console.log("👉 S3 업로드 검사 대상 파일 인풋 총 개수:", fileInputs.length);
@@ -455,17 +445,20 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           const file = fileInput.files[0]; // 단일 파일 객체 정밀 타겟팅
-          const currentIndex = fileInput.getAttribute("data-index");
-          console.log(`📌 [행 ${currentIndex}] S3 가이드 전송 타겟 파일명:`, file.name);
+          
+          // [변경] 오류를 유발하던 data-index 대신, 장고가 관리하는 고유 prefix를 가져옵니다 (예: expenses-0, expenses-1)
+          const prefix = fileInput.getAttribute("data-prefix");
+          console.log(`📌 [${prefix}] S3 가이드 전송 타겟 파일명:`, file.name);
 
           try {
             const s3ApiBaseUrl = "/guidereports/day/guidereport_day_exp_s3_url/";
             
+            // 일반 지출용 s3 url 발급 API 호출
             const urlFetch = await fetch(`${s3ApiBaseUrl}?file_name=${encodeURIComponent(file.name)}`);
             if (!urlFetch.ok) throw new Error('장고 API로부터 S3 승인 주소를 발급받지 못했습니다.');
             
             const s3Config = await urlFetch.json();
-            console.log(`📌 [행 ${currentIndex}] 장고 발급 완료 S3 Key:`, s3Config.s3_key);
+            console.log(`📌 [${prefix}] 장고 발급 완료 S3 Key:`, s3Config.s3_key);
             
             const s3ReadyFile = new File([file], file.name, { type: s3Config.content_type });
 
@@ -482,26 +475,37 @@ document.addEventListener("DOMContentLoaded", function () {
               console.error("S3 서버 거부 사유: ", errBody);
               throw new Error('S3 직배송 업로드 실패');
             }
-            console.log(`🎉 [행 ${currentIndex}] S3 가이드 영수증 업로드 성공 -> Key:`, s3Config.s3_key);
+            console.log(`🎉 [${prefix}] S3 가이드 영수증 업로드 성공 -> Key:`, s3Config.s3_key);
 
-            let hiddenInput = row.querySelector(`input[name="s3_key_images_${currentIndex}"]`);
-            if (!hiddenInput) {
-                hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = `s3_key_images_${currentIndex}`;
-                row.appendChild(hiddenInput);
+            // [변경] HTML 템플릿에 장고가 미리 만들어 놓은 고유 hidden input을 찾아 정확하게 1:1 주입합니다.
+            const hiddenInput = document.getElementById(`id_${prefix}-s3_key`);
+            if (hiddenInput) {
+                hiddenInput.value = s3Config.s3_key;
+                console.log(`[매핑완료] id_${prefix}-s3_key ➡️`, s3Config.s3_key);
+            } else {
+                // 동적 추가 폼 대응용 예외 방어코드 (만약 HTML에 동적 생성이 안 되어 있을 경우에만 생성)
+                let backupInput = row.querySelector(`input[name="${prefix}-s3_key"]`);
+                if (!backupInput) {
+                    backupInput = document.createElement("input");
+                    backupInput.type = "hidden";
+                    backupInput.name = `${prefix}-s3_key`;
+                    backupInput.id = `id_${prefix}-s3_key`;
+                    row.appendChild(backupInput);
+                }
+                backupInput.value = s3Config.s3_key;
+                console.log(`[매핑완료(동적)] ${prefix}-s3_key 생성 및 바인딩 완료`);
             }
-            hiddenInput.value = s3Config.s3_key;
 
           } catch (error) {
             console.error('가이드 S3 비동기 루프 예외 터짐: ', error); 
-            alert(`S3 영수증 처리 오류 (행 ${currentIndex}): ` + error.message);
+            alert(`S3 영수증 처리 오류 (${prefix}): ` + error.message);
             return false; 
           }
       }
       return true; 
     }
 
+    // 1. 항목 추가 기능
     addButton.addEventListener("click", function (e) {
       e.preventDefault(); 
 
@@ -532,6 +536,9 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       const newRow = templateRow.cloneNode(true);
+      
+      // ★ __prefix__ 문자를 새 인덱스 숫자로 완벽 치환합니다.
+      // 이 과정에서 파일 인풋의 data-prefix="expenses-1"과 hidden 인풋의 id="id_expenses-1-s3_key"가 자동으로 생성됩니다.
       newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount);
 
       newRow.querySelectorAll("input, select, textarea").forEach((input) => {
@@ -548,6 +555,7 @@ document.addEventListener("DOMContentLoaded", function () {
       totalFormsInput.value = currentFormCount + 1;
     });
 
+    // 2. 항목 삭제 기능
     formContainer.addEventListener("click", function (event) {
       if (event.target.classList.contains("remove-form-btn")) {
         event.preventDefault();
@@ -566,6 +574,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
+    // 3. 최종 저장 처리 로직
     if (mainForm && submitBtn) {
       submitBtn.addEventListener("click", async function (e) {
         e.preventDefault();

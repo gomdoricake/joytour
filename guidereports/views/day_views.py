@@ -102,9 +102,7 @@ from django.http import JsonResponse
 def get_image_path(request, client_file_name): 
     guidereport_id = request.session.get('day_data')['guidereport_id']
     group_code = request.session.get('day_data')['group_code']
-    
-    print('gruop_code: ' + str(group_code))
-    
+        
     return f'{group_code}/{client_file_name}'
 
 
@@ -176,16 +174,27 @@ def guidereport_day_fuel_exp(request):
         formset = FuelFormSet(request.POST, instance=guide_report, initial=initial_data)
     
         if formset.is_valid(): 
-            with transaction.atomic():
+            with transaction.atomic():  
                 instances = formset.save(commit=False)
+
+                for i, form in enumerate(formset.forms): 
+                    if formset.can_delete and formset._should_delete_form(form): 
+                        continue
+
+                    instance = form.instance                
                 
-                for i, instance in enumerate(instances):
-                    s3_key_value = request.POST.get(f's3_key_images_{i}')
+                    s3_key_value = request.POST.get(f'{form.prefix}-s3_key')
                     
                     if s3_key_value:
                         instance.file_key = s3_key_value 
                     
-                    instance.save()
+                        instance = form.save(commit=False)
+                        instance.save()
+                    
+                    elif form.has_changed(): 
+                        instance = form.save(commit=False)
+                        instance.save()
+
                 
                 for deleted_obj in formset.deleted_objects:
                     deleted_obj.delete()
@@ -291,44 +300,38 @@ def guidereport_day_guide_exp(request):
 
             with transaction.atomic(): 
                 final_instance.save()
-
-                existing_expenses = GuideExp.objects.filter(guide_report=final_instance)
-                for old_exp in existing_expenses: 
-                    old_exp.delete()
-
-                prefix = formset.prefix
-                total_forms_count = int(request.POST.get(f'{prefix}-TOTAL_FORMS', 0))
+                
+                instances = formset.save(commit=False)
                 wash_added = False
 
-                for i in range(total_forms_count):
-                    exp_type = request.POST.get(f'{prefix}-{i}-expense_type')
-                    exp_val_raw = request.POST.get(f'{prefix}-{i}-expense')
-                    memo = request.POST.get(f'{prefix}-{i}-memo')
-                    is_delete = request.POST.get(f'{prefix}-{i}-DELETE') 
+                for i, form in enumerate(formset.forms): 
+                    if formset.can_delete and formset._should_delete_form(form): 
+                        continue
+                    
+                    instance = form.instance
 
-                    if exp_type and exp_val_raw and not is_delete:
-                        try:
-                            if exp_type == 'WASH':
-                                if wash_added:
-                                    continue
-                                wash_added = True
+                    exp_type = form.cleaned_data.get('expense_type')
+                    exp_val = form.cleaned_data.get('expense')
 
-                            exp_val = float(exp_val_raw)
-                            if exp_val > 0:
-                                s3_keys = request.POST.getlist(f's3_key_images_{i}')
-                                
-                                chosen_file_key = s3_keys[0] if s3_keys else None
+                    if exp_type and exp_val and exp_val > 0: 
+                        if exp_type == 'WASH': 
+                            if wash_added: 
+                                continue
+                            wash_added = True
+                        
+                        s3_key_value = request.POST.get(f'{form.prefix}-s3_key')
 
-                                new_exp = GuideExp.objects.create(
-                                    guide_report=final_instance,
-                                    expense_type=exp_type,
-                                    expense=exp_val,
-                                    memo=memo,
-                                    file_key=chosen_file_key  
-                                )
+                        if s3_key_value: 
+                            instance.file_key = s3_key_value
+                        
+                        instance.guide_report = final_instance
+                        instance.save()
+                    
+                for deleted_obj in formset.deleted_objects: 
+                    if deleted_obj.pk: 
+                        deleted_obj.delete()
 
-                        except ValueError:
-                            pass 
+                formset.save_m2m()
 
                 event.guidereport = final_instance
                 event.save()

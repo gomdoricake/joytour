@@ -202,6 +202,15 @@
   .btn-submit:hover {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
+  .receipt-section {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
 
   /* ==========================================================
      🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
@@ -307,10 +316,13 @@
         <div class="form-group"><label>날짜</label>{{ form.report_date }}</div>
         <div class="form-group"><label>Expense ($)</label>{{ form.expense }}</div>
         <div class="form-group"><label>Memo (비고)</label>{{ form.memo }}</div>
-
+        
+        <div class="receipt-section">
         <div class="form-group">
-          <label>영수증 파일</label>
-          <input type="file" class="receipt-file-input" accept="image/*">
+          <label>영수증 첨부</label>
+            <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" data-prefix="{{ form.prefix }}" accept="image/*">
+            <input type="hidden" name="{{ form.prefix }}-s3_key" id="id_{{ form.prefix }}-s3_key" value="{{ form.instance.file_key|default:'' }}">
+        </div>
         </div>
         
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
@@ -330,217 +342,207 @@
     <div class="form-group"><label>날짜</label>{{ formset.empty_form.report_date }}</div>
     <div class="form-group"><label>Expense ($)</label>{{ formset.empty_form.expense }}</div>
     <div class="form-group"><label>Memo (비고)</label>{{ formset.empty_form.memo }}</div>
+    <div class="receipt-section">
+        <div class="form-group">
+          <label>영수증 첨부</label>
+            <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" data-prefix="{{ form.prefix }}" accept="image/*">
+            <input type="hidden" name="{{ form.prefix }}-s3_key" id="id_{{ form.prefix }}-s3_key" value="{{ form.instance.file_key|default:'' }}">
+        </div>
+    </div>
+
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
   </div>
 </div>
 
 <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const formContainer = document.getElementById("expense-form-list");
-    const addButton = document.getElementById("add-form-btn");
-    const mainForm = document.getElementById("real-expense-form");
-    const submitBtn = document.getElementById("submit-final-btn");
+document.addEventListener("DOMContentLoaded", function() {
+  const formContainer = document.getElementById("expense-form-list"); 
+  const addButton = document.getElementById("add-form-btn"); 
+  const mainForm = document.getElementById("real-expense-form"); 
+  const submitBtn = document.getElementById("submit-final-btn"); 
 
-    if (!addButton) return;
+  if (!addButton) return; 
 
-    const s3UploadUrl = "{{ presigned_url|safe }}"; 
-    const targetFileName = "{{ unique_file_name|safe }}"; // 💡 장고가 지정한 "receipt_TEST.jpg" 가져오기
+    async function uploadToS3() {
+    const fileInputs = document.querySelectorAll(".receipt-file-input"); 
 
-    // 자바스크립트 내부의 uploadToS3 함수 수정본
-        async function uploadToS3() {
-      const fileInputs = formContainer.querySelectorAll(".receipt-file-input");
-      let rowIndex = 0; 
+    for (let fileInput of fileInputs) {
+      const row = fileInput.closest('.expense-form-row'); 
 
-      for (let fileInput of fileInputs) {
-          const row = fileInput.closest('.expense-form-row');
-          if (row.style.display === 'none' || fileInput.files.length === 0) {
-              rowIndex++;
-              continue;
-          }
-
-          const file = fileInput.files[0]; // 파일 객체 타겟팅 완료
-          console.log(`[행 ${rowIndex}] S3 준비 파일:`, file.name);
-
-          try {
-            // ① 장고 실시간 API 주소를 호출하여 전용 URL과 S3 Key를 받아옵니다.
-            const urlFetch = await fetch(`/guidereports/day/guidereport_day_fuel_s3_url/?file_name=${encodeURIComponent(file.name)}`);
-            if (!urlFetch.ok) throw new Error('S3 권한 주소 발급에 실패했습니다.');
-            
-            const s3Config = await urlFetch.json();
-            
-            // ② 브라우저 개입 차단을 위한 이진 랩핑
-            const s3ReadyFile = new File([file], file.name, { type: s3Config.content_type });
-
-            // ③ 발급받은 전용 URL로 시드니 S3에 직접 PUT 요청 전송
-            const response = await fetch(s3Config.upload_url, {
-              method: 'PUT', 
-              body: s3ReadyFile, 
-              headers: {
-                'Content-Type': s3Config.content_type 
-              }
-            });
-
-            if (!response.ok) {
-              const errXml = await response.text();
-              console.error("S3 서버 거부 사유:", errXml);
-              throw new Error('S3 업로드 거부: ' + response.statusText);
-            }
-
-            console.log(`[행 ${rowIndex}] S3 업로드 완 -> Key:`, s3Config.s3_key);
-
-            // ④ 장고 POST 처리 분기에서 가로챌 수 있도록 hidden input 매핑 주입
-            let hiddenInput = row.querySelector(`input[name="s3_key_images_${rowIndex}"]`);
-            if (!hiddenInput) {
-                hiddenInput = document.createElement("input");
-                hiddenInput.type = "hidden";
-                hiddenInput.name = `s3_key_images_${rowIndex}`;
-                row.appendChild(hiddenInput);
-            }
-            hiddenInput.value = s3Config.s3_key;
-
-          } catch (error) {
-            console.error('업로드 예외 발생: ', error); 
-            alert(`S3 영수증 업로드 실패 (행 ${rowIndex}): ` + error.message);
-            return false; 
-          }
-          
-          rowIndex++;
+      // 삭제된 행이거나 파일이 선택되지 않은 행은 건너뜀
+      if (!row || row.style.display === 'none' || fileInput.files.length === 0) {
+        continue; 
       }
-      return true; 
+
+      const prefix = fileInput.getAttribute('data-prefix'); 
+      
+      // 💡 [교정] files 가 아니라 files[0] 으로 단일 파일 객체를 정확히 타겟팅해야 합니다.
+      const file = fileInput.files[0]; 
+      console.log(`[${prefix}] S3 업로드 시도 파일:`, file.name); 
+    
+      try {
+        // ① 백엔드에 실시간 Presigned URL 발급 요청
+        const urlFetch = await fetch(`/guidereports/day/guidereport_day_fuel_s3_url/?file_name=${encodeURIComponent(file.name)}&type=fuel`);
+        if (!urlFetch.ok) {
+          throw new Error(`S3 주소 발급 실패 (Status: ${urlFetch.status})`); 
+        }
+
+        const s3Config = await urlFetch.json(); 
+        console.log(`[${prefix}] 발급된 S3 Key:`, s3Config.s3_key);
+
+        // ② 이진 파일 객체 생성
+        const s3ReadyFile = new File([file], file.name, { type: s3Config.content_type });
+
+        // ③ S3 버킷으로 직접 PUT 업로드 요청
+        const response = await fetch(s3Config.upload_url, {
+          method: 'PUT', 
+          body: s3ReadyFile, 
+          headers: {
+            'Content-Type': s3Config.content_type
+          }
+        });
+
+        if (!response.ok) {
+          const errXml = await response.text(); 
+          console.error('S3 서버 거부 사유 XML:', errXml); 
+          throw new Error('S3 버킷 업로드 거부당함 (Status: ' + response.status + ')'); 
+        }
+
+        console.log(`[${prefix}] S3 업로드 완 ➡️ Key:`, s3Config.s3_key);
+
+        // ④ HTML 내 hidden input에 s3_key 매핑 주입
+        const hiddenInput = document.getElementById(`id_${prefix}-s3_key`);
+        if (hiddenInput) {
+          hiddenInput.value = s3Config.s3_key; 
+          console.log(`[매핑완료] id_${prefix}-s3_key 폼에 바인딩 완료`);
+        } else {
+          console.error(`[오류] id_${prefix}-s3_key 엘리먼트를 찾을 수 없습니다.`);
+        }
+      } catch (error) {
+        console.error('S3 업로드 프로세스 중 예외 터짐:', error); 
+        alert(`S3 영수증 업로드 에러 발생 (${prefix}): ` + error.message);
+        return false; // 에러가 나면 여기서 함수가 끝나고 submitBtn이 복구됩니다.
+      }
+    }
+    return true; 
+  }
+
+
+  // 1. 항목 추가 기능
+  addButton.addEventListener('click', function(e) {
+    e.preventDefault(); 
+
+    const noDataAlert = document.getElementById('no-data-alert'); 
+    if (noDataAlert) noDataAlert.remove(); 
+
+    const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+    if (!totalFormsInput) {
+      console.error("Django TOTAL_FORMS 매니지먼트 폼을 찾을 수 없습니다.");
+      return;
     }
 
+    const templateContainer = document.getElementById("empty-form-template");
+    if (!templateContainer) {
+      console.error("empty-form-template을 찾을 수 없습니다.");
+      return;
+    }
 
-    // 1. 항목 추가 기능
-    addButton.addEventListener("click", function (e) {
-      e.preventDefault(); // 기본 제출 방지
+    const templateRow = templateContainer.querySelector(".expense-form-row");
+    if (!templateRow) return;
 
-      const noDataAlert = document.getElementById("no-data-alert");
-      if (noDataAlert) noDataAlert.remove();
+    const currentFormCount = parseInt(totalFormsInput.value, 10);
+    const visibleRows = Array.from(formContainer.querySelectorAll(".expense-form-row"))
+                             .filter(row => row.style.display !== "none");
+    const lastRow = visibleRows[visibleRows.length - 1];
 
-      // TOTAL_FORMS 매니지먼트 폼 찾기 (가장 안전한 셀렉터)
-      const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
-      if (!totalFormsInput) {
-        console.error("Django TOTAL_FORMS 매니지먼트 폼을 찾을 수 없습니다.");
-        return;
+    let previousDate = "";
+    if (lastRow) {
+      const lastDateInput = lastRow.querySelector("input[name*='report_date']");
+      if (lastDateInput) previousDate = lastDateInput.value;
+    }
+
+    const newRow = templateRow.cloneNode(true);
+    newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount);
+
+    newRow.querySelectorAll("input, select, textarea").forEach((input) => {
+      if (input.type === "checkbox") {
+        input.checked = false;
+      } else if (input.name && input.name.includes("report_date")) {
+        input.value = previousDate; 
+      } else if (input.type !== "hidden") {
+        input.value = ""; 
       }
+    });
+    formContainer.appendChild(newRow);
+    totalFormsInput.value = currentFormCount + 1;
+  });
 
-      const templateContainer = document.getElementById("empty-form-template");
-      if (!templateContainer) {
-        console.error("empty-form-template을 찾을 수 없습니다.");
-        return;
-      }
-
-      const templateRow = templateContainer.querySelector(".expense-form-row");
-      if (!templateRow) return;
-
-      // 현재 추가될 고유 인덱스 번호 (TOTAL_FORMS 값 기준)
-      const currentFormCount = parseInt(totalFormsInput.value, 10);
-
-      // 이전 행의 날짜 값 가져오기
-      const visibleRows = Array.from(formContainer.querySelectorAll(".expense-form-row"))
-                               .filter(row => row.style.display !== "none");
-      const lastRow = visibleRows[visibleRows.length - 1];
+  // 2. 항목 삭제 기능
+  formContainer.addEventListener("click", function (event) {
+    if (event.target.classList.contains("remove-form-btn")) {
+      event.preventDefault();
       
-      let previousDate = "";
-      if (lastRow) {
-        const lastDateInput = lastRow.querySelector("input[name*='report_date']");
-        if (lastDateInput) previousDate = lastDateInput.value;
+      const row = event.target.closest(".expense-form-row");
+      const idInput = row.querySelector('input[name$="-id"]');
+      const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+
+      if (idInput && idInput.value) {
+        if (deleteCheckbox) deleteCheckbox.checked = true;
+        row.style.display = "none";
+        row.classList.add("form-deleted");
+        return; 
       }
 
-      // 템플릿 복제
-      const newRow = templateRow.cloneNode(true);
+      row.remove();
+    }
+  });
 
-      // ★ [핵심] __prefix__ 문자를 통째로 인덱스 숫자로 교체 (label, id, name 모두 변경됨)
-      newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount);
+  // 3. 폼 최종 제출 로직
+  if (mainForm && submitBtn) {
+    submitBtn.addEventListener("click", async function (e) {
+      e.preventDefault();
 
-      // 복제 후 값 초기화 및 날짜 복사
-      newRow.querySelectorAll("input, select, textarea").forEach((input) => {
-        if (input.type === "checkbox") {
-          input.checked = false;
-        } else if (input.name && input.name.includes("report_date")) {
-          input.value = previousDate; // 이전 날짜 복사
-        } else if (input.type !== "hidden") {
-          input.value = ""; // 다른 필드는 빈 값
-        }
-      });
+      submitBtn.disabled = true;
+      submitBtn.innerText = "S3 영수증 업로드 중...";
 
-      // 화면에 추가 및 TOTAL_FORMS 1 증가
-      formContainer.appendChild(newRow);
-      totalFormsInput.value = currentFormCount + 1;
-    });
+      const isS3UploadSuccess = await uploadToS3();
 
-    // 2. 항목 삭제 기능
-    formContainer.addEventListener("click", function (event) {
-      if (event.target.classList.contains("remove-form-btn")) {
-        event.preventDefault();
+      if (isS3UploadSuccess) {
+        submitBtn.innerText = "장고 서버 저장 중...";
         
-        const row = event.target.closest(".expense-form-row");
-        const idInput = row.querySelector('input[name$="-id"]');
-        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+        const formData = new FormData(mainForm);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
-        // [CASE 1] 이미 DB에 저장되어 있던 폼: DELETE 체크 후 숨김
-        if (idInput && idInput.value) {
-          if (deleteCheckbox) deleteCheckbox.checked = true;
-          row.style.display = "none";
-          row.classList.add("form-deleted");
-          return; 
-        }
-
-        // [CASE 2] 새로 추가했던 폼: HTML 요소를 단순히 제거 (인덱스는 재정렬하지 않음)
-        row.remove();
-      }
-    });
-
-    // 3. CSRF 토큰을 직접 추출하여 백엔드로 강제 전송하는 로직
-    if (mainForm && submitBtn) {
-      submitBtn.addEventListener("click", async function (e) {
-        e.preventDefault();
-
-        submitBtn.disabled = true;
-        submitBtn.innerText = "S3 업로드 중...";
-
-        // 1. S3 업로드 먼저 실행
-        const isS3UploadSuccess = await uploadToS3();
-
-        if (isS3UploadSuccess) {
-          submitBtn.innerText = "장고 서버 저장 중...";
-          
-          // 2. 폼 내부의 모든 데이터 수집
-          const formData = new FormData(mainForm);
-          
-          // 3. 💡 HTML 내에 존재하는 CSRF 토큰 문자열 값 직접 추출
-          const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-
-          try {
-            // 4. 🔥 장고 백엔드로 직접 POST 요청 전송 (헤더에 CSRF 토큰 명시)
-            const response = await fetch(mainForm.action || window.location.href, {
-              method: 'POST',
-              body: formData,
-              headers: {
-                'X-CSRFToken': csrfToken // 💡 이 헤더가 있으면 CSRF Missing이 발생할 수 없음
-              }
-            });
-
-            if (response.ok) {
-              // 5. 성공 시 다음 단계 페이지로 리다이렉트 처리
-              // 만약 뷰에서 JsonResponse를 주지 않고 일반 render/redirect를 한다면 아래 주소로 수동 이동
-              window.location.href = "/guidereports/day/guidereport_day_guide_exp/"; 
-            } else {
-              alert("서버 저장 실패: " + response.statusText);
-              submitBtn.disabled = false;
-              submitBtn.innerText = "다음 단계로 이동 (Guide Exp) →";
+        try {
+          const response = await fetch(mainForm.action || window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-CSRFToken': csrfToken 
             }
-          } catch (err) {
-            console.error(err);
-            alert("전송 중 네트워크 오류가 발생했습니다.");
+          });
+
+          if (response.ok) {
+            // [주소 교정] 백엔드 redirect 타겟인 일반 지출비(guide_exp) 작성 페이지로 일치시킵니다.
+            window.location.href = "/guidereports/day/guidereport_day_guide_exp/"; 
+          } else {
+            alert("서버 저장 실패: " + response.statusText);
             submitBtn.disabled = false;
+            submitBtn.innerText = "다음 단계로 이동 (Guide Exp) →";
           }
-        } else {
+        } catch (err) {
+          console.error(err);
+          alert("전송 중 네트워크 오류가 발생했습니다.");
           submitBtn.disabled = false;
           submitBtn.innerText = "다음 단계로 이동 (Guide Exp) →";
         }
-      });
-    }
-  });
+      } else {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "다음 단계로 이동 (Guide Exp) →";
+      }
+    });
+  }
+});
 </script>
+
 {% endblock %}

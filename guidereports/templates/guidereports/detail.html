@@ -261,9 +261,9 @@
   }
 </style>
 
+<body>
 <div class="xero-detail-card">
   
-  <!-- 상단 네비게이션 -->
   <div class="xero-nav-bar">
     {% if request.user.username == 'admin' %}
       {% if guide_report.pay_status == 'payable' %}
@@ -302,14 +302,12 @@
     </div>
   </div>
 
-  <!-- 헤더 영역 -->
   <div class="xero-invoice-header">
     <h2 class="xero-title">#{{ invoice_number }}. {{ guide_report.group_code }}</h2>
     <div class="xero-date-badge">
       <strong>Invoice Date:</strong> {{ guide_report.invoice_date|date:"d-M-Y" }}
     </div>
 
-    <!-- 2열 프로필 / 회사 정보 -->
     <div class="xero-info-grid">
       <div class="xero-info-box">
         <strong class="box-label">Guide Payment Details</strong>
@@ -335,7 +333,6 @@
     </div>
   </div>
 
-  <!-- 구분/역할 정보 Summary -->
   <div class="xero-summary-bar">
     <div class="xero-summary-items">
       <div class="xero-summary-item">
@@ -366,7 +363,6 @@
     </div>
   </div>
 
-  <!-- Events & Expenses 카드 -->
   <div class="xero-section-card">
     <h3 class="xero-section-title">Events</h3>
     <ul class="xero-data-list">
@@ -401,22 +397,39 @@
       <li class="xero-data-row">
         <span>{{ exp.expense_type }} {% if exp.memo %}<span style="color:#64748b; font-size: 12px;">({{ exp.memo }})</span>{% endif %}</span>
         <span class="price-black">${{ exp.expense }}</span>
+        
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#expModal-{{ exp.id }}">
+          영수증 확인하기
+        </button>
 
-        <div class="receipt-gallery" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
-          {% for receipt in exp.receipt_images.all %}
-            <div class="receipt-card">
-              <a href="{{ receipt.image_file.url }}" target="_blank">
-                <img src="{{ receipt.image_file.url }}" alt="영수증 이미지" style="width: 100px; height: 100px; object-fit: cover; border-radius: 5px; border: 1px solid #ccc;">
-              </a>
+        {% if exp.image_url %}
+          <div class="modal fade" id="expModal-{{ exp.id }}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+
+              <div class="modal-header">
+                {{ exp.file_key }}
+              </div>
+              <div class="modal-body">
+                <img src="{{ exp.image_url }}" alt="S3 업로드 이미지" style="max-width: 100%; height: auto;">
+
+              </div>
+              <div class="modal-header-footer p-3 d-flex justify-content-end gap-2 border-top">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+              </div>
             </div>
-          {% empty %}
-                  <span style="color: #999; font-size: 13px;">등록된 영수증 이미지 없음</span>
-          {% endfor %}
-        </div>  
+          </div>
+        </div>
+
+        {% else %}
+          <p>등록된 이미지 파일이 없습니다.</p>
+        {% endif %}
+        
         </li>
       {% empty %}
       <li style="color: #94a3b8; text-align: center; padding: 15px;">등록된 지출 내역이 없습니다.</li>
       {% endfor %}
+
       {% for event in guide_report.events.all %}
       {% if event.overtime and event.overtime != "0" %}
       <li class="xero-data-row">
@@ -433,7 +446,6 @@
     </ul>
   </div>
 
-  <!-- Total 요약 영역 -->
   <div class="xero-total-summary">
     <div class="xero-total-grid">
       <div class="xero-total-group">
@@ -450,7 +462,6 @@
     </div>
   </div>
 
-  <!-- Fuel, Restaurant, Attraction 카드 -->
   <div class="xero-section-card">
     <h3 class="xero-section-title">BP</h3>
     <ul class="xero-data-list">
@@ -459,7 +470,38 @@
         <li class="xero-data-row">
           <span><span style="color: #64748b;">{{ fuel.report_date|date:"d-M-Y" }}</span> &nbsp;{% if fuel.memo %}<span style="color:#64748b; font-size: 12px;">({{ fuel.memo }})</span>{% endif %}</span>
           <span class="price-black">${{ fuel.expense }}</span>
+
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fuelModal-{{ fuel.id }}">
+            영수증 확인하기
+          </button>
+
+          {% if fuel.image_url %}
+            <div class="modal fade" id="fuelModal-{{ fuel.id }}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+
+                <div class="modal-header">
+                  {{ fuel.file_key }}
+                </div>
+                <div class="modal-body">
+                  <img src="{{ fuel.image_url }}" alt="S3 업로드 이미지" style="max-width: 100%; height: auto;">
+
+                </div>
+                <div class="modal-header-footer p-3 d-flex justify-content-end gap-2 border-top">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+                </div>
+              </div>
+            </div>
+            </div>
+          
+          {% else %}
+           <p>등록된 이미지 파일이 없습니다. </p>
+          {% endif %}
+
         </li>
+        {% empty %}
+      <li style="color: #94a3b8; text-align: center; padding: 15px;">등록된 지출 내역이 없습니다.</li>
+
         {% endfor %}
       {% else %}
         <li class="xero-data-row" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 16px 0;">No fuel records</li>
@@ -598,5 +640,4 @@
     <a href="{% url 'guidereports:delete_guidereport' guide_report.pk %}" class="btn-delete">GuideReport 삭제</a>
   </div>
 </div>
-
 {% endblock %}
