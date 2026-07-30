@@ -148,7 +148,7 @@
     padding-right: 36px !important;
   }
 
-  /* 영수증 파일 커스텀 디자인 */
+  /* 🧾 영수증 커스텀 업로드 스타일 */
   .receipt-section {
     margin-top: 4px;
     padding-top: 12px;
@@ -158,12 +158,73 @@
     gap: 8px;
   }
 
-  .receipt-file-input {
-    font-size: 13px !important;
-    padding: 8px;
+  .receipt-upload-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
     background: #f8fafc;
-    border: 1px dashed #cbd5e1;
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
     cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .receipt-upload-box:hover {
+    background: #f1f5f9;
+    border-color: #6366f1;
+  }
+
+  .receipt-info-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .receipt-upload-box .icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .receipt-upload-box .upload-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .receipt-upload-box .upload-subtext {
+    font-size: 11px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  /* 투명 파일 input 커버 */
+  .receipt-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  /* 파일 선택 상태 */
+  .receipt-upload-box.has-file {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    border-style: solid;
+  }
+
+  .receipt-upload-box.has-file .upload-text {
+    color: #15803d;
   }
 
   .existing-receipts {
@@ -174,11 +235,11 @@
     gap: 6px;
     align-items: center;
   }
+  
   .receipt-link {
     color: #4f46e5;
     text-decoration: none;
     font-weight: 600;
-    background: #eeef2;
     padding: 2px 8px;
     border-radius: 4px;
     background-color: #eef2ff;
@@ -328,7 +389,7 @@
 
   <h3 class="section-title">Expense 내역 추가</h3>
 
-  <form method="post" id="real-expense-form" enctype="multipart/form-data">
+  <form method="post" id="real-expense-form" enctype="multipart/form-data" class="report-form">
     {% csrf_token %} 
     {{ formset.management_form }} 
     
@@ -340,7 +401,7 @@
 
     <div id="expense-form-list">
       {% for form in formset %}
-      <div class="expense-form-row expense-row">
+      <div class="expense-form-row expense-row" {% if form.DELETE.value %}style="display: none;"{% endif %}>
         {{ form.id }}
         <div style="display: none">{{ form.DELETE }}</div>
         
@@ -365,8 +426,27 @@
           <div class="receipt-section">
             <div class="form-group">
               <label>🧾 영수증 첨부</label>
-              <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" data-prefix="{{ form.prefix }}" accept="image/*">
-              <input type="hidden" name="{{ form.prefix }}-s3_key" id="id_{{ form.prefix }}-s3_key" value="{{ form.instance.file_key|default:'' }}">
+              <div class="receipt-upload-box {% if form.instance.file_key %}has-file{% endif %}">
+                <div class="receipt-info-content">
+                  <span class="icon">{% if form.instance.file_key %}✅{% else %}📷{% endif %}</span>
+                  <span class="upload-text">
+                    {% if form.instance.file_key %}영수증 첨부 완료{% else %}영수증 이미지 선택 / 촬영{% endif %}
+                  </span>
+                </div>
+                <span class="upload-subtext">JPG, PNG, PDF</span>
+
+                <input type="file" 
+                       class="receipt-file-input" 
+                       data-index="{{ forloop.counter0 }}" 
+                       data-prefix="{{ form.prefix }}" 
+                       accept="image/*"
+                       onchange="updateReceiptLabel(this)">
+
+                <input type="hidden" 
+                       name="{{ form.prefix }}-s3_key" 
+                       id="id_{{ form.prefix }}-s3_key" 
+                       value="{{ form.instance.file_key|default:'' }}">
+              </div>
             </div>
           </div>
         </div>
@@ -384,6 +464,7 @@
   </form>
 </div>
 
+<!-- 동적 항목 추가용 템플릿 -->
 <div id="empty-form-template" style="display: none">
   <div class="expense-form-row expense-row">
     {{ formset.empty_form.id }}
@@ -410,15 +491,46 @@
       <div class="receipt-section">
         <div class="form-group">
           <label>🧾 영수증 첨부</label>
-          <input type="file" class="receipt-file-input" data-index="__prefix__" accept="image/*">
+          <div class="receipt-upload-box">
+            <div class="receipt-info-content">
+              <span class="icon">📷</span>
+              <span class="upload-text">영수증 이미지 선택 / 촬영</span>
+            </div>
+            <span class="upload-subtext">JPG, PNG, PDF</span>
+
+            <input type="file" 
+                   class="receipt-file-input" 
+                   data-index="__prefix__" 
+                   data-prefix="{{ formset.empty_form.prefix }}" 
+                   accept="image/*"
+                   onchange="updateReceiptLabel(this)">
+
+            <input type="hidden" 
+                   name="{{ formset.empty_form.prefix }}-s3_key" 
+                   id="id_{{ formset.empty_form.prefix }}-s3_key" 
+                   value="">
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-
 <script>
+
+function updateReceiptLabel(input) {
+  const uploadBox = input.closest('.receipt-upload-box');
+  const icon = uploadBox.querySelector('.icon');
+  const text = uploadBox.querySelector('.upload-text');
+  
+  if (input.files && input.files[0]) {
+    const fileName = input.files[0].name;
+    uploadBox.classList.add('has-file');
+    icon.textContent = '✅';
+    text.textContent = fileName.length > 25 ? fileName.substring(0, 22) + '...' : fileName;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", function () {
     const formContainer = document.getElementById("expense-form-list");
     const addButton = document.getElementById("add-form-btn");

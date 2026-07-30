@@ -22,7 +22,7 @@
     max-width: 100% !important;
     margin: 0 auto !important;
     padding: 40px 20px 80px 20px !important; 
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #ffffff !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -95,7 +95,7 @@
     letter-spacing: 0.5px;
   }
 
-  /* 🌟 입력창 공통 스킨 - 모바일 강제 줌인 현상 차단 */
+  /* 입력창 공통 스킨 */
   .report-form input[type="text"],
   .report-form input[type="number"],
   .report-form input[type="date"],
@@ -140,7 +140,73 @@
     margin-bottom: 0;
   }
 
-  /* 버튼 스타일 수정 */
+  /* 🧾 영수증 커스텀 업로드 스타일 */
+  .receipt-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  .receipt-upload-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .receipt-upload-box:hover {
+    background: #f1f5f9;
+    border-color: #6366f1;
+  }
+
+  .receipt-upload-box .icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .receipt-upload-box .upload-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .receipt-upload-box .upload-subtext {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
+  /* 실제 input은 숨김 처리 */
+  .receipt-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* 파일 등록 완료 상태 */
+  .receipt-upload-box.has-file {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    border-style: solid;
+  }
+
+  .receipt-upload-box.has-file .upload-text {
+    color: #15803d;
+  }
+
+  /* 버튼 스타일 */
   .btn-add {
     display: block;
     width: 100%;
@@ -173,14 +239,13 @@
     font-weight: 600;
     cursor: pointer;
     text-align: center;
-    margin-top: 10px;
+    margin-top: 14px;
     transition: all 0.2s ease;
   }
   .btn-remove:hover {
     background: #ffe4e6;
   }
 
-  /* 하단 제출 버튼 - 모바일 꽉 차게 */
   .btn-submit {
     display: block;
     width: 100%;
@@ -202,14 +267,6 @@
   .btn-submit:hover {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
-  .receipt-section {
-    margin-top: 4px;
-    padding-top: 12px;
-    border-top: 1px dashed #e2e8f0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
 
 
   /* ==========================================================
@@ -230,7 +287,7 @@
     }
 
     .report-container {
-      max-width: 800px !important; /* 테이블 형태 수용을 위해 폭 확장 */
+      max-width: 900px !important;
       margin: 60px auto !important;
       padding: 40px !important;
       background: rgba(255, 255, 255, 0.85) !important; 
@@ -243,13 +300,14 @@
 
     .title { font-size: 24px !important; }
 
-    /* 🖥️ PC에서는 입력 창 한 줄 배치 (Flex 테이블화) */
+    /* 🖥️ PC 레이아웃 확장 */
     .expense-form-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 12px;
-      align-items: flex-end;
-      padding: 0 0 16px 0;
-      margin-bottom: 16px;
+      align-items: flex-start;
+      padding: 0 0 20px 0;
+      margin-bottom: 20px;
       border: none;
       border-bottom: 1px solid #e2e8f0;
       border-radius: 0;
@@ -258,25 +316,40 @@
 
     .form-group {
       margin-bottom: 0;
-      flex: 1;
     }
     
-    /* 날짜와 금액 창은 크기를 고정하고 메모 창을 넓게 설정 */
     .form-group:nth-child(3) { flex: 1.2; } /* 날짜 */
     .form-group:nth-child(4) { flex: 1; }   /* 금액 */
     .form-group:nth-child(5) { flex: 2; }   /* 메모 */
 
-    .report-form input[type="text"],
-    .report-form input[type="number"],
-    .report-form input[type="date"] {
-      padding: 11px 14px !important;
-      font-size: 14px !important; /* PC 브라우저용 폰트 축소 */
+    .receipt-section {
+      width: 100%;
+      margin-top: 10px;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .receipt-upload-box {
+      flex-direction: row;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+    }
+
+    .receipt-upload-box .icon {
+      margin-bottom: 0;
+      font-size: 16px;
+    }
+
+    .receipt-upload-box .upload-subtext {
+      margin-top: 0;
+      margin-left: auto;
     }
 
     .btn-remove {
       width: auto;
       padding: 11px 16px;
-      margin-top: 0;
+      margin-top: 22px; /* 라벨 높이 맞춤 */
     }
 
     .btn-submit {
@@ -303,7 +376,7 @@
     </div>
   </div>
 
-  <form method="post" id="real-expense-form" class="report-form">
+  <form method="post" id="real-expense-form" class="report-form" enctype="multipart/form-data">
     {% csrf_token %} 
     {{ formset.management_form }}
 
@@ -317,15 +390,32 @@
         <div class="form-group"><label>Expense ($)</label>{{ form.expense }}</div>
         <div class="form-group"><label>Memo (비고)</label>{{ form.memo }}</div>
         
-        <div class="receipt-section">
-        <div class="form-group">
-          <label>영수증 첨부</label>
-            <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" data-prefix="{{ form.prefix }}" accept="image/*">
-            <input type="hidden" name="{{ form.prefix }}-s3_key" id="id_{{ form.prefix }}-s3_key" value="{{ form.instance.file_key|default:'' }}">
-        </div>
-        </div>
-        
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
+
+        <div class="receipt-section">
+          <div class="form-group">
+            <label>영수증 첨부</label>
+            <div class="receipt-upload-box {% if form.instance.file_key %}has-file{% endif %}">
+              <span class="icon">{% if form.instance.file_key %}✅{% else %}📷{% endif %}</span>
+              <span class="upload-text">
+                {% if form.instance.file_key %}영수증 첨부 완료{% else %}영수증 이미지 선택{% endif %}
+              </span>
+              <span class="upload-subtext">JPG, PNG</span>
+              
+              <input type="file" 
+                     class="receipt-file-input" 
+                     data-index="{{ forloop.counter0 }}" 
+                     data-prefix="{{ form.prefix }}" 
+                     accept="image/*"
+                     onchange="updateReceiptLabel(this)">
+                     
+              <input type="hidden" 
+                     name="{{ form.prefix }}-s3_key" 
+                     id="id_{{ form.prefix }}-s3_key" 
+                     value="{{ form.instance.file_key|default:'' }}">
+            </div>
+          </div>
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -335,6 +425,7 @@
   </form>
 </div>
 
+<!-- 동적 폼 추가를 위한 Template -->
 <div id="empty-form-template" style="display: none">
   <div class="expense-form-row">
     {{ formset.empty_form.id }}
@@ -342,19 +433,47 @@
     <div class="form-group"><label>날짜</label>{{ formset.empty_form.report_date }}</div>
     <div class="form-group"><label>Expense ($)</label>{{ formset.empty_form.expense }}</div>
     <div class="form-group"><label>Memo (비고)</label>{{ formset.empty_form.memo }}</div>
-    <div class="receipt-section">
-        <div class="form-group">
-          <label>영수증 첨부</label>
-            <input type="file" class="receipt-file-input" data-index="{{ forloop.counter0 }}" data-prefix="{{ form.prefix }}" accept="image/*">
-            <input type="hidden" name="{{ form.prefix }}-s3_key" id="id_{{ form.prefix }}-s3_key" value="{{ form.instance.file_key|default:'' }}">
-        </div>
-    </div>
-
+    
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
+
+    <div class="receipt-section">
+      <div class="form-group">
+        <label>영수증 첨부</label>
+        <div class="receipt-upload-box">
+          <span class="icon">📷</span>
+          <span class="upload-text">영수증 이미지 선택</span>
+          <span class="upload-subtext">JPG, PNG</span>
+          
+          <input type="file" 
+                 class="receipt-file-input" 
+                 data-index="__prefix__" 
+                 data-prefix="{{ formset.empty_form.prefix }}" 
+                 accept="image/*"
+                 onchange="updateReceiptLabel(this)">
+                 
+          <input type="hidden" 
+                 name="{{ formset.empty_form.prefix }}-s3_key" 
+                 id="id_{{ formset.empty_form.prefix }}-s3_key" 
+                 value="">
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
+function updateReceiptLabel(input) {
+  const uploadBox = input.closest('.receipt-upload-box');
+  const icon = uploadBox.querySelector('.icon');
+  const text = uploadBox.querySelector('.upload-text');
+  
+  if (input.files && input.files[0]) {
+    const fileName = input.files[0].name;
+    uploadBox.classList.add('has-file');
+    icon.textContent = '✅';
+    text.textContent = fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
+  }
+}
 document.addEventListener("DOMContentLoaded", function() {
   const formContainer = document.getElementById("expense-form-list"); 
   const addButton = document.getElementById("add-form-btn"); 

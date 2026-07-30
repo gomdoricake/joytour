@@ -213,6 +213,15 @@
       color: white;
   }
 
+  .btn-receipt {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+
+
   /* ==========================================================
      🖥️ [Desktop View] 451px 이상 레이아웃
      ========================================================== */
@@ -257,6 +266,10 @@
     }
     .xero-badge-btn {
       max-width: 320px !important;
+    }
+
+    .btn-receipt {
+      margin-top: 0;
     }
   }
 </style>
@@ -396,13 +409,15 @@
       {% for exp in guide_report.expenses.all %}
       <li class="xero-data-row">
         <span>{{ exp.expense_type }} {% if exp.memo %}<span style="color:#64748b; font-size: 12px;">({{ exp.memo }})</span>{% endif %}</span>
-        <span class="price-black">${{ exp.expense }}</span>
         
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#expModal-{{ exp.id }}">
-          영수증 확인하기
-        </button>
+        
 
         {% if exp.image_url %}
+          <button type="button" class="btn btn-outline-primary btn-sm btn-receipt" data-bs-toggle="modal" data-bs-target="#expModal-{{ exp.id|default:forloop.counter }}">
+            영수증 확인하기
+            <span class="price-black">${{ exp.expense }}</span>
+          </button>
+
           <div class="modal fade" id="expModal-{{ exp.id }}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -423,6 +438,7 @@
 
         {% else %}
           <p>등록된 이미지 파일이 없습니다.</p>
+          <span class="price-black">${{ exp.expense }}</span>
         {% endif %}
         
         </li>
@@ -469,13 +485,15 @@
         {% for fuel in guide_report.fuels.all %}
         <li class="xero-data-row">
           <span><span style="color: #64748b;">{{ fuel.report_date|date:"d-M-Y" }}</span> &nbsp;{% if fuel.memo %}<span style="color:#64748b; font-size: 12px;">({{ fuel.memo }})</span>{% endif %}</span>
-          <span class="price-black">${{ fuel.expense }}</span>
 
-          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fuelModal-{{ fuel.id }}">
-            영수증 확인하기
-          </button>
 
           {% if fuel.image_url %}
+
+            <button type="button" class="btn btn-outline-primary btn-sm btn-receipt" data-bs-toggle="modal" data-bs-target="#fuelModal-{{ fuel.id|default:forloop.counter }}">
+              영수증 확인하기
+              <span class="price-black">${{ fuel.expense }}</span>
+            </button>
+
             <div class="modal fade" id="fuelModal-{{ fuel.id }}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
@@ -496,6 +514,7 @@
           
           {% else %}
            <p>등록된 이미지 파일이 없습니다. </p>
+            <span class="price-black">${{ fuel.expense }}</span>
           {% endif %}
 
         </li>
@@ -506,6 +525,11 @@
       {% else %}
         <li class="xero-data-row" style="color: #94a3b8; font-size: 13px; justify-content: center; padding: 16px 0;">No fuel records</li>
       {% endif %}
+      <li class="xero-subtotal-row">
+        <span class="subtotal-label">BP Subtotal (inc. GST)</span>
+        <span class="subtotal-val">${{ fuel_fee|floatformat:1 }}</span>
+      </li>
+
     </ul>
 
     {% if guide_report.day_inbound == 'INBOUND' %}
@@ -592,7 +616,6 @@
     {% endif %}
   </div>
 
-  <!-- 승인 및 정산 상태 처리 버튼 영역 -->
   <div class="xero-status-actions">
     {% if request.user.username == 'admin' %}
       {% if not guide_report.is_confirmed %}
