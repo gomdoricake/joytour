@@ -8,7 +8,6 @@ from ..forms import *
 
 from django.views.decorators.csrf import csrf_exempt
 
-
 import datetime
 from datetime import date
 from django.shortcuts import redirect
@@ -28,11 +27,10 @@ def guidereport_day(request):
     if not main_data: 
         return redirect('guidereports:guidereport_main') 
 
-    report_id = main_data.get('guidereport_id')
-    
-    initial_data = {}
+    report_id = request.session.get('guidereport_id', '')
+    role = main_data.get('role', '')
 
-    role = main_data['role']
+    DAY_EVENTCODE = None
     if role == '12 SEAT':
         DAY_EVENTCODE = DAY_EVENTCODE_12SEAT
     if role == '21 SEAT': 
@@ -43,54 +41,46 @@ def guidereport_day(request):
         DAY_EVENTCODE = DAY_EVENTCODE_GUIDE_ONLY
 
 
+    initial_data = {}
+
     if report_id:
         instance = get_object_or_404(GuideReport, id=report_id)
         event_instance = Event.objects.filter(guidereport=instance).first()
         
         if event_instance:
-            initial_data['eventcode'] = event_instance.eventcode
-            
+            if event_instance.eventcode: 
+                initial_data['eventcode'] = event_instance.eventcode
             if event_instance.report_date:
                 initial_data['report_date'] = event_instance.report_date.strftime('%Y-%m-%d')
     else:
-        instance = GuideReport(role=main_data['role'], day_inbound=main_data['day_inbound'])
+        day_data = request.session.get('day_data', {})
+        
+        if day_data: 
+            initial_data['report_date'] = day_data.get('report_date', '')
+            initial_data['eventcode'] = day_data.get('eventcode', '')
+    
+    event_instance = Event(
+        report_date=initial_data.get('report_date') or None, 
+        eventcode=initial_data.get('eventcode', '')
+    )
 
     if request.method == 'POST': 
-        form = GuideReportDayForm(request.POST, instance=instance)
+        form = GuideReportDayForm(request.POST, instance=event_instance)
         if form.is_valid(): 
-            guide_report = form.save(commit=False)
-            guide_report.day_inbound = main_data['day_inbound']
-            guide_report.role = main_data['role']
-            guide_report.guide = guide_report.guide  if request.user.username == 'admin' else request.user.guide_profile
-
             eventcode = form.cleaned_data['eventcode']
             report_date = form.cleaned_data['report_date'].strftime('%Y-%m-%d')
             today_str = form.cleaned_data['report_date'].strftime('%d%m%y')
 
-            main_data['guidereport_id'] = guide_report.id
-            request.session['main_data'] = main_data
-            
-            group_code = 'J' + today_str + eventcode
-            guide_report.group_code = group_code
-
-            guide_report.save()
-
-            event, created = Event.objects.update_or_create(
-                guidereport=guide_report,
-                defaults={'eventcode': eventcode, 'report_date': report_date}
-            )
-
             request.session['day_data'] = {
-                'guidereport_id': guide_report.id,
-                'event_id': event.id,
-                'role': main_data['role'],
-                'day_inbound': main_data['day_inbound'], 
+                'report_date': report_date, 
                 'today_str': today_str, 
-                'group_code': group_code     
+                'group_code': 'J' + today_str + eventcode, 
+                'eventcode': eventcode
             }
+            
             return redirect('guidereports:guidereport_day_fuel_exp')
     else: 
-        form = GuideReportDayForm(instance=instance, initial=initial_data)
+        form = GuideReportDayForm(initial=initial_data, instance=event_instance)
     
     return render(request, 'guidereports/day/guidereport_day.html', {'form': form, 'DAY_EVENTCODE': DAY_EVENTCODE})
 
@@ -100,7 +90,6 @@ import mimetypes
 from django.http import JsonResponse
 
 def get_image_path(request, client_file_name): 
-    guidereport_id = request.session.get('day_data')['guidereport_id']
     group_code = request.session.get('day_data')['group_code']
         
     return f'{group_code}/{client_file_name}'
@@ -138,86 +127,84 @@ def guidereport_day_fuel_s3_url(request):
 
 
 import mimetypes
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+from django.forms import formset_factory
 
 @login_required
 @never_cache
 @csrf_exempt
 def guidereport_day_fuel_exp(request): 
     day_data = request.session.get('day_data')
-
     if not day_data: 
         return redirect('guidereports:guidereport_day')
+        
+    serialized_fuel_data = request.session.get('fuel_temp_list', '[]')
+    try:
+        fuel_data_list = json.loads(serialized_fuel_data)
+    except json.JSONDecodeError: 
+        fuel_data_list = []
 
-    report_id = day_data.get('guidereport_id')
-    guide_report = get_object_or_404(GuideReport, id=report_id)
+    serialized_s3_data = request.session.get('s3_fuel_temp_list', '[]')
+    try: 
+        s3_data_list = json.loads(serialized_s3_data)
+    except json.JSONDecodeError: 
+        s3_data_list = []
 
-    events = guide_report.events.all()
+    for i, fuel_item in enumerate(fuel_data_list): 
+        if i < len(s3_data_list): 
+            fuel_item['file_key'] = s3_data_list[i]
 
-    initial_data = []
-    for event in events: 
-        initial_data.append({'report_data': event.report_date})
     
-    if guide_report.fuels.count() == 0: 
-        extra = 1
-    else: 
-        extra = 0
-
-    FuelFormSet = inlineformset_factory(
-        GuideReport, 
-        FuelExp, 
-        form=FuelExpForm,
-        extra=extra,
+    FuelFormSet = formset_factory(
+        FuelExpForm,
+        extra=1,
         can_delete=True
     )
 
+    day_data = request.session.get('day_data') or {}
+    report_date = day_data.get('report_date', '')
+
     if request.method == 'POST': 
-        formset = FuelFormSet(request.POST, instance=guide_report, initial=initial_data)
-    
+        formset = FuelFormSet(request.POST, request.FILES)
+
         if formset.is_valid(): 
-            with transaction.atomic():  
-                instances = formset.save(commit=False)
+            fuel_temp_list, s3_fuel_temp_list = [], []
 
-                for i, form in enumerate(formset.forms): 
-                    if formset.can_delete and formset._should_delete_form(form): 
-                        continue
+            for form in formset.forms: 
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    data = form.cleaned_data.copy()
+                    
+                    s3_key_value = data.get('file_key') or request.POST.get(f'{form.prefix}-file_key') 
+                    
+                    fuel_temp_list.append(data)
+                    s3_fuel_temp_list.append(str(s3_key_value))
 
-                    instance = form.instance                
-                
-                    s3_key_value = request.POST.get(f'{form.prefix}-s3_key')
-                    
-                    if s3_key_value:
-                        instance.file_key = s3_key_value 
-                    
-                        instance = form.save(commit=False)
-                        instance.save()
-                    
-                    elif form.has_changed(): 
-                        instance = form.save(commit=False)
-                        instance.save()
-
-                
-                for deleted_obj in formset.deleted_objects:
-                    deleted_obj.delete()
-                    
-                formset.save_m2m()
-
-            request.session['day_fuel'] = day_data
+            request.session['fuel_temp_list'] = json.dumps(fuel_temp_list, cls=DjangoJSONEncoder)
+            request.session['s3_fuel_temp_list'] = json.dumps(s3_fuel_temp_list, cls=DjangoJSONEncoder)
+            
             return redirect('guidereports:guidereport_day_guide_exp')
         else: 
             print('폼셋 유효성 검사 실패: ', formset.errors)
         
     else: 
-        formset = FuelFormSet(instance=guide_report, initial=initial_data)
+        if not fuel_data_list: 
+            fuel_data_list = [{'report_date': report_date}]
+        else: 
+            for item in fuel_data_list: 
+                item['report_date'] = report_date
+
+        formset = FuelFormSet(
+            initial=fuel_data_list,
+        )
 
     return render(request, 'guidereports/day/guidereport_day_fuel_exp.html', {
         'formset': formset, 
-        'guide_report': guide_report
     })
 
 
 from django.db import transaction
 from django.core.files.storage import default_storage
-
 
 
 def guidereport_day_exp_s3_url(request): 
@@ -256,62 +243,58 @@ def guidereport_day_exp_s3_url(request):
 
 @login_required
 @never_cache
+@csrf_exempt
 def guidereport_day_guide_exp(request):
-    day_fuel = request.session.get('day_fuel')
-    if not day_fuel:
+    
+    day_data = request.session.get('day_data')  
+    fuel_temp_list = request.session.get('fuel_temp_list')
+    if not fuel_temp_list or not day_data:
         return redirect('guidereports:guidereport_day')
     
-    report_id = day_fuel.get('guidereport_id')
-    guide_report = get_object_or_404(GuideReport, id=report_id)
-    event = get_object_or_404(Event, guidereport=guide_report)
+    serialized_exp_data = request.session.get('exp_temp_list', '[]')
+    try: 
+        exp_data_list = json.loads(serialized_exp_data)
+    except json.JSONDecodeError: 
+        exp_data_list = []
 
-    if guide_report.expenses.count() == 0:
-        extra = 1
-    else:
-        extra = 0
+    serialized_s3_data = request.session.get('s3_exp_temp_list', '[]')
+    try:
+        s3_data_list = json.loads(serialized_s3_data)
+    except json.JSONDecodeError: 
+        s3_data_list = []
 
-    GuideExpFormSet = inlineformset_factory(
-        GuideReport, 
-        GuideExp, 
-        fields=['id', 'expense_type', 'expense', 'memo'], 
-        extra=extra,             
+    formatted_initial_list = []
+    for i, item in enumerate(exp_data_list):
+        if isinstance(item, list) and len(item) >= 2:
+            data_dict = {'expense_type': item[0], 'expense': item[1]}
+        elif isinstance(item, dict):
+            data_dict = item.copy()
+        else:
+            continue
+            
+        if i < len(s3_data_list): 
+            data_dict['file_key'] = s3_data_list[i]
+        formatted_initial_list.append(data_dict)
+
+    GuideExpFormSet = formset_factory(
+        GuideExpForm, 
+        extra=1,              
         can_delete=True  
     )
 
     if request.method == 'POST':
-        final_instance = guide_report
-        final_instance.role = day_fuel.get('role')
-        final_instance.day_inbound = day_fuel.get('day_inbound')
-        final_instance.group_code = day_fuel.get('group_code')
-
-        formset = GuideExpFormSet(request.POST, instance=final_instance)
+        formset = GuideExpFormSet(request.POST, request.FILES)
         
         if formset.is_valid():
-            today_str = day_fuel.get('today_str')
-            if not today_str and event.report_date:
-                if isinstance(event.report_date, str):
-                    today_str = datetime.datetime.strptime(event.report_date, '%Y-%m-%d').strftime('%d%m%y')
-                else:
-                    today_str = event.report_date.strftime('%d%m%y')
-
-            day_inbound_check = str(final_instance.day_inbound).upper().strip()
+            wash_added = False
+            exp_temp_list = []
+            s3_exp_temp_list = []
             
-            final_instance.invoice_date = datetime.date.today()
-
-            with transaction.atomic(): 
-                final_instance.save()
-                
-                instances = formset.save(commit=False)
-                wash_added = False
-
-                for i, form in enumerate(formset.forms): 
-                    if formset.can_delete and formset._should_delete_form(form): 
-                        continue
-                    
-                    instance = form.instance
-
+            for form in formset.forms: 
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                     exp_type = form.cleaned_data.get('expense_type')
                     exp_val = form.cleaned_data.get('expense')
+                    memo = form.cleaned_data.get('memo', '')
 
                     if exp_type and exp_val and exp_val > 0: 
                         if exp_type == 'WASH': 
@@ -319,125 +302,171 @@ def guidereport_day_guide_exp(request):
                                 continue
                             wash_added = True
                         
-                        s3_key_value = request.POST.get(f'{form.prefix}-s3_key')
-
-                        if s3_key_value: 
-                            instance.file_key = s3_key_value
+                        s3_key_value = form.cleaned_data.get('file_key') or request.POST.get(f'{form.prefix}-file_key')
                         
-                        instance.guide_report = final_instance
-                        instance.save()
-                    
-                for deleted_obj in formset.deleted_objects: 
-                    if deleted_obj.pk: 
-                        deleted_obj.delete()
+                        exp_temp_list.append({
+                            'expense_type': exp_type,
+                            'expense': exp_val, 
+                            'memo': memo
+                        })
+                        s3_exp_temp_list.append(str(s3_key_value))                        
+                
+            request.session['exp_temp_list'] = json.dumps(exp_temp_list, cls=DjangoJSONEncoder)
+            request.session['s3_exp_temp_list'] = json.dumps(s3_exp_temp_list, cls=DjangoJSONEncoder)
 
-                formset.save_m2m()
-
-                event.guidereport = final_instance
-                event.save()
-
-                request.session['guide_exp'] = {
-                    'guidereport_id': guide_report.id,
-                    'event_id': event.id,
-                    'role': day_fuel['role'],
-                    'day_inbound': day_fuel['day_inbound'], 
-                    'today_str': today_str     
-                }
-            
             return redirect('guidereports:guidereport_day_summary') 
+        else:
+            print('폼셋 유효성 검사 실패: ', formset.errors)
             
     else:
-        final_instance = guide_report
-        formset = GuideExpFormSet(instance=final_instance)
+        formset = GuideExpFormSet(
+            initial=formatted_initial_list
+        )
 
-    if event.report_date:
-        report_date_str = event.report_date if isinstance(event.report_date, str) else event.report_date.strftime("%Y-%m-%d")
+    report_date_str = day_data.get('report_date', '')
+    
+    if day_data.get('role') == 'GUIDE ONLY':
+        CHOICES = request.resolver_match.namespace + "_GUIDE_ONLY_CHOICES"  
     else:
-        report_date_str = day_fuel.get('report_date')
-
-    if day_fuel.get('role') == 'GUIDE ONLY':
-        CHOICES = GUIDE_ONLY_EXPENSE_CHOICES
-    else:
-        CHOICES = EXPENSE_CHOICES
+        CHOICES = "DEFAULT_EXPENSE_CHOICES"
     
     return render(request, 'guidereports/day/guidereport_day_guide_exp.html', {
         'formset': formset, 
-        'final_instance': final_instance,
-        'eventcode': event.eventcode,
         'report_date': report_date_str, 
-        'EXPENSE_CHOICES': CHOICES,
+        'CHOICES': CHOICES
     })
+
+from django.db.models import Sum
+from decimal import Decimal
+
+# 빈 값 대응을 위한 안전한 Decimal 변환 함수
+def safe_decimal(value, default='0.00'):
+    if value is None or str(value).strip() == '':
+        return Decimal(default)
+    try:
+        return Decimal(str(value))
+    except (ValueError, TypeError, decimal.InvalidOperation):
+        return Decimal(default)
 
 @login_required
 @never_cache
 def guidereport_day_summary(request): 
-    session_data = (
-        request.session.get('guide_exp') or 
-        request.session.get('day_fuel') or
-        request.session.get('day_data')
-    )
-    
-    if not session_data:
+    day_data = request.session.get('day_data')  
+    fuel_temp_list = request.session.get('fuel_temp_list')
+    exp_temp_list = request.session.get('exp_temp_list')
+    main_data = request.session.get('main_data')
+
+    if not fuel_temp_list or not day_data or not exp_temp_list or not main_data:
         return redirect('guidereports:guidereport_day')
+
+    day_inbound = main_data.get('day_inbound')
+    role = main_data.get('role')
+    report_date = day_data.get('report_date')
+    group_code = day_data.get('group_code')
+    eventcode = day_data.get('eventcode')
+    report_id = request.session.get('guidereport_id', '')
+
+    fuel_list = json.loads(request.session.get('fuel_temp_list', '[]'))
+    exp_list = json.loads(request.session.get('exp_temp_list', '[]'))
+
+    if report_id:
+        guide_report = get_object_or_404(GuideReport, pk=report_id)
+        event = Event.objects.filter(guide_report=guide_report).first()
+        if not event:
+            event = Event(guide_report=guide_report, eventcode=eventcode, report_date=report_date)
         
-    report_id = session_data.get('guidereport_id')
-    guide_report = get_object_or_404(GuideReport, id=report_id)
-    
-    event = guide_report.events.first()  
-    fuel_expenses = guide_report.fuels.all()  
-    guide_expenses = guide_report.expenses.all()
+        guide_report.day_inbound = day_inbound
+        guide_report.role = role
+        guide_report.group_code = group_code
+        event.eventcode = eventcode
 
-    report_date_str = "-"
-    if event and event.report_date:
-        if isinstance(event.report_date, str):
-            report_date_str = event.report_date
-        else:
-            report_date_str = event.report_date.strftime("%Y-%m-%d")
-    elif session_data.get('today_str'):
-        try:
-            report_date_str = datetime.strptime(session_data.get('today_str'), '%d%m%y').strftime('%Y-%m-%d')
-        except ValueError:
-            pass
-    
-    total_fuel = float(sum(item.expense for item in fuel_expenses if item.expense))
-    total_guide = float(sum(item.expense for item in guide_expenses if item.expense))
-    
-    
-    base_fee = float(event.guide_fee) if (event and event.guide_fee) else 0.0
-    
-    grand_total = base_fee + total_guide
+        invoice_number = guide_report.invoice_number
+        invoice_date = guide_report.invoice_date
+    else:
+        guide = request.user.guide_profile
+        invoice_number = guide.guidereports.count() + 1
+        invoice_date = date.today()
+        
+        guide_report = GuideReport(
+            guide=guide,
+            invoice_date=invoice_date,
+            invoice_number=invoice_number,
+            day_inbound=day_inbound, 
+            role=role,
+            group_code=group_code,
+        )
+        
+        event = Event(
+            guide_report=guide_report,
+            eventcode=eventcode,
+            report_date=report_date,
+        )
 
-    guide_report.super_ann = (base_fee / 1.1) * 0.12
-    guide_report.final_events_fee = str(base_fee)
-    guide_report.final_fuels_fee = str(total_fuel)
-    guide_report.final_expenses_fee = str(total_guide)  
-    guide_report.final_amount_due = str(grand_total)
-    guide_report.invoice_number = GuideReport.objects.filter(invoice_number__isnull=False).count() + 1
+    computed_fee = event.calculate_guide_fee()
+    event.guide_fee = computed_fee 
     
-    guide_report.invoice_date = date.today()
-    guide_report.save()
+    guide_fee_decimal = safe_decimal(computed_fee)
+    total_fuel = sum(safe_decimal(f.get('expense')) for f in fuel_list)
+    total_guide_exp = sum(safe_decimal(e.get('expense')) for e in exp_list)
+    
+    super_ann = guide_fee_decimal / Decimal('1.1') * Decimal('0.12')
+    grand_total = guide_fee_decimal + total_guide_exp
 
     if request.method == 'POST':
-        session_keys_to_delete = [
-            'main_data', 'day_data', 'day_fuel', 'guide_exp', 'inbound_data'
-        ]
-        for key in session_keys_to_delete:
-            if key in request.session: 
-                del request.session[key]
-        
-        return redirect('guidereports:detail', pk=guide_report.id)
+        with transaction.atomic():
+            if report_id:
+                guide_report.day_inbound = day_inbound
+                guide_report.role = role
+                guide_report.report_date = report_date
+                guide_report.group_code = group_code
+                guide_report.save()
+
+                Event.objects.filter(guide_report=guide_report).delete()
+                FuelExp.objects.filter(guide_report=guide_report).delete()
+                GuideExp.objects.filter(guide_report=guide_report).delete()
+            else:
+                guide_report.save()
+
+            event.guide_report = guide_report  
+            event.save()
+
+            for fuel in fuel_list: 
+                FuelExp.objects.create(
+                    guide_report=guide_report,
+                    report_date=fuel.get('report_date') or report_date,
+                    expense=safe_decimal(fuel.get('expense')),
+                    memo=fuel.get('memo', ''),
+                    file_key=fuel.get('file_key', '')
+                )
+
+            for exp in exp_list: 
+                GuideExp.objects.create(
+                    guide_report=guide_report,
+                    expense_type=exp.get('expense_type'), 
+                    expense=safe_decimal(exp.get('expense')),
+                    memo=exp.get('memo', '')
+                )
+
+            guide_report.final_events_fee = event.guide_fee
+            guide_report.final_fuels_fee = total_fuel
+            guide_report.final_expenses_fee = total_guide_exp
+            guide_report.super_ann = super_ann
+            guide_report.final_amount_due = grand_total
+            guide_report.save()
+
+            return redirect('guidereports:detail', pk=guide_report.id)
 
     context = {
         'guide_report': guide_report,
-        'event': event,
-        'report_date': report_date_str,
-        'fuel_expenses': fuel_expenses,
-        'guide_expenses': guide_expenses,
+        'event': event,                 
+        'report_date': report_date,
+        'fuel_expenses': fuel_list,
+        'guide_expenses': exp_list,
         'total_fuel': total_fuel,
-        'total_guide': total_guide,
+        'total_guide': total_guide_exp,
         'grand_total': grand_total,
-        'invoice_number': guide_report.invoice_number,
-        'super_ann': guide_report.super_ann,
-        'invoice_date': guide_report.invoice_date,
+        'invoice_number': invoice_number,
+        'super_ann': super_ann,
+        'invoice_date': invoice_date,
     }
     return render(request, 'guidereports/day/guidereport_day_summary.html', context)

@@ -46,9 +46,25 @@ def review_grade(guide_id):
 
 @login_required
 def index(request): 
+    print('mypage')
+    if request.session.get('main_data', '') != '': 
+        del request.session['main_data']
+    if request.session.get('day_data', '') != '':  
+        del request.session['day_data']
+    if request.session.get('fuel_temp_list', '') != '': 
+        del request.session['fuel_temp_list']
+    if request.session.get('s3_fuel_temp_list', '') != '': 
+        del request.session['s3_fuel_temp_list']
+    if request.session.get('exp_temp_list', '') != '': 
+        del request.session['exp_temp_list']
+    if request.session.get('s3_exp_temp_list', '') != '': 
+        del request.session['s3_exp_temp_list']
+
+
     if request.user.username == 'admin': 
         return redirect('joyadmin:index')
     try: 
+
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')
         review_grade(current_guide.id)
