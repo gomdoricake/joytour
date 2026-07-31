@@ -36,21 +36,26 @@ class GuideReport(models.Model):
         return str(self.guide.name) + ': ' + str(self.group_code)
 
 class Event(models.Model): 
+    guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
     eventcode = models.CharField(max_length=100)
     report_date = models.DateField()
     hours = models.CharField(max_length=10, choices=INBOUND_HOURS,null=True,blank=True)
-    guidereport = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
     guide_fee = models.TextField()
     overtime = models.PositiveIntegerField(default=0, null=True, blank=True)
     coach_start_time = models.TimeField(null=True, blank=True)
     coach_end_time = models.TimeField(null=True, blank=True)
 
-    def save(self, *args, **kwargs): 
-        parent = self.guidereport
-        
+    def calculate_guide_fee(self):
+        parent = self.guide_report
+        if not parent:
+            return "0.00"
+            
         day_inbound_val = str(parent.day_inbound).upper().strip() if parent.day_inbound else ""
         role_val = str(parent.role).upper().strip() if parent.role else ""
         guide_profile = parent.guide
+
+        if not guide_profile:
+            return "0.00"
 
         rate_mapping = {
             ('DAY', '12 SEAT'): DAY_RATE_12SEAT,
@@ -74,25 +79,29 @@ class Event(models.Model):
             target_rate_dict = sponsored_rate_mapping.get((day_inbound_val, role_val))
         else: 
             target_rate_dict = rate_mapping.get((day_inbound_val, role_val))
+            
         calculated_fee = "0.00"
+        current_code = None
 
         if day_inbound_val == "DAY" and target_rate_dict: 
             current_code = self.eventcode
-
         elif day_inbound_val == "INBOUND" and target_rate_dict:
-            if self.hours == None:
+            if self.hours is None:
                 current_code = 'AM/AS'
             else: 
                 current_code = self.hours
 
-        if current_code in target_rate_dict:
+        if current_code and current_code in target_rate_dict:
             rate_list = target_rate_dict[current_code]
-            if guide_profile and hasattr(guide_profile, 'grade') and guide_profile.grade:
+            if hasattr(guide_profile, 'grade') and guide_profile.grade:
                 grade_index = guide_profile.grade - 1
                 if 0 <= grade_index < len(rate_list):
-                    calculated_fee = float(rate_list[grade_index])
+                    calculated_fee = str(rate_list[grade_index]) 
 
-        self.guide_fee = calculated_fee
+        return calculated_fee
+
+    def save(self, *args, **kwargs): 
+        self.guide_fee = self.calculate_guide_fee()
         super().save(*args, **kwargs)
 
     def __str__(self): 

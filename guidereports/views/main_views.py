@@ -52,7 +52,9 @@ def DetailView(request, pk):
         super_ann = None
     invoice_number = guide_report.invoice_number
 
-    
+    print("event_fee: " + str(event_fee))
+    print("expense_fee: " + str(expense_fee))
+
 
     return render(request, 'guidereports/detail.html', {
         'guide_report': guide_report,
@@ -101,11 +103,7 @@ def guidereport_pay(request, pk):
 def update_guidereport(request, pk): 
     guidereport = get_object_or_404(GuideReport, pk=pk)
     
-    request.session['main_data'] = {
-        'guidereport_id': guidereport.id, 
-        'day_inbound': guidereport.day_inbound,
-        'role': guidereport.role,
-    }
+    request.session['guidereport_id'] = guidereport.id, 
     
     if guidereport.day_inbound == 'INBOUND': 
         request.session['inbound_data'] = {
@@ -122,32 +120,38 @@ def update_guidereport(request, pk):
 
 @login_required
 def guidereport_main(request): 
+
+    if request.method == 'GET' and request.GET.get('new') == '1': 
+        request.session.pop('main_data', None)
+        request.session.pop('inbound_data', None)
+    
+    main_data = request.session.get('main_data', {})
+
+    main_instance = GuideReport(
+        day_inbound = main_data.get('day_inbound', ''),
+        role = main_data.get('role', '')
+    )
+
     if request.method == 'POST': 
-        form = GuideReportMainForm(request.POST)
+        form = GuideReportMainForm(request.POST, instance=main_instance)
         if form.is_valid(): 
-            existing_data = request.session.get('main_data', {})
+
             day_inbound = form.cleaned_data['day_inbound']
-            existing_data['day_inbound'] = day_inbound
-            existing_data['role'] = form.cleaned_data['role']
-            
-            request.session['main_data'] = existing_data
+            role = form.cleaned_data['role']
+                        
+            request.session['main_data'] = {
+                'day_inbound': day_inbound, 
+                'role': role
+            }
             
             if day_inbound == 'DAY': 
                 return redirect('guidereports:guidereport_day')
             elif day_inbound == 'INBOUND': 
                 return redirect('guidereports:guidereport_inbound_agency') 
     else: 
-        if request.GET.get('new') == '1':
-            request.session.pop('main_data', None)
-            request.session.pop('inbound_data', None) 
+        form = GuideReportMainForm(instance=main_instance)
 
-        saved_main_data = request.session.get('main_data')
-
-        if saved_main_data:
-            form = GuideReportMainForm(initial=saved_main_data)
-        else:
-            form = GuideReportMainForm()
-    
+        
     return render(request, 'guidereports/guidereport_main.html', {
         'form': form, 
         'INBOUND_ROLE': INBOUND_ROLE,
@@ -161,8 +165,6 @@ def guidereport_printed(request, pk):
         guidereport = GuideReport.objects.get(pk=pk)
 
         guidereport.is_printed = not guidereport.is_printed
-
-        print("guidereport.is_printed: " + str(guidereport.is_printed))
 
         guidereport.save()
 
