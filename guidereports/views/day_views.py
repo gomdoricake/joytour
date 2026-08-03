@@ -339,7 +339,7 @@ def guidereport_day_guide_exp(request):
 from django.db.models import Sum
 from decimal import Decimal
 
-# 빈 값 대응을 위한 안전한 Decimal 변환 함수
+
 def safe_decimal(value, default='0.00'):
     if value is None or str(value).strip() == '':
         return Decimal(default)
@@ -367,7 +367,9 @@ def guidereport_day_summary(request):
     report_id = request.session.get('guidereport_id', '')
 
     fuel_list = json.loads(request.session.get('fuel_temp_list', '[]'))
+    s3_fuel_list = json.loads(request.session.get('s3_fuel_temp_list', '[]'))
     exp_list = json.loads(request.session.get('exp_temp_list', '[]'))
+    s3_exp_list = json.loads(request.session.get('s3_exp_temp_list', '[]'))
 
     if report_id:
         guide_report = get_object_or_404(GuideReport, pk=report_id)
@@ -430,21 +432,30 @@ def guidereport_day_summary(request):
             event.guide_report = guide_report  
             event.save()
 
-            for fuel in fuel_list: 
+            for i, fuel in enumerate(fuel_list): 
+                
+                if i < len(s3_fuel_list):
+                    s3_key_value = s3_fuel_list[i]
+                    
                 FuelExp.objects.create(
                     guide_report=guide_report,
                     report_date=fuel.get('report_date') or report_date,
                     expense=safe_decimal(fuel.get('expense')),
                     memo=fuel.get('memo', ''),
-                    file_key=fuel.get('file_key', '')
+                    file_key=s3_key_value  
                 )
 
-            for exp in exp_list: 
+            for i, exp in enumerate(exp_list): 
+
+                if i < len(s3_exp_list):
+                    s3_key_value = s3_exp_list[i]
+
                 GuideExp.objects.create(
                     guide_report=guide_report,
                     expense_type=exp.get('expense_type'), 
                     expense=safe_decimal(exp.get('expense')),
-                    memo=exp.get('memo', '')
+                    memo=exp.get('memo', ''),
+                    file_key=s3_key_value
                 )
 
             guide_report.final_events_fee = event.guide_fee
