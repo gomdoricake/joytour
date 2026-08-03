@@ -134,8 +134,8 @@ def guidereport_day_fuel_s3_url(request):
     if client_prefix and client_prefix != '': 
         if 'id_' in client_prefix:
             client_prefix = client_prefix.replace('id_', '')
-        if '-s3_key' in client_prefix:
-            client_prefix = client_prefix.replace('-s3_key')[0]
+        if '-file_key' in client_prefix:
+            client_prefix = client_prefix.replace('-file_key', '')
 
         serialized_s3_data[client_prefix] = s3_key
 
@@ -271,18 +271,41 @@ from django.core.files.storage import default_storage
 
 
 def guidereport_day_exp_s3_url(request): 
+    client_file_name = request.GET.get('file_name', 'receipt.jpg')
+    client_prefix = request.GET.get('prefix', '').strip()
+    client_index_raw = request.GET.get('index', '')
+    
+    sessoin_data_raw = request.session.get('s3_exp_temp_list', '[]')
 
-    client_file_name = request.GET.get('file_name') or 'receipt.jpg'
+    try: 
+        serialized_s3_data = json.loads(sessoin_data_raw)
+        if not isinstance(serialized_s3_data, dict):
+            serialized_s3_data = {}
+    except json.JSONDecodeError:
+        serialized_s3_data = {}
+
     content_type, _ = mimetypes.guess_type(client_file_name)
-
     if not content_type: 
         content_type = 'application/octet-stream'
     
     ext = os.path.splitext(client_file_name)[1]
-
     unique_name = get_image_path(request, client_file_name)
-    s3_key = f"day/guide_exp/{unique_name}"
+    s3_key = f"day/guide_exp/temp/{unique_name}"
 
+    if client_prefix and client_prefix != '': 
+        if 'id_' in client_prefix:
+            client_prefix = client_prefix.replace('id_', '')
+        if '-file_key' in client_prefix:
+            client_prefix = client_prefix.replace('-file_key', '')
+        
+        serialized_s3_data[client_prefix] = s3_key
+    
+    else:
+        client_index_raw = request.GET.get('index', '0')
+        serialized_s3_data[f'form-{client_index_raw}'] = s3_key
+    
+    request.session['s3_exp_temp_list'] = json.dumps(serialized_s3_data, cls=DjangoJSONEncoder)
+    request.session.modified = True
 
     exp_s3_client = default_storage.connection.meta.client
     bucket_name = default_storage.bucket_name
@@ -308,7 +331,7 @@ def guidereport_day_exp_s3_url(request):
 @never_cache
 @csrf_exempt
 def guidereport_day_guide_exp(request):
-    
+    report_id = request.session.get('guidereport_id', None)
     day_data = request.session.get('day_data')  
     fuel_temp_list = request.session.get('fuel_temp_list')
     if not fuel_temp_list or not day_data:
@@ -317,33 +340,27 @@ def guidereport_day_guide_exp(request):
     serialized_exp_data = request.session.get('exp_temp_list', '[]')
     try: 
         exp_data_list = json.loads(serialized_exp_data)
+        if not isinstance(exp_data_list, list):
+            exp_data_list = []
     except json.JSONDecodeError: 
         exp_data_list = []
 
-    serialized_s3_data = request.session.get('s3_exp_temp_list', '[]')
+    serialized_s3_data = request.session.get('s3_exp_temp_list', '{}')
     try:
-        s3_data_list = json.loads(serialized_s3_data)
+        s3_data_dict = json.loads(serialized_s3_data)
+        if not isinstance(s3_data_dict, dict):
+            s3_data_dict = {}
     except json.JSONDecodeError: 
-        s3_data_list = []
-
-    formatted_initial_list = []
-    for i, item in enumerate(exp_data_list):
-        if isinstance(item, list) and len(item) >= 2:
-            data_dict = {'expense_type': item[0], 'expense': item[1]}
-        elif isinstance(item, dict):
-            data_dict = item.copy()
-        else:
-            continue
-            
-        if i < len(s3_data_list): 
-            data_dict['file_key'] = s3_data_list[i]
-        formatted_initial_list.append(data_dict)
+        s3_data_dict = {}
 
     GuideExpFormSet = formset_factory(
         GuideExpForm, 
-        extra=1,              
+        extra=0,        
         can_delete=True  
     )
+
+    day_data = request.session.get('day_data') or {}
+    report_date_str = day_data.get('report_date', '')
 
     if request.method == 'POST':
         formset = GuideExpFormSet(request.POST, request.FILES)
@@ -351,7 +368,8 @@ def guidereport_day_guide_exp(request):
         if formset.is_valid():
             wash_added = False
             exp_temp_list = []
-            s3_exp_temp_list = []
+            new_s3_dict = {}
+            saved_index = 0 
             
             for form in formset.forms: 
                 if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
@@ -365,28 +383,61 @@ def guidereport_day_guide_exp(request):
                                 continue
                             wash_added = True
                         
-                        s3_key_value = form.cleaned_data.get('file_key') or request.POST.get(f'{form.prefix}-file_key')
-                        
                         exp_temp_list.append({
                             'expense_type': exp_type,
-                            'expense': exp_val, 
-                            'memo': memo
+                            'expense': float(exp_val), 
+                            'memo': str(memo or '').strip()
                         })
-                        s3_exp_temp_list.append(str(s3_key_value))                        
+                        
+                        hidden_s3_val = request.POST.get(f'{form.prefix}-s3_key', '').strip()
+                        
+                        if not hidden_s3_val and isinstance(s3_data_dict, dict):
+                            hidden_s3_val = s3_data_dict.get(form.prefix, '')
+
+                        if hidden_s3_val:
+                            new_s3_dict[f'form-{saved_index}'] = hidden_s3_val
+                        
+                        saved_index += 1                       
                 
             request.session['exp_temp_list'] = json.dumps(exp_temp_list, cls=DjangoJSONEncoder)
-            request.session['s3_exp_temp_list'] = json.dumps(s3_exp_temp_list, cls=DjangoJSONEncoder)
+            request.session['s3_exp_temp_list'] = json.dumps(new_s3_dict, cls=DjangoJSONEncoder)
+            request.session.modified = True
 
             return redirect('guidereports:guidereport_day_summary') 
         else:
             print('폼셋 유효성 검사 실패: ', formset.errors)
             
     else:
-        formset = GuideExpFormSet(
-            initial=formatted_initial_list
-        )
+        if report_id:
+            from ..models import GuideExp
+            db_exps = GuideExp.objects.filter(guide_report_id=report_id).order_by('id')
+            
+            if not exp_data_list and db_exps.exists():
+                for exp_obj in db_exps:
+                    exp_data_list.append({
+                        'expense_type': exp_obj.expense_type,
+                        'expense': float(exp_obj.expense) if exp_obj.expense is not None else 0.0,
+                        'memo': exp_obj.memo or ''
+                    })
+                request.session['exp_temp_list'] = json.dumps(exp_data_list, cls=DjangoJSONEncoder)
+            
+            if not s3_data_dict and db_exps.exists():
+                for idx, exp_obj in enumerate(db_exps):
+                    if exp_obj.file_key:
+                        s3_data_dict[f'form-{idx}'] = exp_obj.file_key
+                request.session['s3_exp_temp_list'] = json.dumps(s3_data_dict, cls=DjangoJSONEncoder)
+            
+            request.session.modified = True
 
-    report_date_str = day_data.get('report_date', '')
+        if not exp_data_list: 
+            exp_data_list = [{'expense_type': '', 'expense': 0.0, 'memo': ''}]
+
+        formset = GuideExpFormSet(initial=exp_data_list)
+
+    zipped_forms = []
+    for form in formset.forms:
+        receipt_url = s3_data_dict.get(form.prefix, None)
+        zipped_forms.append((form, receipt_url))
     
     if day_data.get('role') == 'GUIDE ONLY':
         CHOICES = request.resolver_match.namespace + "_GUIDE_ONLY_CHOICES"  
@@ -395,9 +446,11 @@ def guidereport_day_guide_exp(request):
     
     return render(request, 'guidereports/day/guidereport_day_guide_exp.html', {
         'formset': formset, 
+        'zipped_forms': zipped_forms, 
         'report_date': report_date_str, 
         'CHOICES': CHOICES
     })
+
 
 from django.db.models import Sum
 from decimal import Decimal
