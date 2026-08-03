@@ -46,9 +46,13 @@ def review_grade(guide_id):
 
 @login_required
 def index(request): 
-    print('mypage')
+    print('index')
+    if request.session.get('guidereport_id', '') != '':
+        del request.session['guidereport_id']
     if request.session.get('main_data', '') != '': 
         del request.session['main_data']
+    if request.session.get('inbound_data', '') != '':
+        del request.session['inbound_data']
     if request.session.get('day_data', '') != '':  
         del request.session['day_data']
     if request.session.get('fuel_temp_list', '') != '': 

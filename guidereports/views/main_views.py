@@ -101,6 +101,12 @@ def update_guidereport(request, pk):
     guidereport = get_object_or_404(GuideReport, pk=pk)
     
     request.session['guidereport_id'] = guidereport.id, 
+
+    if guidereport.day_inbound == 'DAY': 
+        request.session['main_data'] = {
+            'day_inbound': guidereport.day_inbound, 
+            'role': guidereport.role
+        }
     
     if guidereport.day_inbound == 'INBOUND': 
         request.session['inbound_data'] = {
@@ -118,9 +124,12 @@ def update_guidereport(request, pk):
 @login_required
 def guidereport_main(request): 
 
-    if request.method == 'GET' and request.GET.get('new') == '1': 
-        request.session.pop('main_data', None)
-        request.session.pop('inbound_data', None)
+    report_id = request.session.get('guidereport_id', None)
+    
+    if not report_id:
+        if request.method == 'GET' and request.GET.get('new') == '1': 
+            request.session.pop('main_data', None)
+            request.session.pop('inbound_data', None)
     
     main_data = request.session.get('main_data', {})
 
@@ -135,9 +144,9 @@ def guidereport_main(request):
 
             day_inbound = form.cleaned_data['day_inbound']
             role = form.cleaned_data['role']
-                        
+
             request.session['main_data'] = {
-                'day_inbound': day_inbound, 
+                'day_inbound': day_inbound,
                 'role': role
             }
             

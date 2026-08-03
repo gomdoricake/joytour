@@ -23,11 +23,24 @@ load_dotenv(dotenv_path)
 @login_required
 @never_cache
 def guidereport_day(request): 
+    print('day')
     main_data = request.session.get('main_data')
+
     if not main_data: 
         return redirect('guidereports:guidereport_main') 
 
     report_id = request.session.get('guidereport_id', '')
+
+    if report_id:
+        if isinstance(report_id, list): 
+            report_id = report_id[0] if report_id else None
+    
+    try: 
+        report_id = int(report_id)
+        request.session['guidereport_id'] = report_id
+    except (ValueError, TypeError): 
+        report_id = ''
+
     role = main_data.get('role', '')
 
     DAY_EVENTCODE = None
@@ -45,7 +58,7 @@ def guidereport_day(request):
 
     if report_id:
         instance = get_object_or_404(GuideReport, id=report_id)
-        event_instance = Event.objects.filter(guidereport=instance).first()
+        event_instance = Event.objects.filter(guide_report=instance).first()
         
         if event_instance:
             if event_instance.eventcode: 
@@ -97,6 +110,17 @@ def get_image_path(request, client_file_name):
 
 def guidereport_day_fuel_s3_url(request):
     client_file_name = request.GET.get('file_name', 'receipt.jpg')
+    client_prefix = request.GET.get('prefix', '').strip()
+    client_index_raw = request.GET.get('index', '')
+
+    session_data_raw = request.session.get('s3_fuel_temp_list', '{}')
+
+    try:
+        serialized_s3_data = json.loads(session_data_raw)
+        if not isinstance(serialized_s3_data, dict):
+            serialized_s3_data = {}
+    except json.JSONDecodeError:
+        serialized_s3_data = {}
     
     content_type, _ = mimetypes.guess_type(client_file_name)
     if not content_type:
@@ -104,7 +128,23 @@ def guidereport_day_fuel_s3_url(request):
 
     ext = os.path.splitext(client_file_name)[1]
     unique_name = get_image_path(request, client_file_name)
-    s3_key = f"day/bp/{unique_name}"
+    s3_key = f"day/bp/temp/{unique_name}"
+
+
+    if client_prefix and client_prefix != '': 
+        if 'id_' in client_prefix:
+            client_prefix = client_prefix.replace('id_', '')
+        if '-s3_key' in client_prefix:
+            client_prefix = client_prefix.replace('-s3_key')[0]
+
+        serialized_s3_data[client_prefix] = s3_key
+
+    else: 
+        client_index_raw = request.GET.get('index', '0')
+        serialized_s3_data[f'form-{client_index_raw}'] = s3_key
+
+    request.session['s3_fuel_temp_list'] = json.dumps(serialized_s3_data, cls=DjangoJSONEncoder)
+    request.session.modified = True
 
     bp_s3_client = default_storage.connection.meta.client
     bucket_name = default_storage.bucket_name
@@ -135,6 +175,7 @@ from django.forms import formset_factory
 @never_cache
 @csrf_exempt
 def guidereport_day_fuel_exp(request): 
+    report_id = request.session.get('guidereport_id', None)
     day_data = request.session.get('day_data')
     if not day_data: 
         return redirect('guidereports:guidereport_day')
@@ -142,26 +183,20 @@ def guidereport_day_fuel_exp(request):
     serialized_fuel_data = request.session.get('fuel_temp_list', '[]')
     try:
         fuel_data_list = json.loads(serialized_fuel_data)
+        if not isinstance(fuel_data_list, list):
+            fuel_data_list = []
     except json.JSONDecodeError: 
         fuel_data_list = []
 
-    serialized_s3_data = request.session.get('s3_fuel_temp_list', '[]')
+    serialized_s3_data = request.session.get('s3_fuel_temp_list', '{}')
     try: 
-        s3_data_list = json.loads(serialized_s3_data)
+        s3_data_dict = json.loads(serialized_s3_data)
+        if not isinstance(s3_data_dict, dict):
+            s3_data_dict = {}
     except json.JSONDecodeError: 
-        s3_data_list = []
-
-    for i, fuel_item in enumerate(fuel_data_list): 
-        if i < len(s3_data_list): 
-            fuel_item['file_key'] = s3_data_list[i]
-
+        s3_data_dict = {}
     
-    FuelFormSet = formset_factory(
-        FuelExpForm,
-        extra=1,
-        can_delete=True
-    )
-
+    FuelFormSet = formset_factory(FuelExpForm, extra=1, can_delete=True)
     day_data = request.session.get('day_data') or {}
     report_date = day_data.get('report_date', '')
 
@@ -169,37 +204,65 @@ def guidereport_day_fuel_exp(request):
         formset = FuelFormSet(request.POST, request.FILES)
 
         if formset.is_valid(): 
-            fuel_temp_list, s3_fuel_temp_list = [], []
+            fuel_temp_list = []
+            new_s3_dict = {}
+            saved_index = 0 
 
             for form in formset.forms: 
                 if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
-                    data = form.cleaned_data.copy()
+                    cleaned = form.cleaned_data
                     
-                    s3_key_value = data.get('file_key') or request.POST.get(f'{form.prefix}-file_key') 
+                    fuel_temp_list.append({
+                        'report_date': cleaned.get('report_date').strftime('%Y-%m-%d') if cleaned.get('report_date') else report_date,
+                        'expense': float(cleaned.get('expense')) if cleaned.get('expense') is not None else 0.0,
+                        'memo': str(cleaned.get('memo') or '').strip(),
+                    })
+
+                    hidden_s3_val = request.POST.get(f'{form.prefix}-s3_key', '').strip()
                     
-                    fuel_temp_list.append(data)
-                    s3_fuel_temp_list.append(str(s3_key_value))
+                    if not hidden_s3_val:
+                        hidden_s3_val = s3_data_dict.get(form.prefix, '')
+
+                    if hidden_s3_val:
+                        new_s3_dict[f'form-{saved_index}'] = hidden_s3_val
+                    
+                    saved_index += 1
 
             request.session['fuel_temp_list'] = json.dumps(fuel_temp_list, cls=DjangoJSONEncoder)
-            request.session['s3_fuel_temp_list'] = json.dumps(s3_fuel_temp_list, cls=DjangoJSONEncoder)
+            request.session['s3_fuel_temp_list'] = json.dumps(new_s3_dict, cls=DjangoJSONEncoder)
+            request.session.modified = True
             
             return redirect('guidereports:guidereport_day_guide_exp')
         else: 
-            print('폼셋 유효성 검사 실패: ', formset.errors)
+            print('폼셋 검증 실패 원인:', formset.errors)
         
     else: 
+        if report_id and not s3_data_dict: 
+            db_fuels = FuelExp.objects.filter(guide_report_id=report_id).order_by('-id')
+        
+            for idx, fuel_obj in enumerate(db_fuels): 
+                if fuel_obj.file_key: 
+                    s3_data_dict[f'form-{idx}'] = fuel_obj.file_key
+            
+            request.session['s3_fuel_temp_list'] = json.dumps(s3_data_dict, cls=DjangoJSONEncoder)
+            request.session.modified = True
+
         if not fuel_data_list: 
-            fuel_data_list = [{'report_date': report_date}]
+            fuel_data_list = [{'report_date': report_date, 'expense': 0.0, 'memo': ''}]
         else: 
             for item in fuel_data_list: 
                 item['report_date'] = report_date
 
-        formset = FuelFormSet(
-            initial=fuel_data_list,
-        )
-
+        formset = FuelFormSet(initial=fuel_data_list)
+    
+    zipped_forms = []
+    for form in formset.forms: 
+        receipt_url = s3_data_dict.get(form.prefix, None)
+        zipped_forms.append((form, receipt_url))
+        
     return render(request, 'guidereports/day/guidereport_day_fuel_exp.html', {
         'formset': formset, 
+        'zipped_forms': zipped_forms
     })
 
 
@@ -432,32 +495,74 @@ def guidereport_day_summary(request):
             event.guide_report = guide_report  
             event.save()
 
-            for i, fuel in enumerate(fuel_list): 
-                
-                if i < len(s3_fuel_list):
-                    s3_key_value = s3_fuel_list[i]
-                    
+            bp_s3_client = default_storage.connection.meta.client
+            bucket_name = default_storage.bucket_name
+
+            for i, fuel in enumerate(fuel_list):
+                s3_key_value = None
+
+                if isinstance(s3_fuel_list, dict): 
+                    s3_key_value = s3_fuel_list.get(f'form-{i}')
+
+                if not s3_key_value: 
+                    s3_key_value = request.POST.get(f'form-{i}-s3_key', None)
+
+                if s3_key_value and 'temp/' in s3_key_value:
+                    old_key = s3_key_value
+                    new_key = old_key.replace('temp/', '')
+                    try:
+                        bp_s3_client.copy_object(
+                            Bucket=bucket_name,
+                            CopySource={'Bucket': bucket_name, 'Key': old_key},
+                            Key=new_key
+                        )
+                        bp_s3_client.delete_object(Bucket=bucket_name, Key=old_key)
+                        s3_key_value = new_key
+                    except Exception as e:
+                        print(f"S3 파일 이동 실패: {e}")
+
                 FuelExp.objects.create(
                     guide_report=guide_report,
-                    report_date=fuel.get('report_date') or report_date,
+                    report_date=fuel.get('report_date'),
                     expense=safe_decimal(fuel.get('expense')),
                     memo=fuel.get('memo', ''),
-                    file_key=s3_key_value  
+                    file_key=s3_key_value
                 )
 
-            for i, exp in enumerate(exp_list): 
-
-                if i < len(s3_exp_list):
+            for i, exp in enumerate(exp_list):
+                s3_key_value = None
+                
+                if isinstance(s3_exp_list, dict): 
+                    s3_key_value = s3_exp_list.get(f'form-{i}')
+                elif isinstance(s3_exp_list, list) and i < len(s3_exp_list):
                     s3_key_value = s3_exp_list[i]
+                
+                if not s3_key_value:
+                    s3_key_value = request.POST.get(f'form-{i}-file_key', None)
 
+                if s3_key_value and 'temp/' in s3_key_value:
+                    old_key = s3_key_value
+                    new_key = old_key.replace('temp/', '')
+                    try:
+                        bp_s3_client.copy_object(
+                            Bucket=bucket_name,
+                            CopySource={'Bucket': bucket_name, 'Key': old_key},
+                            Key=new_key
+                        )
+                        bp_s3_client.delete_object(Bucket=bucket_name, Key=old_key)
+                        s3_key_value = new_key
+                    except Exception as e:
+                        print(f"S3 파일 이동 실패: {e}")
+                
                 GuideExp.objects.create(
                     guide_report=guide_report,
-                    expense_type=exp.get('expense_type'), 
+                    expense_type=exp.get('expense_type', ''),
                     expense=safe_decimal(exp.get('expense')),
                     memo=exp.get('memo', ''),
                     file_key=s3_key_value
                 )
 
+                
             guide_report.final_events_fee = event.guide_fee
             guide_report.final_fuels_fee = total_fuel
             guide_report.final_expenses_fee = total_guide_exp
