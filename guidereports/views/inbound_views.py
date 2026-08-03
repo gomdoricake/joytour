@@ -537,8 +537,6 @@ def guidereport_inbound_summary(request):
     guide_report.invoice_number = GuideReport.objects.filter(invoice_number__isnull=False).count() + 1
     guide_report.save()
 
-    print("super_ann: " + str(guide_report.super_ann))
-
 
     if request.method == 'POST':
         session_keys_to_delete = [

@@ -25,7 +25,7 @@ class GuideReportDayForm(forms.ModelForm):
     ) 
     class Meta: 
         model = Event
-        fields = ['report_date']
+        fields = ['report_date', 'eventcode']
         labels = {
             'report_date': 'Report Date', 
         }
@@ -35,16 +35,7 @@ class GuideReportDayForm(forms.ModelForm):
                 attrs={'type': 'date'}
             ),
         }
-
-    def __init__(self, *args, **kwargs): 
-        super().__init__(*args, **kwargs)
-
-        self.field_order=['eventcode']
-
-        if self.instance:
-            role = self.instance.role
-            day_inbound = self.instance.day_inbound
-
+    
 
 class GuideExpForm(forms.ModelForm): 
     expense_type = forms.CharField(
@@ -170,9 +161,12 @@ class AttractionExpForm(forms.ModelForm):
 
 
 class FuelExpForm(forms.ModelForm): 
+
+    file_key = forms.CharField(widget=forms.HiddenInput(), required=False)
+
     class Meta: 
         model = FuelExp
-        fields = ['report_date', 'expense', 'memo']
+        fields = ['report_date', 'expense', 'memo', 'file_key']
         labels = {
             'report_date': 'Report Date', 
             'expense': 'Expense',

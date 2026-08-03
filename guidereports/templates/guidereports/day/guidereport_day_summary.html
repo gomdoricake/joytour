@@ -419,7 +419,6 @@
               <th class="col-type">주유소/항목</th>
               <th class="col-memo">메모(Memo)</th>
               <th class="col-amount text-right">금액</th>
-              <th class="col-receipt text-center">영수증</th>
             </tr>
           </thead>
           <tbody>
@@ -436,10 +435,6 @@
                 <td class="col-amount-data text-right">${{ item.expense|default:"0" }}</td>
 
                 <td class="text-center">
-                  {% if item.image_url %}
-                    <button type="button" class="btn btn-outline-primary btn-sm btn-receipt" data-bs-toggle="modal" data-bs-target="#fuelModal-{{ item.id|default:forloop.counter }}">
-                      영수증 확인
-                    </button>
 
                     <div class="modal fade" id="fuelModal-{{ item.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="fuelModalLabel-{{ item.id|default:forloop.counter }}" aria-hidden="true">
                       <div class="modal-dialog modal-dialog-centered">
@@ -459,9 +454,7 @@
                         </div>
                       </div>
                     </div>
-                  {% else %}
-                    <span class="text-muted" style="font-size: 12px;">영수증 없음</span>
-                  {% endif %}
+                 
                 </td>
               </tr>
             {% endfor %}
@@ -484,7 +477,6 @@
               <th class="col-type">지출 항목</th>
               <th class="col-memo">메모(Memo)</th>
               <th class="col-amount text-right">금액</th>
-              <th class="col-receipt text-center">영수증</th>
             </tr>
           </thead>
           <tbody>
@@ -495,10 +487,7 @@
                 <td class="col-amount-data text-right">${{ item.expense|default:"0" }}</td>
 
                 <td class="text-center">
-                  {% if item.image_url %}
-                    <button type="button" class="btn btn-outline-primary btn-sm btn-receipt" data-bs-toggle="modal" data-bs-target="#expModal-{{ item.id|default:forloop.counter }}">
-                      영수증 확인
-                    </button>
+                  
                       <div class="modal fade" id="expModal-{{ item.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="fuelModalLabel-{{ item.id|default:forloop.counter }}" aria-hidden="true">
                       <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content">
@@ -517,9 +506,6 @@
                         </div>
                       </div>
                     </div>
-                  {% else %}
-                    <span class="text-muted" style="font-size: 12px;">영수증 없음</span>
-                  {% endif %}
 
 
                 </td>

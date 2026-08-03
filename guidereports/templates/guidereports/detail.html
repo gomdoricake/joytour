@@ -494,7 +494,7 @@
               <span class="price-black">${{ fuel.expense }}</span>
             </button>
 
-            <div class="modal fade" id="fuelModal-{{ fuel.id }}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal fade" id="fuelModal-{{ fuel.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
             <div class="modal-dialog">
               <div class="modal-content">
 
