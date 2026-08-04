@@ -46,7 +46,6 @@ def review_grade(guide_id):
 
 @login_required
 def index(request): 
-    print('index')
     if request.session.get('guidereport_id', '') != '':
         del request.session['guidereport_id']
     if request.session.get('main_data', '') != '': 

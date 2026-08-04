@@ -110,7 +110,7 @@ class Event(models.Model):
 
 class GuideExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='expenses')
-    expense_type = models.CharField(max_length=10, default='WASH') 
+    expense_type = models.CharField(max_length=10, default='WASH', null=True, blank=True) 
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0) 
     memo = models.CharField(max_length=30, null=True, blank=True)
     file_key = models.CharField(max_length=500, null=True, blank=True)
