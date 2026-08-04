@@ -3,7 +3,7 @@
 
 <style>
   /* ==========================================================
-     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 전체화면 밀착)
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 풀화면 변신)
      ========================================================== */
   
   html, body, .container {
@@ -16,7 +16,7 @@
     overflow-x: hidden !important;
   }
 
-  /* 화이트 글래스모피즘 컨테이너 -> 모바일 전체화면 구조로 변환 */
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 전체화면 밀착형으로 전환 */
   .report-container {
     width: 100% !important;
     max-width: 100% !important;
@@ -94,16 +94,17 @@
   }
 
   .section-title {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: #1e293b;
     margin-top: 0;
     margin-bottom: 16px;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
     border-bottom: 2px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
   }
 
   /* 우측 상단 개별 요약 금액 배지 */
@@ -114,6 +115,7 @@
     background: #eef2ff;
     padding: 4px 10px;
     border-radius: 8px;
+    white-space: nowrap;
   }
 
   /* 이벤트 개별 루프 서브카드 */
@@ -129,91 +131,75 @@
     margin-bottom: 0;
   }
 
-  /* 📱 [모바일 최적화] 테이블 구조 해제 후 블록 단위로 유연하게 적재 */
+  /* 📱 [모바일 전용] 요약 데이터 테이블 -> 반응형 리스트 레이아웃 변환 */
   .summary-table {
-    display: block;
     width: 100%;
+    display: block; /* 모바일에서 table 태그의 기본 속성 리셋 */
   }
-  
-  /* 모바일에서는 테이블 헤더 감추기 */
   .summary-table thead {
-    display: none;
+    display: none; /* 모바일에서 좁은 th 행 숨김 */
   }
-  
   .summary-table tbody {
     display: block;
     width: 100%;
   }
-
-  /* 각 행을 유연한 리스트 카드로 변환 */
   .summary-table tr {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column; /* 가로 한 줄이 아니라 수직으로 정보 누적 */
     padding: 12px 0;
     border-bottom: 1px solid #f1f5f9;
-    align-items: center;
+    position: relative;
   }
   .summary-table tr:last-child {
     border-bottom: none;
   }
-
-  /* 모바일 텍스트 정렬 및 너비 재할당 */
   .summary-table td {
     display: block;
     padding: 2px 0;
     border: none;
-    box-sizing: border-box;
-  }
-  
-  /* 모바일 구조 1열: 타입 (좌측 상단 배치) */
-  .summary-table td:nth-child(1) {
-    width: 60%;
-    color: #1e293b;
-    font-weight: 700;
+    color: #334155;
     font-size: 14px;
-  }
-  
-  /* 모바일 구조 2열: 금액 (우측 상단 배치 및 강조) */
-  .summary-table td:nth-child(3) {
-    width: 40%;
-    text-align: right;
-    color: #4f46e5;
-    font-weight: 700;
-    font-size: 14px;
-  }
-  
-  /* 모바일 구조 3열: 메모 (하단에 넓게 한 줄 전체 차지) */
-  .summary-table td:nth-child(2) {
-    width: 100%;
-    color: #64748b;
-    font-weight: 500;
-    font-size: 13px;
-    margin-top: 4px;
+    font-weight: 600;
     word-break: break-all;
+    text-align: left !important; /* 모바일은 기본 좌측 정렬 */
   }
 
-  .text-right {
-    text-align: right;
+  /* 각 열 데이터 성격에 맞는 모바일 폰트 강조 처리 */
+  .summary-table td.col-type-data {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
   }
+  .summary-table td.col-memo-data {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .summary-table td.col-amount-data {
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: right !important; /* 금액만 우측 정렬 유지 */
+    margin-top: 4px;
+  }
+
   .text-muted {
     color: #94a3b8;
     font-weight: 500;
     font-size: 13px;
   }
 
-  /* 📱 [모바일 최적화] 최종 합계 박스 (수직 배치로 전환하여 텍스트 겹침 방지) */
+  /* 최종 합계 데코레이션 박스 - 모바일 핏 */
   .grand-total-box {
     background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
     border: 1px solid #ffffff;
-    padding: 20px;
+    padding: 18px 20px;
     border-radius: 16px;
     margin-top: 25px;
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    justify-content: space-between;
     align-items: center;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.08);
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.04);
     box-sizing: border-box;
   }
   .grand-total-title {
@@ -222,12 +208,12 @@
     color: #14532d;
   }
   .grand-total-amount {
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 900;
     color: #16a34a;
   }
 
-  /* 제출 버튼 */
+  /* 승인/제출 버튼 */
   .btn-submit {
     display: block;
     width: 100%;
@@ -249,17 +235,9 @@
   .btn-submit:hover {
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   }
-  .btn-submit:disabled {
-    background: #cbd5e1;
-    color: #94a3b8;
-    cursor: not-allowed;
-    box-shadow: none;
-    transform: none;
-  }
-
 
   /* ==========================================================
-     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 데스크톱 디자인 복원
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 PC 스킨 복원
      ========================================================== */
   @media screen and (min-width: 451px) {
     html, body {
@@ -275,7 +253,6 @@
       margin: 0 auto !important;
     }
 
-    /* 원본 글래스모피즘 컨테이너 구조 원상태 복원 */
     .report-container {
       max-width: 720px !important;
       margin: 60px auto !important;
@@ -288,11 +265,11 @@
       box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
     }
 
-    .title { font-size: 24px !important; margin-bottom: 8px !important; }
+    .title { font-size: 24px !important; }
     .summary-section-card { padding: 24px !important; }
+    .section-title { font-size: 16px !important; margin-bottom: 16px !important; padding-bottom: 8px !important; }
     .section-total-badge { font-size: 14px !important; }
 
-    /* 🖥️ PC 전용: 완벽하게 정렬된 격자 테이블 구조 원상 복구 */
     .summary-table {
       display: table !important;
       border-collapse: collapse !important;
@@ -320,31 +297,28 @@
       display: table-cell !important;
       padding: 12px 8px !important;
       border-bottom: 1px solid #f1f5f9 !important;
-      font-weight: 600 !important;
-    }
-    .summary-table tr:last-child td {
-      border-bottom: none !important;
+      font-size: 14px !important;
+      vertical-align: middle;
     }
     
-    /* 기존 컬럼 스케일 비율 복원 */
-    .summary-table td:nth-child(1) { width: 35% !important; color: #334155 !important; font-size: 14px !important; }
-    .summary-table td:nth-child(2) { width: 45% !important; color: #334155 !important; font-size: 14px !important; margin-top: 0 !important; }
-    .summary-table td:nth-child(3) { width: 20% !important; text-align: right !important; color: #334155 !important; font-size: 14px !important; }
+    .col-type { width: 35% !important; }
+    .col-memo { width: 40% !important; }
+    .col-amount { width: 25% !important; }
 
-    /* 🖥️ PC 전용: 가로 정렬 형태의 대시보드 합계 박스 복원 */
-    .grand-total-box {
-      flex-direction: row !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      padding: 22px !important;
-      margin-top: 30px !important;
-      text-align: left !important;
-      gap: 0 !important;
+    .summary-table td.col-amount-data {
+      text-align: right !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      margin-top: 0 !important;
     }
+    .text-right {
+      text-align: right !important;
+    }
+
+    .grand-total-box { padding: 22px !important; margin-top: 30px !important; }
     .grand-total-title { font-size: 16px !important; }
     .grand-total-amount { font-size: 24px !important; }
 
-    .btn-submit { margin-top: 20px !important; }
     .btn-submit:hover {
       transform: translateY(-2px) !important;
       box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
@@ -367,65 +341,64 @@
 
     <div class="summary-section-card" style="border-left: 4px solid #4f46e5;">
       <div class="section-title">
-        <span>Event Information {% if guide_report.coach %}({{ guide_report.coach|default:"N/A" }}){% endif %}</span>
-        <span class="section-total-badge">${{ event_fee|default:"0" }}</span>
+        <span>Event Information</span>
+        <span class="section-total-badge">${{ guide_fee|floatformat:2|default:"0.00" }}</span>
       </div>
-      {% if events %}
-        {% for event in events %}
+      {% for evt in events %}
         <div class="event-sub-card">
           <table class="summary-table">
             <tbody>
               <tr>
-                <td style="width: 30%; color: #64748b; font-size: 13px;">EVENT CODE</td>
-                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-family: monospace; font-weight: 700;">{{ event.eventcode }}</span></td>
+                <td style="width: 35%; color: #64748b; font-size: 13px;">EVENT CODE</td>
+                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-family: monospace; font-weight: 700;">{{ evt.eventcode|default:"-" }}</span></td>
               </tr>
               <tr>
                 <td style="color: #64748b; font-size: 13px;">REPORT DATE</td>
-                <td>{{ event.report_date|default:report_date }}</td>
+                <td>{{ report_date|date:"Y-m-d" }}</td>
               </tr>
-              
-              {% if event.memo %}
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">MEMO</td>
-                <td class="text-muted">{{ event.memo }}</td>
-              </tr>
-              {% endif %}
-              {% if event.coach_start_time and event.coach_end_time %}
               <tr>
                 <td style="color: #64748b; font-size: 13px;">COACH TIME</td>
-                <td>{{ event.coach_start_time|time:"H:i" }} - {{ event.coach_end_time|time:"H:i" }}</td>
+                <td>
+                  {% if evt.coach_start_time and evt.coach_end_time %}
+                    {{ evt.coach_start_time|time:"H:i" }} - {{ evt.coach_end_time|time:"H:i" }}
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
               </tr>
-              {% endif %}
               <tr>
                 <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
-                <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
+                <td style="color: #4f46e5; font-weight: 700;">${{ evt.guide_fee|default:guide_fee|floatformat:2 }}</td>
               </tr>
             </tbody>
           </table>
         </div>
-        {% endfor %}
-      {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">연동된 이벤트 정보가 존재하지 않습니다.</div>
-      {% endif %}
+      {% empty %}
+        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 Event 정보가 없습니다.</div>
+      {% endfor %}
     </div>
 
+    <!-- 2. Restaurant Expenses -->
     <div class="summary-section-card">
       <div class="section-title">
         <span>Restaurant Expenses</span>
+        <span class="section-total-badge">${{ total_restaurant|floatformat:2|default:"0.00" }}</span>
       </div>
       {% if restaurant_expenses %}
         <table class="summary-table">
           <thead>
             <tr>
-              <th class="col-type">식당명/항목</th>
-              <th class="col-memo text-right">메모(Memo)</th>
+              <th class="col-type">식당명</th>
+              <th class="col-memo">메모 (Memo)</th>
+              <th class="col-amount text-right">금액</th>
             </tr>
           </thead>
           <tbody>
             {% for item in restaurant_expenses %}
               <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-type-data">{{ item.restaurant_name|default:"-" }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|floatformat:2 }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -435,98 +408,89 @@
       {% endif %}
     </div>
 
+    <!-- 3. Attraction Expenses -->
     <div class="summary-section-card">
       <div class="section-title">
         <span>Attraction Expenses</span>
+        <span class="section-total-badge">${{ total_attraction|floatformat:2|default:"0.00" }}</span>
       </div>
       {% if attraction_expenses %}
         <table class="summary-table">
           <thead>
             <tr>
               <th class="col-type">관광지/옵션</th>
-              <th class="col-memo text-right">메모(Memo)</th>
+              <th class="col-memo">메모 (Memo)</th>
+              <th class="col-amount text-right">금액</th>
             </tr>
           </thead>
           <tbody>
             {% for item in attraction_expenses %}
               <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-type-data">{{ item.attraction_name|default:"-" }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|floatformat:2 }}</td>
               </tr>
             {% endfor %}
           </tbody>
         </table>
       {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 관광지/옵션 경비 내역이 없습니다.</div>
+        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 관광지 내역이 없습니다.</div>
       {% endif %}
     </div>
 
+    <!-- 4. Fuel Expenses -->
     <div class="summary-section-card">
       <div class="section-title">
-        <span>BP</span>
-        <span class="section-total-badge">${{ fuel_fee|default:"0" }}</span>
+        <span>Fuel Expenses</span>
+        <span class="section-total-badge">${{ total_fuel|floatformat:2|default:"0.00" }}</span>
       </div>
       {% if fuel_expenses %}
         <table class="summary-table">
           <thead>
             <tr>
               <th class="col-type">주유소/항목</th>
-              <th class="col-memo">메모(Memo)</th>
+              <th class="col-memo">메모 (Memo)</th>
               <th class="col-amount text-right">금액</th>
             </tr>
           </thead>
           <tbody>
             {% for item in fuel_expenses %}
               <tr>
-                <td>
-                  {% if item.expense_type %}
-                    {{ item.get_expense_type_display|default:item.expense_type }}
-                  {% else %}
-                    주유 내역
-                  {% endif %}
-                </td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">${{ item.expense|default:"0" }}</td>
+                <td class="col-type-data">{{ item.fuel_station|default:"주유 내역" }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|floatformat:2 }}</td>
               </tr>
             {% endfor %}
           </tbody>
-        </table>      
+        </table>
       {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 주유비 내역이 없습니다.</div>
+        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 주유 내역이 없습니다.</div>
       {% endif %}
     </div>
 
+    <!-- 5. Guide Expenses -->
     <div class="summary-section-card">
       <div class="section-title">
         <span>Guide Expenses</span>
-        <span class="section-total-badge">${{ expense_fee|default:"0" }}</span>
+        <span class="section-total-badge">${{ total_inbound_exp|floatformat:2|default:"0.00" }}</span>
       </div>
-      {% if guide_expenses or overtimes %}
+      {% if inbound_expenses %}
         <table class="summary-table">
           <thead>
             <tr>
-              <th class="col-type">지출 항목</th>
-              <th class="col-memo">메모(Memo)</th>
+              <th class="col-type">경비 항목</th>
+              <th class="col-memo">메모 (Memo)</th>
               <th class="col-amount text-right">금액</th>
             </tr>
           </thead>
           <tbody>
-            {% for item in guide_expenses %}
+            {% for item in inbound_expenses %}
               <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">${{ item.expense|default:"0" }}</td>
+                <td class="col-type-data">{{ item.expense_type|default:"-" }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|floatformat:2 }}</td>
               </tr>
             {% endfor %}
-            {% if overtimes %}
-            {% for overtime in overtimes %}
-              <tr>
-                <td>OVERTIME</td>
-                <td><span class="text-muted">{{ overtime.hours|default:"-" }}hrs ({{overtime.report_date}})</span></td>
-                <td class="text-right">${{ overtime.amount|default:"0" }}</td>
-              </tr>
-            {% endfor %}
-            {% endif %}
           </tbody>
         </table>
       {% else %}
@@ -534,15 +498,15 @@
       {% endif %}
     </div>
 
+    <!-- 6. Grand Total -->
     <div class="grand-total-box">
       <div class="grand-total-title">최종 정산 예정 금액 (Grand Total)</div>
-      <div class="grand-total-amount">${{ final_amount_due|default:"0" }}</div>
+      <div class="grand-total-amount">${{ grand_total|floatformat:2|default:"0.00" }}</div>
     </div>
 
-    <button type="submit" id="submit-final-btn" class="btn-submit">작성 완료 및 리포트 제출 (Submit)</button>
+    <button type="submit" id="submit-final-btn" class="btn-submit">최종 제출 확정 (Submit)</button>
   </form>
 </div>
-
 {% endblock %}
 
 <script>

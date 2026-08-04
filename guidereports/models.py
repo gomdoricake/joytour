@@ -145,7 +145,7 @@ class RestaurantExp(models.Model):
 class AttractionExp(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='attractions')
     report_date = models.DateField(null=True, blank=True)
-    expense_type = models.CharField(max_length=100, blank=True, default='')
+    expense_type = models.CharField(max_length=100, blank=True, null=True)
     expense = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     memo = models.CharField(max_length=30, null=True, blank=True)
     adt = models.PositiveIntegerField(default=0, null=True, blank=True)

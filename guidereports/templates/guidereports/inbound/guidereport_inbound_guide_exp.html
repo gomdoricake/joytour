@@ -340,6 +340,31 @@
         <div class="form-group"><label>Memo</label>{{ form.memo }}</div>
         
         <button type="button" class="remove-form-btn btn-remove">삭제</button>
+
+        <div class="receipt-section">
+          <div class="form-group">
+            <label>🧾 영수증 첨부</label>
+            <div class="receipt-upload-box {% if form.instance.file_key %}has-file{% endif %}">
+                <div class="receipt-info-content">
+                  <span class="icon">{% if form.instance.file_key %}✅{% else %}📷{% endif %}</span>
+                  <span class="upload-text">
+                    {% if form.instance.file_key %}영수증 첨부 완료{% else %}영수증 이미지 선택 / 촬영{% endif %}
+                  </span>
+                </div>
+                <span class="upload-subtext">JPG, PNG</span>
+
+            <input type="file" 
+                    class="receipt-file-input" 
+                    name="form-{{ forloop.counter0 }}-receipt_file" 
+                    data-prefix="form-{{ forloop.counter0 }}" 
+                    onchange="updateReceiptLabel(this)">
+           
+              <input type="hidden" 
+                    name="form-{{ forloop.counter0 }}-file_key" 
+                    id="id_form-{{ forloop.counter0 }}-file_key">
+              </div>
+          </div>
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -348,7 +373,9 @@
       <button type="button" id="add-form-btn" class="btn-add">➕ Expense 항목 추가하기</button>
     </div>
     
-    <button type="submit" id="submit-final-btn" name="submit_final" class="btn-submit">다음 단계 (Summary)</button>
+    <button type="submit" id="submit-final-btn" name="submit_final" class="btn-submit">
+      SUMMARY 확인하기
+    </button>
   </form>
 </div>
 
@@ -360,6 +387,27 @@
     <div class="form-group"><label>Expense ($)</label>{{ formset.empty_form.expense }}</div>
     <div class="form-group"><label>Memo</label>{{ formset.empty_form.memo }}</div>
     <button type="button" class="remove-form-btn btn-remove">삭제</button>
+
+    <div class="receipt-section">
+      <div class="form-group">
+        <label>🧾 영수증 첨부</label>
+        <div class="receipt-upload-box">
+          <div class="receipt-info-content">
+            <span class="icon">📷</span>
+            <span class="upload-text">영수증 이미지 선택 / 촬영</span>
+          </div>
+          <span class="upload-subtext">JPG, PNG</span>
+
+          <input type="file" 
+                 class="receipt-file-input" 
+                 name="form-__prefix__-receipt_file" 
+                 data-prefix="form-__prefix__" 
+                 onchange="updateReceiptLabel(this)">
+                 
+          <input type="hidden" name="form-__prefix__-file_key" id="id_form-__prefix__-file_key">        
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -369,262 +417,208 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("=== [확인] Expense inbound 폼셋 가동 ===");
+// 1. 파일 선택 시 레이블 업데이트
+function updateReceiptLabel(input) {
+  const uploadBox = input.closest('.receipt-upload-box');
+  if (!uploadBox) return;
+  const icon = uploadBox.querySelector('.icon');
+  const text = uploadBox.querySelector('.upload-text');
 
+  if (input.files && input.files[0]) {
+    const fileName = input.files[0].name;
+    uploadBox.classList.add('has-file');
+    if (icon) icon.textContent = '✅';
+    if (text) text.textContent = fileName.length > 20 ? fileName.substring(0, 17) + '...' : fileName;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
   const formContainer = document.getElementById("expense-form-list");
   const addButton = document.getElementById("add-form-btn");
-  const totalForms = document.querySelector('input[name$="-TOTAL_FORMS"]');
-  const mainForm = document.getElementById("real-expense-form"); 
-  const prefix = "{{ formset.prefix }}";
+  const totalForms = document.getElementById("id_form-TOTAL_FORMS");
+  const mainForm = document.getElementById("real-expense-form");
 
-  // 역할군 판단
-  const roleBadge = document.querySelector(".role-badge");
-  const currentRole = roleBadge ? roleBadge.textContent.trim().toUpperCase() : "{{ guide_report.role|upper }}";
-  const isGuideOnly = currentRole.includes("GUIDE ONLY") || currentRole.includes("GROUP");
-
-  // 데이터 파싱
+  // Django Choice 데이터 파싱
   const dataBridge = document.getElementById("django-expense-data");
   const choiceData = {};
   const choiceKeys = [];
 
   if (dataBridge) {
     const rawChoices = dataBridge.getAttribute("data-choices") || "";
-    const rawGuideChoices = dataBridge.getAttribute("data-guide-choices") || "";
-    const sourceString = isGuideOnly ? rawGuideChoices : rawChoices;
-
-    sourceString.split(",").forEach(item => {
-      if (!item) return;
+    rawChoices.split(",").forEach(item => {
+      if (!item.trim()) return;
       const [key, val] = item.split(":");
-      if (key) { 
-        choiceData[key] = val || key; 
-        choiceKeys.push(key); 
+      if (key) {
+        choiceData[key.trim()] = (val || key).trim();
+        choiceKeys.push(key.trim());
       }
     });
   }
 
-  const defaultExpenseType = isGuideOnly ? "ETC" : (choiceKeys.includes("WASH") ? "WASH" : choiceKeys[0]);
-
-  // 장고 관리 번호(Index) 일괄 동기화 마스터 함수
-  function updateFormIndices() {
-    const rows = formContainer.querySelectorAll(".expense-form-row");
-    rows.forEach((row, currentIndex) => {
-      row.querySelectorAll("input, select, textarea").forEach((input) => {
-        if (input.name) {
-          input.name = input.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
-        }
-        if (input.id) {
-          input.id = input.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
-        }
-      });
-    });
-    if (totalForms) totalForms.value = rows.length;
-  }
-
-  function rebuildOptions(element) {
-    if (!element) return;
-
-    if (element.tagName === "SELECT") {
-      const savedValue = element.value; 
-      element.innerHTML = ""; 
-      
-      if (isGuideOnly) {
-        const opt = document.createElement("option");
-        opt.value = "ETC";
-        opt.textContent = choiceData["ETC"] || "ETC"; 
-        element.appendChild(opt);
-        element.value = "ETC";
-      } else {
-        choiceKeys.forEach(key => {
-          const opt = document.createElement("option");
-          opt.value = key; 
-          opt.textContent = choiceData[key] || key; 
-          element.appendChild(opt);
-        });
-        
-        if (savedValue && choiceKeys.includes(savedValue)) {
-          element.value = savedValue;
-        }
-      }
-    }
-  }
-
-  function initExistingRows() {
-    formContainer.querySelectorAll('[name$="-expense_type"]').forEach(el => rebuildOptions(el));
-  }
-
-  function checkExpenseRealtime(inputElement) {
-    if (isGuideOnly) return; 
-    const row = inputElement.closest(".expense-form-row");
-    const typeElement = row.querySelector('[name$="-expense_type"]');
-    if (!typeElement || typeElement.value !== "WASH") return;
-
-    const expenseValue = parseFloat(inputElement.value) || 0;
-    let limit = 0;
-    if (currentRole.includes("12") || currentRole.includes("FIT")) limit = 8;
-    else if (currentRole.includes("21")) limit = 12;
-    else if (currentRole.includes("53")) limit = 25;
-
-    if (limit > 0 && expenseValue > limit) {
-      alert(`🛑 ${currentRole} 차량의 세차비는 $${limit}를 넘을 수 없습니다.`);
-      inputElement.value = "";
-      inputElement.focus();
-    }
-  }
-
-  function refreshWashOptions() {
-    if (isGuideOnly) return; 
-    const allElements = formContainer.querySelectorAll('[name$="-expense_type"]');
-    const isWashUsed = Array.from(allElements).some((el) => {
-      const row = el.closest(".expense-form-row");
-      const delChk = row.querySelector('input[name$="-DELETE"]');
-      return el.value === "WASH" && !(delChk && delChk.checked) && row.style.display !== "none";
-    });
-
-    allElements.forEach((el) => {
-      if (el.tagName === "SELECT") {
-        Array.from(el.options).forEach((opt) => {
-          if (opt.value === "WASH") opt.disabled = (isWashUsed && el.value !== "WASH");
-        });
-      }
-    });
-  }
-
-  // ➕ 추가 버튼 로직
+  // ★ 2. Expense 추가 버튼 동작 (핵심 수정)
   if (addButton) {
-    addButton.addEventListener("click", function () {
-      const template = document.getElementById("empty-form-template").querySelector(".expense-form-row");
-      const newRow = template.cloneNode(true);
-      const count = formContainer.querySelectorAll(".expense-form-row").length;
+    addButton.addEventListener("click", function (e) {
+      e.preventDefault();
 
-      newRow.querySelectorAll("input, select").forEach((el) => {
-        if (el.name) el.name = el.name.replace(/__prefix__/g, count);
-        if (el.id) el.id = el.id.replace(/__prefix__/g, count);
-        if (el.name && el.name.endsWith("-expense_type")) {
-          rebuildOptions(el);
-          el.value = defaultExpenseType; 
-        } else if (el.type !== "hidden") {
-          el.value = "";
-        }
-      });
+      if (!totalForms) {
+        alert("❌ FormSet의 Management Form(TOTAL_FORMS)을 찾을 수 없습니다.");
+        return;
+      }
+
+      const templateWrapper = document.getElementById("empty-form-template");
+      if (!templateWrapper) {
+        alert("❌ #empty-form-template 요소를 찾을 수 없습니다.");
+        return;
+      }
+
+      const templateRow = templateWrapper.querySelector(".expense-form-row");
+      if (!templateRow) {
+        alert("❌ 템플릿 내부의 .expense-form-row를 찾을 수 없습니다.");
+        return;
+      }
+
+      // 현재 총 Form 개수
+      const currentCount = parseInt(totalForms.value, 10) || 0;
+
+      // OuterHTML을 가져와 __prefix__ 문자를 현재 숫자 index로 안전 일괄 치환
+      let newRowHtml = templateRow.outerHTML.replace(/__prefix__/g, currentCount);
+
+      // DOM으로 변환 후 컨테이너에 추가
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = newRowHtml;
+      const newRow = tempDiv.firstElementChild;
 
       formContainer.appendChild(newRow);
-      updateFormIndices(); 
-      refreshWashOptions();
+
+      // TOTAL_FORMS 카운트 증가 필수!
+      totalForms.value = currentCount + 1;
     });
   }
 
-  // ❌ 항목 삭제 제어 로직 보정
+  // ★ 3. Expense 삭제 처리 (기존 항목/신규 항목 구분)
   if (formContainer) {
     formContainer.addEventListener("click", function (e) {
-      if (e.target.classList.contains("remove-form-btn")) {
+      if (e.target.classList.contains("remove-form-btn") || e.target.closest(".remove-form-btn")) {
+        e.preventDefault();
         const row = e.target.closest(".expense-form-row");
-        const idEl = row.querySelector('input[name$="-id"]');
-        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+        if (!row) return;
 
-        if (idEl && idEl.value) {
+        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+        const idInput = row.querySelector('input[name$="-id"]');
+
+        // DB에 이미 저장되어 id값이 있는 기존 폼인 경우 DELETE 체크박스 이용
+        if (idInput && idInput.value) {
           row.style.display = "none";
           if (deleteCheckbox) deleteCheckbox.checked = true;
         } else {
+          // 새로 추가한 폼은 DOM에서 즉시 제거
           row.remove();
-          updateFormIndices(); 
         }
-        refreshWashOptions();
-      }
-    });
-
-    formContainer.addEventListener("input", function (event) {
-      if (event.target.matches('input[name$="-expense"]')) checkExpenseRealtime(event.target);
-    });
-
-    // 🌟 [Day 일치] 실시간 항목 임의 기입 변조 모니터링 가드
-    formContainer.addEventListener("change", function (event) {
-      if (event.target.matches('[name$="-expense_type"]')) {
-        refreshWashOptions();
-        
-        const el = event.target;
-        const row = el.closest(".expense-form-row");
-
-        if (isGuideOnly) {
-          if (el.value !== "ETC") el.value = "ETC";
-        } else {
-          if (el.value !== "" && !choiceKeys.includes(el.value)) {
-            alert("⚠️ 허용되지 않은 항목 유형입니다. 목록에 있는 항목만 선택할 수 있습니다.");
-            el.value = defaultExpenseType; 
-            el.focus();
-            refreshWashOptions();
-            return;
-          }
-        }
-
-        const expInput = row.querySelector('input[name$="-expense"]');
-        if (expInput && expInput.value) checkExpenseRealtime(expInput);
       }
     });
   }
 
-  // 🚀 제출 전 가공 및 인터셉트 레이어 개편 [Day 일치]
+  // ★ 4. S3 업로드 및 Submit 연동
+  async function uploadToS3() {
+    if (!formContainer) return true;
+    const rows = formContainer.querySelectorAll('.expense-form-row');
+
+    for (let index = 0; index < rows.length; index++) {
+      const row = rows[index];
+
+      // 숨겨졌거나 삭제된 폼은 스킵
+      if (!row || row.style.display === 'none') continue;
+      const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+      if (deleteCheckbox && deleteCheckbox.checked) continue;
+
+      const fileInput = row.querySelector('.receipt-file-input');
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        continue; // 영수증 파일 선택을 안 한 행은 통과
+      }
+
+      const file = fileInput.files[0];
+      const formPrefix = `form-${index}`;
+
+      try {
+        const s3ApiBaseUrl = "/guidereports/inbound/guidereport_inbound_exp_s3_url/";
+        const fetchUrl = `${s3ApiBaseUrl}?file_name=${encodeURIComponent(file.name)}&prefix=${encodeURIComponent(formPrefix)}&index=${index}`;
+
+        const urlFetch = await fetch(fetchUrl);
+        const rawText = await urlFetch.text();
+        let resultData = {};
+
+        try {
+          resultData = JSON.parse(rawText);
+        } catch (jsonErr) {
+          // HTML 에러 응답 발생 시 에러 알림
+          let cleanErr = rawText;
+          if (rawText.includes('<title>')) {
+            cleanErr = rawText.split('<title>')[1].split('</title>')[0];
+          }
+          alert(`❌ [서버 URL 발급 에러 - HTTP ${urlFetch.status}]\n응답: ${cleanErr.trim()}\n\nURL 주소(/guidereports/inbound/guidereport_inbound_exp_s3_url/) 또는 Django views.py를 확인해 주세요.`);
+          return false;
+        }
+
+        if (!urlFetch.ok || resultData.error) {
+          alert(`❌ [URL 발급 실패 - ${formPrefix}]\n원인: ${resultData.error || '서버 오류'}`);
+          return false;
+        }
+
+        // AWS S3 Direct Upload (PUT)
+        const uploadResponse = await fetch(resultData.upload_url, {
+          method: 'PUT',
+          body: file,
+          headers: {
+            'Content-Type': resultData.content_type || file.type || 'image/jpeg'
+          }
+        });
+
+        if (uploadResponse.ok) {
+          // hidden input 탐색 (file_key 및 s3_key 둘 다 대응)
+          let hiddenInput = row.querySelector(`input[name$="-file_key"]`) || 
+                            row.querySelector(`input[name$="-s3_key"]`);
+
+          if (hiddenInput) {
+            hiddenInput.value = resultData.s3_key;
+          }
+          console.log(`✅ ${formPrefix} S3 업로드 성공: ${resultData.s3_key}`);
+        } else {
+          alert(`❌ [S3 전송 거부 - HTTP ${uploadResponse.status}]\nAWS S3 CORS 설정 또는 버킷 권한을 확인해 주세요.`);
+          return false;
+        }
+
+      } catch (error) {
+        alert(`💥 [네트워크 에러 - ${formPrefix}]\n내용: ${error.message}`);
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // 5. 폼 제출 시 S3 업로드 수행
   if (mainForm) {
-    mainForm.addEventListener("submit", function (event) {
-      const rows = formContainer.querySelectorAll(".expense-form-row");
-      let isInvalid = false;
-
-      rows.forEach(row => {
-        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
-        if (deleteCheckbox && deleteCheckbox.checked) return;
-
-        const typeEl = row.querySelector('[name$="-expense_type"]');
-        const priceEl = row.querySelector('[name$="-expense"]');
-        const idEl = row.querySelector('input[name$="-id"]');
-
-        const expenseType = typeEl ? typeEl.value.trim() : "";
-        const expensePriceRaw = priceEl ? priceEl.value.trim() : "";
-        const expensePrice = parseFloat(expensePriceRaw) || 0;
-
-        // 제출 직전 비정상 변조 키 허용 여부 최종 가드
-        if (expenseType !== "") {
-          if (isGuideOnly && expenseType !== "ETC") {
-            isInvalid = true;
-          } else if (!isGuideOnly && !choiceKeys.includes(expenseType)) {
-            isInvalid = true;
-          }
-        }
-
-        if (isInvalid) {
-          event.preventDefault(); 
-          alert("⚠️ 허용되지 않는 올바르지 않은 Expense 항목이 포함되어 있습니다.");
-          if (typeEl) {
-            typeEl.value = defaultExpenseType;
-            typeEl.focus();
-          }
-          return;
-        }
-
-        // 0원인 쓰레기 빈 행 전송 제외 클린업
-        if (!expensePriceRaw || (expenseType === "ETC" && expensePrice === 0)) {
-          if (idEl && idEl.value) {
-            row.style.display = "none";
-            if (deleteCheckbox) deleteCheckbox.checked = true;
-          } else {
-            row.remove();
-          }
-        }
-      });
-
-      if (isInvalid) return;
-
-      updateFormIndices(); // 샌딩 전 인덱스 완벽 동기화
+    mainForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
 
       const submitBtn = document.getElementById("submit-final-btn");
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerText = "제출 중인 리포트 완료 처리 중...";
+        submitBtn.innerText = "⏳ S3 영수증 업로드 중...";
+      }
+
+      const isSuccess = await uploadToS3();
+
+      if (isSuccess) {
+        if (submitBtn) submitBtn.innerText = "제출 완료 처리 중...";
+        mainForm.submit(); // 업로드 성공 시 최종 Django Form 전송
+      } else {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerText = "SUMMARY 확인하기";
+        }
       }
     });
   }
-
-  initExistingRows();
-  refreshWashOptions();
 });
 </script>
 {% endblock %}
