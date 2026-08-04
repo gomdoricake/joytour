@@ -38,14 +38,6 @@ class GuideReportDayForm(forms.ModelForm):
     
 
 class GuideExpForm(forms.ModelForm): 
-    expense_type = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'list': 'guideexp_datalist', 
-            'placeholder': '선택하거나 직접 입력하세요', 
-            'class': 'form-control'
-        })
-    ) 
-
     class Meta:
         model = GuideExp
         fields = ['expense_type', 'expense', 'memo']

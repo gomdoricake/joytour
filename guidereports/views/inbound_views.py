@@ -537,7 +537,6 @@ def guidereport_inbound_summary(request):
     guide_report.invoice_number = GuideReport.objects.filter(invoice_number__isnull=False).count() + 1
     guide_report.save()
 
-
     if request.method == 'POST':
         session_keys_to_delete = [
             'main_data', 'day_data', 'day_fuel', 'guide_exp', 

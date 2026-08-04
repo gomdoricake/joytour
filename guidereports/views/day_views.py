@@ -23,7 +23,6 @@ load_dotenv(dotenv_path)
 @login_required
 @never_cache
 def guidereport_day(request): 
-    print('day')
     main_data = request.session.get('main_data')
 
     if not main_data: 
