@@ -256,6 +256,71 @@
     font-weight: 600;
   }
 
+  .receipt-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  .receipt-upload-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .receipt-upload-box:hover {
+    background: #f1f5f9;
+    border-color: #6366f1;
+  }
+
+  .receipt-upload-box .icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .receipt-upload-box .upload-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .receipt-upload-box .upload-subtext {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
+  /* 실제 input은 숨김 처리 */
+  .receipt-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* 파일 등록 완료 상태 */
+  .receipt-upload-box.has-file {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    border-style: solid;
+  }
+
+  .receipt-upload-box.has-file .upload-text {
+    color: #15803d;
+  }
+
 
   /* ==========================================================
      🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 고급 데스크톱 스킨 복원

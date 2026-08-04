@@ -31,5 +31,6 @@ urlpatterns = [
     path('inbound/guidereport_inbound_attraction_exp/', inbound_views.guidereport_inbound_attraction_exp, name='guidereport_inbound_attraction_exp'),
     path('inbound/guidereport_inbound_fuel_exp/', inbound_views.guidereport_inbound_fuel_exp, name='guidereport_inbound_fuel_exp'),
     path('inbound/guidereport_inbound_guide_exp/', inbound_views.guidereport_inbound_guide_exp, name='guidereport_inbound_guide_exp'),
+    path('inbound/guidereport_inbound_exp_s3_url/', inbound_views.guidereport_inbound_exp_s3_url, name='guidereport_inbound_exp_s3_url'),
     path('inbound/guidereport_inbound_summary/', inbound_views.guidereport_inbound_summary, name='guidereport_inbound_summary'),
 ]

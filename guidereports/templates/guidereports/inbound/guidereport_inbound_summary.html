@@ -352,197 +352,193 @@
   }
 </style>
 
-<div class="report-container">
-  <div class="nav-block">
-    <a href="{% url 'guidereports:guidereport_inbound_guide_exp' %}" class="back-link">← 경비 수정하러 가기</a>
-  </div>
-  
-  <div class="title-area">
-    <h2 class="title">정산 내역 최종 확인 (Summary)</h2>
-    <span class="role-badge">{{ guide_report.day_inbound }} • {{ guide_report.role|default:"GUIDE" }}</span>
-  </div>
+<div class="container my-4">
+    <h2 class="mb-4">Summary</h2>
+    <span class="badge bg-primary mb-3">INBOUND • FIT</span>
 
-  <form method="post" id="summary-final-form">
-    {% csrf_token %}
+    <form method="post">
+        {% csrf_token %}
 
-    <div class="summary-section-card" style="border-left: 4px solid #4f46e5;">
-      <div class="section-title">
-        <span>Event Information {% if guide_report.coach %}({{ guide_report.coach|default:"N/A" }}){% endif %}</span>
-        <span class="section-total-badge">${{ event_fee|default:"0" }}</span>
-      </div>
-      {% if events %}
-        {% for event in events %}
-        <div class="event-sub-card">
-          <table class="summary-table">
-            <tbody>
-              <tr>
-                <td style="width: 30%; color: #64748b; font-size: 13px;">EVENT CODE</td>
-                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-family: monospace; font-weight: 700;">{{ event.eventcode }}</span></td>
-              </tr>
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">REPORT DATE</td>
-                <td>{{ event.report_date|default:report_date }}</td>
-              </tr>
-              
-              {% if event.memo %}
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">MEMO</td>
-                <td class="text-muted">{{ event.memo }}</td>
-              </tr>
-              {% endif %}
-              {% if event.coach_start_time and event.coach_end_time %}
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">COACH TIME</td>
-                <td>{{ event.coach_start_time|time:"H:i" }} - {{ event.coach_end_time|time:"H:i" }}</td>
-              </tr>
-              {% endif %}
-              <tr>
-                <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
-                <td style="color: #4f46e5;">${{ event.guide_fee|default:"0" }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Event Information</h5>
+                <strong class="text-primary">${{ guide_fee|floatformat:2 }}</strong>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>EVENT CODE</th>
+                            <th>REPORT DATE</th>
+                            <th>COACH TIME</th>
+                            <th>GUIDE FEE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evt in events %}
+                        <tr>
+                            <td>{{ evt.eventcode|default:"-" }}</td>
+                            <td>{{ report_date|date:"Y-m-d" }}</td>
+                            <td>
+                                {% if evt.coach_start_time and evt.coach_end_time %}
+                                    {{ evt.coach_start_time|time:"H:i" }} - {{ evt.coach_end_time|time:"H:i" }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>${{ evt.guide_fee|default:guide_fee|floatformat:2 }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">등록된 Event 정보가 없습니다.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        {% endfor %}
-      {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">연동된 이벤트 정보가 존재하지 않습니다.</div>
-      {% endif %}
-    </div>
 
-    <div class="summary-section-card">
-      <div class="section-title">
-        <span>Restaurant Expenses</span>
-      </div>
-      {% if restaurant_expenses %}
-        <table class="summary-table">
-          <thead>
-            <tr>
-              <th class="col-type">식당명/항목</th>
-              <th class="col-memo text-right">메모(Memo)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in restaurant_expenses %}
-              <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 식비 내역이 없습니다.</div>
-      {% endif %}
-    </div>
+        <!-- 2. Restaurant Expenses -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Restaurant Expenses</h5>
+                <strong>${{ total_restaurant|floatformat:2 }}</strong>
+            </div>
+            <div class="card-body">
+                {% if restaurant_expenses %}
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>식당명</th>
+                            <th>메모 (Memo)</th>
+                            <th>금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for rest in restaurant_expenses %}
+                        <tr>
+                            <td>{{ rest.restaurant_name|default:"-" }}</td>
+                            <td>{{ rest.memo|default:"-" }}</td>
+                            <td>${{ rest.expense|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0">등록된 식비 내역이 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
 
-    <div class="summary-section-card">
-      <div class="section-title">
-        <span>Attraction Expenses</span>
-      </div>
-      {% if attraction_expenses %}
-        <table class="summary-table">
-          <thead>
-            <tr>
-              <th class="col-type">관광지/옵션</th>
-              <th class="col-memo text-right">메모(Memo)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in attraction_expenses %}
-              <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 관광지/옵션 경비 내역이 없습니다.</div>
-      {% endif %}
-    </div>
+        <!-- 3. Attraction Expenses -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Attraction Expenses</h5>
+                <strong>${{ total_attraction|floatformat:2 }}</strong>
+            </div>
+            <div class="card-body">
+                {% if attraction_expenses %}
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>관광지/옵션</th>
+                            <th>메모 (Memo)</th>
+                            <th>금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attr in attraction_expenses %}
+                        <tr>
+                            <td>{{ attr.attraction_name|default:"-" }}</td>
+                            <td>{{ attr.memo|default:"-" }}</td>
+                            <td>${{ attr.expense|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0">등록된 관광지 내역이 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
 
-    <div class="summary-section-card">
-      <div class="section-title">
-        <span>BP</span>
-        <span class="section-total-badge">${{ fuel_fee|default:"0" }}</span>
-      </div>
-      {% if fuel_expenses %}
-        <table class="summary-table">
-          <thead>
-            <tr>
-              <th class="col-type">주유소/항목</th>
-              <th class="col-memo">메모(Memo)</th>
-              <th class="col-amount text-right">금액</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in fuel_expenses %}
-              <tr>
-                <td>
-                  {% if item.expense_type %}
-                    {{ item.get_expense_type_display|default:item.expense_type }}
-                  {% else %}
-                    주유 내역
-                  {% endif %}
-                </td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">${{ item.expense|default:"0" }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>      
-      {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 주유비 내역이 없습니다.</div>
-      {% endif %}
-    </div>
+        <!-- 4. Fuel Expenses -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Fuel Expenses</h5>
+                <strong>${{ total_fuel|floatformat:2 }}</strong>
+            </div>
+            <div class="card-body">
+                {% if fuel_expenses %}
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>주유소/항목</th>
+                            <th>메모 (Memo)</th>
+                            <th>금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fuel in fuel_expenses %}
+                        <tr>
+                            <td>{{ fuel.fuel_station|default:"주유 내역" }}</td>
+                            <td>{{ fuel.memo|default:"-" }}</td>
+                            <td>${{ fuel.expense|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0">등록된 주유 내역이 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
 
-    <div class="summary-section-card">
-      <div class="section-title">
-        <span>Guide Expenses</span>
-        <span class="section-total-badge">${{ expense_fee|default:"0" }}</span>
-      </div>
-      {% if guide_expenses or overtimes %}
-        <table class="summary-table">
-          <thead>
-            <tr>
-              <th class="col-type">지출 항목</th>
-              <th class="col-memo">메모(Memo)</th>
-              <th class="col-amount text-right">금액</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for item in guide_expenses %}
-              <tr>
-                <td>{{ item.get_expense_type_display|default:item.expense_type }}</td>
-                <td><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
-                <td class="text-right">${{ item.expense|default:"0" }}</td>
-              </tr>
-            {% endfor %}
-            {% if overtimes %}
-            {% for overtime in overtimes %}
-              <tr>
-                <td>OVERTIME</td>
-                <td><span class="text-muted">{{ overtime.hours|default:"-" }}hrs ({{overtime.report_date}})</span></td>
-                <td class="text-right">${{ overtime.amount|default:"0" }}</td>
-              </tr>
-            {% endfor %}
-            {% endif %}
-          </tbody>
-        </table>
-      {% else %}
-        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 가이드 경비 내역이 없습니다.</div>
-      {% endif %}
-    </div>
+        <!-- 5. Guide Expenses -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Guide Expenses</h5>
+                <strong>${{ total_inbound_exp|floatformat:2 }}</strong>
+            </div>
+            <div class="card-body">
+                {% if inbound_expenses %}
+                <table class="table table-bordered mb-0">
+                    <thead>
+                        <tr>
+                            <th>경비 항목</th>
+                            <th>메모 (Memo)</th>
+                            <th>금액</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for exp in inbound_expenses %}
+                        <tr>
+                            <td>{{ exp.expense_type|default:"-" }}</td>
+                            <td>{{ exp.memo|default:"-" }}</td>
+                            <td>${{ exp.expense|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="text-muted mb-0">등록된 가이드 경비 내역이 없습니다.</p>
+                {% endif %}
+            </div>
+        </div>
 
-    <div class="grand-total-box">
-      <div class="grand-total-title">최종 정산 예정 금액 (Grand Total)</div>
-      <div class="grand-total-amount">${{ final_amount_due|default:"0" }}</div>
-    </div>
+        <!-- 6. Grand Total & Submit -->
+        <div class="card bg-light border-primary mb-4">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <h4 class="mb-0 text-dark">최종 정산 예정 금액 (Grand Total)</h4>
+                <h3 class="mb-0 text-primary">${{ grand_total|floatformat:2 }}</h3>
+            </div>
+        </div>
 
-    <button type="submit" id="submit-final-btn" class="btn-submit">작성 완료 및 리포트 제출 (Submit)</button>
-  </form>
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
+            <button type="submit" class="btn btn-success btn-lg">최종 제출 확정 (Submit)</button>
+        </div>
+    </form>
 </div>
-
 {% endblock %}
 
 <script>

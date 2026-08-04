@@ -428,7 +428,7 @@
                     {% if form.instance.file_key %}영수증 첨부 완료{% else %}영수증 이미지 선택 / 촬영{% endif %}
                   </span>
                 </div>
-                <span class="upload-subtext">JPG, PNG, PDF</span>
+                <span class="upload-subtext">JPG, PNG</span>
 
                 <input type="file" 
                        class="receipt-file-input" 
@@ -459,7 +459,6 @@
   </form>
 </div>
 
-<!-- 동적 항목 추가용 템플릿 -->
 <div id="empty-form-template" style="display: none">
   <div class="expense-form-row expense-row">
     {{ formset.empty_form.id }}
@@ -491,7 +490,7 @@
               <span class="icon">📷</span>
               <span class="upload-text">영수증 이미지 선택 / 촬영</span>
             </div>
-            <span class="upload-subtext">JPG, PNG, PDF</span>
+            <span class="upload-subtext">JPG, PNG</span>
 
             <input type="file" 
                    class="receipt-file-input" 
