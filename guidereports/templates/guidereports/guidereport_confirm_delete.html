@@ -1,113 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+
 <style>
-  /* 🌟 화사하고 맑은 라이트 배경 일치 */
-  body {
-    background-color: #f8fafc;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(244, 63, 94, 0.04) 0px, transparent 50%), /* 경고 페이지라 indigo 대신 soft red 살짝 가미 */
-      radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.04) 0px, transparent 50%);
-    min-height: 100vh;
-    margin: 0;
+  /* 🌟 화면 중앙 정렬 래퍼 (부모 레이아웃 전용) */
+  .delete-page-wrapper {
+    width: 100%;
+    min-height: calc(100vh - 120px); /* 화면 전체 높이 기준으로 중앙 배치 */
     display: flex;
-    align-items: center;
-    justify-content: center;
+    justify-content: center; /* 👈 가로 중앙 정렬 */
+    align-items: center;     /* 👈 세로 중앙 정렬 */
+    padding: 20px 16px;
+    box-sizing: border-box;
   }
 
-  /* 🌟 화이트 글래스모피즘 경고 팝업 카드 */
+  /* 🌟 삭제 카드 메인 */
   .delete-confirm-container {
-    max-width: 480px;
-    width: 90%;
-    padding: 40px;
-    font-family: sans-serif; /* 👈 깔끔하고 굵직한 이전 고딕 서체 통일 */
-    background: rgba(255, 255, 255, 0.85); 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: 24px;
-    border: 1px solid rgba(255, 255, 255, 0.6);
-    box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    max-width: 440px;
+    width: 100%;
+    margin: 0 auto; /* 👈 좌우 중앙 배치 보장 */
+    padding: 36px 28px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #ffffff; 
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08);
     text-align: center;
     box-sizing: border-box;
   }
 
-  /* 🚨 경고 아이콘 플레이스홀더 무드 */
+  /* 🚨 아이콘 박스 */
+  .warning-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
   .warning-icon-box {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
     width: 56px;
     height: 56px;
     background-color: #fff1f2;
-    color: #f43f5e;
+    color: #e11d48;
     border-radius: 50%;
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 24px;
     border: 1px solid #ffe4e6;
   }
 
-  /* 타이틀 스타일 */
+  /* 타이틀 */
   .delete-title {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 800;
     color: #0f172a;
     margin: 0 0 12px 0;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.4px;
     line-height: 1.4;
   }
   
-  /* 타겟 강조 스팬 */
+  /* 그룹 코드 강조 */
   .target-code {
-    color: #f43f5e;
+    color: #e11d48;
     background: #fff1f2;
     padding: 2px 8px;
     border-radius: 6px;
     border: 1px solid #ffe4e6;
     font-weight: 700;
+    display: inline-block;
   }
 
-  /* 안내 서브 텍스트 */
+  /* 안내 서브 텍스트 카드 */
+  .delete-desc-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 0 0 24px 0;
+    border: 1px solid #f1f5f9;
+  }
+
   .delete-desc {
-    font-size: 14px;
+    font-size: 13.5px;
     color: #64748b;
-    margin: 0 0 32px 0;
+    margin: 0;
     line-height: 1.5;
+    word-break: keep-all;
   }
 
-  /* 버튼 레이아웃 그룹 */
+  /* 버튼 영역 */
   .action-group {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
 
-  /* 🔥 시선을 사로잡는 파괴적인 삭제 버튼 */
   .btn-delete-submit {
     width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+    padding: 14px;
+    background: #f43f5e;
     color: #ffffff;
     border: none;
     border-radius: 12px;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.2);
+    transition: background 0.2s ease;
     font-family: inherit;
   }
+
   .btn-delete-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35);
-    background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+    background: #e11d48;
   }
 
-  /* ↩️ 안전하게 돌아가는 취소 버튼 */
   .btn-delete-cancel {
     display: block;
     width: 100%;
-    padding: 14px;
-    background: #f1f5f9;
+    padding: 13px;
+    background: #ffffff;
     color: #475569;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #cbd5e1;
     border-radius: 12px;
     font-size: 14px;
     font-weight: 600;
@@ -115,34 +124,72 @@
     box-sizing: border-box;
     transition: all 0.2s ease;
   }
+
   .btn-delete-cancel:hover {
-    background: #e2e8f0;
+    background: #f8fafc;
     color: #0f172a;
-    border-color: #cbd5e1;
+  }
+
+  /* 📱 모바일/태블릿 반응형 미디어 쿼리 (@media) */
+  @media (max-width: 768px) {
+    .delete-page-wrapper {
+      min-height: auto;
+      padding: 30px 12px;
+    }
+
+    .delete-confirm-container {
+      padding: 24px 18px;
+      border-radius: 16px;
+    }
+
+    .delete-title {
+      font-size: 17px;
+    }
+
+    .delete-desc {
+      font-size: 13px;
+    }
+
+    .btn-delete-submit, 
+    .btn-delete-cancel {
+      padding: 12px;
+      font-size: 14px;
+    }
   }
 </style>
 
-{% extends 'base.html' %}
-{% block content %}
+<!-- 🌟 전체 화면 정렬 래퍼 -->
+<div class="delete-page-wrapper">
+  <div class="delete-confirm-container">
+    
+    <!-- 🚨 아이콘 -->
+    <div class="warning-icon-wrapper">
+      <div class="warning-icon-box">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+          <line x1="12" y1="9" x2="12" y2="13"></line>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </div>
+    </div>
 
-<div class="delete-confirm-container">
-  
-  <div class="warning-icon-box">!</div>
+    <h2 class="delete-title">
+      정말로 <span class="target-code">{{ guidereport.group_code }}</span><br>리포트를 삭제하시겠습니까?
+    </h2>
+    
+    <div class="delete-desc-card">
+      <p class="delete-desc">
+        삭제된 정산서 데이터 및 상세 청구 내역은<br><strong style="color: #e11d48;">다시 복구할 수 없습니다.</strong>
+      </p>
+    </div>
 
-  <h2 class="delete-title">
-    정말로 <span class="target-code">{{ guidereport.group_code }}</span><br>리포트를 삭제하시겠습니까?
-  </h2>
-  
-  <p class="delete-desc">
-    삭제된 정산서 데이터 및 상세 청구 내역은<br>다시 복구할 수 없습니다.
-  </p>
-
-  <form method="POST" class="action-group">
-    {% csrf_token %}
-    <button type="submit" class="btn-delete-submit">네, 확실히 삭제합니다</button>
-    <a href="{% url 'guidereports:detail' guidereport.pk %}" class="btn-delete-cancel">아니오, 취소하고 돌아갑니다</a>
-  </form>
-  
+    <form method="POST" class="action-group">
+      {% csrf_token %}
+      <button type="submit" class="btn-delete-submit">네, 확실히 삭제합니다</button>
+      <a href="{% url 'guidereports:detail' guidereport.pk %}" class="btn-delete-cancel">아니오, 취소하고 돌아갑니다</a>
+    </form>
+    
+  </div>
 </div>
 
 {% endblock %}

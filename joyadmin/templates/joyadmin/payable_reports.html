@@ -25,14 +25,38 @@
       <span class="date-range">{{ last_wed }} ~ {{ until }}</span>
     </div>
 
-    <!-- Main Payable Amount Banner -->
     <div class="xero-total-payable-card">
       <div class="info-label">
-        <span>TOTAL PAYABLE AMOUNT</span>
+        <span>TOTAL PAYABLE AMOUNT DUE (Except SUPER)</span>
         <span>Amount Due</span>
       </div>
       <div class="total-amount">
         ${{ total_payable_fee|floatformat:2 }}
+      </div>
+      
+      <div class="info-label">
+        <span>TOTAL PAYABLE GUIDE FEE</span>
+        <span>Amount Due</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_guide_fee|floatformat:2 }}
+      </div>
+
+      <div class="info-label">
+        <span>TOTAL PAYABLE GUIDE EXP</span>
+        <span>Amount Due</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_expense_fee|floatformat:2 }}
+      </div>
+
+      
+      <div class="info-label">
+        <span>TOTAL PAYABLE SUPER</span>
+        <span>Amount Due</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_super_ann|floatformat:2 }}
       </div>
     </div>
 
@@ -41,7 +65,7 @@
         {% for guide_name, counts, final_events_fee, final_expenses_fee, total_super, final_amount_due in guide|sort_payable:"payable" %}
           <div class="xero-guide-row">
             <div class="g-info">
-              <span class="g-name">{{ guide_name }} [Grade {{ guide.grade }}]</span>
+              <a href="{% url 'guides:guide_payable' guide.id %}" class="g-name">{{ guide_name }} ({{ guide.grade }})</a>
               <span class="r-count">{{ counts }}건</span>
             </div>
             <div class="g-amount">
@@ -65,7 +89,7 @@
       <span>Invoice Date</span>
       <span>Guide Name</span>
       <span>Group Code</span>
-      <span>Amount</span>
+      <span>Amount Due</span>
       <span style="text-align: right;">Status</span>
     </div>
 
