@@ -65,6 +65,9 @@ def payable_reports(request):
     ).order_by('-guide_payable_sum', '-amount_num')
 
     total_payable_fee = 0.0
+    total_guide_fee = 0.0
+    total_expense_fee = 0.0
+    total_super_ann = 0.0
 
     for report in payable_reports:
         if report.is_paid:
@@ -73,6 +76,12 @@ def payable_reports(request):
             report.pay_status = 'payable'
             if report.final_amount_due:
                 total_payable_fee += float(report.final_amount_due)
+            if report.final_events_fee: 
+                total_guide_fee += float(report.final_events_fee)
+            if report.final_expenses_fee: 
+                total_expense_fee += float(report.final_expenses_fee)
+            if report.super_ann: 
+                total_super_ann += float(report.super_ann)
         report.save()
 
     return render(request, 'joyadmin/payable_reports.html', {
@@ -80,7 +89,10 @@ def payable_reports(request):
         'last_wed': last_wed,
         'until': until_date,
         'guides': guides,
-        'total_payable_fee': total_payable_fee
+        'total_payable_fee': total_payable_fee,
+        'total_guide_fee': total_guide_fee,
+        'total_expense_fee': total_expense_fee,
+        'total_super_ann': total_super_ann
     })
 
 
