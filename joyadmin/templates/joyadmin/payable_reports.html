@@ -61,6 +61,8 @@
     </div>
 
     <div class="xero-guides-vertical">
+
+      
       {% for guide in guides %}
         {% for guide_name, counts, final_events_fee, final_expenses_fee, total_super, final_amount_due in guide|sort_payable:"payable" %}
           <div class="xero-guide-row">
@@ -79,7 +81,31 @@
       {% endfor %}
     </div>
   </div>
-
+<form method="GET" action="{% url 'joyadmin:search' %}" class="xero-search-form">
+    {% csrf_token %}
+    
+    <div class="search-input-wrapper">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        
+        <input 
+            type="text" 
+            id="kw" 
+            name="kw" 
+            value="{{ kw|default:'' }}" 
+            placeholder="Group Code, Guide, ..." 
+            autocomplete="off"
+            class="xero-search-input"
+        >
+    </div>
+    
+    <button type="submit" class="xero-search-btn">
+        <span>Search</span>
+    </button>
+</form>
+<br/>
   <div class="xero-table-wrapper">
     <div class="summary-meta-bar" style="padding: 20px 24px 10px 24px; margin: 0;">
       <span class="sec-title">Reports Detail List (  {{ "payable"|count_payable }}  invoices    )  </span>

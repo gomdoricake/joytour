@@ -144,3 +144,30 @@ def all_reports(request):
             report.save()
 
     return render(request, 'joyadmin/all_reports.html', {'guidereports': guidereports, 'guides': guides, 'total_all_fee': total_all_fee})
+
+
+def search(request): 
+    kw = request.GET.get('kw', '')
+    searched_reports = GuideReport.objects.order_by('-invoice_date')
+    searched_guides = Guide.objects.order_by('-id')
+
+    if kw: 
+        searched_reports = searched_reports.filter(
+            Q(group_code__icontains=kw) |
+            Q(invoice_date__icontains=kw) |
+            Q(agency_code__icontains=kw) | 
+            Q(day_inbound__icontains=kw) |
+            Q(role__icontains=kw) |
+            Q(pay_status__icontains=kw) | 
+            Q(coach__icontains=kw)
+        ).distinct()
+
+        searched_guides = searched_guides.filter(
+            Q(name__icontains=kw)
+        )
+
+
+    context = {'searched_reports': searched_reports, 
+                'searched_guides': searched_guides,
+                'kw': kw}
+    return render(request, 'joyadmin/search.html', context)

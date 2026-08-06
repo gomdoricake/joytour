@@ -376,4 +376,93 @@
       grid-column: span 2 !important;
     }
   }
-</style>
+
+
+  /* 검색 결과 없음 처리 */
+.xero-empty-row {
+    padding: 40px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+/* 검색 폼 컨테이너 */
+.xero-search-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 420px;
+    width: 100%;
+}
+
+/* 입력창 인풋 감싸는 래퍼 */
+.search-input-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+/* 입력창 내부 돋보기 아이콘 */
+.search-input-wrapper .search-icon {
+    position: absolute;
+    left: 12px;
+    color: #94a3b8;
+    pointer-events: none;
+    transition: color 0.2s ease;
+}
+
+/* 검색 입력창 스타일 */
+.xero-search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px 0 38px; /* 아이콘 여백 고려 */
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.xero-search-input::placeholder {
+    color: #94a3b8;
+}
+
+/* 포커스 시 입력창 효과 */
+.xero-search-input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.xero-search-input:focus + .search-icon,
+.search-input-wrapper:focus-within .search-icon {
+    color: #2563eb;
+}
+
+/* 검색 버튼 스타일 */
+.xero-search-btn {
+    height: 40px;
+    padding: 0 18px;
+    background-color: #2563eb;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.xero-search-btn:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+.xero-search-btn:active {
+    transform: translateY(0);
+}

@@ -144,3 +144,35 @@ def paid_reports(request, pk):
     paid_reports = guide.guidereports.filter(is_paid=True)
 
     return render(request, 'mypage/paid_reports.html', {'paid_reports': paid_reports, 'guide': guide})
+
+
+from django.db.models import Q
+
+
+@login_required
+def search(request, pk): 
+    kw = request.GET.get('kw', '')
+    guide = Guide.objects.get(pk=pk)
+    searched_reports = GuideReport.objects.filter(guide=guide)
+
+    if kw: 
+        searched_reports = searched_reports.filter(
+            Q(group_code__icontains=kw) |
+            Q(invoice_date__icontains=kw) |
+            Q(agency_code__icontains=kw) | 
+            Q(day_inbound__icontains=kw) |
+            Q(role__icontains=kw) |
+            Q(pay_status__icontains=kw) | 
+            Q(coach__icontains=kw)
+        ).distinct()
+
+    print('kw: ' + str(kw))
+    print('searched_reports: ' + str(searched_reports))
+
+    context = {
+        'kw': kw, 
+        'searched_reports': searched_reports,
+        'guide_id': guide.id
+    }
+    
+    return render(request, 'mypage/search.html', context)

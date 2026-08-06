@@ -76,7 +76,6 @@
     </div>
   </div>
 
-  <!-- 지급 계좌 정보 -->
   <div class="section-header">
     <h3 class="section-title">지급 계좌 정보</h3>
   </div>
@@ -96,12 +95,36 @@
     </div>
   </div>
   
-  <!-- 정산 리포트 목록 및 필터 탭 -->
   <div class="section-header">
-    <h3 class="section-title">작성된 가이드 리포트 정산서 목록</h3>
+    <h3 class="section-title">Report & Invoie List</h3>
   </div>
+<form method="GET" action="{% url 'mypage:search' guide.id %}" class="xero-search-form">
+    {% csrf_token %}
+    
+    <div class="search-input-wrapper">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        
+        <input 
+            type="text" 
+            id="kw" 
+            name="kw" 
+            value="{{ kw|default:'' }}" 
+            placeholder="Group Code, ..." 
+            autocomplete="off"
+            class="xero-search-input"
+        >
+    </div>
+    
+    <button type="submit" class="xero-search-btn">
+        <span>Search</span>
+    </button>
+</form>
+<br>
 
-  <!-- 상태 필터 탭 -->
+
   <div class="filter-tabs">
     <a href="{% url 'mypage:index' %}" class="filter-tab {% if request.resolver_match.url_name == 'index' %}active{% endif %}">ALL</a>
     <a href="{% url 'mypage:unpaid_reports' guide.pk %}" class="filter-tab {% if request.resolver_match.url_name == 'unpaid_reports' %}active{% endif %}">UNPAID</a>

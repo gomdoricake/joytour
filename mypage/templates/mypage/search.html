@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_style.css' %}?v=1.2">
+
+<div class="xero-container">
+    <header class="xero-header">
+        <a href="{% url 'mypage:index' %}" class="btn-xero-back">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            My Page
+        </a>
+
+        <form method="GET" action="{% url 'mypage:search' guide_id %}" class="xero-search-form">
+    {% csrf_token %}
+    
+    <div class="search-input-wrapper">
+        <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        
+        <input 
+            type="text" 
+            id="kw" 
+            name="kw" 
+            value="{{ kw|default:'' }}" 
+            placeholder="Group Code..." 
+            autocomplete="off"
+            class="xero-search-input"
+        >
+    </div>
+    
+    <button type="submit" class="xero-search-btn">
+        <span>Search</span>
+    </button>
+</form>
+
+        
+        {% if kw %}
+        <div class="xero-search-badge">
+            <span class="label">SEARCH KEYWORD</span>
+            <span class="keyword">"{{ kw }}"</span>
+        </div>
+        {% endif %}
+    </header>
+
+    <div class="xero-card">
+
+        <ul class="xero-list-body">
+            {% for guidereport in searched_reports %}
+            <li class="xero-row-item">
+                <a href="{% url 'guidereports:detail' guidereport.id %}" class="xero-row-link">
+                    <div class="col-info">
+                        {% if guidereport.is_printed %}
+                            <span class="print-dot printed" title="Printed"></span>
+                        {% else %}
+                            <span class="print-dot not-printed" title="Not Printed"></span>
+                        {% endif %}
+                        <span class="row-index">#{{ forloop.counter }}</span>
+                        <span class="xero-date">{{ guidereport.invoice_date }}</span>
+                    </div>
+
+                    <div class="col-guide">
+                        <span class="xero-guide-name">{{ guidereport.guide.name }}</span>
+                    </div>
+
+                    <div class="col-group">
+                        <span class="xero-group-code">{{ guidereport.group_code }}</span>
+                    </div>
+
+                    <div class="col-price">
+                        <span class="xero-price">${{ guidereport.final_amount_due|floatformat:2 }}</span>
+                    </div>
+
+                    <div class="col-status">
+                        {% if guidereport.is_paid %}
+                            <span class="xero-flat-status paid">PAID</span>
+                        {% elif guidereport.is_confirmed %}
+                            <span class="xero-flat-status confirmed">CONFIRMED</span>
+                        {% else %}
+                            <span class="xero-flat-status waiting">WAITING</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
