@@ -12,4 +12,5 @@ urlpatterns = [
     path('unpaid-reports/<int:pk>/', views.unpaid_reports, name='unpaid_reports'),
     path('confirmed-reports/<int:pk>/', views.confirmed_reports, name='confirmed_reports'), 
     path('paid-reports/<int:pk>/', views.paid_reports, name='paid_reports'), 
+    path('search/<int:pk>/', views.search, name='search'),
 ]

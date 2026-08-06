@@ -67,11 +67,31 @@ def index(request):
     if request.user.username == 'admin': 
         return redirect('joyadmin:index')
     try: 
-
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')
         review_grade(current_guide.id)
-        context = {"guide": current_guide, "user": request.user, "guide_reports": guide_reports}
+
+        total_guide_fee, total_expense_fee, total_super_ann, total_amount_due = 0.0, 0.0, 0.0, 0.0
+        for report in guide_reports:
+            if report.final_events_fee: 
+                total_guide_fee += float(report.final_events_fee)
+                total_amount_due += float(report.final_events_fee)
+            if report.final_expenses_fee: 
+                total_expense_fee += float(report.final_expenses_fee)
+                total_amount_due += float(report.final_expenses_fee)
+            if report.super_ann: 
+                total_super_ann += float(report.super_ann)
+                total_amount_due += float(report.super_ann)
+
+        context = {"guide": current_guide, 
+                    "user": request.user, 
+                    "guide_reports": guide_reports,
+                    "total_guide_fee": total_guide_fee,
+                    "total_expense_fee": total_expense_fee, 
+                    "total_super_ann": total_super_ann,
+                    "total_amount_due": total_amount_due
+                    }
+
         return render(request, "mypage/index.html", context)
     except AttributeError: 
         if request.method == "POST": 
@@ -144,3 +164,35 @@ def paid_reports(request, pk):
     paid_reports = guide.guidereports.filter(is_paid=True)
 
     return render(request, 'mypage/paid_reports.html', {'paid_reports': paid_reports, 'guide': guide})
+
+
+from django.db.models import Q
+
+
+@login_required
+def search(request, pk): 
+    kw = request.GET.get('kw', '')
+    guide = Guide.objects.get(pk=pk)
+    searched_reports = GuideReport.objects.filter(guide=guide)
+
+    if kw: 
+        searched_reports = searched_reports.filter(
+            Q(group_code__icontains=kw) |
+            Q(invoice_date__icontains=kw) |
+            Q(agency_code__icontains=kw) | 
+            Q(day_inbound__icontains=kw) |
+            Q(role__icontains=kw) |
+            Q(pay_status__icontains=kw) | 
+            Q(coach__icontains=kw)
+        ).distinct()
+
+    print('kw: ' + str(kw))
+    print('searched_reports: ' + str(searched_reports))
+
+    context = {
+        'kw': kw, 
+        'searched_reports': searched_reports,
+        'guide_id': guide.id
+    }
+    
+    return render(request, 'mypage/search.html', context)
