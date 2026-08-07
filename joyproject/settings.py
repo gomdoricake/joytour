@@ -41,6 +41,7 @@ LOGIN_REDIRECT_URL = 'mypage:login_redirect_view'
 LOGOUT_REDIRECT_URL = 'login'
 
 INSTALLED_APPS = [
+    'inbound.apps.InboundConfig', 
     'mypage.apps.MypageConfig',
     'joyadmin.apps.JoyadminConfig',
     'guidereports.apps.GuidereportsConfig',

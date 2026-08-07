@@ -27,5 +27,6 @@ urlpatterns = [
     path('mypage/', include('mypage.urls')),
     path('guidereports/', include('guidereports.urls')),
     path('guides/', include('guides.urls')),
+    path('inbound/', include('inbound.urls')), 
     path('admin/', admin.site.urls),
 ]
