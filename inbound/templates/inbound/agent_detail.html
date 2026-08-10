@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+
+<div class="detail-container">
+    <div class="detail-header">
+        <span class="badge">AGENT CODE</span>
+        <h1 class="detail-title">{{ agent.code }}</h1>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h2 class="card-title">기본 정보</h2>
+            <div class="info-row">
+                <span class="info-label">이름</span>
+                <span class="info-value">{{ agent.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">ABN</span>
+                <span class="info-value">{{ agent.abn }}</span>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h2 class="card-title">연락처 정보</h2>
+            <div class="info-row">
+                <span class="info-label">전화번호</span>
+                <span class="info-value">{{ agent.tel }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">이메일</span>
+                <span class="info-value">{{ agent.email }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-actions">
+        <a href="{% url 'inbound:agent_list' %}" class="btn-back">&larr; 목록으로</a>
+    </div>
+</div>
+
+{% endblock %}

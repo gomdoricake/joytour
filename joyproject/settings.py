@@ -41,11 +41,11 @@ LOGIN_REDIRECT_URL = 'mypage:login_redirect_view'
 LOGOUT_REDIRECT_URL = 'login'
 
 INSTALLED_APPS = [
-    'inbound.apps.InboundConfig', 
     'mypage.apps.MypageConfig',
     'joyadmin.apps.JoyadminConfig',
     'guidereports.apps.GuidereportsConfig',
     'guides.apps.GuidesConfig',
+    'inbound.apps.InboundConfig', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -125,12 +125,12 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
     },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
 ]
 
 # S3 setting

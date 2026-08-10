@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+<div class="list-container">
+    <div class="list-header">
+        <h1 class="list-title">AGENTS</h1>
+        <!-- 상단 생성 버튼 -->
+        <a href="{% url 'inbound:create_agent' %}" class="btn-create">+ AGENT CODE</a>
+    </div>
+    
+    <ul class="item-list">
+        {% for agent in agent_list %}
+        <li class="item-element">
+            <a href="{% url 'inbound:agent_detail' agent.pk %}" class="item-link">
+                <span class="agent-name">{{ agent }}</span>
+                <span class="arrow">&rarr;</span>
+            </a>
+        </li>
+        {% empty %}
+        <li class="item-empty">등록된 에이전트가 없습니다.</li>
+        {% endfor %}
+    </ul>
+    
+    <div class="list-footer">
+        <a href="{% url 'inbound:index' %}" class="btn-text-back">&larr; Back to dashboard</a>
+    </div>
+</div>
+
+{% endblock %}

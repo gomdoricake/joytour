@@ -1,0 +1,9 @@
+<a href="{% url 'inbound:index' %}">Back to dashboard</a><br>
+
+Create Agent <br>
+
+<form action="{% url 'inbound:create_agent' %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
