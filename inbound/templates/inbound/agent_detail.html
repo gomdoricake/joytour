@@ -6,6 +6,11 @@
 
 
 <div class="detail-container">
+
+    <div class="detail-actions">
+        <a href="{% url 'inbound:agent_list' %}" class="btn-back">&larr; To Agent List</a>
+    </div>
+
     <div class="detail-header">
         <span class="badge">AGENT CODE</span>
         <h1 class="detail-title">{{ agent.code }}</h1>
@@ -37,9 +42,11 @@
         </div>
     </div>
 
-    <div class="detail-actions">
-        <a href="{% url 'inbound:agent_list' %}" class="btn-back">&larr; 목록으로</a>
+    <div>
+        <a href="{% url 'inbound:delete_agent' agent.pk %}">DELETE</a>
     </div>
+
+
 </div>
 
 {% endblock %}

@@ -44,6 +44,15 @@ def create_agent(request):
         return render(request, 'inbound/create_agent.html', context)
 
 @login_required
+def delete_agent(request, pk): 
+    agent = get_object_or_404(Agent, pk=pk)
+
+    if agent: 
+        agent.delete()
+
+    return redirect('inbound:agent_list')
+
+@login_required
 def group_list(request): 
     group_list = Group.objects.all()
 
@@ -75,3 +84,13 @@ def create_group(request):
             'form': form,
         }
         return render(request, 'inbound/create_group.html', context)
+
+from django.shortcuts import get_object_or_404
+
+@login_required
+def delete_group(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+    if group: 
+        group.delete()
+
+    return redirect('inbound:index')
