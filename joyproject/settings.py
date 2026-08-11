@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'guidereports.apps.GuidereportsConfig',
     'guides.apps.GuidesConfig',
     'inbound.apps.InboundConfig', 
+    'invoices.apps.InvoicesConfig', 
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

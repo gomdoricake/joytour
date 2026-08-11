@@ -27,3 +27,4 @@ class GroupForm(forms.ModelForm):
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
         }
+        
