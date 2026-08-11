@@ -1,0 +1,14 @@
+<div class="detail-actions">
+    <a href="{% url 'inbound:index' %}" class="btn-back">&larr; Go to dashboard</a>
+</div>
+
+
+{% for attractiontype in attractiontype_list %}
+    {{ attractiontype.name }}
+    {{ attractiontype.price_adt}}
+    {{ attractiontype.price_chd }}
+    {{ attractiontype.price_tc }}<br>
+{% endfor %}
+<br>
+
+<a href="{% url 'invoices:create_attractiontype' %}">+ AttractionType</a>

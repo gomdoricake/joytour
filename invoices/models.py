@@ -26,7 +26,7 @@ class Meal(models.Model):
 
 
 class MealType(models.Model): 
-    meal = models.ManyToManyField(Meal, related_name='mealtype')
+    meal = models.ManyToManyField(Meal, related_name='mealtype', blank=True, null=True)
     name = models.CharField(max_length=30, null=True, blank=True)
     price_adt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_chd = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
@@ -35,14 +35,31 @@ class MealType(models.Model):
         return str(self.name)
 
 
-
 class Attraction(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     date = models.DateField(null=True, blank=True)
     attraction_type = models.CharField(max_length=20, null=True, blank=True)
     price_adt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_chd = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_tc = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.invoice.joycode) + ": " + str(self.attraction_type)
+
+
+
+class AttractionType(models.Model): 
+    attraction = models.ManyToManyField(Attraction, related_name='attractiontype', blank=True, null=True)
+    name = models.CharField(max_length=30, null=True, blank=True)
+    price_adt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_chd = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_tc = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+   
+    def __str__(self):
+        return str(self.name)
+ 
+
 
 class Vehicle(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)

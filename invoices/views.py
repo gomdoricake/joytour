@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import MealFormSet, MealTypeForm, AttractionFormSet
-from .models import Group, Meal, Attraction, MealType, Invoice
+from .forms import MealFormSet, MealTypeForm, AttractionFormSet, AttractionTypeForm
+from .models import Group, Meal, Attraction, MealType, AttractionType, Invoice
 
 def index(request, pk):
     if request.method == 'POST': 
@@ -14,21 +14,21 @@ def index(request, pk):
 
             group = get_object_or_404(Group, pk=pk)
 
+            invoice = Invoice(
+                guide=group.guide, 
+                driver=group.driver, 
+                agent=group.agent,
+                start_date=group.start_date,
+                joycode=group.joycode, 
+                agent_ref=group.agent_ref, 
+                adt=group.adt, 
+                chd=group.chd,
+                tc=group.tc,
+                pk=pk)
+            invoice.save()
 
             for form in meal_formset:
                 meal = Meal() 
-                invoice = Invoice(
-                    guide=group.guide, 
-                    driver=group.driver, 
-                    agent=group.agent,
-                    start_date=group.start_date,
-                    joycode=group.joycode, 
-                    agent_ref=group.agent_ref, 
-                    adt=group.adt, 
-                    chd=group.chd,
-                    tc=group.tc,
-                    pk=pk)
-                invoice.save()
 
                 if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
                     meal.invoice = invoice
@@ -38,19 +38,36 @@ def index(request, pk):
                     meal.restaurant = mealtype.name
                     pax_tc = form.cleaned_data.get('tc') if form.cleaned_data.get('tc') else (group.tc if group.tc else 0)
                     
-                    price_adt = (form.cleaned_data.get('adt') + pax_tc) * mealtype.price_adt if form.cleaned_data.get('adt') else (group.adt if group.adt else 0)
-                    price_chd = form.cleaned_data.get('chd') * mealtype.price_chd if form.cleaned_data.get('chd') else (group.chd if group.chd else 0)
+                    price_adt = (form.cleaned_data.get('adt') + pax_tc) * mealtype.price_adt if form.cleaned_data.get('adt') else (group.adt * mealtype.price_adt if group.adt else 0)
+                    price_chd = form.cleaned_data.get('chd') * mealtype.price_chd if form.cleaned_data.get('chd') else (group.chd * mealtype.price_chd if group.chd else 0)
                     meal.price_adt = price_adt
                     meal.price_chd = price_chd
 
                     meal.price_total = price_adt + price_chd
                     meal.save()
 
+            for form in attraction_formset: 
+                attraction = Attraction()
+                
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                    attraction.invoice = invoice
+                    attractiontype = form.cleaned_data.get('attractiontype')
+                    attraction.attraction_type = attractiontype.name
+                    attraction.date = form.cleaned_data.get('date')
+
+                    attraction.price_adt = form.cleaned_data.get('adt') * attractiontype.price_adt if form.cleaned_data.get('adt') else (group.adt * attractiontype.price_adt if group.adt else 0)
+                    attraction.price_chd = form.cleaned_data.get('chd') * attractiontype.price_chd if form.cleaned_data.get('chd') else (group.chd * attractiontype.price_chd if group.chd else 0)
+                    attraction.price_tc = form.cleaned_data.get('tc') * attractiontype.price_tc if form.cleaned_data.get('tc') else (group.tc * attractiontype.price_tc if group.tc else 0)
+
+                    attraction.price_total = attraction.price_adt + attraction.price_chd + attraction.price_tc
+                    attraction.save()
+            
+
             return redirect('inbound:group_detail', pk=group.pk)
         
     else: 
         meal_formset = MealFormSet(prefix='meal')
-        attraction_formset = AttractionFormSet(queryset=Attraction.objects.none(), prefix='attraction')
+        attraction_formset = AttractionFormSet(prefix='attraction')
 
     context = {
         'meal_formset': meal_formset, 
@@ -87,4 +104,31 @@ def create_mealtype(request):
     }
     return render(request, 'invoices/create_mealtype.html', context)
     
+
+class AttractionTypeListView(ListView): 
+    model = AttractionType
+    template_name = 'invoices/attractiontype_list.html'
+    context_object_name = 'attractiontype_list'
+
+    def get_queryset(self): 
+        queryset = super().get_queryset()
+        return queryset
+
+
+@login_required
+def create_attractiontype(request): 
+    
+    if request.method == 'POST': 
+        form = AttractionTypeForm(request.POST)
         
+        if form.is_valid(): 
+            form.save()
+
+            return redirect('invoices:attractiontype_list')
+    
+    else: 
+        form = AttractionTypeForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'invoices/create_attractiontype.html', context)
