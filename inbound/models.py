@@ -33,11 +33,11 @@ class Group(models.Model):
 
         group_or_fit = ""
 
-        adt_val = self.adt or 0
-        chd_val = self.chd or 0
-        tc_val = self.tc or 0
+        if not self.adt: self.adt = 0
+        if not self.chd: self.chd = 0
+        if not self.tc: self.tc = 0
 
-        if adt_val + chd_val + tc_val <= 9:
+        if self.adt + self.chd + self.tc <= 9:
             group_or_fit = "F"
         else: 
             group_or_fit = "G"

@@ -3,7 +3,22 @@ from django.contrib.auth.decorators import login_required
 from .forms import MealFormSet, MealTypeForm, AttractionFormSet, AttractionTypeForm
 from .models import Group, Meal, Attraction, MealType, AttractionType, Invoice
 
-def index(request, pk):
+def index(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+
+    invoice = None
+    if Invoice.objects.filter(pk=pk).exists():
+        invoice = Invoice.objects.get(pk=pk)
+
+    context = {
+        'group': group,
+        'invoice': invoice
+    }
+    return render(request, 'invoices/index.html', context)
+
+from django.db.models import Sum
+
+def create_invoice(request, pk):
     if request.method == 'POST': 
         meal_formset = MealFormSet(request.POST, prefix='meal')         
         attraction_formset = AttractionFormSet(request.POST, prefix='attraction')
@@ -46,6 +61,13 @@ def index(request, pk):
                     meal.price_total = price_adt + price_chd
                     meal.save()
 
+            
+            meal_result = Meal.objects.filter(invoice=invoice).aggregate(
+                meal_total = Sum('price_total')
+            )
+
+            invoice.meal_total = meal_result['meal_total'] or 0
+
             for form in attraction_formset: 
                 attraction = Attraction()
                 
@@ -62,6 +84,15 @@ def index(request, pk):
                     attraction.price_total = attraction.price_adt + attraction.price_chd + attraction.price_tc
                     attraction.save()
             
+            attraction_result = Meal.objects.filter(invoice=invoice).aggregate(
+                attraction_total = Sum('price_total')
+            )
+
+            invoice.attraction_total = attraction_result['attraction_total'] or 0
+        
+            invoice.grand_total = invoice.meal_total + invoice.attraction_total
+
+            invoice.save()
 
             return redirect('inbound:group_detail', pk=group.pk)
         
@@ -73,7 +104,7 @@ def index(request, pk):
         'meal_formset': meal_formset, 
         'attraction_formset': attraction_formset
     }
-    return render(request, 'invoices/index.html', context)
+    return render(request, 'invoices/create_invoice.html', context)
 
 
 from django.views.generic.list import ListView

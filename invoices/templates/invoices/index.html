@@ -1,80 +1,12 @@
-<form method="POST">
-    MEAL: 
-        <div id="meal-form-container">
-            {% csrf_token %}
-            {{ meal_formset.management_form }}
-            {% for form in meal_formset %}
-                {{ form.as_p }}
-                <hr>
-            {% endfor %}
-        </div>
+{% if invoice %}
 
-        <button type="button" id="add-meal-btn">Add Meal</button>
+Meal: ${{ invoice.meal_total }}<br>
+Attraction: ${{ invoice.attraction_total }}<br>
+Grand Total: ${{ invoice.grand_total }}<br>
 
-    Attraction: 
-        <div id="attraction-form-container">
-            {{ attraction_formset.management_form }}
-            {% for form in attraction_formset %}
-                {{ form.as_p }}
-                <hr>
-            {% endfor %}
-        </div>
-        <button type="button" id="add-attraction-btn">Add Attraction</button>
-    <button type="submit">Submit</button>
-</form>
 
-<div id="meal-empty-form" style="display: none;">
-    <div class="meal-form-row">
-        {{ meal_formset.empty_form.as_p}}
-        <button type="button" class="remove-btn" onclick="removeForm(this, 'meal')">Remove</button>
-        <hr>
-    </div>
-</div>
+{% else %}
+No Invoice Created
+{% endif %}
 
-<div id="attraction-empty-form" style="display:none;">
-    <div class="attraction-form-row">
-        {{ attraction_formset.empty_form.as_p }}
-        <button type="button" class="remove-btn" onclick="removeForm(this, 'attraction')">Remove</button>
-        <hr>
-    </div>
-</div>
-
-<script>
-function addForm(prefix, containerId, emptyFormId) {
-    const container = document.getElementById(containerId); 
-    const totalFormsInput = document.querySelector(`[name="${prefix}-TOTAL_FORMS"]`); 
-    const emptyFormHtml = document.getElementById(emptyFormId).innerHTML; 
-
-    const currentFormCount = parseInt(totalFormsInput.value); 
-
-    const newFormHtml = emptyFormHtml.replace(/__prefix__/g, currentFormCount); 
-
-    container.insertAdjacentHTML('beforeend', newFormHtml); 
-
-    totalFormsInput.value = currentFormCount + 1; 
-}
-
-document.getElementById('add-meal-btn').addEventListener('click', function() {
-    addForm('meal', 'meal-form-container', 'meal-empty-form'); 
-})
-
-document.getElementById('add-attraction-btn').addEventListener('click', function() {
-    addForm('attraction', 'attraction-form-container', 'attraction-empty-form'); 
-})
-
-function removeForm(buttonElement, prefix) {
-    const formRow = buttonElement.closest(`.${prefix}-form-row`); 
-
-    if (formRow) {
-        formRow.remove(); 
-
-        const totalFormsInput = document.querySelector(`[name="${prefix}-TOTAL_FORMS"]`); 
-        const currentFormCount = parseint(totalFormsInput.value); 
-
-        if (currentFormCount > 0) {
-            totalFormsInput.value = currentFormCount - 1; 
-        }
-    }
-}
-
-</script>
+<a href="{% url 'invoices:create_invoice' group.pk %}">+ Invoice</a>

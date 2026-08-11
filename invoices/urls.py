@@ -8,6 +8,7 @@ app_name = 'invoices'
 
 urlpatterns = [
     path('<int:pk>/', views.index, name='index'),
+    path('create_invoice/<int:pk>/', views.create_invoice, name='create_invoice'), 
     path('mealtype_list/', MealTypeListView.as_view(), name='mealtype_list'),
     path('create_mealtype/', views.create_mealtype, name='create_mealtype'),
     path('attractiontype_list/', AttractionTypeListView.as_view(), name='attractiontype_list'),
