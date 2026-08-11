@@ -94,3 +94,5 @@ def delete_group(request, pk):
         group.delete()
 
     return redirect('inbound:index')
+
+
