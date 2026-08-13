@@ -42,6 +42,17 @@
         <button type="button" id="add-guideinvoice-btn">Add Guide</button><br>
 
 
+    Tip: 
+        <div id="tip-form-container">
+            {{ tip_formset.management_form }}
+            {% for form in tip_formset %}
+                {{ form.as_p }}
+                <hr>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-tip-btn">Add Tip</button><br>
+
+
     <button type="submit">Submit</button>
 </form>
 
@@ -73,6 +84,14 @@
     <div class="guideinvoice-form-row">
         {{ guideinvoice_formset.empty_form.as_p }}
         <button type="button" class="remove-btn" onclick="removeForm(this, 'guideinvoice')">Remove</button>
+        <hr>
+    </div>
+</div>
+
+<div id="tip-empty-form" style="display:none;">
+    <div class="tip-form-row">
+        {{ tip_formset.empty_form.as_p }}
+        <button type="button" class="remove-btn" onclick="removeForm(this, 'tip')">Remove</button>
         <hr>
     </div>
 </div>
@@ -109,6 +128,10 @@ document.getElementById('add-vehicle-btn').addEventListener('click', function() 
 
 document.getElementById('add-guideinvoice-btn').addEventListener('click', function() {
     addForm('guideinvoice', 'guideinvoice-form-container', 'guideinvoice-empty-form'); 
+})
+
+document.getElementById('add-tip-btn').addEventListener('click', function() {
+    addForm('tip', 'tip-form-container', 'tip-empty-form'); 
 })
 
 function removeForm(buttonElement, prefix) {

@@ -6,6 +6,7 @@ class Invoice(Group):
     attraction_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     vehicle_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     guide_invoice_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    tip_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     operation_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     grand_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)   
 
@@ -102,6 +103,25 @@ class GuideInvoiceType(models.Model):
 class Tip(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     date = models.DateField(null=True, blank=True)
-    guide_tip = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    driver_tip = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_guidetip = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_drivertip = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.date) + ' $' + str(self.price_total)
+
+
+class GuideTipType(models.Model): 
+    tip = models.ManyToManyField(Tip, related_name='guidetiptype', blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    def __str__(self):
+        return 'guide tip: ' + str(self.price)
+
+
+class DriverTipType(models.Model): 
+    tip = models.ManyToManyField(Tip, related_name='drivertiptype', blank=True, null=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    def __str__(self):
+        return 'driver tip: ' + str(self.price)

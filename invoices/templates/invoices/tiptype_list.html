@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+
+<div class="detail-actions">
+    <a href="{% url 'inbound:index' %}" class="btn-back">&larr; Go to dashboard</a>
+</div>
+
+
+Guide Tip: <br>
+{% for guidetip in guide_tip %}
+    ${{ guidetip.price }} <br>
+{% endfor %}
+
+Driver Tip: <br>
+{% for drivertip in driver_tip %}
+    ${{ drivertip.price }} <br>
+{% endfor %}
+<br>
+
+<a href="{% url 'invoices:create_guidetiptype' %}">+ Guide TipType</a>
+<a href="{% url 'invoices:create_drivertiptype' %}">+ Driver TipType</a>
+
+{% endblock %}

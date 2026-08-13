@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import MealTypeForm, VehicleTypeForm, GuideInvoiceTypeForm, MealFormSet, AttractionFormSet, VehicleFormSet,  GuideInvoiceFormSet
-from .models import Group, Meal, Attraction, Vehicle, MealType, AttractionType, VehicleType, Invoice, GuideInvoice, GuideInvoiceType
+from .forms import MealTypeForm, VehicleTypeForm, GuideInvoiceTypeForm, GuideTipTypeForm, DriverTipTypeForm, MealFormSet, AttractionFormSet, VehicleFormSet,  GuideInvoiceFormSet, TipFormSet
+from .models import Group, Meal, Attraction, Vehicle, MealType, AttractionType, VehicleType, Invoice, GuideInvoice, GuideInvoiceType, Tip, GuideTipType, DriverTipType
 
 def index(request, pk): 
     group = get_object_or_404(Group, pk=pk)
@@ -14,6 +14,7 @@ def index(request, pk):
     attractions = Attraction.objects.filter(invoice=invoice)
     vehicles = Vehicle.objects.filter(invoice=invoice)
     guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
+    tips = Tip.objects.filter(invoice=invoice)
 
     context = {
         'group': group,
@@ -21,7 +22,8 @@ def index(request, pk):
         'meals': meals, 
         'attractions': attractions,
         'vehicles': vehicles,
-        'guideinvoices': guideinvoices
+        'guideinvoices': guideinvoices, 
+        'tips': tips
     }
     return render(request, 'invoices/index.html', context)
 
@@ -33,9 +35,10 @@ def create_invoice(request, pk):
         attraction_formset = AttractionFormSet(request.POST, prefix='attraction')
         vehicle_formset = VehicleFormSet(request.POST, prefix='vehicle')
         guideinvoice_formset = GuideInvoiceFormSet(request.POST, prefix='guideinvoice')
+        tip_formset = TipFormSet(request.POST, prefix='tip')
         
         if meal_formset.is_valid() and attraction_formset.is_valid() and vehicle_formset.is_valid() \
-            and guideinvoice_formset.is_valid(): 
+            and guideinvoice_formset.is_valid() and tip_formset.is_valid(): 
             
             target_group_pk = None
 
@@ -143,7 +146,41 @@ def create_invoice(request, pk):
 
             invoice.guide_invoice_total = guideinvoice_result['guideinvoice_total'] or 0
 
-            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total + invoice.guide_invoice_total
+
+            for form in tip_formset: 
+                tip = Tip()
+
+                guidetiptype = None
+                drivertiptype = None
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                    tip.invoice = invoice
+                    tip.date = form.cleaned_data.get('date')
+                    guidetiptype = form.cleaned_data.get('guidetiptype')
+                    drivertiptype = form.cleaned_data.get('drivertiptype')
+
+                    tip.price_guidetip = form.cleaned_data.get('price_guide') if form.cleaned_data.get('price_guide') else (guidetiptype.price if guidetiptype else 0)
+                    tip.price_drivertip = form.cleaned_data.get('price_driver') if form.cleaned_data.get('price_driver') else (drivertiptype.price if drivertiptype else 0)
+                    
+                    tip.price_total = tip.price_guidetip + tip.price_drivertip
+                
+                tip.save()
+                tip.guidetiptype.set([guidetiptype])
+                tip.drivertiptype.set([drivertiptype])
+
+                
+            guidetip_result = Tip.objects.filter(invoice=invoice).aggregate(
+                guidetip_total = Sum('price_guidetip')
+            )
+            drivertip_result = Tip.objects.filter(invoice=invoice).aggregate(
+                drivertip_total = Sum('price_drivertip')
+            )
+
+            guidetipresult = guidetip_result['guidetip_total'] or 0
+            drivertipresult = drivertip_result['drivertip_total'] or 0
+
+            invoice.tip_total = guidetipresult + drivertipresult
+
+            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total + invoice.guide_invoice_total + invoice.tip_total
 
             invoice.save()
 
@@ -154,12 +191,14 @@ def create_invoice(request, pk):
         attraction_formset = AttractionFormSet(prefix='attraction')
         vehicle_formset = VehicleFormSet(prefix='vehicle')
         guideinvoice_formset = GuideInvoiceFormSet(prefix='guideinvoice')
+        tip_formset = TipFormSet(prefix='tip')
 
     context = {
         'meal_formset': meal_formset, 
         'attraction_formset': attraction_formset,
         'vehicle_formset': vehicle_formset,
         'guideinvoice_formset': guideinvoice_formset,
+        'tip_formset': tip_formset,
     }
     return render(request, 'invoices/create_invoice.html', context)
 
@@ -277,3 +316,54 @@ def create_guideinvoicetype(request):
             'form': form
         }
         return render(request, 'invoices/create_guideinvoicetype.html', context)
+
+
+@login_required
+def tiptype_list(request): 
+    guide_tip = GuideTipType.objects.all()
+    driver_tip = DriverTipType.objects.all()
+
+    context = {
+        'guide_tip': guide_tip, 
+        'driver_tip': driver_tip
+    }
+    return render(request, 'invoices/tiptype_list.html', context)
+
+@login_required
+def create_guidetiptype(request): 
+    
+    if request.method == 'POST': 
+        form = GuideTipTypeForm(request.POST)
+
+        if form.is_valid(): 
+            form.save()
+
+            return redirect('invoices:tiptype_list')
+    
+    else: 
+        form = GuideTipTypeForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'invoices/create_guidetiptype.html', context)
+
+@login_required
+def create_drivertiptype(request): 
+    
+    if request.method == 'POST': 
+        form = DriverTipTypeForm(request.POST)
+
+        if form.is_valid(): 
+            form.save()
+
+            return redirect('invoices:tiptype_list')
+    
+    else: 
+        form = DriverTipTypeForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'invoices/create_drivertiptype.html', context)
+
+
+        

@@ -1,3 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+
+<div class="detail-actions">
+    <a href="{% url 'inbound:index' %}" class="btn-back">&larr; Go to dashboard</a>
+</div>
+
+
 {% if invoice %}
 
 MEAL <br>
@@ -39,6 +51,27 @@ ${{ guide.price_total }}<br>
 Guide: ${{ invoice.guide_invoice_total }}<br><br><br>
 
 
+TIPS<br>
+{% for tip in tips %}
+{{ tip.date | date:"Y-m-d" }}
+    Guide Tip: 
+    {% for guidetip in tip.guidetiptype.all %}
+        ${{ guidetip.price }}
+    {% endfor %}
+    Driver Tip: 
+    {% for drivertip in tip.drivertiptype.all %}
+        ${{ drivertip.price }}
+    {% endfor %}
+    
+${{ tip.price_total }}<br>
+{% endfor %}
+
+
+Tips: ${{ invoice.tip_total }}<br><br><br>
+
+
+
+
 Grand Total: ${{ invoice.grand_total }}<br>
 
 
@@ -48,3 +81,5 @@ No Invoice Created
 {% endif %}
 
 <a href="{% url 'invoices:create_invoice' group.pk %}">+ Invoice</a>
+
+{% endblock %}
