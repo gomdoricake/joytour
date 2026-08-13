@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+
+<div class="detail-actions">
+    <a href="{% url 'inbound:index' %}" class="btn-back">&larr; Go to dashboard</a>
+</div>
+
+
+{% for guideinvoicetype in guideinvoicetype_list %}
+    {{ guideinvoicetype.location }}
+    ${{ guideinvoicetype.price}}
+    <br>
+{% endfor %}
+<br>
+
+<a href="{% url 'invoices:create_guideinvoicetype' %}">+ GuideInvoiceType</a>
+
+{% endblock %}

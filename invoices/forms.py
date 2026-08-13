@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import formset_factory, modelformset_factory
-from .models import Meal, MealType, Attraction, AttractionType, Vehicle, VehicleType
+from .models import Meal, MealType, Attraction, AttractionType, Vehicle, VehicleType, GuideInvoice, GuideInvoiceType
 
 
 class MealTypeForm(forms.ModelForm): 
@@ -109,16 +109,51 @@ class VehicleForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
-    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    
     price = forms.DecimalField(        
         max_digits=8,
         decimal_places=2,
+        required=False,
         min_value=0.01,
         max_value=999999.99
     )
 
 
 VehicleFormSet = formset_factory(
-    AttractionForm,
+    VehicleForm,
     extra=0
 )
+
+
+class GuideInvoiceTypeForm(forms.ModelForm): 
+    class Meta: 
+        model = GuideInvoiceType
+        fields = ['location', 'price']
+
+
+class GuideInvoiceForm(forms.Form): 
+    guideinvoice_type = forms.ModelChoiceField(
+        queryset = GuideInvoiceType.objects.all(), 
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    date = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    price = forms.DecimalField(        
+        max_digits=8,
+        decimal_places=2,
+        required=False,
+        min_value=0.01,
+        max_value=999999.99
+    )
+
+
+GuideInvoiceFormSet = formset_factory(
+    GuideInvoiceForm,
+    extra=0
+)
+
+

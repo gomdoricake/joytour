@@ -66,6 +66,8 @@ class Vehicle(models.Model):
     seat = models.CharField(max_length=10, null=True, blank=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     # 12인승, 21인승, 48인승이냐에 따라 가격이 달라지도록
+    def __str__(self):
+        return str(self.date) + ': ' + str(self.vehicle_type)
 
 
 class VehicleType(models.Model): 
@@ -81,8 +83,21 @@ class VehicleType(models.Model):
 class GuideInvoice(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     date = models.DateField(null=True, blank=True)
-    guide_invoice_type = models.CharField(max_length=20, null=True, blank=True)
+    guideinvoice_type = models.CharField(max_length=20, null=True, blank=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.date) + ": " + str(self.guideinvoice_type)
+
+
+class GuideInvoiceType(models.Model): 
+    guideinvoice = models.ManyToManyField(GuideInvoice, related_name='guideinvoicetype', blank=True, null=True)
+    location = models.CharField(max_length=30, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return str(self.location)
+
     
 class Tip(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)

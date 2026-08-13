@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import MealFormSet, MealTypeForm, AttractionFormSet, AttractionTypeForm, VehicleTypeForm, VehicleFormSet
-from .models import Group, Meal, Attraction, Vehicle, MealType, AttractionType, VehicleType, Invoice
+from .forms import MealTypeForm, VehicleTypeForm, GuideInvoiceTypeForm, MealFormSet, AttractionFormSet, VehicleFormSet,  GuideInvoiceFormSet
+from .models import Group, Meal, Attraction, Vehicle, MealType, AttractionType, VehicleType, Invoice, GuideInvoice, GuideInvoiceType
 
 def index(request, pk): 
     group = get_object_or_404(Group, pk=pk)
@@ -9,10 +9,19 @@ def index(request, pk):
     invoice = None
     if Invoice.objects.filter(pk=pk).exists():
         invoice = Invoice.objects.get(pk=pk)
+    
+    meals = Meal.objects.filter(invoice=invoice)
+    attractions = Attraction.objects.filter(invoice=invoice)
+    vehicles = Vehicle.objects.filter(invoice=invoice)
+    guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
 
     context = {
         'group': group,
-        'invoice': invoice
+        'invoice': invoice,
+        'meals': meals, 
+        'attractions': attractions,
+        'vehicles': vehicles,
+        'guideinvoices': guideinvoices
     }
     return render(request, 'invoices/index.html', context)
 
@@ -23,8 +32,10 @@ def create_invoice(request, pk):
         meal_formset = MealFormSet(request.POST, prefix='meal')         
         attraction_formset = AttractionFormSet(request.POST, prefix='attraction')
         vehicle_formset = VehicleFormSet(request.POST, prefix='vehicle')
+        guideinvoice_formset = GuideInvoiceFormSet(request.POST, prefix='guideinvoice')
         
-        if meal_formset.is_valid() and attraction_formset.is_valid() and vehicle_formset.is_valid(): 
+        if meal_formset.is_valid() and attraction_formset.is_valid() and vehicle_formset.is_valid() \
+            and guideinvoice_formset.is_valid(): 
             
             target_group_pk = None
 
@@ -102,9 +113,8 @@ def create_invoice(request, pk):
                     vehicle.vehicle_type = vehicle.seat + ": " + vehicletype.location
                     vehicle.date = form.cleaned_data.get('date')
 
-                    vehicle.price = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (vehicletype.price if vehicletype.price else 0) 
-
-                    vehicle.price_total = vehicle.price
+                    vehicle.price_total = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (vehicletype.price if vehicletype.price else 0) 
+                    
                     vehicle.save()
 
             vehicle_result = Vehicle.objects.filter(invoice=invoice).aggregate(
@@ -113,8 +123,27 @@ def create_invoice(request, pk):
 
             invoice.vehicle_total = vehicle_result['vehicle_total'] or 0
 
-        
-            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total
+            for form in guideinvoice_formset: 
+                guideinvoice = GuideInvoice()
+
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                    guideinvoice.invoice = invoice
+                    guideinvoicetype = form.cleaned_data.get('guideinvoice_type')
+
+                    guideinvoice.guideinvoice_type = guideinvoicetype.location
+                    guideinvoice.date = form.cleaned_data.get('date')
+
+                    guideinvoice.price_total = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (guideinvoicetype.price if guideinvoicetype.price else 0)
+
+                guideinvoice.save()
+
+            guideinvoice_result = GuideInvoice.objects.filter(invoice=invoice).aggregate(
+                guideinvoice_total = Sum('price_total')
+            )
+
+            invoice.guide_invoice_total = guideinvoice_result['guideinvoice_total'] or 0
+
+            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total + invoice.guide_invoice_total
 
             invoice.save()
 
@@ -124,11 +153,13 @@ def create_invoice(request, pk):
         meal_formset = MealFormSet(prefix='meal')
         attraction_formset = AttractionFormSet(prefix='attraction')
         vehicle_formset = VehicleFormSet(prefix='vehicle')
+        guideinvoice_formset = GuideInvoiceFormSet(prefix='guideinvoice')
 
     context = {
         'meal_formset': meal_formset, 
         'attraction_formset': attraction_formset,
-        'vehicle_formset': vehicle_formset
+        'vehicle_formset': vehicle_formset,
+        'guideinvoice_formset': guideinvoice_formset,
     }
     return render(request, 'invoices/create_invoice.html', context)
 
@@ -217,3 +248,32 @@ def create_vehicletype(request):
             'form': form
         }
         return render(request, 'invoices/create_vehicletype.html', context)
+
+
+class GuideInvoiceTypeListView(ListView): 
+    model = GuideInvoiceType
+    template_name = 'invoices/guideinvoicetype_list.html'
+    context_object_name = 'guideinvoicetype_list'
+
+    def get_queryset(self): 
+        queryset = super().get_queryset()
+        return queryset
+
+
+@login_required
+def create_guideinvoicetype(request): 
+    
+    if request.method == 'POST': 
+        form = GuideInvoiceTypeForm(request.POST)
+
+        if form.is_valid(): 
+            form.save()
+
+            return redirect('invoices:guideinvoicetype_list')
+        
+    else: 
+        form = GuideInvoiceTypeForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'invoices/create_guideinvoicetype.html', context)

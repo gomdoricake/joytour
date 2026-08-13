@@ -1,9 +1,46 @@
 {% if invoice %}
 
-Meal: ${{ invoice.meal_total }}<br>
-Attraction: ${{ invoice.attraction_total }}<br>
-Vehicle: ${{ invoice.vehicle_total }}<br>
+MEAL <br>
+{% for meal in meals %}
+{{ meal.date | date:"Y-m-d" }}
+{{ meal.restaurant }}
+${{ meal.price_adt }}
+${{ meal.price_chd }}
+Total: ${{ meal.price_total }}<br>
+{% endfor %}
+Meal TOTAL: ${{ invoice.meal_total }}<br><br>
+
+ATTRACTION<br>
+{% for attraction in attractions %}
+{{ attraction.date | date:"Y-m-d" }}
+{{ attraction.attraction_type }}
+${{ attraction.price_adt }}
+${{ attraction.price_chd }}
+${{ attraction.price_total}}<br>
+{% endfor %}
+Attraction: ${{ invoice.attraction_total }}<br><br>
+
+VEHICLE<br>
+{% for vehicle in vehicles %}
+{{ vehicle.date | date:"Y-m-d" }}
+{{ vehicle.vehicle_type }}
+{{ vehicle.seat }}SEAT
+${{ vehicle.price_total }}<br>
+{% endfor %}
+Vehicle: ${{ invoice.vehicle_total }}<br><br><br>
+
+
+GUIDE<br>
+{% for guide in guideinvoices %}
+{{ guide.date | date:"Y-m-d" }}
+{{ guide.guideinvoice_type }}
+${{ guide.price_total }}<br>
+{% endfor %}
+Guide: ${{ invoice.guide_invoice_total }}<br><br><br>
+
+
 Grand Total: ${{ invoice.grand_total }}<br>
+
 
 
 {% else %}

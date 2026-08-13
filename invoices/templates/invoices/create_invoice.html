@@ -9,7 +9,7 @@
             {% endfor %}
         </div>
 
-        <button type="button" id="add-meal-btn">Add Meal</button>
+        <button type="button" id="add-meal-btn">Add Meal</button><br>
 
     Attraction: 
         <div id="attraction-form-container">
@@ -19,7 +19,7 @@
                 <hr>
             {% endfor %}
         </div>
-        <button type="button" id="add-attraction-btn">Add Attraction</button>
+        <button type="button" id="add-attraction-btn">Add Attraction</button><br>
 
     Vehicle: 
         <div id="vehicle-form-container">
@@ -29,7 +29,18 @@
                 <hr>
             {% endfor %}
         </div>
-        <button type="button" id="add-vehicle-btn">Add Vehicle</button>
+        <button type="button" id="add-vehicle-btn">Add Vehicle</button><br>
+
+    Guide: 
+        <div id="guideinvoice-form-container">
+            {{ guideinvoice_formset.management_form }}
+            {% for form in guideinvoice_formset %}
+                {{ form.as_p }}
+                <hr>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-guideinvoice-btn">Add Guide</button><br>
+
 
     <button type="submit">Submit</button>
 </form>
@@ -58,6 +69,16 @@
     </div>
 </div>
 
+<div id="guideinvoice-empty-form" style="display:none;">
+    <div class="guideinvoice-form-row">
+        {{ guideinvoice_formset.empty_form.as_p }}
+        <button type="button" class="remove-btn" onclick="removeForm(this, 'guideinvoice')">Remove</button>
+        <hr>
+    </div>
+</div>
+
+
+
 
 <script>
 function addForm(prefix, containerId, emptyFormId) {
@@ -84,6 +105,10 @@ document.getElementById('add-attraction-btn').addEventListener('click', function
 
 document.getElementById('add-vehicle-btn').addEventListener('click', function() {
     addForm('vehicle', 'vehicle-form-container', 'vehicle-empty-form'); 
+})
+
+document.getElementById('add-guideinvoice-btn').addEventListener('click', function() {
+    addForm('guideinvoice', 'guideinvoice-form-container', 'guideinvoice-empty-form'); 
 })
 
 function removeForm(buttonElement, prefix) {
