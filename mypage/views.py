@@ -13,6 +13,8 @@ from django.http import HttpResponseBadRequest
 def login_redirect_view(request): 
     if request.user.username == 'admin':
         return redirect('joyadmin:index')
+    elif request.user.username == 'inbound': 
+        return redirect('inbound:index')
     else: 
         return redirect('mypage:index')
 
@@ -66,6 +68,8 @@ def index(request):
 
     if request.user.username == 'admin': 
         return redirect('joyadmin:index')
+    elif request.user.username == 'inbound': 
+        return redirect('inbound:index')
     try: 
         current_guide = request.user.guide_profile
         guide_reports = GuideReport.objects.filter(guide=current_guide).order_by('-id')

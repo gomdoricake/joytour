@@ -1,0 +1,13 @@
+{% if invoice %}
+
+Meal: ${{ invoice.meal_total }}<br>
+Attraction: ${{ invoice.attraction_total }}<br>
+Vehicle: ${{ invoice.vehicle_total }}<br>
+Grand Total: ${{ invoice.grand_total }}<br>
+
+
+{% else %}
+No Invoice Created
+{% endif %}
+
+<a href="{% url 'invoices:create_invoice' group.pk %}">+ Invoice</a>

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+
+<div class="detail-container">
+    <div class="detail-actions">
+        <a href="{% url 'inbound:group_list' %}" class="btn-back">&larr; To Group List</a>
+    </div>
+    <div class="detail-header">
+        <span class="badge">GROUP CODE</span>
+        <h1 class="detail-title">{{ group.joycode }}</h1>
+    </div>
+    
+    <div class="detail-grid">
+        <div class="detail-card">
+            <h2 class="card-title">기본 정보</h2>
+            <div class="info-row">
+                <span class="info-label">출발일</span>
+                <span class="info-value">{{ group.start_date }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">가이드</span>
+                <span class="info-value">{{ group.guide }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">드라이버</span>
+                <span class="info-value">{{ group.driver }}</span>
+            </div>
+        </div>
+
+        <div class="detail-card">
+            <h2 class="card-title">담당 정보</h2>
+            <div class="info-row">
+                <span class="info-label">에이전트</span>
+                <span class="info-value">{{ group.agent }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">에이전트 참조</span>
+                <span class="info-value">{{ group.agent_ref }}</span>
+            </div>
+        </div>
+
+        <div class="detail-card full-width">
+            <h2 class="card-title">인원 구성</h2>
+            <div class="pax-container">
+                <div class="pax-box">
+                    <span class="pax-label">성인 (ADT)</span>
+                    <span class="pax-count">{{ group.adt }}명</span>
+                </div>
+                <div class="pax-box">
+                    <span class="pax-label">아동 (CHD)</span>
+                    <span class="pax-count">{{ group.chd }}명</span>
+                </div>
+                <div class="pax-box">
+                    <span class="pax-label">인솔자 (TC)</span>
+                    <span class="pax-count">{{ group.tc }}명</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="{% url 'invoices:index' group.pk %}">INVOICE</a> <br>
+
+    <div>
+        <a href="{% url 'inbound:delete_group' group.pk %}">DELETE</a>
+    </div>
+</div>
+
+{% endblock %}
