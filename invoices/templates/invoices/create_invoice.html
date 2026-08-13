@@ -20,6 +20,17 @@
             {% endfor %}
         </div>
         <button type="button" id="add-attraction-btn">Add Attraction</button>
+
+    Vehicle: 
+        <div id="vehicle-form-container">
+            {{ vehicle_formset.management_form }}
+            {% for form in vehicle_formset %}
+                {{ form.as_p }}
+                <hr>
+            {% endfor %}
+        </div>
+        <button type="button" id="add-vehicle-btn">Add Vehicle</button>
+
     <button type="submit">Submit</button>
 </form>
 
@@ -38,6 +49,15 @@
         <hr>
     </div>
 </div>
+
+<div id="vehicle-empty-form" style="display:none;">
+    <div class="vehicle-form-row">
+        {{ vehicle_formset.empty_form.as_p }}
+        <button type="button" class="remove-btn" onclick="removeForm(this, 'vehicle')">Remove</button>
+        <hr>
+    </div>
+</div>
+
 
 <script>
 function addForm(prefix, containerId, emptyFormId) {
@@ -60,6 +80,10 @@ document.getElementById('add-meal-btn').addEventListener('click', function() {
 
 document.getElementById('add-attraction-btn').addEventListener('click', function() {
     addForm('attraction', 'attraction-form-container', 'attraction-empty-form'); 
+})
+
+document.getElementById('add-vehicle-btn').addEventListener('click', function() {
+    addForm('vehicle', 'vehicle-form-container', 'vehicle-empty-form'); 
 })
 
 function removeForm(buttonElement, prefix) {

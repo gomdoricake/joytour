@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import MealFormSet, MealTypeForm, AttractionFormSet, AttractionTypeForm
-from .models import Group, Meal, Attraction, MealType, AttractionType, Invoice
+from .forms import MealFormSet, MealTypeForm, AttractionFormSet, AttractionTypeForm, VehicleTypeForm, VehicleFormSet
+from .models import Group, Meal, Attraction, Vehicle, MealType, AttractionType, VehicleType, Invoice
 
 def index(request, pk): 
     group = get_object_or_404(Group, pk=pk)
@@ -22,8 +22,9 @@ def create_invoice(request, pk):
     if request.method == 'POST': 
         meal_formset = MealFormSet(request.POST, prefix='meal')         
         attraction_formset = AttractionFormSet(request.POST, prefix='attraction')
+        vehicle_formset = VehicleFormSet(request.POST, prefix='vehicle')
         
-        if meal_formset.is_valid() and attraction_formset.is_valid(): 
+        if meal_formset.is_valid() and attraction_formset.is_valid() and vehicle_formset.is_valid(): 
             
             target_group_pk = None
 
@@ -83,14 +84,37 @@ def create_invoice(request, pk):
 
                     attraction.price_total = attraction.price_adt + attraction.price_chd + attraction.price_tc
                     attraction.save()
-            
-            attraction_result = Meal.objects.filter(invoice=invoice).aggregate(
+
+            attraction_result = Attraction.objects.filter(invoice=invoice).aggregate(
                 attraction_total = Sum('price_total')
             )
 
             invoice.attraction_total = attraction_result['attraction_total'] or 0
+
+
+            for form in vehicle_formset: 
+                vehicle = Vehicle()
+                
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                    vehicle.invoice = invoice
+                    vehicletype = form.cleaned_data.get('vehicle_type')
+                    vehicle.seat = vehicletype.seat
+                    vehicle.vehicle_type = vehicle.seat + ": " + vehicletype.location
+                    vehicle.date = form.cleaned_data.get('date')
+
+                    vehicle.price = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (vehicletype.price if vehicletype.price else 0) 
+
+                    vehicle.price_total = vehicle.price
+                    vehicle.save()
+
+            vehicle_result = Vehicle.objects.filter(invoice=invoice).aggregate(
+                vehicle_total = Sum('price_total')
+            )
+
+            invoice.vehicle_total = vehicle_result['vehicle_total'] or 0
+
         
-            invoice.grand_total = invoice.meal_total + invoice.attraction_total
+            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total
 
             invoice.save()
 
@@ -99,10 +123,12 @@ def create_invoice(request, pk):
     else: 
         meal_formset = MealFormSet(prefix='meal')
         attraction_formset = AttractionFormSet(prefix='attraction')
+        vehicle_formset = VehicleFormSet(prefix='vehicle')
 
     context = {
         'meal_formset': meal_formset, 
-        'attraction_formset': attraction_formset
+        'attraction_formset': attraction_formset,
+        'vehicle_formset': vehicle_formset
     }
     return render(request, 'invoices/create_invoice.html', context)
 
@@ -163,3 +189,31 @@ def create_attractiontype(request):
             'form': form
         }
         return render(request, 'invoices/create_attractiontype.html', context)
+
+
+class VehicleTypeListView(ListView): 
+    model = VehicleType
+    template_name = 'invoices/vehicletype_list.html'
+    context_object_name = 'vehicletype_list'
+
+    def get_queryset(self): 
+        queryset = super().get_queryset()
+        return queryset
+
+
+@login_required
+def create_vehicletype(request): 
+    if request.method == 'POST': 
+        form = VehicleTypeForm(request.POST)
+        
+        if form.is_valid(): 
+            form.save()
+
+        return redirect('invoices:vehicletype_list')
+    
+    else: 
+        form = VehicleTypeForm()
+        context = {
+            'form': form
+        }
+        return render(request, 'invoices/create_vehicletype.html', context)

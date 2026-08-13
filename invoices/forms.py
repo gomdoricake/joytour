@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import formset_factory, modelformset_factory
-from .models import Meal, MealType, Attraction, AttractionType
+from .models import Meal, MealType, Attraction, AttractionType, Vehicle, VehicleType
 
 
 class MealTypeForm(forms.ModelForm): 
@@ -92,6 +92,33 @@ class AttractionForm(forms.Form):
 
 
 AttractionFormSet = formset_factory(
+    AttractionForm,
+    extra=0
+)
+
+
+class VehicleTypeForm(forms.ModelForm): 
+    class Meta: 
+        model = VehicleType
+        fields = ['seat', 'location', 'price']
+
+
+class VehicleForm(forms.Form): 
+    vehicle_type = forms.ModelChoiceField(
+        queryset = VehicleType.objects.all(), 
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
+    price = forms.DecimalField(        
+        max_digits=8,
+        decimal_places=2,
+        min_value=0.01,
+        max_value=999999.99
+    )
+
+
+VehicleFormSet = formset_factory(
     AttractionForm,
     extra=0
 )

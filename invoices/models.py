@@ -48,7 +48,6 @@ class Attraction(models.Model):
         return str(self.invoice.joycode) + ": " + str(self.attraction_type)
 
 
-
 class AttractionType(models.Model): 
     attraction = models.ManyToManyField(Attraction, related_name='attractiontype', blank=True, null=True)
     name = models.CharField(max_length=30, null=True, blank=True)
@@ -60,14 +59,24 @@ class AttractionType(models.Model):
         return str(self.name)
  
 
-
 class Vehicle(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     date = models.DateField(null=True, blank=True)
-    vehicle_type = models.CharField(max_length=20, null=True, blank=True)
+    vehicle_type = models.CharField(max_length=40, null=True, blank=True)
     seat = models.CharField(max_length=10, null=True, blank=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     # 12인승, 21인승, 48인승이냐에 따라 가격이 달라지도록
+
+
+class VehicleType(models.Model): 
+    vehicle = models.ManyToManyField(Vehicle, related_name='vehicletype', blank=True, null=True)
+    seat = models.CharField(max_length=10, null=True, blank=True)
+    location = models.CharField(max_length=30, null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    def __str__(self):
+        return str(self.seat) + ": " + str(self.location)
+
 
 class GuideInvoice(models.Model): 
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)

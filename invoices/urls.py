@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.urls import include, path
 from . import views
 
-from .views import MealTypeListView, AttractionTypeListView
+from .views import MealTypeListView, AttractionTypeListView, VehicleTypeListView
 
 app_name = 'invoices'
 
@@ -13,4 +13,6 @@ urlpatterns = [
     path('create_mealtype/', views.create_mealtype, name='create_mealtype'),
     path('attractiontype_list/', AttractionTypeListView.as_view(), name='attractiontype_list'),
     path('create_attractiontype/', views.create_attractiontype, name='create_attractiontype'), 
+    path('vehicletype_list/', VehicleTypeListView.as_view(), name='vehicletype_list'),
+    path('create_vehicletype/', views.create_vehicletype, name='create_vehicletype'), 
 ]
