@@ -5,13 +5,14 @@ from inbound.models import Group, Agent
 class AgentForm(forms.ModelForm): 
     class Meta: 
         model = Agent
-        fields = ['code', 'name', 'abn', 'tel', 'email']
+        fields = ['code', 'name', 'abn', 'tel', 'email', 'operation_fee']
         labels = {
             'code': 'Agent Code',
             'name': 'Agent Name',
             'abn': 'ABN', 
             'tel': 'Telephone', 
-            'email': 'Email'
+            'email': 'Email',
+            'operation_fee': 'Operation Fee'
         }
 
 

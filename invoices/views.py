@@ -180,7 +180,8 @@ def create_invoice(request, pk):
 
             invoice.tip_total = guidetipresult + drivertipresult
 
-            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total + invoice.guide_invoice_total + invoice.tip_total
+
+            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total + invoice.guide_invoice_total + invoice.tip_total + invoice.agent.operation_fee
 
             invoice.save()
 

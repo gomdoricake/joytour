@@ -7,6 +7,7 @@ class Agent(models.Model):
     abn = models.CharField(max_length=30, null=True, blank=True)
     tel = models.CharField(max_length=30, null=True, blank=True)
     email = models.CharField(max_length=30, null=True, blank=True)
+    operation_fee = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
         return str(self.code)
