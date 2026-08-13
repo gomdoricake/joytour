@@ -13,6 +13,8 @@
         <span class="badge">GROUP CODE</span>
         <h1 class="detail-title">{{ group.joycode }}</h1>
     </div>
+
+    <a href="{% url 'inbound:update_group' group.pk %}">UPDATE</a>
     
     <div class="detail-grid">
         <div class="detail-card">

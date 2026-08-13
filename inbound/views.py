@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .forms import GroupForm, AgentForm
@@ -97,7 +97,48 @@ def create_group(request):
         }
         return render(request, 'inbound/create_group.html', context)
 
-from django.shortcuts import get_object_or_404
+
+
+@login_required
+def update_group(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+     
+    if request.method == 'POST': 
+        form = GroupForm(request.POST)
+
+        if form.is_valid(): 
+            group.guide = form.cleaned_data['guide'] if form.cleaned_data['guide'] else group.guide
+            group.driver = form.cleaned_data['driver'] if form.cleaned_data['driver'] else group.driver
+            group.agent = form.cleaned_data['agent'] if form.cleaned_data['agent'] else group.agent
+            group.start_date = form.cleaned_data['start_date'] if form.cleaned_data['start_date'] else group.start_date
+            group.agent_ref = form.cleaned_data['agent_ref'] if form.cleaned_data['agent_ref'] else group.agent_ref
+            group.adt = form.cleaned_data['adt'] if form.cleaned_data['adt'] else group.adt
+            group.chd = form.cleaned_data['chd'] if form.cleaned_data['chd'] else group.chd
+            group.tc = form.cleaned_data['tc'] if form.cleaned_data['tc'] else group.tc
+        
+        group.save()
+
+        return redirect('inbound:group_detail', pk)
+    else: 
+        initial_group = {
+            'guide': group.guide,
+            'driver': group.driver,
+            'start_date': group.start_date,
+            'agent': group.agent,
+            'agent_ref': group.agent_ref,
+            'adt': group.adt, 
+            'chd': group.chd, 
+            'tc': group.tc
+        }
+        form = GroupForm(
+            initial = initial_group
+        )
+        context = {
+            'form': form, 
+            'group': group
+        }
+        return render(request, 'inbound/update_group.html', context)
+
 
 @login_required
 def delete_group(request, pk): 
