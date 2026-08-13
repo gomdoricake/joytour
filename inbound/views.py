@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .forms import GroupForm, AgentForm
 from .models import Agent, Group
-
+from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip
 
 @login_required
 def index(request): 
@@ -64,9 +64,21 @@ def group_list(request):
 @login_required
 def group_detail(request, pk): 
     group = Group.objects.get(pk=pk)
+    invoice = Invoice.objects.get(pk=pk)
+    meals = Meal.objects.filter(invoice=invoice)
+    attractions = Attraction.objects.filter(invoice=invoice)
+    vehicles = Vehicle.objects.filter(invoice=invoice)
+    guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
+    tips = Tip.objects.filter(invoice=invoice)
 
     context = {
-        'group': group
+        'group': group,
+        'invoice': invoice,
+        'meals': meals,
+        'attractions': attractions,
+        'vehicles': vehicles, 
+        'guideinvoices': guideinvoices,
+        'tips': tips
     }
     return render(request, 'inbound/group_detail.html', context)
 

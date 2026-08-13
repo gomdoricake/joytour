@@ -16,51 +16,53 @@
     
     <div class="detail-grid">
         <div class="detail-card">
-            <h2 class="card-title">기본 정보</h2>
+            <h2 class="card-title">Info</h2>
             <div class="info-row">
-                <span class="info-label">출발일</span>
+                <span class="info-label">Start Date</span>
                 <span class="info-value">{{ group.start_date }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">가이드</span>
+                <span class="info-label">Tour Guide</span>
                 <span class="info-value">{{ group.guide }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">드라이버</span>
+                <span class="info-label">Driver</span>
                 <span class="info-value">{{ group.driver }}</span>
             </div>
         </div>
 
         <div class="detail-card">
-            <h2 class="card-title">담당 정보</h2>
+            <h2 class="card-title">Agent</h2>
             <div class="info-row">
-                <span class="info-label">에이전트</span>
+                <span class="info-label">Agent Code</span>
                 <span class="info-value">{{ group.agent }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">에이전트 참조</span>
+                <span class="info-label">Agent Reference</span>
                 <span class="info-value">{{ group.agent_ref }}</span>
             </div>
         </div>
 
         <div class="detail-card full-width">
-            <h2 class="card-title">인원 구성</h2>
+            <h2 class="card-title">PAX</h2>
             <div class="pax-container">
                 <div class="pax-box">
-                    <span class="pax-label">성인 (ADT)</span>
-                    <span class="pax-count">{{ group.adt }}명</span>
+                    <span class="pax-label">Adults (ADT)</span>
+                    <span class="pax-count">{{ group.adt }}</span>
                 </div>
                 <div class="pax-box">
-                    <span class="pax-label">아동 (CHD)</span>
-                    <span class="pax-count">{{ group.chd }}명</span>
+                    <span class="pax-label">Children (CHD)</span>
+                    <span class="pax-count">{{ group.chd }}</span>
                 </div>
                 <div class="pax-box">
-                    <span class="pax-label">인솔자 (TC)</span>
-                    <span class="pax-count">{{ group.tc }}명</span>
+                    <span class="pax-label">Tour Conductor (TC)</span>
+                    <span class="pax-count">{{ group.tc }}</span>
                 </div>
             </div>
         </div>
     </div>
+
+{% include 'invoice.html' %}
 
     <a href="{% url 'invoices:index' group.pk %}">INVOICE</a> <br>
 
