@@ -1,48 +1,33 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import MealTypeForm, VehicleTypeForm, GuideInvoiceTypeForm, GuideTipTypeForm, DriverTipTypeForm, MealFormSet, AttractionFormSet, VehicleFormSet,  GuideInvoiceFormSet, TipFormSet
+from .forms import MealTypeForm, VehicleTypeForm, GuideInvoiceTypeForm, GuideTipTypeForm, DriverTipTypeForm, MealFormSet, AttractionTypeForm, AttractionFormSet, VehicleFormSet,  GuideInvoiceFormSet, TipFormSet
 from .models import Group, Meal, Attraction, Vehicle, MealType, AttractionType, VehicleType, Invoice, GuideInvoice, GuideInvoiceType, Tip, GuideTipType, DriverTipType
-
-def index(request, pk): 
-    group = get_object_or_404(Group, pk=pk)
-
-    invoice = None
-    if Invoice.objects.filter(pk=pk).exists():
-        invoice = Invoice.objects.get(pk=pk)
-    
-    meals = Meal.objects.filter(invoice=invoice)
-    attractions = Attraction.objects.filter(invoice=invoice)
-    vehicles = Vehicle.objects.filter(invoice=invoice)
-    guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
-    tips = Tip.objects.filter(invoice=invoice)
-
-    context = {
-        'group': group,
-        'invoice': invoice,
-        'meals': meals, 
-        'attractions': attractions,
-        'vehicles': vehicles,
-        'guideinvoices': guideinvoices, 
-        'tips': tips
-    }
-    return render(request, 'invoices/index.html', context)
 
 from django.db.models import Sum
 
-def create_invoice(request, pk):
+
+@login_required
+def create_or_update_invoice(request, pk):
+    group = get_object_or_404(Group, pk=pk)
+
     if request.method == 'POST': 
         meal_formset = MealFormSet(request.POST, prefix='meal')         
         attraction_formset = AttractionFormSet(request.POST, prefix='attraction')
         vehicle_formset = VehicleFormSet(request.POST, prefix='vehicle')
         guideinvoice_formset = GuideInvoiceFormSet(request.POST, prefix='guideinvoice')
         tip_formset = TipFormSet(request.POST, prefix='tip')
-        
+
+
+        if Invoice.objects.filter(pk=pk).exists():
+            invoice = get_object_or_404(Invoice, pk=pk)
+            invoice.delete()
+            
+
+        # 생성 로직
         if meal_formset.is_valid() and attraction_formset.is_valid() and vehicle_formset.is_valid() \
             and guideinvoice_formset.is_valid() and tip_formset.is_valid(): 
             
             target_group_pk = None
-
-            group = get_object_or_404(Group, pk=pk)
 
             invoice = Invoice(
                 guide=group.guide, 
@@ -55,14 +40,17 @@ def create_invoice(request, pk):
                 chd=group.chd,
                 tc=group.tc,
                 pk=pk)
+
             invoice.save()
 
             for form in meal_formset:
-                meal = Meal() 
-
+                
                 if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                    meal = Meal() 
                     meal.invoice = invoice
                     mealtype = form.cleaned_data.get('mealtype')
+
+                    meal.meal_type = mealtype
 
                     meal.date = form.cleaned_data.get('date')
                     meal.restaurant = mealtype.name
@@ -84,19 +72,22 @@ def create_invoice(request, pk):
             invoice.meal_total = meal_result['meal_total'] or 0
 
             for form in attraction_formset: 
-                attraction = Attraction()
                 
-                if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                
+                if form.cleaned_data['attractiontype'] and not form.cleaned_data.get('DELETE', False): 
+                    attraction = Attraction()
                     attraction.invoice = invoice
+                    
                     attractiontype = form.cleaned_data.get('attractiontype')
-                    attraction.attraction_type = attractiontype.name
+                    attraction.attraction_type = attractiontype
+
+                    attraction.attraction_name = attractiontype.name
                     attraction.date = form.cleaned_data.get('date')
 
                     attraction.price_adt = form.cleaned_data.get('adt') * attractiontype.price_adt if form.cleaned_data.get('adt') else (group.adt * attractiontype.price_adt if group.adt else 0)
                     attraction.price_chd = form.cleaned_data.get('chd') * attractiontype.price_chd if form.cleaned_data.get('chd') else (group.chd * attractiontype.price_chd if group.chd else 0)
-                    attraction.price_tc = form.cleaned_data.get('tc') * attractiontype.price_tc if form.cleaned_data.get('tc') else (group.tc * attractiontype.price_tc if group.tc else 0)
 
-                    attraction.price_total = attraction.price_adt + attraction.price_chd + attraction.price_tc
+                    attraction.price_total = attraction.price_adt + attraction.price_chd
                     attraction.save()
 
             attraction_result = Attraction.objects.filter(invoice=invoice).aggregate(
@@ -107,13 +98,17 @@ def create_invoice(request, pk):
 
 
             for form in vehicle_formset: 
-                vehicle = Vehicle()
                 
-                if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                if form.cleaned_data['vehicle_type'] and not form.cleaned_data.get('DELETE', False):
+
+                    vehicle = Vehicle()
                     vehicle.invoice = invoice
                     vehicletype = form.cleaned_data.get('vehicle_type')
+
                     vehicle.seat = vehicletype.seat
-                    vehicle.vehicle_type = vehicle.seat + ": " + vehicletype.location
+                    vehicle.vehicle_type = vehicletype
+                    
+                    vehicle.vehicle_name = vehicletype.seat + ": " + vehicletype.location
                     vehicle.date = form.cleaned_data.get('date')
 
                     vehicle.price_total = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (vehicletype.price if vehicletype.price else 0) 
@@ -127,16 +122,19 @@ def create_invoice(request, pk):
             invoice.vehicle_total = vehicle_result['vehicle_total'] or 0
 
             for form in guideinvoice_formset: 
-                guideinvoice = GuideInvoice()
 
                 if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
-                    guideinvoice.invoice = invoice
-                    guideinvoicetype = form.cleaned_data.get('guideinvoice_type')
+                    guideinvoice = GuideInvoice()
 
-                    guideinvoice.guideinvoice_type = guideinvoicetype.location
+                    guideinvoice.invoice = invoice
+                    guideinvoice_type = form.cleaned_data.get('guideinvoice_type')
+
+                    guideinvoice.guideinvoice_type = guideinvoice_type
+
+                    guideinvoice.guideinvoice_name = guideinvoice_type.location
                     guideinvoice.date = form.cleaned_data.get('date')
 
-                    guideinvoice.price_total = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (guideinvoicetype.price if guideinvoicetype.price else 0)
+                    guideinvoice.price_total = form.cleaned_data.get('price') if form.cleaned_data.get('price') else (guideinvoice_type.price if guideinvoice_type.price else 0)
 
                 guideinvoice.save()
 
@@ -148,24 +146,24 @@ def create_invoice(request, pk):
 
 
             for form in tip_formset: 
-                tip = Tip()
-
-                guidetiptype = None
-                drivertiptype = None
                 if form.cleaned_data and not form.cleaned_data.get('DELETE', False): 
+                    tip = Tip()
+
                     tip.invoice = invoice
                     tip.date = form.cleaned_data.get('date')
+
                     guidetiptype = form.cleaned_data.get('guidetiptype')
                     drivertiptype = form.cleaned_data.get('drivertiptype')
+
+                    tip.guidetip_type = guidetiptype
+                    tip.drivertip_type = drivertiptype
 
                     tip.price_guidetip = form.cleaned_data.get('price_guide') if form.cleaned_data.get('price_guide') else (guidetiptype.price if guidetiptype else 0)
                     tip.price_drivertip = form.cleaned_data.get('price_driver') if form.cleaned_data.get('price_driver') else (drivertiptype.price if drivertiptype else 0)
                     
                     tip.price_total = tip.price_guidetip + tip.price_drivertip
                 
-                tip.save()
-                tip.guidetiptype.set([guidetiptype])
-                tip.drivertiptype.set([drivertiptype])
+                    tip.save()
 
                 
             guidetip_result = Tip.objects.filter(invoice=invoice).aggregate(
@@ -186,22 +184,144 @@ def create_invoice(request, pk):
             invoice.save()
 
             return redirect('inbound:group_detail', pk=group.pk)
-        
+
+        else: 
+            return redirect('invoices:create_or_update_invoice', pk=group.pk)
+    # GET
     else: 
+
+        if Invoice.objects.filter(pk=pk).exists():
+            invoice = get_object_or_404(Invoice, pk=pk)
+            # 1. Meal
+            temp_meals = invoice.meals.values()
+            meal_initial_data = []
+
+            for meal in temp_meals:
+                mealtype = MealType.objects.get(name=meal['restaurant'])
+
+                adt = int(float(meal['price_adt']) / float(mealtype.price_adt)) if meal['price_adt'] and mealtype else 0
+                chd = int(float(meal['price_chd']) / float(mealtype.price_chd)) if meal['price_chd'] and mealtype else 0
+                
+                meal_initial_data.append(
+                    {
+                        'mealtype': mealtype, 
+                        'date': meal['date'],
+                        'adt': adt,
+                        'chd': chd,
+                    }
+                ) 
+
+            initial_meal_formset = MealFormSet(prefix='meal', initial=meal_initial_data) 
+
+            # 2. Attraction
+            temp_attractions = invoice.attractions.all()
+            attraction_initial_data = []
+
+            for attraction in temp_attractions:
+                attractiontype = attraction.attraction_type
+
+                adt = int(float(attraction.price_adt) / float(attractiontype.price_adt)) if attractiontype and attraction.price_adt else 0
+                chd = int(float(attraction.price_chd) / float(attractiontype.price_chd)) if attractiontype and attraction.price_chd else 0
+                tc = int(float(attraction.price_tc) / float(attractiontype.price_tc)) if attractiontype and attraction.price_tc else 0
+                
+                attraction_initial_data.append(
+                    {
+                        'attractiontype': attractiontype, 
+                        'date': attraction.date,
+                        'adt': adt,
+                        'chd': chd,
+                        'tc': tc
+                    }
+                ) 
+            
+            initial_attraction_formset = AttractionFormSet(prefix='attraction', initial=attraction_initial_data)
+            
+            # 3. Vehicle
+            temp_vehicles = invoice.vehicles.all()
+            vehicle_initial_data = []
+
+
+            for vehicle in temp_vehicles:
+
+                vehicletype = vehicle.vehicle_type
+                vehicle_initial_data.append(
+                    {
+                        'vehicle_type': vehicletype, 
+                        'date': vehicle.date,
+                        'price': vehicle.price_total
+                    }
+                ) 
+
+            vehicle_initial_formset = VehicleFormSet(prefix='vehicle', initial=vehicle_initial_data)
+
+
+            # 4. Guide Invoice
+            temp_guideinvoices = invoice.guideinvoices.all()
+            guideinvoice_initial_data = []
+
+
+            for guideinvoice in temp_guideinvoices:
+
+                guideinvoice_type = guideinvoice.guideinvoice_type
+
+                guideinvoice_initial_data.append(
+                    {
+                        'guideinvoice_type': guideinvoice_type, 
+                        'date': guideinvoice.date,
+                        'price': guideinvoice_type.price
+                    }
+                ) 
+
+            guideinvoice_initial_formset = GuideInvoiceFormSet(prefix='guideinvoice', initial=guideinvoice_initial_data)
+
+
+            # 5. Tip 
+            temp_tips = invoice.tips.all()
+            tips_initial_data = []
+
+
+            for tip in temp_tips:
+
+                guidetip_type = tip.guidetip_type
+                drivertip_type = tip.drivertip_type
+
+                tips_initial_data.append(
+                    {
+                        'guidetiptype': guidetip_type, 
+                        'drivertiptype': drivertip_type,
+                        'date': tip.date,
+                        'price_guide': guidetip_type.price,
+                        'price_driver': drivertip_type.price
+                    }
+                ) 
+
+            tip_initial_formset = TipFormSet(prefix='tip', initial=tips_initial_data)
+
+            context = {
+                'meal_formset': initial_meal_formset,
+                'attraction_formset': initial_attraction_formset,
+                'vehicle_formset': vehicle_initial_formset,
+                'guideinvoice_formset': guideinvoice_initial_formset,
+                'tip_formset': tip_initial_formset
+            }
+
+            return render(request, 'invoices/create_invoice.html', context)
+
         meal_formset = MealFormSet(prefix='meal')
         attraction_formset = AttractionFormSet(prefix='attraction')
         vehicle_formset = VehicleFormSet(prefix='vehicle')
         guideinvoice_formset = GuideInvoiceFormSet(prefix='guideinvoice')
         tip_formset = TipFormSet(prefix='tip')
+        
+        context = {
+            'meal_formset': meal_formset, 
+            'attraction_formset': attraction_formset,
+            'vehicle_formset': vehicle_formset,
+            'guideinvoice_formset': guideinvoice_formset,
+            'tip_formset': tip_formset,
+        }
 
-    context = {
-        'meal_formset': meal_formset, 
-        'attraction_formset': attraction_formset,
-        'vehicle_formset': vehicle_formset,
-        'guideinvoice_formset': guideinvoice_formset,
-        'tip_formset': tip_formset,
-    }
-    return render(request, 'invoices/create_invoice.html', context)
+        return render(request, 'invoices/create_invoice.html', context)
 
 
 from django.views.generic.list import ListView

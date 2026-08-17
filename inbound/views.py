@@ -61,26 +61,35 @@ def group_list(request):
     }
     return render(request, 'inbound/group_list.html', context)
 
+
 @login_required
 def group_detail(request, pk): 
     group = Group.objects.get(pk=pk)
-    invoice = Invoice.objects.get(pk=pk)
-    meals = Meal.objects.filter(invoice=invoice)
-    attractions = Attraction.objects.filter(invoice=invoice)
-    vehicles = Vehicle.objects.filter(invoice=invoice)
-    guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
-    tips = Tip.objects.filter(invoice=invoice)
+    
+    if Invoice.objects.filter(pk=pk).exists(): 
+        invoice = Invoice.objects.get(pk=pk)
+        meals = Meal.objects.filter(invoice=invoice)
+        attractions = Attraction.objects.filter(invoice=invoice)
+        vehicles = Vehicle.objects.filter(invoice=invoice)
+        guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
+        tips = Tip.objects.filter(invoice=invoice)
 
-    context = {
-        'group': group,
-        'invoice': invoice,
-        'meals': meals,
-        'attractions': attractions,
-        'vehicles': vehicles, 
-        'guideinvoices': guideinvoices,
-        'tips': tips
-    }
-    return render(request, 'inbound/group_detail.html', context)
+        context = {
+            'group': group,
+            'invoice': invoice,
+            'meals': meals,
+            'attractions': attractions,
+            'vehicles': vehicles, 
+            'guideinvoices': guideinvoices,
+            'tips': tips
+        }
+        return render(request, 'inbound/group_detail.html', context)
+
+    else:
+        context = {
+            'group': group
+        }
+        return render(request, 'inbound/group_detail.html', context)
 
 @login_required
 def create_group(request): 
@@ -101,7 +110,9 @@ def create_group(request):
 
 @login_required
 def update_group(request, pk): 
+    print('pk: ' + str(pk))
     group = get_object_or_404(Group, pk=pk)
+    
      
     if request.method == 'POST': 
         form = GroupForm(request.POST)

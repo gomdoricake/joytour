@@ -12,6 +12,7 @@ class MealTypeForm(forms.ModelForm):
 class MealForm(forms.Form): 
     mealtype = forms.ModelChoiceField(
         queryset = MealType.objects.all(), 
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -21,11 +22,6 @@ class MealForm(forms.Form):
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
     chd = forms.IntegerField(
-        min_value = 0, 
-        required=False,
-        widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
-    )
-    tc = forms.IntegerField(
         min_value = 0, 
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
@@ -58,6 +54,7 @@ class AttractionTypeForm(forms.ModelForm):
 class AttractionForm(forms.Form): 
     attractiontype = forms.ModelChoiceField(
         queryset = AttractionType.objects.all(), 
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
@@ -107,10 +104,12 @@ class VehicleTypeForm(forms.ModelForm):
 class VehicleForm(forms.Form): 
     vehicle_type = forms.ModelChoiceField(
         queryset = VehicleType.objects.all(), 
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
     date = forms.DateField(
+        required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
     
@@ -138,9 +137,11 @@ class GuideInvoiceTypeForm(forms.ModelForm):
 class GuideInvoiceForm(forms.Form): 
     guideinvoice_type = forms.ModelChoiceField(
         queryset = GuideInvoiceType.objects.all(), 
+        required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     date = forms.DateField(
+        required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
     price = forms.DecimalField(        
@@ -175,6 +176,7 @@ class DriverTipTypeForm(forms.ModelForm):
 class TipForm(forms.Form): 
 
     date = forms.DateField(
+        required=False,
         widget=forms.DateInput(attrs={'type': 'date'})
     )
 

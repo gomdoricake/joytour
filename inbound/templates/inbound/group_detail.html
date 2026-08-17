@@ -6,6 +6,7 @@
 
 
 <div class="detail-container">
+    
     <div class="detail-actions">
         <a href="{% url 'inbound:group_list' %}" class="btn-back">&larr; To Group List</a>
     </div>
@@ -64,11 +65,23 @@
         </div>
     </div>
 
+
+{% if invoice %}
+
+<a href="{% url 'invoices:create_or_update_invoice' group.pk %}">Update Invoice</a>
+
+
+{% else %}
+
+<a href="{% url 'invoices:create_or_update_invoice' group.pk %}">+ Invoice</a>
+
+{% endif %}
+
+
 {% include 'invoice.html' %}
 
-    <a href="{% url 'invoices:index' group.pk %}">INVOICE</a> <br>
 
-    <div>
+<div>
         <a href="{% url 'inbound:delete_group' group.pk %}">DELETE</a>
     </div>
 </div>

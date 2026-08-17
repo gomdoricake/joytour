@@ -1,5 +1,5 @@
 
-
+<h1>INVOICE</h1>
 {% if invoice %}
 
 FROM | JOY STUDY & TOUR PTY LTD <br>
@@ -28,7 +28,7 @@ Meal TOTAL: ${{ invoice.meal_total }}<br><br>
 ATTRACTION<br>
 {% for attraction in attractions %}
 {{ attraction.date | date:"Y-m-d" }}
-{{ attraction.attraction_type }}
+{{ attraction.attraction_name }}
 ${{ attraction.price_adt }}
 ${{ attraction.price_chd }}
 ${{ attraction.price_total}}<br>
@@ -38,7 +38,7 @@ Attraction: ${{ invoice.attraction_total }}<br><br>
 VEHICLE<br>
 {% for vehicle in vehicles %}
 {{ vehicle.date | date:"Y-m-d" }}
-{{ vehicle.vehicle_type }}
+{{ vehicle.vehicle_name }}
 {{ vehicle.seat }}SEAT
 ${{ vehicle.price_total }}<br>
 {% endfor %}
@@ -48,7 +48,7 @@ Vehicle: ${{ invoice.vehicle_total }}<br><br><br>
 GUIDE<br>
 {% for guide in guideinvoices %}
 {{ guide.date | date:"Y-m-d" }}
-{{ guide.guideinvoice_type }}
+{{ guide.guideinvoice_name }}
 ${{ guide.price_total }}<br>
 {% endfor %}
 Guide: ${{ invoice.guide_invoice_total }}<br><br><br>
@@ -58,13 +58,9 @@ TIPS<br>
 {% for tip in tips %}
 {{ tip.date | date:"Y-m-d" }}
     Guide Tip: 
-    {% for guidetip in tip.guidetiptype.all %}
-        ${{ guidetip.price }}
-    {% endfor %}
+    ${{ tip.guidetip_type.price }}
     Driver Tip: 
-    {% for drivertip in tip.drivertiptype.all %}
-        ${{ drivertip.price }}
-    {% endfor %}
+    ${{ tip.drivertip_type.price}}
     
 ${{ tip.price_total }}<br>
 {% endfor %}
