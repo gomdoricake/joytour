@@ -6,6 +6,7 @@ app_name = 'inbound'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('tariff/', views.tariff, name='tariff'),
     path('agent_list/', views.agent_list, name='agent_list'),
     path('agent_detail/<int:pk>/', views.agent_detail, name='agent_detail'), 
     path('create_agent/', views.create_agent, name='create_agent'),

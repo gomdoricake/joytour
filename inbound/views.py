@@ -3,11 +3,33 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .forms import GroupForm, AgentForm
 from .models import Agent, Group
-from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip
+from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip, \
+                                    MealType, AttractionType, VehicleType, GuideInvoiceType, \
+                                    GuideTipType, DriverTipType
+
 
 @login_required
 def index(request): 
-    return render(request, 'inbound/index.html')\
+    return render(request, 'inbound/index.html')
+
+@login_required
+def tariff(request): 
+    mealtype_list = MealType.objects.all().order_by('-id')
+    attractiontype_list = AttractionType.objects.all().order_by('-id')
+    vehicletype_list = VehicleType.objects.all().order_by('-id')
+    guideinvoicetype_list = GuideInvoiceType.objects.all().order_by('-id')
+    guide_tip = GuideTipType.objects.all().order_by('-id')
+    driver_tip = DriverTipType.objects.all().order_by('-id')
+
+    context = {
+        'mealtype_list': mealtype_list, 
+        'attractiontype_list': attractiontype_list,
+        'vehicletype_list': vehicletype_list,
+        'guideinvoicetype_list': guideinvoicetype_list,
+        'guide_tip': guide_tip,
+        'driver_tip': driver_tip
+    } 
+    return render(request, 'inbound/tariff.html', context)
 
 @login_required
 def agent_list(request): 

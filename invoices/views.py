@@ -325,16 +325,6 @@ def create_or_update_invoice(request, pk):
 
 
 from django.views.generic.list import ListView
-
-@login_required
-def mealtype_list(request): 
-    
-    mealtype_list = MealType.objects.all()
-
-    context = {
-        'mealtype_list': mealtype_list
-    }
-    return render(request, 'invoices/mealtype_list.html', context)
      
 
 @login_required
@@ -362,10 +352,10 @@ def update_mealtype(request, pk):
             form = MealTypeForm(request.POST, instance=mealtype)
             if form.is_valid(): 
                 form.save()
-                return redirect('invoices:mealtype_list')
+                return redirect('inbound:tariff')
         else: 
             form = MealTypeForm(instance=mealtype)
-            return render(request, 'invoices/mealtype_list.html', {'form': form})
+            return render(request, 'inbound/tariff_list.html', {'form': form})
 
 @login_required
 def delete_mealtype(request, pk): 
@@ -373,14 +363,8 @@ def delete_mealtype(request, pk):
 
     if mealtype: 
         mealtype.delete()
-        return redirect('invoices:mealtype_list')
+        return redirect('inbound:tariff')
 
-
-@login_required
-def attractiontype_list(request): 
-    attractiontype_list = AttractionType.objects.all()
-
-    return render(request, 'invoices/attractiontype_list.html', {'attractiontype_list': attractiontype_list})
 
 
 @login_required
@@ -392,7 +376,7 @@ def create_attractiontype(request):
         if form.is_valid(): 
             form.save()
 
-            return redirect('invoices:attractiontype_list')
+            return redirect('inbound:tariff')
     
     else: 
         form = AttractionTypeForm()
@@ -413,12 +397,12 @@ def update_attractiontype(request, pk):
 
             if form.is_valid(): 
                 form.save()
-                return redirect('invoices:attractiontype_list')
+                return redirect('inbound:tariff')
         
         else: 
             form = AttractionTypeForm(instance=attractiontype)
             
-            return redirect('invoices:attractiontype_list')
+            return redirect('inbound:tariff')
 
 
 @login_required
@@ -427,14 +411,7 @@ def delete_attractiontype(request, pk):
 
     if attractiontype: 
         attractiontype.delete()
-        return redirect('invoices:attractiontype_list')
-
-
-@login_required
-def vehicletype_list(request): 
-    vehicletype_list = VehicleType.objects.all()
-
-    return render(request, 'invoices/vehicletype_list.html', {'vehicletype_list': vehicletype_list})
+        return redirect('inbound:tariff')
 
 
 @login_required
@@ -445,7 +422,7 @@ def create_vehicletype(request):
         if form.is_valid(): 
             form.save()
 
-        return redirect('invoices:vehicletype_list')
+        return redirect('inbound:tariff')
     
     else: 
         form = VehicleTypeForm()
@@ -466,11 +443,11 @@ def update_vehicletype(request, pk):
 
             if form.is_valid(): 
                 form.save()
-                return redirect('invoices:vehicletype_list')
+                return redirect('inbound:tariff')
         
         else: 
             form = VehicleTypeForm(instance=vehicletype)
-            return redirect('invoices:vehicletype_list')
+            return redirect('inbound:tariff')
 
 
 @login_required
@@ -479,15 +456,7 @@ def delete_vehicletype(request, pk):
 
     if vehicletype: 
         vehicletype.delete()
-        return redirect('invoices:vehicletype_list')
-
-
-@login_required
-def guideinvoicetype_list(request): 
-
-    guideinvoicetype_list = GuideInvoiceType.objects.all()
-
-    return render(request, 'invoices/guideinvoicetype_list.html', {'guideinvoicetype_list': guideinvoicetype_list})
+        return redirect('inbound:tariff')
 
 
 @login_required
@@ -499,7 +468,7 @@ def create_guideinvoicetype(request):
         if form.is_valid(): 
             form.save()
 
-            return redirect('invoices:guideinvoicetype_list')
+            return redirect('inbound:tariff')
         
     else: 
         form = GuideInvoiceTypeForm()
@@ -519,11 +488,11 @@ def update_guideinvoicetype(request, pk):
 
             if form.is_valid(): 
                 form.save()
-                return redirect("invoices:guideinvoicetype_list")
+                return redirect("inbound:tariff")
         
         else: 
             form = GuideInvoiceType(instance=guideinvoicetype)
-            return render(request, 'invoices/guideinvoicetype_list.html', {'form': form})
+            return redirect("inbound:tariff")
 
 
 @login_required
@@ -532,19 +501,8 @@ def delete_guideinvoicetype(request, pk):
 
     if guideinvoicetype: 
         guideinvoicetype.delete()
-        return redirect("invoices:guideinvoicetype_list") 
+        return redirect("inbound:tariff") 
 
-
-@login_required
-def tiptype_list(request): 
-    guide_tip = GuideTipType.objects.all()
-    driver_tip = DriverTipType.objects.all()
-
-    context = {
-        'guide_tip': guide_tip, 
-        'driver_tip': driver_tip
-    }
-    return render(request, 'invoices/tiptype_list.html', context)
 
 
 @login_required
@@ -556,7 +514,7 @@ def create_guidetiptype(request):
         if form.is_valid(): 
             form.save()
 
-            return redirect('invoices:tiptype_list')
+            return redirect('inbound:tariff')
     
     else: 
         form = GuideTipTypeForm()
@@ -575,7 +533,7 @@ def update_guidetiptype(request, pk):
             guidetip_form = GuideTipTypeForm(request.POST, instance=guidetiptype)
             if guidetip_form.is_valid(): 
                 guidetip_form.save()
-                return redirect('invoices:tiptype_list')
+                return redirect('inbound:tariff')
         
         else: 
             guidetip_form = GuideTipTypeForm(instance=guidetiptype)
@@ -588,7 +546,7 @@ def delete_guidetiptype(request, pk):
 
     if guidetiptype: 
         guidetiptype.delete()
-        return redirect('invoices:tiptype_list')
+        return redirect('inbound:tariff')
 
 
 @login_required
@@ -600,7 +558,7 @@ def create_drivertiptype(request):
         if form.is_valid(): 
             form.save()
 
-            return redirect('invoices:tiptype_list')
+            return redirect('inbound:tariff')
     
     else: 
         form = DriverTipTypeForm()
@@ -619,7 +577,7 @@ def update_drivertiptype(request, pk):
             drivertip_form = DriverTipTypeForm(request.POST, instance=drivertiptype)
             if drivertip_form.is_valid(): 
                 drivertip_form.save()
-                return redirect('invoices:tiptype_list')
+                return redirect('inbound:tariff')
         
         else: 
             drivertip_form = DriverTipTypeForm(instance=drivertiptype)
@@ -631,4 +589,4 @@ def delete_drivertiptype(request, pk):
 
     if drivertiptype: 
         drivertiptype.delete()
-        return redirect('invoices:tiptype_list')
+        return redirect('inbound:tariff')
