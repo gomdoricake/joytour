@@ -1,5 +1,16 @@
 <a href="{% url 'inbound:index' %}">Back to dashboard</a><br>
 
+
+{% if agent %}
+Update Agent <br>
+
+<form action="{% url 'inbound:update_agent' agent.pk %}" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Submit">
+</form>
+
+{% else %}
 Create Agent <br>
 
 <form action="{% url 'inbound:create_agent' %}" method="post">
@@ -7,3 +18,4 @@ Create Agent <br>
     {{ form.as_p }}
     <input type="submit" value="Submit">
 </form>
+{% endif %}

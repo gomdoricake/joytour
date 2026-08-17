@@ -43,6 +43,34 @@ def create_agent(request):
         }
         return render(request, 'inbound/create_agent.html', context)
 
+
+@login_required
+def update_agent(request, pk): 
+    agent = get_object_or_404(Agent, pk=pk)
+
+    if agent: 
+        if request.method == 'POST': 
+            form = AgentForm(request.POST, instance=agent)
+
+            if form.is_valid():
+                form.save()
+
+                return redirect('inbound:agent_detail', pk=pk)
+            else: 
+                return redirect('inbound:update_agent')
+
+        else: 
+            
+            form = AgentForm(instance=agent) 
+            
+            context = {
+                'agent': agent,
+                'form': form
+            }
+            
+            return render(request, 'inbound/create_agent.html', context)
+                
+
 @login_required
 def delete_agent(request, pk): 
     agent = get_object_or_404(Agent, pk=pk)
