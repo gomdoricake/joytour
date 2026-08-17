@@ -376,7 +376,6 @@ def delete_mealtype(request, pk):
         return redirect('invoices:mealtype_list')
 
 
-
 @login_required
 def attractiontype_list(request): 
     attractiontype_list = AttractionType.objects.all()
@@ -420,6 +419,15 @@ def update_attractiontype(request, pk):
             form = AttractionTypeForm(instance=attractiontype)
             
             return redirect('invoices:attractiontype_list')
+
+
+@login_required
+def delete_attractiontype(request, pk): 
+    attractiontype = get_object_or_404(AttractionType, pk=pk)
+
+    if attractiontype: 
+        attractiontype.delete()
+        return redirect('invoices:attractiontype_list')
 
 
 @login_required
