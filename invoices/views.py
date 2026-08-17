@@ -416,14 +416,11 @@ def update_attractiontype(request, pk):
             return redirect('invoices:attractiontype_list')
 
 
-class VehicleTypeListView(ListView): 
-    model = VehicleType
-    template_name = 'invoices/vehicletype_list.html'
-    context_object_name = 'vehicletype_list'
+@login_required
+def vehicletype_list(request): 
+    vehicletype_list = VehicleType.objects.all()
 
-    def get_queryset(self): 
-        queryset = super().get_queryset()
-        return queryset
+    return render(request, 'invoices/vehicletype_list.html', {'vehicletype_list': vehicletype_list})
 
 
 
@@ -445,6 +442,23 @@ def create_vehicletype(request):
         }
         return render(request, 'invoices/create_vehicletype.html', context)
 
+@login_required
+def update_vehicletype(request, pk): 
+    
+    vehicletype = get_object_or_404(VehicleType, pk=pk)
+
+    if vehicletype: 
+        if request.method == 'POST': 
+            form = VehicleTypeForm(request.POST, instance=vehicletype)
+
+            if form.is_valid(): 
+                form.save()
+                return redirect('invoices:vehicletype_list')
+        
+        else: 
+            form = VehicleTypeForm(instance=vehicletype)
+            return redirect('invoices:vehicletype_list')
+            
 
 class GuideInvoiceTypeListView(ListView): 
     model = GuideInvoiceType

@@ -22,12 +22,10 @@
     <div class="modal fade" id="attractiontypeModal-{{ attractiontype.pk }}" tabindex="-1" aria-labelledby="attractiontypeModalLabel-{{ attractiontype.pk }}" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <!-- 팝업 내 수정 폼 제출 주소 -->
                 <form method="post" action="{% url 'invoices:update_attractiontype' attractiontype.pk %}">
                     {% csrf_token %}
                     <div class="modal-header">
-                        <h5 class="modal-title" id="attractiontypeModalLabel-{{ attractiontype.pk }}">{{ attractiontype.name }} 수정</h5>
-                        <!-- 닫기 버튼 속성 수정 -->
+                        <h5 class="modal-title" id="attractiontypeModalLabel-{{ attractiontype.pk }}">{{ attractiontype.name }} Update</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body text-start">
