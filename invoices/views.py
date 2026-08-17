@@ -371,14 +371,11 @@ def update_mealtype(request, pk):
 
     
 
-class AttractionTypeListView(ListView): 
-    model = AttractionType
-    template_name = 'invoices/attractiontype_list.html'
-    context_object_name = 'attractiontype_list'
+@login_required
+def attractiontype_list(request): 
+    attractiontype_list = AttractionType.objects.all()
 
-    def get_queryset(self): 
-        queryset = super().get_queryset()
-        return queryset
+    return render(request, 'invoices/attractiontype_list.html', {'attractiontype_list': attractiontype_list})
 
 
 @login_required
@@ -400,6 +397,25 @@ def create_attractiontype(request):
         return render(request, 'invoices/create_attractiontype.html', context)
 
 
+@login_required
+def update_attractiontype(request, pk): 
+
+    attractiontype = get_object_or_404(AttractionType, pk=pk)
+
+    if attractiontype: 
+        if request.method == 'POST': 
+            form = AttractionTypeForm(request.POST, instance=attractiontype)
+
+            if form.is_valid(): 
+                form.save()
+                return redirect('invoices:attractiontype_list')
+        
+        else: 
+            form = AttractionTypeForm(instance=attractiontype)
+            
+            return redirect('invoices:attractiontype_list')
+
+
 class VehicleTypeListView(ListView): 
     model = VehicleType
     template_name = 'invoices/vehicletype_list.html'
@@ -408,6 +424,8 @@ class VehicleTypeListView(ListView):
     def get_queryset(self): 
         queryset = super().get_queryset()
         return queryset
+
+
 
 
 @login_required
