@@ -11,13 +11,76 @@
 
 
 Guide Tip: <br>
-{% for guidetip in guide_tip %}
-    ${{ guidetip.price }} <br>
+{% for guidetiptype in guide_tip %}
+    ${{ guidetiptype.price }} 
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#guidetiptypeModal-{{ guidetiptype.pk }}">
+        Update
+    </button>
+    
+    <div class="modal fade" id="guidetiptypeModal-{{ guidetiptype.pk }}" tabindex="-1" aria-labelledby="guidetiptypeModalLabel-{{ guidetiptype.pk }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'invoices:update_guidetiptype' guidetiptype.pk %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="guidetiptypeModalLabel-{{ guidetiptype.pk }}">{{ guidetiptype.name }} Update</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                        <p>
+                            <label>Price: </label>
+                            <input type="text" name="price" value="{{ guidetiptype.price }}" class="form-control" required>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+
 {% endfor %}
 
+
+
 Driver Tip: <br>
-{% for drivertip in driver_tip %}
-    ${{ drivertip.price }} <br>
+{% for drivertiptype in driver_tip %}
+    ${{ drivertiptype.price }}
+
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#drivertiptypeModal-{{ drivertiptype.pk }}">
+        Update
+    </button>
+    
+    <div class="modal fade" id="drivertiptypeModal-{{ drivertiptype.pk }}" tabindex="-1" aria-labelledby="drivertiptypeModalLabel-{{ drivertiptype.pk }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'invoices:update_drivertiptype' drivertiptype.pk %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="drivertiptypeModalLabel-{{ drivertiptype.pk }}">{{ drivertiptype.name }} Update</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-start">
+                        <p>
+                            <label>Price: </label>
+                            <input type="text" name="price" value="{{ drivertiptype.price }}" class="form-control" required>
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <br>
+
+
 {% endfor %}
 <br>
 

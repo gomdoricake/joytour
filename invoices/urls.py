@@ -21,5 +21,7 @@ urlpatterns = [
     path('update_guideinvoicetype/<int:pk>/', views.update_guideinvoicetype, name='update_guideinvoicetype'),
     path('tiptype_list/', views.tiptype_list, name='tiptype_list'), 
     path('create_guidetiptype/', views.create_guidetiptype, name='create_guidetiptype'),
+    path('update_guidetiptype/<int:pk>/', views.update_guidetiptype, name='update_guidetiptype'), 
     path('create_drivertiptype/', views.create_drivertiptype, name='create_drivertiptype'),
+    path('update_drivertiptype/<int:pk>/', views.update_drivertiptype, name='update_drivertiptype')
 ]

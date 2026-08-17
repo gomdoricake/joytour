@@ -335,8 +335,7 @@ def mealtype_list(request):
         'mealtype_list': mealtype_list
     }
     return render(request, 'invoices/mealtype_list.html', context)
-
-            
+     
 
 @login_required
 def create_mealtype(request):
@@ -369,7 +368,6 @@ def update_mealtype(request, pk):
             form = MealTypeForm(instance=mealtype)
             return render(request, 'invoices/mealtype_list.html', {'form': form})
 
-    
 
 @login_required
 def attractiontype_list(request): 
@@ -423,8 +421,6 @@ def vehicletype_list(request):
     return render(request, 'invoices/vehicletype_list.html', {'vehicletype_list': vehicletype_list})
 
 
-
-
 @login_required
 def create_vehicletype(request): 
     if request.method == 'POST': 
@@ -442,6 +438,7 @@ def create_vehicletype(request):
         }
         return render(request, 'invoices/create_vehicletype.html', context)
 
+
 @login_required
 def update_vehicletype(request, pk): 
     
@@ -458,6 +455,7 @@ def update_vehicletype(request, pk):
         else: 
             form = VehicleTypeForm(instance=vehicletype)
             return redirect('invoices:vehicletype_list')
+
 
 @login_required
 def guideinvoicetype_list(request): 
@@ -514,6 +512,7 @@ def tiptype_list(request):
     }
     return render(request, 'invoices/tiptype_list.html', context)
 
+
 @login_required
 def create_guidetiptype(request): 
     
@@ -531,6 +530,23 @@ def create_guidetiptype(request):
             'form': form
         }
         return render(request, 'invoices/create_guidetiptype.html', context)
+
+
+@login_required
+def update_guidetiptype(request, pk): 
+    guidetiptype = get_object_or_404(GuideTipType, pk=pk)
+
+    if guidetiptype: 
+        if request.method == 'POST': 
+            guidetip_form = GuideTipTypeForm(request.POST, instance=guidetiptype)
+            if guidetip_form.is_valid(): 
+                guidetip_form.save()
+                return redirect('invoices:tiptype_list')
+        
+        else: 
+            guidetip_form = GuideTipTypeForm(instance=guidetiptype)
+            return render(request, 'invoices/tiptype_list.html', {'guidetip_form': guidetip_form})
+
 
 @login_required
 def create_drivertiptype(request): 
@@ -550,5 +566,20 @@ def create_drivertiptype(request):
         }
         return render(request, 'invoices/create_drivertiptype.html', context)
 
+
+@login_required
+def update_drivertiptype(request, pk): 
+    drivertiptype = get_object_or_404(DriverTipType, pk=pk)
+
+    if drivertiptype: 
+        if request.method == 'POST': 
+            drivertip_form = DriverTipTypeForm(request.POST, instance=drivertiptype)
+            if drivertip_form.is_valid(): 
+                drivertip_form.save()
+                return redirect('invoices:tiptype_list')
+        
+        else: 
+            drivertip_form = DriverTipTypeForm(instance=drivertiptype)
+            return render(request, 'invoices/tiptype_list.html', {'drivertip_form': drivertip_form})
 
         
