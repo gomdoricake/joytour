@@ -11,11 +11,50 @@
 
 
 {% for mealtype in mealtype_list %}
-    {{ mealtype.name }}
+    {{ mealtype.name }} 
     {{ mealtype.price_adt}}
-    {{ mealtype.price_chd }}<br>
+    {{ mealtype.price_chd }}
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mealtypeModal-{{mealtype.pk}}">
+        Update
+    </button>   
+    <div class="modal fade" id="mealtypeModal-{{ mealtype.pk }}" tabindex="-1" aria-labelledby="mealtypeModalLabel-{{ mealtype.pk }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'invoices:update_mealtype' mealtype.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mealtypeModal">{{mealtype.name}}</h5>
+                    <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="mealtypeModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <p>
+                        <label>Name: </label>
+                        <input type="text" name="name" value="{{ mealtype.name }}" class="form-control">
+                    </p>
+                     <p>
+                        <label>Adult Price:</label>
+                        <input type="number" name="price_adt" value="{{ mealtype.price_adt }}" class="form-control">
+                    </p>
+                    <p>
+                        <label>Child Price:</label>
+                        <input type="number" name="price_chd" value="{{ mealtype.price_chd }}" class="form-control">
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                </div>
+                
+            </form>
+        </div>
+        </div>
+    </div>
+
+    <br>
 {% endfor %}
 <br>
+
 
 <a href="{% url 'invoices:create_mealtype' %}">+ MealType</a>
 

@@ -326,14 +326,16 @@ def create_or_update_invoice(request, pk):
 
 from django.views.generic.list import ListView
 
-class MealTypeListView(ListView): 
-    model = MealType
-    template_name = 'invoices/mealtype_list.html'
-    context_object_name = 'mealtype_list'
+@login_required
+def mealtype_list(request): 
+    
+    mealtype_list = MealType.objects.all()
 
-    def get_queryset(self): 
-        queryset = super().get_queryset()
-        return queryset
+    context = {
+        'mealtype_list': mealtype_list
+    }
+    return render(request, 'invoices/mealtype_list.html', context)
+
             
 
 @login_required
@@ -351,6 +353,22 @@ def create_mealtype(request):
         'form': form
     }
     return render(request, 'invoices/create_mealtype.html', context)
+
+
+@login_required
+def update_mealtype(request, pk): 
+    mealtype = get_object_or_404(MealType, pk=pk)
+    print('mealtype: ' + str(mealtype))
+    if mealtype: 
+        if request.method == 'POST': 
+            form = MealTypeForm(request.POST, instance=mealtype)
+            if form.is_valid(): 
+                form.save()
+                return redirect('invoices:mealtype_list')
+        else: 
+            form = MealTypeForm(instance=mealtype)
+            return render(request, 'invoices/mealtype_list.html', {'form': form})
+
     
 
 class AttractionTypeListView(ListView): 
