@@ -458,16 +458,13 @@ def update_vehicletype(request, pk):
         else: 
             form = VehicleTypeForm(instance=vehicletype)
             return redirect('invoices:vehicletype_list')
-            
 
-class GuideInvoiceTypeListView(ListView): 
-    model = GuideInvoiceType
-    template_name = 'invoices/guideinvoicetype_list.html'
-    context_object_name = 'guideinvoicetype_list'
+@login_required
+def guideinvoicetype_list(request): 
 
-    def get_queryset(self): 
-        queryset = super().get_queryset()
-        return queryset
+    guideinvoicetype_list = GuideInvoiceType.objects.all()
+
+    return render(request, 'invoices/guideinvoicetype_list.html', {'guideinvoicetype_list': guideinvoicetype_list})
 
 
 @login_required
@@ -487,6 +484,23 @@ def create_guideinvoicetype(request):
             'form': form
         }
         return render(request, 'invoices/create_guideinvoicetype.html', context)
+
+
+@login_required
+def update_guideinvoicetype(request, pk): 
+    guideinvoicetype = get_object_or_404(GuideInvoiceType, pk=pk)
+
+    if guideinvoicetype:
+        if request.method == 'POST': 
+            form = GuideInvoiceTypeForm(request.POST, instance=guideinvoicetype)
+
+            if form.is_valid(): 
+                form.save()
+                return redirect("invoices:guideinvoicetype_list")
+        
+        else: 
+            form = GuideInvoiceType(instance=guideinvoicetype)
+            return render(request, 'invoices/guideinvoicetype_list.html', {'form': form})
 
 
 @login_required
