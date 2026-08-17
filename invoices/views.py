@@ -583,6 +583,15 @@ def update_guidetiptype(request, pk):
 
 
 @login_required
+def delete_guidetiptype(request, pk): 
+    guidetiptype = get_object_or_404(GuideTipType, pk=pk)
+
+    if guidetiptype: 
+        guidetiptype.delete()
+        return redirect('invoices:tiptype_list')
+
+
+@login_required
 def create_drivertiptype(request): 
     
     if request.method == 'POST': 
@@ -616,4 +625,10 @@ def update_drivertiptype(request, pk):
             drivertip_form = DriverTipTypeForm(instance=drivertiptype)
             return render(request, 'invoices/tiptype_list.html', {'drivertip_form': drivertip_form})
 
-        
+@login_required
+def delete_drivertiptype(request, pk): 
+    drivertiptype = get_object_or_404(DriverTipType, pk=pk)
+
+    if drivertiptype: 
+        drivertiptype.delete()
+        return redirect('invoices:tiptype_list')

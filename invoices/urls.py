@@ -26,6 +26,8 @@ urlpatterns = [
     path('tiptype_list/', views.tiptype_list, name='tiptype_list'), 
     path('create_guidetiptype/', views.create_guidetiptype, name='create_guidetiptype'),
     path('update_guidetiptype/<int:pk>/', views.update_guidetiptype, name='update_guidetiptype'), 
+    path('delete_guidetiptype/<int:pk>/', views.delete_guidetiptype, name='delete_guidetiptype'), 
     path('create_drivertiptype/', views.create_drivertiptype, name='create_drivertiptype'),
-    path('update_drivertiptype/<int:pk>/', views.update_drivertiptype, name='update_drivertiptype')
+    path('update_drivertiptype/<int:pk>/', views.update_drivertiptype, name='update_drivertiptype'),
+    path('delete_drivertiptype/<int:pk>/', views.delete_drivertiptype, name='delete_drivertiptype'), 
 ]
