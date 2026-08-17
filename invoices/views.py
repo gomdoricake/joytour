@@ -527,6 +527,15 @@ def update_guideinvoicetype(request, pk):
 
 
 @login_required
+def delete_guideinvoicetype(request, pk): 
+    guideinvoicetype = get_object_or_404(GuideInvoiceType, pk=pk)
+
+    if guideinvoicetype: 
+        guideinvoicetype.delete()
+        return redirect("invoices:guideinvoicetype_list") 
+
+
+@login_required
 def tiptype_list(request): 
     guide_tip = GuideTipType.objects.all()
     driver_tip = DriverTipType.objects.all()
