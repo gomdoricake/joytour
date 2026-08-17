@@ -474,6 +474,15 @@ def update_vehicletype(request, pk):
 
 
 @login_required
+def delete_vehicletype(request, pk): 
+    vehicletype = get_object_or_404(VehicleType, pk=pk)
+
+    if vehicletype: 
+        vehicletype.delete()
+        return redirect('invoices:vehicletype_list')
+
+
+@login_required
 def guideinvoicetype_list(request): 
 
     guideinvoicetype_list = GuideInvoiceType.objects.all()

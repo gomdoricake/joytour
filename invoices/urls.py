@@ -18,6 +18,7 @@ urlpatterns = [
     path('vehicletype_list/', views.vehicletype_list, name='vehicletype_list'),
     path('create_vehicletype/', views.create_vehicletype, name='create_vehicletype'), 
     path('update_vehicletype/<int:pk>/', views.update_vehicletype, name='update_vehicletype'),
+    path('delete_vehicletype/<int:pk>/', views.delete_vehicletype, name='delete_vehicletype'),
     path('guideinvoicetype_list/', views.guideinvoicetype_list, name='guideinvoicetype_list'), 
     path('create_guideinvoicetype/', views.create_guideinvoicetype, name='create_guideinvoicetype'),
     path('update_guideinvoicetype/<int:pk>/', views.update_guideinvoicetype, name='update_guideinvoicetype'),
