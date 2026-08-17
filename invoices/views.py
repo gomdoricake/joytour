@@ -357,7 +357,6 @@ def create_mealtype(request):
 @login_required
 def update_mealtype(request, pk): 
     mealtype = get_object_or_404(MealType, pk=pk)
-    print('mealtype: ' + str(mealtype))
     if mealtype: 
         if request.method == 'POST': 
             form = MealTypeForm(request.POST, instance=mealtype)
@@ -367,6 +366,15 @@ def update_mealtype(request, pk):
         else: 
             form = MealTypeForm(instance=mealtype)
             return render(request, 'invoices/mealtype_list.html', {'form': form})
+
+@login_required
+def delete_mealtype(request, pk): 
+    mealtype = get_object_or_404(MealType, pk=pk)
+
+    if mealtype: 
+        mealtype.delete()
+        return redirect('invoices:mealtype_list')
+
 
 
 @login_required

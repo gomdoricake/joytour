@@ -9,6 +9,7 @@ urlpatterns = [
     path('mealtype_list/', views.mealtype_list, name='mealtype_list'),
     path('create_mealtype/', views.create_mealtype, name='create_mealtype'),
     path('update_mealtype/<int:pk>/', views.update_mealtype, name='update_mealtype'),
+    path('delete_mealtype/<int:pk>/', views.delete_mealtype, name='delete_mealtype'),
     path('attractiontype_list/', views.attractiontype_list, name='attractiontype_list'),
     path('create_attractiontype/', views.create_attractiontype, name='create_attractiontype'),
     path('update_attractiontype/<int:pk>/', views.update_attractiontype, name='update_attractiontype'), 
