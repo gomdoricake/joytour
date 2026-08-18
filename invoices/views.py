@@ -179,7 +179,14 @@ def create_or_update_invoice(request, pk):
             invoice.tip_total = guidetipresult + drivertipresult
 
 
-            invoice.grand_total = invoice.meal_total + invoice.attraction_total + invoice.vehicle_total + invoice.guide_invoice_total + invoice.tip_total + invoice.agent.operation_fee
+            meal_total = invoice.meal_total if invoice.meal_total else 0
+            attraction_total = invoice.attraction_total if invoice.attraction_total else 0
+            vehicle_total = invoice.vehicle_total if invoice.vehicle_total else 0
+            guide_invoice_total = invoice.guide_invoice_total if invoice.guide_invoice_total else 0
+            tip_total = invoice.tip_total if invoice.tip_total else 0
+            operation_fee = invoice.agent.operation_fee if invoice.agent and invoice.agent.operation_fee else 0
+
+            invoice.grand_total = meal_total + attraction_total + vehicle_total + guide_invoice_total + tip_total 
 
             invoice.save()
 
@@ -196,20 +203,25 @@ def create_or_update_invoice(request, pk):
             temp_meals = invoice.meals.values()
             meal_initial_data = []
 
-            for meal in temp_meals:
-                mealtype = MealType.objects.get(name=meal['restaurant'])
 
-                adt = int(float(meal['price_adt']) / float(mealtype.price_adt)) if meal['price_adt'] and mealtype else 0
-                chd = int(float(meal['price_chd']) / float(mealtype.price_chd)) if meal['price_chd'] and mealtype else 0
-                
-                meal_initial_data.append(
-                    {
-                        'mealtype': mealtype, 
-                        'date': meal['date'],
-                        'adt': adt,
-                        'chd': chd,
-                    }
-                ) 
+            for meal in temp_meals:
+                if meal: 
+                    if MealType.objects.filter(name=meal['restaurant']).exists(): 
+                        mealtype = MealType.objects.get(name=meal['restaurant'])
+                    else: 
+                        mealtype = None
+
+                    adt = int(float(meal['price_adt']) / float(mealtype.price_adt)) if meal['price_adt'] and mealtype else 0
+                    chd = int(float(meal['price_chd']) / float(mealtype.price_chd)) if meal['price_chd'] and mealtype else 0
+                    
+                    meal_initial_data.append(
+                        {
+                            'mealtype': mealtype, 
+                            'date': meal['date'],
+                            'adt': adt,
+                            'chd': chd,
+                        }
+                    ) 
 
             initial_meal_formset = MealFormSet(prefix='meal', initial=meal_initial_data) 
 
@@ -282,16 +294,16 @@ def create_or_update_invoice(request, pk):
 
             for tip in temp_tips:
 
-                guidetip_type = tip.guidetip_type
-                drivertip_type = tip.drivertip_type
+                guidetip_type = tip.guidetip_type if tip.guidetip_type else None
+                drivertip_type = tip.drivertip_type if tip.drivertip_type else None
 
                 tips_initial_data.append(
                     {
                         'guidetiptype': guidetip_type, 
                         'drivertiptype': drivertip_type,
                         'date': tip.date,
-                        'price_guide': guidetip_type.price,
-                        'price_driver': drivertip_type.price
+                        'price_guide': guidetip_type.price if guidetip_type else 0,
+                        'price_driver': drivertip_type.price if drivertip_type else 0
                     }
                 ) 
 

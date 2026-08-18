@@ -124,6 +124,11 @@ def group_detail(request, pk):
         guideinvoices = GuideInvoice.objects.filter(invoice=invoice)
         tips = Tip.objects.filter(invoice=invoice)
 
+        operation_fee = invoice.agent.operation_fee if invoice.agent and invoice.agent.operation_fee else 0
+        invoice.grand_total = invoice.grand_total + operation_fee
+
+        invoice.save()
+
         context = {
             'group': group,
             'invoice': invoice,

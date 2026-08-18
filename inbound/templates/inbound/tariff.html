@@ -3,16 +3,19 @@
 {% block content %}
 
 
-<a href="{% url 'inbound:agent_list' %}" class="menu-link">AGENTS</a>
 
 
 <link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
 
 
 <div class="detail-actions">
-    <a href="{% url 'inbound:tariff' %}" class="btn-text-back">&larr; Back to Tariff</a>
+    <a href="{% url 'inbound:index' %}" class="btn-text-back">&larr; Back to Dashboard</a>
 </div>
 
+
+<h1>Tariff </h1>
+<h2>Agent</h2>
+<a href="{% url 'inbound:agent_list' %}" class="menu-link">AGENTS</a>
 
 <h2>Meal</h2>
 {% for mealtype in mealtype_list %}

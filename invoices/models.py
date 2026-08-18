@@ -90,7 +90,7 @@ class GuideInvoice(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='guideinvoices')
     guideinvoice_type = models.ForeignKey(GuideInvoiceType, on_delete=models.SET_NULL, related_name='guideinvoices', null=True, blank=True)
     date = models.DateField(null=True, blank=True)
-    guideinvoice_name = models.CharField(max_length=20, null=True, blank=True)
+    guideinvoice_name = models.CharField(max_length=50, null=True, blank=True)
     price_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def __str__(self):
