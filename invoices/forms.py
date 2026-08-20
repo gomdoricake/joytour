@@ -16,12 +16,12 @@ class MealForm(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    adt = forms.IntegerField(
+    pax_adt = forms.IntegerField(
         min_value = 0, 
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
-    chd = forms.IntegerField(
+    pax_chd = forms.IntegerField(
         min_value = 0, 
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
@@ -42,13 +42,11 @@ class MealForm(forms.Form):
     def clean(self): 
         cleaned_data = super().clean()
 
-        adt = cleaned_data.get('adt') or 0
-        chd = cleaned_data.get('chd') or 0
-        tc = cleaned_data.get('tc') or 0
+        pax_adt = cleaned_data.get('pax_adt') or 0
+        pax_chd = cleaned_data.get('pax_chd') or 0
 
-        cleaned_data['adt'] = adt
-        cleaned_data['chd'] = chd
-        cleaned_data['tc'] = tc
+        cleaned_data['pax_adt'] = pax_adt
+        cleaned_data['pax_chd'] = pax_chd
 
         return cleaned_data
 
@@ -71,20 +69,27 @@ class AttractionForm(forms.Form):
     )
 
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    adt = forms.IntegerField(
+    pax_adt = forms.IntegerField(
         min_value = 0, 
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
-    chd = forms.IntegerField(
+    pax_chd = forms.IntegerField(
         min_value = 0, 
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
-    tc = forms.IntegerField(
-        min_value = 0, 
-        required=False,
-        widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
+    price_adt = forms.DecimalField( 
+        label='ADT price',
+        required=False,           
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
+    )
+    price_chd = forms.DecimalField( 
+        label='CHD price',
+        required=False,           
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
     )
 
     def clean(self): 
@@ -92,11 +97,9 @@ class AttractionForm(forms.Form):
 
         adt = cleaned_data.get('adt') or 0
         chd = cleaned_data.get('chd') or 0
-        tc = cleaned_data.get('tc') or 0
 
         cleaned_data['adt'] = adt
         cleaned_data['chd'] = chd
-        cleaned_data['tc'] = tc
 
         return cleaned_data
 

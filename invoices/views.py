@@ -58,11 +58,11 @@ def create_or_update_invoice(request, pk):
                     
     
 
-                    pax_adt = form.cleaned_data.get('adt') if form.cleaned_data.get('adt') else (group.adt + group.tc if group.adt and group.tc else 0)
-                    pax_chd = form.cleaned_data.get('chd') if form.cleaned_data.get('chd') else (group.tc if group.chd else 0)
+                    pax_adt = form.cleaned_data.get('pax_adt') if form.cleaned_data.get('pax_adt') else (group.adt + group.tc if group.adt and group.tc else 0)
+                    pax_chd = form.cleaned_data.get('pax_chd') if form.cleaned_data.get('pax_chd') else (group.tc if group.chd else 0)
                     
-                    meal.adt = pax_adt
-                    meal.chd = pax_chd
+                    meal.pax_adt = pax_adt
+                    meal.pax_chd = pax_chd
                 
 
                     meal.price_adt = form.cleaned_data.get('price_adt') if form.cleaned_data.get('price_adt') else (mealtype.price_adt if mealtype.price_adt else 0)
@@ -95,22 +95,22 @@ def create_or_update_invoice(request, pk):
                     attraction.attraction_name = attractiontype.name
                     attraction.date = form.cleaned_data.get('date')
 
-                    pax_adt = form.cleaned_data.get('adt') if form.cleaned_data.get('adt') else (group.adt if group.adt else 0)
-                    pax_chd = form.cleaned_data.get('chd') if form.cleaned_data.get('chd') else (group.adt if group.chd else 0)
-                    pax_tc = form.cleaned_data.get('tc') if form.cleaned_data.get('tc') else (group.adt if group.tc else 0)
+                    attraction.pax_adt = form.cleaned_data.get('pax_adt') if form.cleaned_data.get('pax_adt') else (group.adt + group.tc if group.adt and group.tc else 0)
+                    attraction.pax_chd = form.cleaned_data.get('pax_chd') if form.cleaned_data.get('pax_chd') else (group.chd if group.chd else 0)
 
-                    attraction.adt = pax_adt
-                    attraction.chd = pax_chd
-                    attraction.tc = pax_tc
+                    attraction.price_adt = form.cleaned_data.get('price_adt') if form.cleaned_data.get('price_adt') else (attractiontype.price_adt if attractiontype.price_adt else 0)
+                    attraction.price_chd = form.cleaned_data.get('price_chd') if form.cleaned_data.get('price_chd') else (attractiontype.price_chd if attractiontype.price_chd else 0)
+        
 
-                    attraction.price_adt = (pax_adt + pax_tc) * attractiontype.price_adt 
-                    attraction.price_chd = pax_chd * attractiontype.price_chd
+                    attraction.price_adt_total = attraction.pax_adt * attraction.price_adt
 
-                    attraction.price_total = attraction.price_adt + attraction.price_chd
+                    attraction.price_chd_total = attraction.pax_chd * attraction.price_chd
+
+                    attraction.price_grand_total = attraction.price_adt_total + attraction.price_chd_total
                     attraction.save()
 
             attraction_result = Attraction.objects.filter(invoice=invoice).aggregate(
-                attraction_total = Sum('price_total')
+                attraction_total = Sum('price_grand_total')
             )
 
             invoice.attraction_total = attraction_result['attraction_total'] or 0
@@ -238,8 +238,8 @@ def create_or_update_invoice(request, pk):
                         {
                             'mealtype': mealtype, 
                             'date': meal['date'],
-                            'adt': meal['adt'],
-                            'chd': meal['chd'],
+                            'pax_adt': meal['pax_adt'],
+                            'pax_chd': meal['pax_chd'],
                             'price_adt': meal['price_adt'], 
                             'price_chd': meal['price_chd'],
                         }
@@ -254,17 +254,17 @@ def create_or_update_invoice(request, pk):
             for attraction in temp_attractions:
                 attractiontype = attraction.attraction_type
 
-                adt = attraction.adt
-                chd = attraction.chd
-                tc = attraction.tc
+                pax_adt = attraction.pax_adt
+                pax_chd = attraction.pax_chd
                 
                 attraction_initial_data.append(
                     {
                         'attractiontype': attractiontype, 
                         'date': attraction.date,
-                        'adt': adt,
-                        'chd': chd,
-                        'tc': tc
+                        'pax_adt': pax_adt,
+                        'pax_chd': pax_chd,
+                        'price_adt': attraction.price_adt, 
+                        'price_chd': attraction.price_chd
                     }
                 ) 
             

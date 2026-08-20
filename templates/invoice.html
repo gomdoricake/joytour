@@ -33,13 +33,13 @@ ATTRACTION<br>
 {% for attraction in attractions %}
 {{ attraction.date | date:"Y-m-d" }}
 {{ attraction.attraction_name }}
-ADT PAX: {{ attraction.adt }} <br>
-${{ attraction.price_adt }}
-CHD PAX: {{ attraction.chd }}<br>
-TC PAX: {{ attraction.tc }} <br>
-
-${{ attraction.price_chd }}
-${{ attraction.price_total}}<br>
+ADT PAX: {{ attraction.pax_adt }} |
+PRICE: ${{ attraction.price_adt }} |
+TOTAL: ${{ attraction.price_adt_total }} |
+CHD PAX: {{ attraction.pax_chd }} |
+PRICE: ${{ attraction.price_chd }} | 
+TOTAL: ${{ attraction.price_chd_total }} |
+Total: ${{ attraction.price_grand_total }}
 {% endfor %}
 Attraction: ${{ invoice.attraction_total }}<br><br>
 
