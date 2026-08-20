@@ -162,6 +162,21 @@ def guidereport_inbound_events(request):
 
             events = formset.save()
 
+            for form in formset.forms: 
+                if form.cleaned_data and not form.cleaned_data.get('DELETE'): 
+                    overtime_val = form.cleaned_data.get('overtime')
+
+                    if overtime_val and float(overtime_val) > 0: 
+                        event_instance = form.instance 
+                        
+                        overtime_exp = float(overtime_val) * 30
+
+                        guideexp = GuideExp.objects.create(
+                            guide_report=guide_report,
+                            expense_type='overtime',
+                            expense=overtime_exp
+                        )
+
             first_event = guide_report.events.order_by('id').first()
             if first_event and first_event.report_date:
                 try:
@@ -589,6 +604,8 @@ def guidereport_inbound_summary(request):
     s3_exp_dict = json.loads(raw_s3_dict) if isinstance(raw_s3_dict, str) else raw_s3_dict
 
     computed_fee = Decimal('0.00')
+
+
     for evt in events:
         if hasattr(evt, 'calculate_guide_fee'):
             computed_fee += safe_decimal(evt.calculate_guide_fee())
@@ -601,6 +618,7 @@ def guidereport_inbound_summary(request):
     total_attraction = sum(safe_decimal(a.expense) for a in attraction_qs)
     total_fuel = sum(safe_decimal(f.expense) for f in fuel_qs)
     total_inbound_exp = sum(safe_decimal(e.get('expense', 0)) for e in exp_list)
+
 
     grand_total = guide_fee_decimal + total_restaurant + total_attraction + total_fuel + total_inbound_exp
 

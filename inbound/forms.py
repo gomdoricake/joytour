@@ -1,5 +1,6 @@
 from django import forms
-from inbound.models import Group, Agent
+from django.forms import formset_factory
+from inbound.models import Group, Agent, GroupFile, Itinerary
 
 
 class AgentForm(forms.ModelForm): 
@@ -28,4 +29,24 @@ class GroupForm(forms.ModelForm):
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date'}),
         }
-        
+
+
+
+class GroupFileForm(forms.Form): 
+    hotel = forms.CharField(max_length=30)
+    meeting_board = forms.CharField(max_length=30)
+
+
+class ItineraryForm(forms.ModelForm): 
+    class Meta: 
+        model = Itinerary
+        fields = ['date', 'schedule', 'time', 'memo', 'payment']
+        widgets = {
+            'time': forms.TimeInput(attrs={'type': 'time'}),
+        }
+
+ItineraryFormSet = formset_factory(
+    ItineraryForm,
+    extra=0
+)
+

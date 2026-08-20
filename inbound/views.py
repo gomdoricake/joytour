@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from .forms import GroupForm, AgentForm
-from .models import Agent, Group
+from .models import Agent, Group, GroupFile
+from django.forms import formset_factory
+from .forms import GroupFileForm, ItineraryForm, ItineraryFormSet
 from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip, \
                                     MealType, AttractionType, VehicleType, GuideInvoiceType, \
                                     GuideTipType, DriverTipType
@@ -215,3 +217,43 @@ def delete_group(request, pk):
     return redirect('inbound:index')
 
 
+
+@login_required
+def create_groupfile(request, pk): 
+    
+    group = get_object_or_404(Group, pk=pk)
+
+    if request.method == 'POST': 
+        form = GroupFileForm(request.POST)
+
+        if form.is_valid():    
+
+            if form.cleaned_data: 
+
+                GroupFile.objects.update_or_create(
+                    group=group,
+                    defaults = {
+                        'hotel': form.cleaned_data['hotel'], 
+                        'meeting_board': form.cleaned_data['meeting_board']
+                    }
+                )
+
+            return redirect('inbound:group_detail', pk=pk)
+    
+    else: 
+        existing_file = getattr(group, 'groupfile', None)
+        
+        if existing_file: 
+            initial_data = {
+                'group': existing_file.group,
+                'hotel': existing_file.hotel,
+                'meeting_board': existing_file.meeting_board
+            }
+            form = GroupFileForm(initial=initial_data)
+        else: 
+            form = GroupFileForm()
+        return render(request, 'inbound/create_groupfile.html', {'group': group, 'form': form})
+        
+            
+
+    

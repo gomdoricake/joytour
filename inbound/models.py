@@ -47,13 +47,23 @@ class Group(models.Model):
         self.joycode = agentcode + day + month + year + group_or_fit
 
         super().save(*args, **kwargs)
+    
+    def __str__(self): 
+        return f"{self.joycode}"
 
 
 
 
-class GroupFile(Group):
+class GroupFile(models.Model):
+    group = models.OneToOneField(Group, on_delete=models.SET_NULL, related_name='groupfile', null=True, blank=True)
     hotel = models.CharField(max_length=30, null=True, blank=True)
     meeting_board = models.CharField(max_length=30, null=True, blank=True)
+
+    def __str__(self): 
+        if self.group: 
+            return f"Group File {self.group.joycode}"
+        else: 
+            return f"."
 
 
 class Itinerary(models.Model): 

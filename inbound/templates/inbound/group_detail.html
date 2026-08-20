@@ -65,10 +65,15 @@
         </div>
     </div>
 
-{% if groupfile %}
-{% else %}
 
+{% if groupfile %}
+<a href="{% url 'inbound:update_groupfile' group.pk %}">Update Groupfile</a>
+{% else %}
+<a href="{% url 'inbound:create_groupfile' group.pk %}">Create Groupfile</a>
 {% endif %}
+
+
+{% include 'groupfile.html' %}
 
 
 {% if invoice %}
@@ -76,7 +81,6 @@
 {% else %}
 <a href="{% url 'invoices:create_or_update_invoice' group.pk %}">+ Invoice</a>
 {% endif %}
-
 
 {% include 'invoice.html' %}
 

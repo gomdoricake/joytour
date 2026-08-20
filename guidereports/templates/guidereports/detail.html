@@ -386,7 +386,7 @@
           <span style="font-weight: 700; color: #0f172a;">{{ event.eventcode }}</span>
           {% if guide_report.day_inbound == 'INBOUND' %} <span style="color: #94a3b8; font-size: 12px;">({{ event.hours }} hrs)</span> {% endif %}
         </span>
-        <span class="price-black">${{ event.guide_fee }}</span>
+        <span class="price-black">${{ event.guide_fee|floatformat:2 }}</span>
       </li>
 
       {% if event.overtime and event.overtime != "0" %}
@@ -451,13 +451,13 @@
       <li class="xero-data-row">
         <span>Overtime Fee — <strong style="color: #0284c7;">{{ event.overtime }} hrs</strong></span>
         {% widthratio event.overtime 1 30 as overtime_cost %}
-        <span class="price-black">${{ overtime_cost|floatformat:1 }}</span>
+        <span class="price-black">${{ overtime_cost|floatformat:2 }}</span>
       </li>
       {% endif %}
       {% endfor %}
       <li class="xero-subtotal-row">
         <span class="subtotal-label">Expense Subtotal (inc. GST)</span>
-        <span class="subtotal-val">${{ expense_fee|floatformat:1 }}</span>
+        <span class="subtotal-val">${{ expense_fee|floatformat:2 }}</span>
       </li>
     </ul>
   </div>
@@ -527,7 +527,7 @@
       {% endif %}
       <li class="xero-subtotal-row">
         <span class="subtotal-label">BP Subtotal (inc. GST)</span>
-        <span class="subtotal-val">${{ fuel_fee|floatformat:1 }}</span>
+        <span class="subtotal-val">${{ fuel_fee|floatformat:2 }}</span>
       </li>
 
     </ul>
