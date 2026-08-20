@@ -9,6 +9,7 @@ from django.db.models import Sum
 @login_required
 def create_or_update_invoice(request, pk):
     group = get_object_or_404(Group, pk=pk)
+    invoice = get_object_or_404(Invoice, pk=pk)
 
     if request.method == 'POST': 
         meal_formset = MealFormSet(request.POST, prefix='meal')         
@@ -54,19 +55,29 @@ def create_or_update_invoice(request, pk):
 
                     meal.date = form.cleaned_data.get('date')
                     meal.restaurant = mealtype.name
-                    pax_tc = form.cleaned_data.get('tc') if form.cleaned_data.get('tc') else (group.tc if group.tc else 0)
                     
-                    price_adt = (form.cleaned_data.get('adt') + pax_tc) * mealtype.price_adt if form.cleaned_data.get('adt') else (group.adt * mealtype.price_adt if group.adt else 0)
-                    price_chd = form.cleaned_data.get('chd') * mealtype.price_chd if form.cleaned_data.get('chd') else (group.chd * mealtype.price_chd if group.chd else 0)
-                    meal.price_adt = price_adt
-                    meal.price_chd = price_chd
+    
 
-                    meal.price_total = price_adt + price_chd
+                    pax_adt = form.cleaned_data.get('adt') if form.cleaned_data.get('adt') else (group.adt + group.tc if group.adt and group.tc else 0)
+                    pax_chd = form.cleaned_data.get('chd') if form.cleaned_data.get('chd') else (group.tc if group.chd else 0)
+                    
+                    meal.adt = pax_adt
+                    meal.chd = pax_chd
+                
+
+                    meal.price_adt = form.cleaned_data.get('price_adt') if form.cleaned_data.get('price_adt') else (mealtype.price_adt if mealtype.price_adt else 0)
+                    meal.price_chd = form.cleaned_data.get('price_chd') if form.cleaned_data.get('price_chd') else (mealtype.price_chd if mealtype.price_chd else 0)
+
+                        
+                    meal.price_adt_total = (pax_adt) * meal.price_adt
+                    meal.price_chd_total = pax_chd * meal.price_chd
+
+                    meal.price_grand_total = meal.price_adt_total + meal.price_chd_total
                     meal.save()
 
             
             meal_result = Meal.objects.filter(invoice=invoice).aggregate(
-                meal_total = Sum('price_total')
+                meal_total = Sum('price_grand_total')
             )
 
             invoice.meal_total = meal_result['meal_total'] or 0
@@ -84,8 +95,16 @@ def create_or_update_invoice(request, pk):
                     attraction.attraction_name = attractiontype.name
                     attraction.date = form.cleaned_data.get('date')
 
-                    attraction.price_adt = form.cleaned_data.get('adt') * attractiontype.price_adt if form.cleaned_data.get('adt') else (group.adt * attractiontype.price_adt if group.adt else 0)
-                    attraction.price_chd = form.cleaned_data.get('chd') * attractiontype.price_chd if form.cleaned_data.get('chd') else (group.chd * attractiontype.price_chd if group.chd else 0)
+                    pax_adt = form.cleaned_data.get('adt') if form.cleaned_data.get('adt') else (group.adt if group.adt else 0)
+                    pax_chd = form.cleaned_data.get('chd') if form.cleaned_data.get('chd') else (group.adt if group.chd else 0)
+                    pax_tc = form.cleaned_data.get('tc') if form.cleaned_data.get('tc') else (group.adt if group.tc else 0)
+
+                    attraction.adt = pax_adt
+                    attraction.chd = pax_chd
+                    attraction.tc = pax_tc
+
+                    attraction.price_adt = (pax_adt + pax_tc) * attractiontype.price_adt 
+                    attraction.price_chd = pax_chd * attractiontype.price_chd
 
                     attraction.price_total = attraction.price_adt + attraction.price_chd
                     attraction.save()
@@ -193,7 +212,11 @@ def create_or_update_invoice(request, pk):
             return redirect('inbound:group_detail', pk=group.pk)
 
         else: 
-            return redirect('invoices:create_or_update_invoice', pk=group.pk)
+            context = {
+                'invoice': invoice,
+                'pk': group.pk
+            }
+            return render(request, 'invoices/create_invoice.html', context)
     # GET
     else: 
 
@@ -210,16 +233,15 @@ def create_or_update_invoice(request, pk):
                         mealtype = MealType.objects.get(name=meal['restaurant'])
                     else: 
                         mealtype = None
-
-                    adt = int(float(meal['price_adt']) / float(mealtype.price_adt)) if meal['price_adt'] and mealtype else 0
-                    chd = int(float(meal['price_chd']) / float(mealtype.price_chd)) if meal['price_chd'] and mealtype else 0
                     
                     meal_initial_data.append(
                         {
                             'mealtype': mealtype, 
                             'date': meal['date'],
-                            'adt': adt,
-                            'chd': chd,
+                            'adt': meal['adt'],
+                            'chd': meal['chd'],
+                            'price_adt': meal['price_adt'], 
+                            'price_chd': meal['price_chd'],
                         }
                     ) 
 
@@ -232,9 +254,9 @@ def create_or_update_invoice(request, pk):
             for attraction in temp_attractions:
                 attractiontype = attraction.attraction_type
 
-                adt = int(float(attraction.price_adt) / float(attractiontype.price_adt)) if attractiontype and attraction.price_adt else 0
-                chd = int(float(attraction.price_chd) / float(attractiontype.price_chd)) if attractiontype and attraction.price_chd else 0
-                tc = int(float(attraction.price_tc) / float(attractiontype.price_tc)) if attractiontype and attraction.price_tc else 0
+                adt = attraction.adt
+                chd = attraction.chd
+                tc = attraction.tc
                 
                 attraction_initial_data.append(
                     {
@@ -310,6 +332,7 @@ def create_or_update_invoice(request, pk):
             tip_initial_formset = TipFormSet(prefix='tip', initial=tips_initial_data)
 
             context = {
+                'invoice': invoice,
                 'meal_formset': initial_meal_formset,
                 'attraction_formset': initial_attraction_formset,
                 'vehicle_formset': vehicle_initial_formset,
@@ -326,6 +349,7 @@ def create_or_update_invoice(request, pk):
         tip_formset = TipFormSet(prefix='tip')
         
         context = {
+            'invoice': invoice,
             'meal_formset': meal_formset, 
             'attraction_formset': attraction_formset,
             'vehicle_formset': vehicle_formset,

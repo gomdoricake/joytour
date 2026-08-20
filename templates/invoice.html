@@ -18,10 +18,14 @@ REF NUMBER | {{ invoice.agent_ref}}
 MEAL <br>
 {% for meal in meals %}
 {{ meal.date | date:"Y-m-d" }}
-{{ meal.restaurant }}
-${{ meal.price_adt }}
-${{ meal.price_chd }}
-Total: ${{ meal.price_total }}<br>
+{{ meal.restaurant }} |
+ADT PAX: {{ meal.adt }} |
+PRICE: ${{ meal.price_adt }} |
+TOTAL : ${{ meal.price_adt_total }} |
+CHD PAX: {{ meal.chd }} |
+PRICE: ${{ meal.price_chd }} | 
+TOTAL: ${{ meal.price_chd_total }} | 
+Total: ${{ meal.price_grand_total }}<br>
 {% endfor %}
 Meal TOTAL: ${{ invoice.meal_total }}<br><br>
 
@@ -29,7 +33,11 @@ ATTRACTION<br>
 {% for attraction in attractions %}
 {{ attraction.date | date:"Y-m-d" }}
 {{ attraction.attraction_name }}
+ADT PAX: {{ attraction.adt }} <br>
 ${{ attraction.price_adt }}
+CHD PAX: {{ attraction.chd }}<br>
+TC PAX: {{ attraction.tc }} <br>
+
 ${{ attraction.price_chd }}
 ${{ attraction.price_total}}<br>
 {% endfor %}

@@ -1,4 +1,19 @@
 <form method="POST">
+
+<h1>INVOICE</h1>
+FROM | JOY STUDY & TOUR PTY LTD <br>
+ABN/ACN | 75 144 626 844 <br>
+TEL | 03 9602 1200<br>
+EMAIL | inbound@joystudytour.com.au<br>
+INV NUMBER | {{ invoice.joycode }} <br>
+
+<br>
+TO | {{ invoice.agent.name }}<br>
+ABN/ACN | {{ invoice.agent.abn }}<br>
+TEL |  {{ invoice.agent.tel }} <br>
+EMAIL | {{ invoice.agent.email }} <br>
+REF NUMBER | {{ invoice.agent_ref}} 
+<br><br><br><br>
     {% csrf_token %}
     MEAL: 
         <div id="meal-form-container">

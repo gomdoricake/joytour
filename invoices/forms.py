@@ -26,6 +26,18 @@ class MealForm(forms.Form):
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
+    price_adt = forms.DecimalField( 
+        label='ADT price',
+        required=False,           
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
+    )
+    price_chd = forms.DecimalField( 
+        label='CHD price',
+        required=False,           
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
+    )
 
     def clean(self): 
         cleaned_data = super().clean()
