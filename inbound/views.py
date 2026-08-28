@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from .forms import GroupForm, AgentForm, HotelTypeForm
+from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm
 from .models import Agent, Group, GroupFile, HotelType, Hotel
 from django.forms import formset_factory
 from .forms import HotelForm, ItineraryForm, ItineraryFormSet
@@ -384,6 +384,8 @@ def group_groupfile(request, pk):
     guide = group.guide
     hoteltypes = HotelType.objects.all()
     
+    meeting_board_form = GroupFileForm()
+
     form = HotelForm()
 
     if hasattr(group, 'groupfile'): 
@@ -401,6 +403,7 @@ def group_groupfile(request, pk):
         'guide': guide,
         'hotel': hotel,
         'hoteltypes': hoteltypes,
+        'meeting_board_form': meeting_board_form,
         'form': form
     }
     return render(request, 'inbound/group_groupfile.html', context)
@@ -437,7 +440,33 @@ def create_hotel(request, pk):
                 room_type=form.cleaned_data['room_type'],
             )
     return redirect('inbound:group_groupfile', pk)
-    
+
+
+@login_required
+def create_meeting_board(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+    groupfile = GroupFile.objects.filter(group=group).first()
+    if request.method == "POST": 
+        meeting_board_form = GroupFileForm(request.POST, instance=groupfile)
+        if meeting_board_form.is_valid(): 
+            meeting_board_form.save()
+
+    return redirect('inbound:group_groupfile', pk)
+
+@login_required
+def update_meeting_board(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+    groupfile = GroupFile.objects.filter(group=group).first()
+
+    if request.method == "POST": 
+        meeting_board_form = GroupFileForm(request.POST, instance=groupfile)
+        if meeting_board_form.is_valid(): 
+            groupfile.meeting_board = meeting_board_form.cleaned_data['meeting_board'] if meeting_board_form.cleaned_data['meeting_board'] else groupfile.meeting_board
+            groupfile.save()
+            
+    return redirect('inbound:group_groupfile', pk)
+
+
 @login_required
 def update_hotel(request, pk): 
     hotel = get_object_or_404(Hotel, pk=pk)
@@ -502,7 +531,6 @@ def create_group(request):
 
 @login_required
 def update_group(request, pk): 
-    print('pk: ' + str(pk))
     group = get_object_or_404(Group, pk=pk)
     
      

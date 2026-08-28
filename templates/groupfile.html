@@ -18,7 +18,7 @@ PAX:
 {% if group.chd and group.tc %} + {% endif %}
 {% if group.tc %}{{ group.tc }}TC{% endif %}<br>
 
-GUIDE: {{ guide }} | {{ guide.kor_name }} | {{ guide.eng_name }} | {{ guide.email }}
+GUIDE: {{ guide }} | {{ guide.kor_name }} | {{ guide.eng_name }} | {{ guide.email }} <br>
 
 HOTEL: {{ hotel|default:"등록된 호텔 정보 없음" }}
 
@@ -102,6 +102,48 @@ HOTEL: {{ hotel|default:"등록된 호텔 정보 없음" }}
 {% endif %}
 
 
+<br>
+
+미팅보드: 
+{% if groupfile.meeting_board %}
+{{ groupfile.meeting_board }}
+
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#meetingBoardModal">
+    Update
+</button>
+
+<div class="modal fade" id="meetingBoardModal" tabindex="-1" aria-labelledby="meetingBoardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'inbound:update_meeting_board' group.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="meetingBoardModalLabel">새 호텔 등록</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">미팅보드</label>
+                        <input type="text" name="meeting_board" class="form-control" value="{{ groupfile.meeting_board|default:'' }}">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% else %}
+<form method="post" action="{% url 'inbound:create_meeting_board' group.pk %}">
+    {% csrf_token %}
+    {{ meeting_board_form.as_p }}
+    <button type="submit">Save</button>
+</form>
+
+
+{% endif %}
 
 {% else %}
 No Group File Created

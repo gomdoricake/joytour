@@ -30,6 +30,11 @@ class GroupForm(forms.ModelForm):
             'start_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
+class GroupFileForm(forms.ModelForm): 
+    class Meta: 
+        model = GroupFile
+        fields = ['meeting_board']
+
 
 class HotelTypeForm(forms.ModelForm): 
     class Meta: 
@@ -52,7 +57,6 @@ class HotelForm(forms.Form):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )    
-
 
 
 class ItineraryForm(forms.ModelForm): 
