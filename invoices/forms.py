@@ -21,16 +21,16 @@ class MealForm(forms.Form):
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
-    pax_chd = forms.IntegerField(
-        min_value = 0, 
-        required=False,
-        widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
-    )
     price_adt = forms.DecimalField( 
         label='ADT price',
         required=False,           
         initial=0,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
+    )
+    pax_chd = forms.IntegerField(
+        min_value = 0, 
+        required=False,
+        widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
     price_chd = forms.DecimalField( 
         label='CHD price',
@@ -74,17 +74,18 @@ class AttractionForm(forms.Form):
         required=False,
         widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
     )
-    pax_chd = forms.IntegerField(
-        min_value = 0, 
-        required=False,
-        widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
-    )
     price_adt = forms.DecimalField( 
         label='ADT price',
         required=False,           
         initial=0,
         widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
     )
+    pax_chd = forms.IntegerField(
+        min_value = 0, 
+        required=False,
+        widget = forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'enter'})
+    )
+
     price_chd = forms.DecimalField( 
         label='CHD price',
         required=False,           
@@ -128,7 +129,7 @@ class VehicleForm(forms.Form):
         widget=forms.DateInput(attrs={'type': 'date'})
     )
     
-    price = forms.DecimalField(        
+    price_total = forms.DecimalField(        
         max_digits=8,
         decimal_places=2,
         required=False,
@@ -204,21 +205,6 @@ class TipForm(forms.Form):
         queryset = DriverTipType.objects.all(), 
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
-    )
-
-    price_guide = forms.DecimalField(        
-        max_digits=8,
-        decimal_places=2,
-        required=False,
-        min_value=0.01,
-        max_value=999999.99
-    )
-    price_driver = forms.DecimalField(        
-        max_digits=8,
-        decimal_places=2,
-        required=False,
-        min_value=0.01,
-        max_value=999999.99
     )
 
         

@@ -1,91 +1,632 @@
 
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.2">
+
+<style>
+    :root {
+        --primary: #2563eb;
+        --border: #cbd5e1;
+        --bg-light: #f8fafc;
+        --text: #0f172a;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--text);
+        background-color: #f1f5f9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .full-width-container {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--bg-light);
+        padding: 20px 30px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        margin-bottom: 25px;
+    }
+
+    .group-main-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .badge {
+        background: #dbeafe;
+        color: var(--primary);
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .detail-title { margin: 0; font-size: 2.2rem; }
+
+    .info-metrics {
+        display: flex;
+        gap: 30px;
+        font-size: 1rem;
+    }
+
+    .info-metrics div {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-metrics span {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    .info-metrics strong { font-size: 1.1rem; }
+
+    .nav-tabs {
+        display: flex;
+        gap: 15px;
+        border-bottom: 2px solid #e2e8f0;
+        margin-bottom: 30px;
+    }
+
+    .nav-tabs a {
+        padding: 12px 24px;
+        text-decoration: none;
+        color: #64748b;
+        font-weight: 700;
+        font-size: 1.05rem;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+    }
+
+    .nav-tabs a.active {
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin: 35px 0 12px 0;
+        color: #0f172a;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .excel-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 8px;
+    }
+
+    .excel-table th, .excel-table td {
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+    .excel-table th {
+        background-color: #f1f5f9;
+        color: #334155;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .formset-table p {
+        display: flex !important;
+        align-items: center;
+        gap: 15px;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100%;
+    }
+
+    .formset-table label { display: none !important; }
+
+    .formset-table input, .formset-table select {
+        flex: 1;
+        width: 100%;
+        min-width: 80px;
+        box-sizing: border-box;
+        padding: 8px 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+
+    .formset-table input[type="date"] { min-width: 140px; }
+
+    .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+
+    .btn-edit { background: #e2e8f0; color: #334155; }
+    .btn-delete { background: #fee2e2; color: #dc2626; }
+    .btn-add { background: #e0e7ff; color: #3730a3; margin-top: 8px; font-size: 0.95rem; }
+    .btn-remove { background: #fecaca; color: #991b1b; white-space: nowrap; }
+    
+    .grand-total-bar {
+        background: #1e293b;
+        color: #ffffff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        margin-top: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-submit {
+        background: var(--primary);
+        color: white;
+        padding: 14px 40px;
+        font-size: 1.1rem;
+    }
+
+    .meal-form-row p, 
+    .attraction-form-row p, 
+    .vehicle-form-row p, 
+    .guideinvoice-form-row p, 
+    .tip-form-row p {
+        display: flex !important;
+        flex: 1;
+        gap: 10px;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .meal-form-row label, 
+    .attraction-form-row label, 
+    .vehicle-form-row label, 
+    .guideinvoice-form-row label, 
+    .tip-form-row label {
+        display: none !important; 
+    }
+</style>
 <h1>INVOICE</h1>
 {% if invoice %}
+    <div class="invoice-header-grid">
+        <div class="info-group">
+            <p><strong>FROM:</strong> JOY STUDY & TOUR PTY LTD</p>
+            <p><strong>ABN/ACN:</strong> 75 144 626 844 | <strong>TEL:</strong> 03 9602 1200</p>
+            <p><strong>EMAIL:</strong> inbound@joystudytour.com.au</p>
+            <p><strong>INV NUMBER:</strong> {{ invoice.joycode }}</p>
+        </div>
+        <div class="info-group">
+            <p><strong>TO:</strong> {{ invoice.agent.name }}</p>
+            <p><strong>ABN/ACN:</strong> {{ invoice.agent.abn }} | <strong>TEL:</strong> {{ invoice.agent.tel }}</p>
+            <p><strong>EMAIL:</strong> {{ invoice.agent.email }}</p>
+            <p><strong>REF NUMBER:</strong> {{ invoice.agent_ref }}</p>
+        </div>
+    </div>
 
-FROM | JOY STUDY & TOUR PTY LTD <br>
-ABN/ACN | 75 144 626 844 <br>
-TEL | 03 9602 1200<br>
-EMAIL | inbound@joystudytour.com.au<br>
-INV NUMBER | {{ invoice.joycode }} <br>
+<hr class="divider">
 
-<br>
-TO | {{ invoice.agent.name }}<br>
-ABN/ACN | {{ invoice.agent.abn }}<br>
-TEL |  {{ invoice.agent.tel }} <br>
-EMAIL | {{ invoice.agent.email }} <br>
-REF NUMBER | {{ invoice.agent_ref}} 
-<br><br><br><br>
-MEAL <br>
-{% for meal in meals %}
-{{ meal.date | date:"Y-m-d" }}
-{{ meal.restaurant }} |
-ADT PAX: {{ meal.adt }} |
-PRICE: ${{ meal.price_adt }} |
-TOTAL : ${{ meal.price_adt_total }} |
-CHD PAX: {{ meal.chd }} |
-PRICE: ${{ meal.price_chd }} | 
-TOTAL: ${{ meal.price_chd_total }} | 
-Total: ${{ meal.price_grand_total }}<br>
-{% endfor %}
-Meal TOTAL: ${{ invoice.meal_total }}<br><br>
+<form method="POST" class="invoice-form">
+    {% csrf_token %}
 
-ATTRACTION<br>
-{% for attraction in attractions %}
-{{ attraction.date | date:"Y-m-d" }}
-{{ attraction.attraction_name }}
-ADT PAX: {{ attraction.pax_adt }} |
-PRICE: ${{ attraction.price_adt }} |
-TOTAL: ${{ attraction.price_adt_total }} |
-CHD PAX: {{ attraction.pax_chd }} |
-PRICE: ${{ attraction.price_chd }} | 
-TOTAL: ${{ attraction.price_chd_total }} |
-Total: ${{ attraction.price_grand_total }}
-{% endfor %}
-Attraction: ${{ invoice.attraction_total }}<br><br>
+    <div class="form-section">
+        <div class="section-title">MEAL INPUT</div>
+        {{ meal_formset.management_form }}
+        <table class="input-table">
+            <thead>
+                <tr>
+                    <th>Meal Type</th><th>Date</th><th>ADT Pax</th><th>ADT Price</th><th>CHD Pax</th><th>CHD Price</th>
+                    <th>ADT Total</th><th>CHD Total</th><th>Grand Total</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="meal-form-container">
+                {% for form in meal_formset %}
+                <tr class="meal-form-row formset-row">
+                    {% for field in form.visible_fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td class="col-calc-adt">$<span class="row-adt-total">0.00</span></td>
+                    <td class="col-calc-chd">$<span class="row-chd-total">0.00</span></td>
+                    <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+                    <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'meal')">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn-add" id="add-meal-btn">+ Add Meal Row</button>
+    </div>
 
-VEHICLE<br>
-{% for vehicle in vehicles %}
-{{ vehicle.date | date:"Y-m-d" }}
-{{ vehicle.vehicle_name }}
-{{ vehicle.seat }}SEAT
-${{ vehicle.price_total }}<br>
-{% endfor %}
-Vehicle: ${{ invoice.vehicle_total }}<br><br><br>
+    <div class="form-section">
+        <div class="section-title">ATTRACTION INPUT</div>
+        {{ attraction_formset.management_form }}
+        <table class="input-table">
+            <thead>
+                <tr>
+                    <th>Attraction Type</th><th>Date</th><th>ADT Pax</th><th>ADT Price</th><th>CHD Pax</th><th>CHD Price</th>
+                    <th>ADT Total</th><th>CHD Total</th><th>Grand Total</th><th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="attraction-form-container">
+                {% for form in attraction_formset %}
+                <tr class="attraction-form-row formset-row">
+                    {% for field in form.visible_fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td class="col-calc-adt">$<span class="row-adt-total">0.00</span></td>
+                    <td class="col-calc-chd">$<span class="row-chd-total">0.00</span></td>
+                    <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+                    <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'attraction')">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn-add" id="add-attraction-btn">+ Add Attraction Row</button>
+    </div>
+
+    <div class="form-section">
+        <div class="section-title">VEHICLE INPUT</div>
+        {{ vehicle_formset.management_form }}
+        <table class="input-table">
+            <thead>   
+                <tr>
+                    <th>Vehicle Type</th><th>Date</th><th>Price</th><th>Grand Total</th><th>Action</th>
+                </tr>
+            </thead> 
+            <tbody id="vehicle-form-container">
+                {% for form in vehicle_formset %}
+                <tr class="vehicle-form-row formset-row">
+                    {% for field in form.visible_fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+                    <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'vehicle')">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn-add" id="add-vehicle-btn">+ Add Vehicle Row</button>
+    </div>
+
+    <div class="form-section">
+        <div class="section-title">GUIDE INPUT</div>
+        {{ guideinvoice_formset.management_form }}
+        <table class="input-table">
+            <thead>   
+                <tr>
+                    <th>Guide Fee Type</th><th>Date</th><th>Price</th><th>Grand Total</th><th>Action</th>
+                </tr>
+            </thead> 
+
+            <tbody id="guideinvoice-form-container">
+                {% for form in guideinvoice_formset %}
+                <tr class="guideinvoice-form-row formset-row">
+                    {% for field in form.visible_fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+                    <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'guideinvoice')">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn-add" id="add-guideinvoice-btn">+ Add Guide Row</button>
+    </div>
+
+    <div class="form-section">
+        <div class="section-title">TIP INPUT</div>
+        {{ tip_formset.management_form }}
+        <table class="input-table">
+            <thead>   
+                <tr>
+                    <th>Date</th><th>Guide Tip</th><th>Driver Tip</th><th>Grand Total</th><th>Action</th>
+                </tr>
+            </thead> 
+
+            <tbody id="tip-form-container">
+                {% for form in tip_formset %}
+                <tr class="tip-form-row formset-row">
+                    {% for field in form.visible_fields %}
+                    <td>{{ field }}</td>
+                    {% endfor %}
+                    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+                    <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+                    <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'tip')">Delete</button></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="btn-add" id="add-tip-btn">+ Add Tip Row</button>
+    </div>
 
 
-GUIDE<br>
-{% for guide in guideinvoices %}
-{{ guide.date | date:"Y-m-d" }}
-{{ guide.guideinvoice_name }}
-${{ guide.price_total }}<br>
-{% endfor %}
-Guide: ${{ invoice.guide_invoice_total }}<br><br><br>
+    <button type="submit" class="btn-submit">SAVE & SUBMIT INVOICE</button>
+</form>
 
+<h1>SUMMARY</h1>
+<template id="meal-empty-template">
+    <tr class="meal-form-row formset-row">
+        {% for field in meal_formset.empty_form.visible_fields %}<td>{{ field }}</td>{% endfor %}
+        {% for hidden in meal_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+        <td class="col-calc-adt">$<span class="row-adt-total">0.00</span></td>
+        <td class="col-calc-chd">$<span class="row-chd-total">0.00</span></td>
+        <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+        <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'meal')">Delete</button></td>
+    </tr>
+</template>
 
-TIPS<br>
-{% for tip in tips %}
-{{ tip.date | date:"Y-m-d" }}
-    Guide Tip: 
-    ${{ tip.guidetip_type.price }}
-    Driver Tip: 
-    ${{ tip.drivertip_type.price}}
-    
-${{ tip.price_total }}<br>
-{% endfor %}
+<template id="attraction-empty-template">
+    <tr class="attraction-form-row formset-row">
+        {% for field in attraction_formset.empty_form.visible_fields %}<td>{{ field }}</td>{% endfor %}
+        {% for hidden in attraction_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+        <td class="col-calc-adt">$<span class="row-adt-total">0.00</span></td>
+        <td class="col-calc-chd">$<span class="row-chd-total">0.00</span></td>
+        <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+        <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'attraction')">Delete</button></td>
+    </tr>
+</template>
 
+<template id="vehicle-empty-template">
+    <tr class="vehicle-form-row formset-row">
+        {% for field in vehicle_formset.empty_form.visible_fields %}<td>{{ field }}</td>{% endfor %}
+        {% for hidden in vehicle_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+        <td class="col-calc-grand"><strong>$<span class="row-grand-total">0.00</span></strong></td>
+        <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'vehicle')">Delete</button></td>
+    </tr>
+</template>
 
-Tips: ${{ invoice.tip_total }}<br><br><br>
+<template id="guideinvoice-empty-template">
+    <tr class="guideinvoice-form-row formset-row">
+        {% for field in guideinvoice_formset.empty_form.visible_fields %}<td>{{ field }}</td>{% endfor %}
+        {% for hidden in guideinvoice_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+        <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'guideinvoice')">Delete</button></td>
+    </tr>
+</template>
 
-Operation Fee: ${{ invoice.agent.operation_fee }}<br>
+<template id="tip-empty-template">
+    <tr class="tip-form-row formset-row">
+        {% for field in tip_formset.empty_form.visible_fields %}<td>{{ field }}</td>{% endfor %}
+        {% for hidden in tip_formset.empty_form.hidden_fields %}{{ hidden }}{% endfor %}
+        <td class="col-btn"><button type="button" class="btn-remove" onclick="removeForm(this, 'tip')">Delete</button></td>
+    </tr>
+</template>
 
+<div class="invoice-display-wrapper">
+    <div class="section-title">MEAL (Total: $<span id="disp-meal-total">{{ invoice.meal_total|default:"0.00" }}</span>)</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th><th>Restaurant</th><th>ADT Pax</th><th>ADT Price</th><th>ADT Total</th><th>CHD Pax</th><th>CHD Price</th><th>CHD Total</th><th>Grand Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for meal in meals %}
+            <tr>
+                <td>{{ meal.date | date:"Y-m-d" }}</td>
+                <td>{{ meal.restaurant }}</td>
+                <td>{{ meal.pax_adt }}</td>
+                <td>${{ meal.price_adt }}</td>
+                <td>${{ meal.price_adt_total }}</td>
+                <td>{{ meal.pax_chd }}</td>
+                <td>${{ meal.price_chd }}</td>
+                <td>${{ meal.price_chd_total }}</td>
+                <td><strong>${{ meal.price_grand_total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
+    <div class="section-title">ATTRACTION (Total: $<span id="disp-attraction-total">{{ invoice.attraction_total|default:"0.00" }}</span>)</div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date</th><th>Attraction</th><th>ADT Pax</th><th>ADT Price</th><th>ADT Total</th><th>CHD Pax</th><th>CHD Price</th><th>CHD Total</th><th>Grand Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for attraction in attractions %}
+            <tr>
+                <td>{{ attraction.date | date:"Y-m-d" }}</td>
+                <td>{{ attraction.attraction_name }}</td>
+                <td>{{ attraction.pax_adt }}</td>
+                <td>${{ attraction.price_adt }}</td>
+                <td>${{ attraction.price_adt_total }}</td>
+                <td>{{ attraction.pax_chd }}</td>
+                <td>${{ attraction.price_chd }}</td>
+                <td>${{ attraction.price_chd_total }}</td>
+                <td><strong>${{ attraction.price_grand_total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-Grand Total: ${{ invoice.grand_total }}<br>
+    <div class="section-title">VEHICLE (Total: $<span id="disp-vehicle-total">{{ invoice.vehicle_total|default:"0.00" }}</span>)</div>
+    <table class="data-table">
+        <thead>
+            <tr><th>Date</th><th>Vehicle Name</th><th>Seat</th><th>Total Price</th></tr>
+        </thead>
+        <tbody>
+            {% for vehicle in vehicles %}
+            <tr>
+                <td>{{ vehicle.date | date:"Y-m-d" }}</td>
+                <td>{{ vehicle.vehicle_name }}</td>
+                <td>{{ vehicle.seat }} SEAT</td>
+                <td><strong>${{ vehicle.price_total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
+    <div class="section-title">TIP (Total: $<span id="disp-tip-total">{{ invoice.tip_total|default:"0.00" }}</span>)</div>
+    <table class="data-table">
+        <thead>
+            <tr><th>Date</th><th>Guide Tip</th><th>Driver Tip</th><th>Total Price</th></tr>
+        </thead>
+        <tbody>
+            {% for tip in tips %}
+            <tr>
+                <td>{{ tip.date | date:"Y-m-d" }}</td>
+                <td>{{ tip.guide_tip }}</td>
+                <td>{{ vehicle.seat }} SEAT</td>
+                <td><strong>${{ vehicle.price_total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-
-{% else %}
-No Invoice Created
+    <div class="grand-total-banner">
+        <span>Operation Fee: ${{ invoice.agent.operation_fee|default:"0.00" }}</span>
+        <span>INVOICE GRAND TOTAL: <strong id="disp-grand-total">${{ invoice.grand_total|default:"0.00" }}</strong></span>
+    </div>
+</div>
 {% endif %}
 
+<script>
+    function parseNum(val) {
+        const n = parseFloat(val);
+        return isNaN(n) ? 0 : n;
+    }
 
+    function calculateRow(row) {
+        const inputs = Array.from(row.querySelectorAll('input, select'));
+        let paxAdt = 0, priceAdt = 0, paxChd = 0, priceChd = 0, singlePrice = 0;
+
+        inputs.forEach(input => {
+            const name = input.name || '';
+            if (name.endsWith('-pax_adt') || name.endsWith('-adt')) paxAdt = parseNum(input.value);
+            else if (name.endsWith('-price_adt')) priceAdt = parseNum(input.value);
+            else if (name.endsWith('-pax_chd') || name.endsWith('-chd')) paxChd = parseNum(input.value);
+            else if (name.endsWith('-price_chd')) priceChd = parseNum(input.value);
+            else if (name.endsWith('-price') || name.endsWith('-price_total') || name.endsWith('-amount') || name.endsWith('')) singlePrice = parseNum(input.value);
+        });
+
+        const adtTotal = paxAdt * priceAdt;
+        const chdTotal = paxChd * priceChd;
+        let grandTotal = (priceAdt > 0 || priceChd > 0 || paxAdt > 0 || paxChd > 0) ? (adtTotal + chdTotal) : singlePrice;
+
+        const adtSpan = row.querySelector('.row-adt-total');
+        const chdSpan = row.querySelector('.row-chd-total');
+        const grandSpan = row.querySelector('.row-grand-total');
+
+        if (adtSpan) adtSpan.textContent = adtTotal.toFixed(2);
+        if (chdSpan) chdSpan.textContent = chdTotal.toFixed(2);
+        if (grandSpan) grandSpan.textContent = grandTotal.toFixed(2);
+
+        return grandTotal;
+    }
+
+    function updateTotals() {
+        const prefixes = ['meal', 'attraction', 'vehicle', 'guideinvoice', 'tip'];
+        let grandTotal = 0;
+
+        prefixes.forEach(prefix => {
+            let sectionTotal = 0;
+            const container = document.getElementById(`${prefix}-form-container`);
+
+            if (container) {
+                const rows = container.querySelectorAll(`.${prefix}-form-row`);
+                rows.forEach(row => {
+                    if (row.style.display !== 'none') {
+                        sectionTotal += calculateRow(row);
+                    }
+                });
+            }
+
+            const dispElem = document.getElementById(`disp-${prefix}-total`);
+            if (dispElem) dispElem.textContent = sectionTotal.toFixed(2);
+
+            const previewElem = document.getElementById(`preview-${prefix}-total`);
+            if (previewElem) previewElem.textContent = sectionTotal.toFixed(2);
+
+            grandTotal += sectionTotal;
+        });
+
+        const grandTotalElem = document.getElementById('preview-grand-total');
+        if (grandTotalElem) grandTotalElem.textContent = grandTotal.toFixed(2);
+    }
+
+    function addForm(prefix) {
+        const container = document.getElementById(`${prefix}-form-container`);
+        
+        const totalFormsInput = document.querySelector(`input[name="${prefix}-TOTAL_FORMS"]`) || 
+                                document.querySelector(`input[name="${prefix}-total_forms"]`) ||
+                                document.querySelector(`input[id="id_${prefix}-TOTAL_FORMS"]`);
+
+        const template = document.getElementById(`${prefix}-empty-template`);
+
+        if (!container || !totalFormsInput || !template) {
+            console.error(`[Add Error] Missing components for: ${prefix}`);
+            return;
+        }
+
+        const currentFormCount = parseInt(totalFormsInput.value, 10) || 0;
+        const newHtml = template.innerHTML.replace(/__prefix__/g, currentFormCount);
+
+        container.insertAdjacentHTML('beforeend', newHtml);
+        totalFormsInput.value = currentFormCount + 1;
+
+        updateTotals();
+    }
+
+    function removeForm(buttonElement, prefix) {
+        const formRow = buttonElement.closest('tr');
+        if (!formRow) return;
+
+        const deleteCheckbox = formRow.querySelector(`input[name$="-DELETE"]`);
+
+        if (deleteCheckbox) {
+            deleteCheckbox.checked = true;
+            formRow.style.display = 'none';
+        } else {
+            formRow.remove();
+        }
+
+        updateTotals();
+    }
+
+    document.addEventListener('input', function (e) {
+        if (e.target.closest('.formset-row')) updateTotals();
+    });
+
+    document.addEventListener('change', function (e) {
+        if (e.target.closest('.formset-row')) updateTotals();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const prefixes = ['meal', 'attraction', 'vehicle', 'guideinvoice', 'tip'];
+
+        prefixes.forEach(prefix => {
+            const btn = document.getElementById(`add-${prefix}-btn`);
+            if (btn) {
+                btn.onclick = function (e) {
+                    e.preventDefault();
+                    addForm(prefix);
+                };
+            }
+        });
+
+        updateTotals();
+    });
+</script>

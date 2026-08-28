@@ -56,7 +56,6 @@ class Group(models.Model):
 
 class GroupFile(models.Model):
     group = models.OneToOneField(Group, on_delete=models.SET_NULL, related_name='groupfile', null=True, blank=True)
-    hotel = models.CharField(max_length=30, null=True, blank=True)
     meeting_board = models.CharField(max_length=30, null=True, blank=True)
 
     def __str__(self): 
@@ -64,6 +63,25 @@ class GroupFile(models.Model):
             return f"Group File {self.group.joycode}"
         else: 
             return f"."
+
+
+class HotelType(models.Model):
+    hotel_name = models.CharField(max_length=30, null=True, blank=True)
+    address = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self): 
+        return f"{self.hotel_name}"
+
+
+class Hotel(models.Model): 
+    groupfile = models.OneToOneField(GroupFile, on_delete=models.CASCADE, related_name='hotel')
+    hotel_type = models.OneToOneField(HotelType, on_delete=models.SET_NULL, null=True, blank=True)
+    confirm_num = models.CharField(max_length=30, null=True, blank=True)
+    room_type = models.CharField(max_length=30, null=True, blank=True)
+
+    def __str__(self): 
+        return f"{ self.groupfile }: { self.hotel_type }"
+
 
 
 class Itinerary(models.Model): 

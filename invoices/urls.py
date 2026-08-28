@@ -5,7 +5,6 @@ from . import views
 app_name = 'invoices'
 
 urlpatterns = [
-    path('create_or_update_invoice/<int:pk>/', views.create_or_update_invoice, name='create_or_update_invoice'), 
     path('create_mealtype/', views.create_mealtype, name='create_mealtype'),
     path('update_mealtype/<int:pk>/', views.update_mealtype, name='update_mealtype'),
     path('delete_mealtype/<int:pk>/', views.delete_mealtype, name='delete_mealtype'),

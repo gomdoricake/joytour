@@ -1,0 +1,5 @@
+<form method="post" action="{% url 'inbound:create_hoteltype' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" value="Submit">Submit</button>
+</form>

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import formset_factory
-from inbound.models import Group, Agent, GroupFile, Itinerary
+from inbound.models import Group, Agent, GroupFile, Itinerary, HotelType
 
 
 class AgentForm(forms.ModelForm): 
@@ -31,10 +31,28 @@ class GroupForm(forms.ModelForm):
         }
 
 
+class HotelTypeForm(forms.ModelForm): 
+    class Meta: 
+        model = HotelType
+        fields = ['hotel_name', 'address']
 
-class GroupFileForm(forms.Form): 
-    hotel = forms.CharField(max_length=30)
-    meeting_board = forms.CharField(max_length=30)
+
+
+class HotelForm(forms.Form): 
+    hoteltype = forms.ModelChoiceField(
+        queryset=HotelType.objects.all(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    confirm_num = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    room_type = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )    
+
 
 
 class ItineraryForm(forms.ModelForm): 
