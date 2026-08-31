@@ -147,9 +147,190 @@ HOTEL: {{ hotel|default:"등록된 호텔 정보 없음" }}
         </tr>
     </thead>
     <tbody>
-        
+
     </tbody>
 </table>
+
+{% for date in itinerary_dates %}
+{{ date.date|date:'Y-m-d' }}<br>
+
+
+{% for itinerary in date.itineraries.all %}
+    <p>
+        <strong>SCHEDULE:</strong> {{ itinerary.schedule }} | 
+        <strong>TIME:</strong> {{ itinerary.time }} | 
+        <strong>MEMO:</strong> {{ itinerary.memo }} | 
+        <strong>PAYMENT:</strong> {{ itinerary.payment }}
+    </p>
+{% empty %}
+    <p class="text-muted">등록된 일정이 없습니다.</p>
+{% endfor %}
+<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#itineraryModal-{{ date.pk }}">
+    Create Itinerary
+</button>
+
+<div class="modal fade" id="itineraryModal-{{ date.pk }}" tabindex="-1" aria-labelledby="itineraryModalLabel-{{ date.pk }}" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'inbound:create_itinerary' date.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itineraryModalLabel-{{ date.pk }}">New Itinerary {{ date.date|date:'Y-m-d' }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Schedule</label>
+                        <input type="text" name="schedule" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Time</label>
+                        <input type="time" name="time" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Memo</label>
+                        <input type="text" name="memo" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Payment</label>
+                        <input type="text" name="payment" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<br>
+{% endfor %}
+<br>
+<button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#itineraryDateModal">
+    Create Itinerary Date
+</button>
+
+<div class="modal fade" id="itineraryDateModal" tabindex="-1" aria-labelledby="itineraryDateModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'inbound:create_itinerary_date' group.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="itineraryDateModalLabel">New Flight</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="date" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br>
+
+{% for flight in flights %}
+{{ flight.flight_code }} |
+{{ flight.time }} |
+FROM: {{ flight.from_flight_type.region_code }} |
+TO: {{ flight.to_flight_type.region_code }} | 
+{{ flight.tour_guide }} 
+<br>
+{% endfor %}
+
+<br>
+
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#flightModal">
+    Create Flight
+</button>
+
+<div class="modal fade" id="flightModal" tabindex="-1" aria-labelledby="flightModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'inbound:create_flight' group.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="flightModalLabel">New Flight</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">itinerary_date</label>
+                        <select name="itinerary_date" class="form-control">
+                            <option value="">---------</option>
+                            {% for idate in itinerary_dates %}
+                                <option value="{{ date.pk }}">{{ idate.date }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Flight Code</label>
+                        <input type="text" name="flight_code" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">time</label>
+                        <input type="text" name="time" class="form-control">
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">from_flight_type</label>
+                        <select name="from_flight_type" class="form-control">
+                            <option value="">---------</option>
+                            {% for ft in flight_types %}
+                                <option value="{{ ft.pk }}">{{ ft.region_code }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">to_flight_type</label>
+                        <select name="to_flight_type" class="form-control">
+                            <option value="">---------</option>
+                            {% for ft in flight_types %}
+                                <option value="{{ ft.pk }}">{{ ft.region_code }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">tour guide</label>
+                        <input type="text" name="tour_guide" class="form-control">
+                    </div>
+                </div>
+
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 {% else %}
 <form method="post" action="{% url 'inbound:create_meeting_board' group.pk %}">

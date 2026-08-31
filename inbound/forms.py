@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import formset_factory
-from inbound.models import Group, Agent, GroupFile, Itinerary, HotelType, FlightType
+from inbound.models import Group, Agent, GroupFile, Itinerary, HotelType, FlightType, ItineraryDate
 
 
 class AgentForm(forms.ModelForm): 
@@ -61,10 +61,47 @@ class FlightTypeForm(forms.ModelForm):
         model = FlightType
         fields = ['region_code']
 
+class FlightForm(forms.Form):
+    itinerary_date =  forms.ModelChoiceField(
+        queryset=ItineraryDate.objects.all(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    flight_code = room_type = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    ) 
+    time = room_type = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    ) 
+    from_flight_type = forms.ModelChoiceField(
+        queryset=FlightType.objects.all(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    to_flight_type = forms.ModelChoiceField(
+        queryset=FlightType.objects.all(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    tour_guide = room_type = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    ) 
+
+class ItineraryDateForm(forms.ModelForm): 
+    class Meta: 
+        model = ItineraryDate
+        fields = ['date']    
+        widgets = {
+            'time': forms.DateInput(attrs={'type': 'date'}),
+        }
+        
 class ItineraryForm(forms.ModelForm): 
     class Meta: 
         model = Itinerary
-        fields = ['date', 'schedule', 'time', 'memo', 'payment']
+        fields = ['schedule', 'time', 'memo', 'payment']
         widgets = {
             'time': forms.TimeInput(attrs={'type': 'time'}),
         }

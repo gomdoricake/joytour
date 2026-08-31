@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm, FlightTypeForm
-from .models import Agent, Group, GroupFile, HotelType, Hotel, FlightType, Flight
+from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm, FlightTypeForm, FlightForm,ItineraryDateForm
+from .models import Agent, Group, GroupFile, HotelType, Hotel, FlightType, Flight, ItineraryDate, Itinerary
 from django.forms import formset_factory
 from .forms import HotelForm, ItineraryForm, ItineraryFormSet
 from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip, \
@@ -382,13 +382,20 @@ def group_detail(request, pk):
 @login_required
 def group_groupfile(request, pk): 
     group = get_object_or_404(Group, pk=pk)
+    groupfile = GroupFile.objects.filter(group=group).first()
     invoice = Invoice.objects.filter(pk=pk).first()
     guide = group.guide
     hoteltypes = HotelType.objects.all()
-    
     meeting_board_form = GroupFileForm()
-
     form = HotelForm()
+
+    flight_form = FlightForm()
+    flight_types = FlightType.objects.all()
+    flights = Flight.objects.filter(groupfile=groupfile)
+
+    itinerary_date_form = ItineraryForm()
+    itinerary_dates = ItineraryDate.objects.filter(groupfile=groupfile)
+    itineraries = Itinerary.objects.filter(groupfile=groupfile)
 
     if hasattr(group, 'groupfile'): 
         groupfile = group.groupfile
@@ -406,10 +413,46 @@ def group_groupfile(request, pk):
         'hotel': hotel,
         'hoteltypes': hoteltypes,
         'meeting_board_form': meeting_board_form,
+        'flight_form': flight_form,
+        'flight_types': flight_types,
+        'flights': flights,
+        'itinerary_date_form': itinerary_date_form, 
+        'itinerary_dates': itinerary_dates,
+        'itineraries': itineraries, 
         'form': form
     }
     return render(request, 'inbound/group_groupfile.html', context)
 
+
+@login_required
+def create_itinerary_date(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+    groupfile = GroupFile.objects.filter(group=group).first()
+
+    if request.method == 'POST': 
+        form = ItineraryDateForm(request.POST)
+        if form.is_valid(): 
+            itinerary_date = form.save(commit=False)
+            itinerary_date.groupfile = groupfile
+            itinerary_date.save()
+    return redirect('inbound:group_groupfile', pk)
+
+
+
+@login_required
+def create_itinerary(request, pk): 
+    itinerary_date = get_object_or_404(ItineraryDate, pk=pk)
+
+    if request.method == 'POST': 
+        form = ItineraryForm(request.POST)
+        if form.is_valid(): 
+            itinerary = form.save(commit=False)
+            itinerary.groupfile = itinerary_date.groupfile
+            itinerary.itinerary_date = itinerary_date
+            itinerary.save()
+    return redirect('inbound:group_groupfile', itinerary_date.groupfile.pk)
+    
+    
 
 @login_required
 def create_hoteltype(request): 
@@ -437,6 +480,7 @@ def create_flighttype(request):
     else: 
         form = FlightTypeForm()
         return render(request, 'inbound/create_flighttype.html', {'form': form})
+
 
 @login_required
 def create_hotel(request, pk): 
@@ -626,6 +670,22 @@ def create_groupfile(request, pk):
             form = GroupFileForm()
         return render(request, 'inbound/create_groupfile.html', {'group': group, 'form': form})
         
-            
 
-    
+
+@login_required
+def create_flight(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+    groupfile = GroupFile.objects.filter(group=group).first()
+
+    if request.method == 'POST': 
+        form = FlightForm(request.POST)
+        if form.is_valid():
+            flight = Flight()
+            flight.groupfile = groupfile
+            flight.flight_code = form.cleaned_data['flight_code']
+            flight.time = form.cleaned_data['time']
+            flight.from_flight_type = form.cleaned_data['from_flight_type']
+            flight.to_flight_type = form.cleaned_data['to_flight_type']
+            flight.tour_guide = form.cleaned_data['tour_guide']
+            flight.save()
+    return redirect('inbound:group_groupfile', pk=pk)

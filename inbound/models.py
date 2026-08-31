@@ -83,24 +83,42 @@ class Hotel(models.Model):
         return f"{ self.groupfile }: { self.hotel_type }"
 
 
-class FlightType(models.Model):     
+class ItineraryDate(models.Model): 
+    groupfile = models.ForeignKey(GroupFile, on_delete=models.SET_NULL, null=True, blank=True)
+    date = models.DateField(null=True, blank=True)
+
+    def __str__(self): 
+        return f"{ self.groupfile }: {self.date }"
+
+
+
+class FlightType(models.Model):  
+    itinerary_date = models.ForeignKey(ItineraryDate, on_delete=models.SET_NULL, null=True, blank=True)   
     region_code = models.CharField(max_length=40, null=True, blank=True)
     
 
 class Flight(models.Model): 
     groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE)
+    itinerary_date = models.ForeignKey(ItineraryDate, on_delete=models.SET_NULL, null=True, blank=True)   
+
+    flight_code = models.CharField(max_length=40, null=True, blank=True)
     time = models.TimeField()
     from_flight_type = models.ForeignKey(FlightType, on_delete=models.SET_NULL, null=True, blank=True, related_name='departing_flights')
     to_flight_type = models.ForeignKey(FlightType, on_delete=models.SET_NULL, null=True, blank=True, related_name='arriving_flights')
     tour_guide = models.CharField(max_length=40, null=True, blank=True)
 
+    def __str__(self): 
+        return f"{ self.groupfile }: { self.flight_code }"
+
 
 class Itinerary(models.Model): 
-    groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE)
-    date = models.DateField(null=True, blank=True)
+    groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE, related_name='groupfile_itineraries')
+    itinerary_date = models.ForeignKey(ItineraryDate, on_delete=models.SET_NULL, null=True, blank=True, related_name='itineraries')   
+
     schedule = models.CharField(max_length=50, null=True, blank=True)
     time = models.TimeField()
     memo = models.CharField(max_length=100, null=True, blank=True)
     payment = models.CharField(max_length=10, null=True, blank=True)
 
-
+    def __str__(self): 
+        return f"{ self.groupfile }: { self.itinerary_date } - { self.schedule }"
