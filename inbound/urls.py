@@ -25,4 +25,5 @@ urlpatterns = [
     path('update_hotel/<int:pk>/', views.update_hotel, name='update_hotel'),
     path('create_meeting_board/<int:pk>/', views.create_meeting_board, name='create_meeting_board'),
     path('update_meeting_board/<int:pk>/', views.update_meeting_board, name='update_meeting_board'),
+    path('create_flighttype/', views.create_flighttype, name='create_flighttype'), 
 ]

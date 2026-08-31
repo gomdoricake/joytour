@@ -52,10 +52,16 @@
             </div>
         </div>
     </div>
-
+<br>
 {% endfor %}
 <br>
 <a href="{% url 'inbound:create_hoteltype' %}">+ HotelType</a>
+
+<h2>Flight Type</h2>
+{% for flighttype in flighttype_list %}
+{{ flighttype.region_code }}<br>
+{% endfor %}
+<a href="{% url 'inbound:create_flighttype' %}">+ FlightType</a>
 
 <h2>Meal</h2>
 {% for mealtype in mealtype_list %}

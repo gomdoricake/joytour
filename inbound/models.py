@@ -83,6 +83,17 @@ class Hotel(models.Model):
         return f"{ self.groupfile }: { self.hotel_type }"
 
 
+class FlightType(models.Model):     
+    region_code = models.CharField(max_length=40, null=True, blank=True)
+    
+
+class Flight(models.Model): 
+    groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE)
+    time = models.TimeField()
+    from_flight_type = models.ForeignKey(FlightType, on_delete=models.SET_NULL, null=True, blank=True, related_name='departing_flights')
+    to_flight_type = models.ForeignKey(FlightType, on_delete=models.SET_NULL, null=True, blank=True, related_name='arriving_flights')
+    tour_guide = models.CharField(max_length=40, null=True, blank=True)
+
 
 class Itinerary(models.Model): 
     groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE)

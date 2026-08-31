@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm
-from .models import Agent, Group, GroupFile, HotelType, Hotel
+from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm, FlightTypeForm
+from .models import Agent, Group, GroupFile, HotelType, Hotel, FlightType, Flight
 from django.forms import formset_factory
 from .forms import HotelForm, ItineraryForm, ItineraryFormSet
 from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip, \
@@ -23,6 +23,7 @@ def tariff(request):
     guide_tip = GuideTipType.objects.all().order_by('-id')
     driver_tip = DriverTipType.objects.all().order_by('-id')
     hoteltype_list = HotelType.objects.all().order_by('-id')
+    flighttype_list = FlightType.objects.all().order_by('-id')
 
     context = {
         'mealtype_list': mealtype_list, 
@@ -32,6 +33,7 @@ def tariff(request):
         'guide_tip': guide_tip,
         'driver_tip': driver_tip,
         'hoteltype_list': hoteltype_list,
+        'flighttype_list': flighttype_list,
     } 
     return render(request, 'inbound/tariff.html', context)
 
@@ -426,6 +428,17 @@ def create_hoteltype(request):
     
 
 @login_required
+def create_flighttype(request): 
+    if request.method == 'POST': 
+        form = FlightTypeForm(request.POST)
+        if form.is_valid(): 
+            form.save()
+            return redirect('inbound:tariff')
+    else: 
+        form = FlightTypeForm()
+        return render(request, 'inbound/create_flighttype.html', {'form': form})
+
+@login_required
 def create_hotel(request, pk): 
     group = get_object_or_404(Group, pk=pk)
     groupfile = GroupFile.objects.filter(group=group).first()
@@ -452,6 +465,7 @@ def create_meeting_board(request, pk):
             meeting_board_form.save()
 
     return redirect('inbound:group_groupfile', pk)
+
 
 @login_required
 def update_meeting_board(request, pk): 
@@ -507,10 +521,6 @@ def update_hoteltype(request, pk):
             }
             return render(request, 'inbound/create_hoteltype.html', form)
 
-    
-    
-
-
 
 @login_required
 def create_group(request): 
@@ -533,7 +543,6 @@ def create_group(request):
 def update_group(request, pk): 
     group = get_object_or_404(Group, pk=pk)
     
-     
     if request.method == 'POST': 
         form = GroupForm(request.POST)
 

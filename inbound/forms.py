@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import formset_factory
-from inbound.models import Group, Agent, GroupFile, Itinerary, HotelType
+from inbound.models import Group, Agent, GroupFile, Itinerary, HotelType, FlightType
 
 
 class AgentForm(forms.ModelForm): 
@@ -41,8 +41,6 @@ class HotelTypeForm(forms.ModelForm):
         model = HotelType
         fields = ['hotel_name', 'address']
 
-
-
 class HotelForm(forms.Form): 
     hoteltype = forms.ModelChoiceField(
         queryset=HotelType.objects.all(), 
@@ -58,6 +56,10 @@ class HotelForm(forms.Form):
         widget=forms.TextInput(attrs={'class': 'form-control'})
     )    
 
+class FlightTypeForm(forms.ModelForm): 
+    class Meta: 
+        model = FlightType
+        fields = ['region_code']
 
 class ItineraryForm(forms.ModelForm): 
     class Meta: 

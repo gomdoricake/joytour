@@ -135,6 +135,22 @@ HOTEL: {{ hotel|default:"등록된 호텔 정보 없음" }}
         </div>
     </div>
 </div>
+
+<table> 
+    <thead>
+        <tr>
+            <th>DATE</th>
+            <th>SCHEDULE</th>
+            <th>TIME</th>
+            <th>MEMO</th>
+            <th>PAYMENT</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+    </tbody>
+</table>
+
 {% else %}
 <form method="post" action="{% url 'inbound:create_meeting_board' group.pk %}">
     {% csrf_token %}
