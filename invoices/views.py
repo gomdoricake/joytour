@@ -18,7 +18,7 @@ def create_mealtype(request):
         if form.is_valid(): 
             form.save()
 
-            return redirect('invoices:mealtype_list')
+            return redirect('inbound:tariff')
 
     form = MealTypeForm()
     context = {

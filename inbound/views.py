@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm, FlightTypeForm, FlightForm,ItineraryDateForm
-from .models import Agent, Group, GroupFile, HotelType, Hotel, FlightType, Flight, ItineraryDate, Itinerary
+from .forms import GroupForm, AgentForm, HotelTypeForm, GroupFileForm, FlightTypeForm, FlightForm,ItineraryDateForm, GroupFileMealForm
+from .models import Agent, Group, GroupFile, HotelType, Hotel, FlightType, Flight, ItineraryDate, Itinerary, GroupFileMeal
 from django.forms import formset_factory
 from .forms import HotelForm, ItineraryForm, ItineraryFormSet
 from invoices.models import Invoice, Meal, Attraction, Vehicle, GuideInvoice, Tip, \
@@ -397,6 +397,9 @@ def group_groupfile(request, pk):
     itinerary_dates = ItineraryDate.objects.filter(groupfile=groupfile)
     itineraries = Itinerary.objects.filter(groupfile=groupfile)
 
+    mealtypes = MealType.objects.all()
+    groupfile_meals = GroupFileMeal.objects.filter(groupfile=groupfile).order_by('itinerary_date__date')
+
     if hasattr(group, 'groupfile'): 
         groupfile = group.groupfile
         hotel = groupfile.hotel
@@ -419,7 +422,9 @@ def group_groupfile(request, pk):
         'itinerary_date_form': itinerary_date_form, 
         'itinerary_dates': itinerary_dates,
         'itineraries': itineraries, 
-        'form': form
+        'form': form,
+        'mealtypes': mealtypes,
+        'groupfile_meals': groupfile_meals,
     }
     return render(request, 'inbound/group_groupfile.html', context)
 
@@ -689,3 +694,47 @@ def create_flight(request, pk):
             flight.tour_guide = form.cleaned_data['tour_guide']
             flight.save()
     return redirect('inbound:group_groupfile', pk=pk)
+
+
+
+    groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE, related_name='groupfile_meals')
+    itinerary_date = models.ForeignKey(ItineraryDate, on_delete=models.SET_NULL, null=True, blank=True, related_name='itinerary_meals')   
+
+    groupfile_meal_type = models.CharField(max_length=10, null=True, blank=True)
+    memo = models.CharField(max_length=100, null=True, blank=True)
+
+
+@login_required
+def create_groupfile_meal(request, pk): 
+    group = get_object_or_404(Group, pk=pk)
+    groupfile = GroupFile.objects.filter(group=group).first()
+
+    if request.method == 'POST': 
+        form = GroupFileMealForm(request.POST)
+        if form.is_valid(): 
+            print("Form is valid")
+            GroupFileMeal.objects.create(
+                groupfile=groupfile,
+                itinerary_date=form.cleaned_data.get('itinerary_date'),
+                groupfile_meal_type=form.cleaned_data.get('groupfile_meal_type'),
+                mealtype=form.cleaned_data.get('mealtype'), 
+                note=form.cleaned_data.get('note')
+            )
+    return redirect('inbound:group_groupfile', pk=pk)
+
+
+@login_required
+def update_groupfile_meal(request, pk): 
+    groupfilemeal = get_object_or_404(GroupFileMeal, pk=pk)
+    groupfile = groupfilemeal.groupfile
+    group = groupfile.group
+
+    if request.method == 'POST': 
+        form = GroupFileMealForm(request.POST)
+        if form.is_valid(): 
+            groupfilemeal.itinerary_date = form.cleaned_data.get('itinerary_date') or groupfilemeal.itinerary_date
+            groupfilemeal.groupfile_meal_type = form.cleaned_data.get('groupfile_meal_type') or groupfilemeal.groupfile_meal_type
+            groupfilemeal.mealtype = form.cleaned_data.get('mealtype') or groupfilemeal.mealtype
+            groupfilemeal.note = form.cleaned_data.get('note') or groupfilemeal.note            
+            groupfilemeal.save()
+    return redirect('inbound:group_groupfile', pk=group.pk)

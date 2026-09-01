@@ -67,7 +67,8 @@
 {% for mealtype in mealtype_list %}
     {{ mealtype.name }} 
     {{ mealtype.price_adt}}
-    {{ mealtype.price_chd }}
+    {{ mealtype.price_chd }} /
+    {{ mealtype.description }}
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mealtypeModal-{{mealtype.pk}}">
         Update
     </button>   
@@ -93,6 +94,10 @@
                     <p>
                         <label>Child Price:</label>
                         <input type="number" name="price_chd" value="{{ mealtype.price_chd }}" class="form-control">
+                    </p>
+                    <p>
+                        <label>Description:</label>
+                        <input type="text" name="description" value="{{ mealtype.description }}" class="form-control">
                     </p>
                 </div>
                 <div class="modal-footer">

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Agent, Group, GroupFile, Itinerary, Hotel, HotelType, Flight, FlightType,ItineraryDate
+from .models import Agent, Group, GroupFile, Itinerary, Hotel, HotelType, Flight, FlightType, ItineraryDate, GroupFileMeal
 
 
 admin.site.register(Agent)
@@ -12,3 +12,4 @@ admin.site.register(Flight)
 admin.site.register(FlightType)
 admin.site.register(Itinerary)
 admin.site.register(ItineraryDate)
+admin.site.register(GroupFileMeal)

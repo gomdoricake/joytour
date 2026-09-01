@@ -7,7 +7,7 @@ from .models import Meal, MealType, Attraction, AttractionType, Vehicle, Vehicle
 class MealTypeForm(forms.ModelForm): 
     class Meta: 
         model = MealType
-        fields = ['name', 'price_adt', 'price_chd']
+        fields = ['name', 'price_adt', 'price_chd', 'description']
 
 class MealForm(forms.Form): 
     mealtype = forms.ModelChoiceField(

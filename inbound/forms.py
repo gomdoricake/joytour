@@ -111,3 +111,25 @@ ItineraryFormSet = formset_factory(
     extra=0
 )
 
+from invoices.models import MealType
+
+class GroupFileMealForm(forms.Form):
+    itinerary_date = forms.ModelChoiceField(
+        queryset=ItineraryDate.objects.all(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    ) 
+    groupfile_meal_type = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    mealtype =  forms.ModelChoiceField(
+        queryset=MealType.objects.all(), 
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    note = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    

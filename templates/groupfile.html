@@ -331,6 +331,160 @@ TO: {{ flight.to_flight_type.region_code }} |
     </div>
 </div>
 
+<h3>MEALS</h3>
+
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>DATE</th>
+                <th>RESTAURANT</th>
+                <th>NOTE</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr></tr>
+        </tbody>
+    </table>
+</div>
+
+{% for groupfilemeal in groupfile_meals %}
+    <div class="mb-2 p-2 border rounded d-flex justify-content-between align-items-center">
+        <div>
+            <strong>DATE:</strong> {{ groupfilemeal.itinerary_date.date }} | 
+            <strong>RESTAURANT:</strong> {{ groupfilemeal.mealtype.name }} | 
+            <strong>TYPE:</strong> {{ groupfilemeal.groupfile_meal_type|default:"-" }} | 
+            <strong>NOTE:</strong> {{ groupfilemeal.note|default:"-" }}
+        </div>
+        
+        <!-- 1. 버튼 target에 PK 부여 -->
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editMealModal{{ groupfilemeal.pk }}">
+            Update Meal
+        </button>
+    </div>
+
+    <!-- 2. 모달 id에도 PK를 부여하여 고유한 모달로 만듦 -->
+    <div class="modal fade" id="editMealModal{{ groupfilemeal.pk }}" tabindex="-1" aria-labelledby="editMealModalLabel{{ groupfilemeal.pk }}" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="{% url 'inbound:update_groupfile_meal' groupfilemeal.pk %}">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editMealModalLabel{{ groupfilemeal.pk }}">Update Meal</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <!-- modal-body는 하나로 통합 -->
+                    <div class="modal-body">
+                        <!-- Itinerary Date -->
+                        <div class="mb-3">
+                            <label class="form-label">Itinerary Date</label>
+                            <select name="itinerary_date" class="form-control">
+                                <option value="">---------</option>
+                                {% for idate in itinerary_dates %}
+                                    <option value="{{ idate.pk }}" {% if groupfilemeal.itinerary_date.pk == idate.pk %}selected{% endif %}>
+                                        {{ idate.date }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Groupfile Meal Type</label>
+                            <input type="text" name="groupfile_meal_type" class="form-control" value="{{ groupfilemeal.groupfile_meal_type|default:'' }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Meal Type</label>
+                            <select name="mealtype" class="form-control edit-meal-select" data-note-id="noteInput{{ groupfilemeal.pk }}">
+                                <option value="" data-description="">---------</option>
+                                {% for mealtype in mealtypes %}
+                                    <option value="{{ mealtype.pk }}" data-description="{{ mealtype.description|default:'' }}" {% if groupfilemeal.mealtype.pk == mealtype.pk %}selected{% endif %}>
+                                        {{ mealtype.name }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Note</label>
+                            <input type="text" name="note" id="noteInput{{ groupfilemeal.pk }}" class="form-control" value="{{ groupfilemeal.note|default:'' }}">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-success">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#mealModal">
+    Create Meal
+</button>
+
+<div class="modal fade" id="mealModal" tabindex="-1" aria-labelledby="mealModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="{% url 'inbound:create_groupfile_meal' group.pk %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="mealModalLabel">New Meal</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">itinerary_date</label>
+                        <select name="itinerary_date" class="form-control">
+                            <option value="">---------</option>
+                            {% for idate in itinerary_dates %}
+                                <option value="{{ idate.pk }}">{{ idate.date }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Groupfile Meal Type</label>
+                        <input type="text" name="groupfile_meal_type" class="form-control">
+                    </div>
+                </div>
+
+                <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Meal Type</label>
+                    <select name="mealtype" id="mealTypeSelect" class="form-control">
+                        <option value="" data-description="">---------</option>
+                        {% for mealtype in mealtypes %}
+                            <option value="{{ mealtype.pk }}" data-description="{{ mealtype.description }}">
+                                {{ mealtype.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                
+
+                <div class="mb-3">
+                    <label class="form-label">Note</label>
+                    <input type="text" name="note" id="noteInput" class="form-control" placeholder="Note가 여기에 입력됩니다">
+                </div>
+            </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 
 {% else %}
 <form method="post" action="{% url 'inbound:create_meeting_board' group.pk %}">
@@ -347,3 +501,17 @@ No Group File Created
 {% endif %}
 
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const mealTypeSelect = document.getElementById('mealTypeSelect');
+    const noteInput = document.getElementById('noteInput');
+
+    mealTypeSelect.addEventListener('change', function () {
+        const selectedOption = this.options[this.selectedIndex];
+        
+        const description = selectedOption.getAttribute('data-description') || '';
+        
+        noteInput.value = description;
+    });
+});
+</script>

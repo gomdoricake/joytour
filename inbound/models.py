@@ -122,3 +122,15 @@ class Itinerary(models.Model):
 
     def __str__(self): 
         return f"{ self.groupfile }: { self.itinerary_date } - { self.schedule }"
+
+
+class GroupFileMeal(models.Model): 
+    groupfile = models.ForeignKey(GroupFile, on_delete=models.CASCADE, related_name='groupfile_meals')
+    itinerary_date = models.ForeignKey(ItineraryDate, on_delete=models.SET_NULL, null=True, blank=True, related_name='itinerary_meals')   
+
+    groupfile_meal_type = models.CharField(max_length=10, null=True, blank=True)
+    mealtype = models.ForeignKey('invoices.MealType', on_delete=models.SET_NULL, null=True, blank=True, related_name='mealtypes')
+    note = models.CharField(max_length=100, null=True, blank=True)
+
+    def __str__(self): 
+        return f"{ self.groupfile }: { self.itinerary_date } - { self.groupfile_meal_type }"

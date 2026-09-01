@@ -17,6 +17,7 @@ class MealType(models.Model):
     name = models.CharField(max_length=30, null=True, blank=True)
     price_adt = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     price_chd = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
    
     def __str__(self):
         return str(self.name)
