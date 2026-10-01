@@ -394,8 +394,8 @@ def group_groupfile(request, pk):
     flights = Flight.objects.filter(groupfile=groupfile)
 
     itinerary_date_form = ItineraryForm()
-    itinerary_dates = ItineraryDate.objects.filter(groupfile=groupfile)
-    itineraries = Itinerary.objects.filter(groupfile=groupfile)
+    itinerary_dates = ItineraryDate.objects.filter(groupfile=groupfile).order_by('date')
+    itineraries = Itinerary.objects.filter(groupfile=groupfile).order_by('time')
 
     mealtypes = MealType.objects.all()
     groupfile_meals = GroupFileMeal.objects.filter(groupfile=groupfile).order_by('itinerary_date__date')
@@ -737,4 +737,71 @@ def update_groupfile_meal(request, pk):
             groupfilemeal.mealtype = form.cleaned_data.get('mealtype') or groupfilemeal.mealtype
             groupfilemeal.note = form.cleaned_data.get('note') or groupfilemeal.note            
             groupfilemeal.save()
+    return redirect('inbound:group_groupfile', pk=group.pk)
+
+
+@login_required
+def update_itinerary(request, pk): 
+    itinerary = get_object_or_404(Itinerary, pk=pk)
+    groupfile = itinerary.groupfile
+    group = groupfile.group
+
+    if request.method == 'POST': 
+        form = ItineraryForm(request.POST)
+        if form.is_valid(): 
+            itinerary.schedule = form.cleaned_data.get('schedule') or itinerary.schedule
+            itinerary.time = form.cleaned_data.get('time') or itinerary.time
+            itinerary.memo = form.cleaned_data.get('memo') or itinerary.memo
+            itinerary.payment = form.cleaned_data.get('payment') or itinerary.payment
+            itinerary.save()
+    return redirect('inbound:group_groupfile', pk=group.pk)
+
+
+@login_required
+def delete_itinerary(request, pk):
+    itinerary = get_object_or_404(Itinerary, pk=pk)
+    groupfile = itinerary.groupfile
+    group = groupfile.group
+
+    if request.method == 'POST':
+        itinerary.delete()
+    return redirect('inbound:group_groupfile', pk=group.pk)
+
+
+@login_required
+def update_flight(request, pk): 
+    flight = get_object_or_404(Flight, pk=pk)
+    groupfile = flight.groupfile
+    group = groupfile.group
+
+    if request.method == 'POST': 
+        form = FlightForm(request.POST)
+        if form.is_valid(): 
+            flight.flight_code = form.cleaned_data.get('flight_code') or flight.flight_code
+            flight.time = form.cleaned_data.get('time') or flight.time
+            flight.from_flight_type = form.cleaned_data.get('from_flight_type') or flight.from_flight_type
+            flight.to_flight_type = form.cleaned_data.get('to_flight_type') or flight.to_flight_type
+            flight.tour_guide = form.cleaned_data.get('tour_guide') or flight.tour_guide
+            flight.save()
+    return redirect('inbound:group_groupfile', pk=group.pk)
+
+@login_required
+def delete_flight(request, pk): 
+    flight = get_object_or_404(Flight, pk=pk)
+    groupfile = flight.groupfile
+    group = groupfile.group
+
+    if request.method == 'POST': 
+        flight.delete()
+    return redirect('inbound:group_groupfile', pk=group.pk)
+
+
+@login_required
+def delete_groupfile_meal(request, pk):
+    groupfilemeal = get_object_or_404(GroupFileMeal, pk=pk)
+    groupfile = groupfilemeal.groupfile
+    group = groupfile.group
+
+    if request.method == 'POST':
+        groupfilemeal.delete()
     return redirect('inbound:group_groupfile', pk=group.pk)

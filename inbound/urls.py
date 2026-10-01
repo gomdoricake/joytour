@@ -31,4 +31,10 @@ urlpatterns = [
     path('create_itinerary/<int:pk>/', views.create_itinerary, name='create_itinerary'),
     path('create_groupfile_meal/<int:pk>/', views.create_groupfile_meal, name='create_groupfile_meal'),
     path('update_groupfile_meal/<int:pk>/', views.update_groupfile_meal, name='update_groupfile_meal'),
+    path('update_itinerary/<int:pk>/', views.update_itinerary, name='update_itinerary'),
+    path('delete_itinerary/<int:pk>/', views.delete_itinerary, name='delete_itinerary'),
+    path('update_flight/<int:pk>/', views.update_flight, name='update_flight'),
+    path('delete_flight/<int:pk>/', views.delete_flight, name='delete_flight'),
+    path('delete_groupfile_meal/<int:pk>/', views.delete_groupfile_meal, name='delete_groupfile_meal'),
 ]
+

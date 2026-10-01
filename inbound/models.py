@@ -116,9 +116,12 @@ class Itinerary(models.Model):
     itinerary_date = models.ForeignKey(ItineraryDate, on_delete=models.SET_NULL, null=True, blank=True, related_name='itineraries')   
 
     schedule = models.CharField(max_length=50, null=True, blank=True)
-    time = models.TimeField()
+    time = models.TimeField(blank=True, null=True)
     memo = models.CharField(max_length=100, null=True, blank=True)
     payment = models.CharField(max_length=10, null=True, blank=True)
+
+    class Meta: 
+        ordering = ['time']
 
     def __str__(self): 
         return f"{ self.groupfile }: { self.itinerary_date } - { self.schedule }"
