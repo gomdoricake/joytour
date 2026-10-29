@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from guides.models import Guide
 from guidereports.models import GuideReport
@@ -12,6 +12,20 @@ def index(request):
 from django.db.models import Sum, DecimalField, Q
 from django.db.models.functions import Cast, Coalesce
 
+@login_required
+def process_selected_invoices(request):
+    if request.method == 'POST':
+        selected_report_ids = request.POST.getlist('selected_reports')
+        print("Selected report IDs:", selected_report_ids)  # Debugging line
+        if selected_report_ids:
+            if 'confirm_selected_invoices' in request.POST:
+                GuideReport.objects.filter(id__in=selected_report_ids).update(is_confirmed=True)
+            elif 'pay_selected_invoices' in request.POST:
+                GuideReport.objects.filter(id__in=selected_report_ids).update(is_confirmed=True, is_paid=True)
+            elif 'undo_selected_invoices' in request.POST:
+                GuideReport.objects.filter(id__in=selected_report_ids).update(is_confirmed=False, is_paid=False)
+    return redirect('joyadmin:payable_reports')
+    
 
 @login_required
 def payable_reports(request):

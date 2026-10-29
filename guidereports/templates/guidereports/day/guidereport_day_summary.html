@@ -365,6 +365,11 @@
   </div>
   
   <div class="title-area">
+    {% if alert_message %}
+      <div class="alert alert-warning" role="alert" style="background-color: #fef3c7; color: #92400e; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px;">
+        {{ alert_message }}
+      </div>
+    {% endif %}
     <h2 class="title">정산 내역 최종 확인 (Summary)</h2>
     <span class="role-badge">{{ guide_report.day_inbound }} • {{ guide_report.role|default:"GUIDE" }}</span>
   </div>

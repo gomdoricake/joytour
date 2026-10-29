@@ -466,6 +466,7 @@ def safe_decimal(value, default='0.00'):
 @login_required
 @never_cache
 def guidereport_day_summary(request): 
+
     day_data = request.session.get('day_data')  
     fuel_temp_list = request.session.get('fuel_temp_list')
     exp_temp_list = request.session.get('exp_temp_list')
@@ -480,6 +481,10 @@ def guidereport_day_summary(request):
     group_code = day_data.get('group_code')
     eventcode = day_data.get('eventcode')
     report_id = request.session.get('guidereport_id', '')
+
+
+
+
 
     fuel_list = json.loads(request.session.get('fuel_temp_list', '[]'))
     s3_fuel_list = json.loads(request.session.get('s3_fuel_temp_list', '[]'))
@@ -528,6 +533,29 @@ def guidereport_day_summary(request):
     
     super_ann = guide_fee_decimal / Decimal('1.1') * Decimal('0.12')
     grand_total = guide_fee_decimal + total_guide_exp
+
+    context = {
+        'guide_report': guide_report,
+        'event': event,                 
+        'report_date': report_date,
+        'fuel_expenses': fuel_list,
+        'guide_expenses': exp_list,
+        'total_fuel': total_fuel,
+        'total_guide': total_guide_exp,
+        'grand_total': grand_total,
+        'invoice_number': invoice_number,
+        'super_ann': super_ann,
+        'invoice_date': invoice_date,
+    }
+
+
+    is_same_event = Event.objects.filter(report_date=report_date, eventcode=eventcode, guide_report__guide__user=request.user).order_by('-id')
+
+    if is_same_event.exists() and (not report_id or is_same_event.first().guide_report.id != report_id):
+        print("같은 날짜와 이벤트코드로 이미 가이드 리포트가 존재합니다.")
+        alert_message = "같은 날짜와 이벤트코드로 이미 가이드 리포트가 존재합니다. "
+        return render(request, 'guidereports/day/guidereport_day_summary.html', { 'alert_message': alert_message, **context })
+
 
     if request.method == 'POST':
         with transaction.atomic():

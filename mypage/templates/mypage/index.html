@@ -28,12 +28,11 @@
       <h2>{{ guide.name }}님의 개인 공간</h2>
       <p>등록된 개인 정보와 정산 리포트 목록을 관리합니다.</p>
     </div>
-    <a href="{% url 'mypage:update_mypage' guide.pk %}" class="btn-edit-mypage">정보 수정</a>
   </div>
-
+  가이드 개인 페이지 및 리포트에 수정이 필요하다면 사무실에 연락 바랍니다. 
   <div class="action-row">
     <a href="{% url 'guidereports:guidereport_main' %}?new=1" class="btn-create-report">
-      ➕ 새로운 가이드 리포트 정산서 작성하기
+      ➕ 새로운 가이드 리포트 정산서 작성하기 (생성 후 수정 불가)
     </a>
   </div>
 

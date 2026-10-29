@@ -85,10 +85,16 @@ class InboundEventForm(forms.ModelForm):
         choices=INBOUND_HOURS,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    overtime = forms.DecimalField( 
+        label='Overtime Hours',
+        required=False,           
+        initial=0,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.5'})
+    )
 
     class Meta:
         model = Event
-        fields = ['report_date', 'eventcode', 'hours', 'overtime', 'coach_start_time', 'coach_end_time']
+        fields = ['report_date', 'eventcode', 'hours', 'coach_start_time', 'coach_end_time']
         widgets = {
             'report_date': forms.DateInput(
                 format='%Y-%m-%d',
