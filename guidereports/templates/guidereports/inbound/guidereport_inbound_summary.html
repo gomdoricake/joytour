@@ -336,6 +336,11 @@
     <span class="role-badge">{{ guide_report.day_inbound }} • {{ guide_report.role|default:"GUIDE" }}</span>
   </div>
 
+  {% if alert_message %}
+    <div class="alert alert-warning" role="alert" style="background-color: #fef3c7; color: #92400e; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px;">
+      {{ alert_message }}
+    </div>
+  {% endif %}
   <form method="post" id="summary-final-form">
     {% csrf_token %}
 
@@ -504,7 +509,9 @@
       <div class="grand-total-amount">${{ grand_total|floatformat:2|default:"0.00" }}</div>
     </div>
 
+    {% if not alert_message %}
     <button type="submit" id="submit-final-btn" class="btn-submit">최종 제출 확정 (Submit)</button>
+    {% endif %}
   </form>
 </div>
 {% endblock %}

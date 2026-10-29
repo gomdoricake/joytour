@@ -102,13 +102,29 @@
   </form>
   <br/>
 
-  <!-- 리포트 상세 데이터 테이블 -->
   <div class="xero-table-wrapper">
     <div class="summary-meta-bar" style="padding: 15px 20px 10px 24px; margin: 0;">
       <span class="sec-title">Reports Detail List ( {{ "payable"|count_payable }} invoices ) </span>
     </div>
 
-    <div class="xero-table-header">
+
+    <form method="POST" action="{% url 'joyadmin:process_selected_invoices' %}">
+      {% csrf_token %}
+        <div class="btn-group" style="display: flex; gap: 8px;">
+          <button type="submit" name="confirm_selected_invoices" value="confirm_all" class="btn-confirm">
+            CONFIRMED
+          </button>
+          <button type="submit" name="pay_selected_invoices" value="pay_all" class="btn-pay">
+            PAID
+          </button>
+          <button type="submit" name="undo_selected_invoices" value="undo_all" class="btn-undo">
+            WAITING
+          </button>
+
+        </div>
+
+    <div class="xero-table-header" style="display: grid !important; grid-template-columns: 45px 140px 120px 140px 110px 100px 110px 120px !important; width: 100%; min-width: 885px;">
+      <span></span>
       <span>Invoice Date</span>
       <span>Guide Name</span>
       <span>Group Code</span>
@@ -118,11 +134,16 @@
       <span class="col-status">Status</span>
     </div>
 
+    
+    
     <ul class="xero-list-body">
       {% for guidereport in payable_reports %}
-      <li class="xero-row-item">
-        <a href="{% url 'guidereports:detail' guidereport.id %}" class="xero-row-link">
+      <li class="xero-row-link" style="display: grid !important; grid-template-columns: 45px 140px 120px 140px 110px 100px 110px 120px !important; width: 100%; min-width: 885px;">
           
+          <span>
+            <input type="checkbox" name="selected_reports" style="width:20px; height:20px;" value="{{ guidereport.id }}">
+          </span>
+
           <span class="xero-date">
             {% if guidereport.is_printed %}
               <span class="print-dot printed" title="Printed"></span>
@@ -134,27 +155,51 @@
           </span>
           
           <span class="xero-guide-name">{{ guidereport.guide.name }}</span>
-          <span class="xero-group-code-wrap">
-            <span class="xero-group-code">{{ guidereport.group_code }}</span>
-          </span>
+            <a id="guidereport_{{ guidereport.id }}" href="{% url 'guidereports:detail' guidereport.id %}" class="xero-group-code"> 
+                {{ guidereport.group_code }}
+            </a>
           <span class="xero-price col-price">${{ guidereport.final_events_fee|floatformat:2 }}</span>
           <span class="xero-price col-price">${{ guidereport.final_expenses_fee|floatformat:2 }}</span>
           <span class="xero-price col-price highlight">${{ guidereport.final_amount_due|floatformat:2 }}</span>
 
           <div class="xero-status-wrap col-status">
-            {% if guidereport.is_paid %}
-              <span class="xero-flat-status paid">PAID</span>
+              {% if not guidereport.is_confirmed %}
+                <button type="submit" 
+                        formaction="{% url 'guidereports:guidereport_confirm_dashboard' guidereport.id %}" 
+                        class="xero-flat-status waiting">
+                  WAITING
+                </button>
+              {% elif not guidereport.is_paid %}
+                <button type="submit" 
+                        formaction="{% url 'guidereports:guidereport_pay_dashboard' guidereport.id %}" 
+                        class="xero-flat-status confirmed">
+                  CONFIRMED
+                </button>
+              {% elif guidereport.is_paid and guidereport.is_confirmed %}
+                <button type="submit" 
+                        formaction="{% url 'guidereports:guidereport_confirm_dashboard' guidereport.id %}" 
+                        class="xero-flat-status paid">
+                  PAID
+                </button>
+              {% endif %}
+            </div>
+
+            <!-- {% if guidereport.is_paid %}
+              <button class="xero-flat-status paid">PAID</button>
             {% elif guidereport.is_confirmed %}
-              <span class="xero-flat-status confirmed">CONFIRMED</span>
+              <button class="xero-flat-status confirmed">CONFIRMED</button>
             {% else %}
-              <span class="xero-flat-status waiting">WAITING</span>
+              <button class="xero-flat-status waiting">WAITING</span>
             {% endif %}
-          </div>
-        </a>
+          </div> -->
+      
+
+
       </li>
       {% endfor %}    
     </ul>
   </div>
+</form>
   
   {% else %}
   <p class="no-data">현재 등록된 가이드 리포트가 없습니다.</p>

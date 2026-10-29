@@ -361,6 +361,7 @@ def guidereport_inbound_fuel_exp(request):
         'guide_report': guide_report,
     })
 
+
 import decimal
 from decimal import Decimal
 
@@ -394,6 +395,7 @@ def get_image_path(request, client_file_name, form_index='0'):
     unique_filename = f"{os.path.splitext(client_file_name)[0]}_idx{form_index}_{uuid.uuid4().hex[:8]}{ext}"
 
     return f"{group_code}/{unique_filename}"
+
 
 
 import traceback
@@ -578,9 +580,29 @@ from django.db import transaction
 from datetime import datetime
 
 
+from django.db.models import Q
+
+
+def search_groupcode(groupcode): 
+    guide_reports = GuideReport.objects.all()
+
+    if groupcode: 
+        searched_reports = guide_reports.filter(
+            Q(group_code__icontains=groupcode) 
+        ).distinct()
+
+    if searched_reports.count() > 1:
+        return True
+    
+    return False
+        
+
+
+
 @login_required
 @never_cache
 def guidereport_inbound_summary(request):
+    
     inbound_data = request.session.get('inbound_data')
     main_data = request.session.get('main_data')
 
@@ -589,6 +611,11 @@ def guidereport_inbound_summary(request):
 
     report_id = inbound_data.get('guidereport_id') or request.session.get('guidereport_id')
     guide_report = get_object_or_404(GuideReport, pk=report_id)
+
+    if not guide_report: 
+        print("GuideReport 인스턴스를 찾을 수 없습니다. 세션 데이터:", inbound_data, main_data)
+        return redirect('guidereports:guidereport_main')
+
 
     events = guide_report.events.all()
     first_event = events.first()
@@ -621,6 +648,36 @@ def guidereport_inbound_summary(request):
 
 
     grand_total = guide_fee_decimal + total_restaurant + total_attraction + total_fuel + total_inbound_exp
+
+    context = {
+        'guide_report': guide_report,
+        'report_date': getattr(guide_report, 'report_date', date.today()),
+        'events': events,
+        'guide_fee': guide_fee_decimal,
+        
+        'restaurant_expenses': restaurant_qs,
+        'attraction_expenses': attraction_qs,
+        'fuel_expenses': fuel_qs,
+        'inbound_expenses': exp_list,
+        
+        'total_restaurant': total_restaurant,
+        'total_attraction': total_attraction,
+        'total_fuel': total_fuel,
+        'total_inbound_exp': total_inbound_exp,
+        'grand_total': grand_total,
+
+        'invoice_number': guide_report.invoice_number or 1,
+        'invoice_date': guide_report.invoice_date or date.today(),
+    }
+
+    search_groupcode_value = search_groupcode(guide_report.group_code)
+    print('search_groupcode_value:', search_groupcode_value, 'guide_report.group_code:', guide_report.group_code)
+
+    if search_groupcode_value:
+        alert_message = "이미 해당 그룹코드의 인보이스가 존재합니다. 처음부터 다시 진행해주세요."
+        guide_report.delete()
+    
+        return render(request, 'guidereports/inbound/guidereport_inbound_summary.html', {'alert_message': alert_message})
 
     if request.method == 'POST':
         with transaction.atomic():
@@ -663,6 +720,7 @@ def guidereport_inbound_summary(request):
             guide_report.final_events_fee = guide_fee_decimal
             guide_report.final_expenses_fee = total_inbound_exp
             guide_report.final_amount_due = grand_total
+            guide_report.invoice_date = datetime.now().date()
             count = GuideReport.objects.filter(guide=request.user.guide_profile).count()
             guide_report.invoice_number = count
             guide_report.save()

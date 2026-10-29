@@ -3,8 +3,6 @@
 {% block content %}
 
 
-
-
 <link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
 
 
@@ -17,45 +15,72 @@
 <h2>Agent</h2>
 <a href="{% url 'inbound:agent_list' %}" class="menu-link">AGENTS</a>
 
-<h2>Hotel</h2>
-{% for hoteltype in hoteltype_list %}
-    {{ hoteltype.hotel_name }}
-    {{ hoteltype.address }}
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#hoteltypeModal-{{ hoteltype.pk }}">
-        Update
-    </button>
-    <div class="modal fade" id="hoteltypeModal-{{ hoteltype.pk }}" tabindex="-1" aria-labelledby="hoteltypeModalLabel-{{ hoteltype.pk }}" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="post" action="{% url 'inbound:update_hoteltype' hoteltype.pk %}">
-                    {% csrf_token %}
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="hoteltypeModal">{{ hoteltype.hotel_name }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            <label>Hotel Name: </label>
-                            <input type="text" name="hotel_name" value="{{ hoteltype.hotel_name }}" class="form-control">
-                        </p>
-                        <p>
-                            <label>Address:</label>
-                            <input type="text" name="address" value="{{ hoteltype.address }}" class="form-control">
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 fw-bold mb-0">Hotel List</h2>
+    <a href="{% url 'inbound:create_hoteltype' %}" class="btn btn-success btn-sm">
+        + HotelType
+    </a>
+</div>
 
-                </form>
-            </div>
-        </div>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Hotel Name</th>
+                    <th>Address</th>
+                    <th class="text-end" style="width: 100px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hoteltype in hoteltype_list %}
+                <tr>
+                    <td class="fw-semibold">{{ hoteltype.hotel_name }}</td>
+                    <td class="text-secondary">{{ hoteltype.address }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#hoteltypeModal-{{ hoteltype.pk }}">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                <div class="modal fade" id="hoteltypeModal-{{ hoteltype.pk }}" tabindex="-1" aria-labelledby="hoteltypeModalLabel-{{ hoteltype.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <form method="post" action="{% url 'inbound:update_hoteltype' hoteltype.pk %}">
+                                {% csrf_token %}
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title fw-bold" id="hoteltypeModalLabel-{{ hoteltype.pk }}">{{ hoteltype.hotel_name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Hotel Name</label>
+                                        <input type="text" name="hotel_name" value="{{ hoteltype.hotel_name }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Address</label>
+                                        <input type="text" name="address" value="{{ hoteltype.address }}" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center py-4 text-muted">등록된 호텔이 없습니다.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-<br>
-{% endfor %}
-<br>
-<a href="{% url 'inbound:create_hoteltype' %}">+ HotelType</a>
+</div>
+
+
 
 <h2>Flight Type</h2>
 {% for flighttype in flighttype_list %}
@@ -63,163 +88,244 @@
 {% endfor %}
 <a href="{% url 'inbound:create_flighttype' %}">+ FlightType</a>
 
-<h2>Meal</h2>
-{% for mealtype in mealtype_list %}
-    {{ mealtype.name }} 
-    {{ mealtype.price_adt}}
-    {{ mealtype.price_chd }} /
-    {{ mealtype.description }}
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mealtypeModal-{{mealtype.pk}}">
-        Update
-    </button>   
-    <div class="modal fade" id="mealtypeModal-{{ mealtype.pk }}" tabindex="-1" aria-labelledby="mealtypeModalLabel-{{ mealtype.pk }}" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form method="post" action="{% url 'invoices:update_mealtype' mealtype.pk %}">
-                {% csrf_token %}
-                <div class="modal-header">
-                    <h5 class="modal-title" id="mealtypeModal">{{mealtype.name}}</h5>
-                    <button type="button" class="btn-close" data-bs-toggle="modal" data-bs-target="mealtypeModal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-
-                    <p>
-                        <label>Name: </label>
-                        <input type="text" name="name" value="{{ mealtype.name }}" class="form-control">
-                    </p>
-                     <p>
-                        <label>Adult Price:</label>
-                        <input type="number" name="price_adt" value="{{ mealtype.price_adt }}" class="form-control">
-                    </p>
-                    <p>
-                        <label>Child Price:</label>
-                        <input type="number" name="price_chd" value="{{ mealtype.price_chd }}" class="form-control">
-                    </p>
-                    <p>
-                        <label>Description:</label>
-                        <input type="text" name="description" value="{{ mealtype.description }}" class="form-control">
-                    </p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
-                </div>
-                
-            </form>
-        </div>
-        </div>
-    </div>
-    <a href="{% url 'invoices:delete_mealtype' mealtype.pk %}">DELETE</a>
-    <br>
-{% endfor %}
-<br>
 
 <a href="{% url 'invoices:create_mealtype' %}">+ MealType</a>
 
-
-<h2>Attraction</h2>
-{% for attractiontype in attractiontype_list %}
-    {{ attractiontype.name }}
-    ADT: ${{ attractiontype.price_adt }}
-    CHD: ${{ attractiontype.price_chd }}
-    TC: ${{ attractiontype.price_tc }}
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#attractiontypeModal-{{ attractiontype.pk }}">
-        Update
-    </button>
-    
-    <div class="modal fade" id="attractiontypeModal-{{ attractiontype.pk }}" tabindex="-1" aria-labelledby="attractiontypeModalLabel-{{ attractiontype.pk }}" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="post" action="{% url 'invoices:update_attractiontype' attractiontype.pk %}">
-                    {% csrf_token %}
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="attractiontypeModalLabel-{{ attractiontype.pk }}">{{ attractiontype.name }} Update</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Meal Type</th>
+                    <th>Adult price</th>
+                    <th>Child price</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mealtype in mealtype_list %}
+                <tr>
+                    <td class="fw-semibold">{{ mealtype.name }}</td>
+                    <td>${{ mealtype.price_adt }}</td>
+                    <td>${{ mealtype.price_chd }}</td>
+                    <td>{{ mealtype.description }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#mealtypeModal-{{ mealtype.pk }}">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                <div class="modal fade" id="mealtypeModal-{{ mealtype.pk }}" tabindex="-1" aria-labelledby="mealtypeModalLabel-{{ mealtype.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <form method="post" action="{% url 'invoices:update_mealtype' mealtype.pk %}">
+                                {% csrf_token %}
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title fw-bold" id="mealtypeModalLabel-{{ mealtype.pk }}">{{ mealtype.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Meal Name</label>
+                                        <input type="text" name="name" value="{{ mealtype.name }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Adult Price</label>
+                                        <input type="number" name="price_adt" value="{{ mealtype.price_adt }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Child Price</label>
+                                        <input type="number" name="price_chd" value="{{ mealtype.price_chd }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Description</label>
+                                        <input type="text" name="description" value="{{ mealtype.description }}" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="modal-body text-start">
-                        <p>
-                            <label>Name: </label>
-                            <input type="text" name="name" value="{{ attractiontype.name }}" class="form-control" required>
-                        </p>
-                        <p>
-                            <label>Adult Price:</label>
-                            <input type="number" name="price_adt" value="{{ attractiontype.price_adt }}" class="form-control" required>
-                        </p>
-                        <p>
-                            <label>Child Price:</label>
-                            <input type="number" name="price_chd" value="{{ attractiontype.price_chd }}" class="form-control" required>
-                        </p>
-                        <p>
-                            <label>TC Price:</label>
-                            <input type="number" name="price_tc" value="{{ attractiontype.price_tc }}" class="form-control" required>
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-muted">등록된 식사 유형이 없습니다.</td>
+                    </tr>
+                    {% endfor %}
+            </tbody>
+        </table>
     </div>
-
-    <a href="{% url 'invoices:delete_attractiontype' attractiontype.pk %}">DELETE</a>
-    <br>
-{% endfor %}
-<br>
+</div>
 
 <a href="{% url 'invoices:create_attractiontype' %}">+ AttractionType</a>
 
-
-<h2>Vehicles</h2>
-
-{% for vehicletype in vehicletype_list %}
-    {{ vehicletype.seat }} SEAT | 
-    {{ vehicletype.location}} |
-    ${{ vehicletype.price }}
-    
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#vehicletypeModal-{{ vehicletype.pk }}">
-        Update
-    </button>
-
-    <div class="modal fade" id="vehicletypeModal-{{ vehicletype.pk }}" tabindex="-1" aria-labelledby="vehicletypeModalLabel-{{ vehicletype.pk }}" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <form method="post" action="{% url 'invoices:update_vehicletype' vehicletype.pk %}">
-                    {% csrf_token %}
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="vehicletypeModalLabel-{{ vehicletype.pk }}">{{ vehicletype.seat }}SEAT | {{ vehicletype.location }} Update </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Attraction Type</th>
+                    <th>Adult Price</th>
+                    <th>Child Price</th>
+                    <th>TC Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attractiontype in attractiontype_list %}
+                <tr>
+                    <td class="fw-semibold">{{ attractiontype.name }}</td>
+                    <td>${{ attractiontype.price_adt }}</td>
+                    <td>${{ attractiontype.price_chd }}</td>
+                    <td>${{ attractiontype.price_tc }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#attractiontypeModal-{{ attractiontype.pk }}">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                <div class="modal fade"  id="attractiontypeModal-{{ attractiontype.pk }}" tabindex="-1" aria-labelledby="attractiontypeModalLabel-{{ attractiontype.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <form method="post" action="{% url 'invoices:update_attractiontype' attractiontype.pk %}">
+                                {% csrf_token %}
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title fw-bold" id="attractiontypeModalLabel-{{ attractiontype.pk }}">{{ attractiontype.name }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Attraction Name</label>
+                                        <input type="text" name="name" value="{{ attractiontype.name }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Adult Price</label>
+                                        <input type="number" name="price_adt" value="{{ attractiontype.price_adt }}" class="form-control" required> 
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Child Price</label>
+                                        <input type="number" name="price_chd" value="{{ attractiontype.price_chd }}" class="form-control" required> 
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">TC Price</label>
+                                        <input type="number" name="price_tc" value="{{ attractiontype.price_tc }}" class="form-control" required>
+                                    </div>  
+                                </div>
+                                <div class="modal-footer bg-light">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                    <div class="modal-body text-start">
-                        <p>
-                            <label>Seat: </label>
-                            <input type="text" name="seat" value="{{ vehicletype.seat }}" class="form-control" required>
-                        </p>
-                        <p>
-                            <label>Type: </label>
-                            <input type="text" name="location" value="{{ vehicletype.location }}" class="form-control" required>
-                        </p>
-                        <p>
-                            <label>Price: </label>
-                            <input type="text" name="price" value="{{ vehicletype.price }}" class="form-control" required>
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                        <a href="{% url 'invoices:delete_attractiontype' attractiontype.pk %}">DELETE</a>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-4 text-muted">등록된 관광지 유형이 없습니다.</td>
+                        </tr>
+                        {% endfor %}
+            </tbody>
+        </table>
     </div>
+</div>
 
-    <a href="{% url 'invoices:delete_vehicletype' vehicletype.pk %}">DELETE</a>
-    <br>
-{% endfor %}
-<br>
 
 <a href="{% url 'invoices:create_vehicletype' %}">+ VehicleType</a>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>SEAT</th>
+                    <th>Location</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicletype in vehicletype_list %}
+                <tr>
+                    <td class="fw-semibold">{{ vehicletype.seat }}</td>
+                    <td>{{ vehicletype.location }}</td>
+                    <td>${{ vehicletype.price }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#vehicletypeModal-{{ vehicletype.pk }}">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                <div class="modal fade" id="vehicletypeModal-{{ vehicletype.pk }}" tabindex="-1" aria-labelledby="vehicletypeModalLabel-{{ vehicletype.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 shadow">
+                            <form method="post" action="{% url 'invoices:update_vehicletype' vehicletype.pk %}">
+                                {% csrf_token %}
+                                <div class="modal-header bg-light">
+                                    <h5 class="modal-title fw-bold" id="vehicletypeModalLabel-{{ vehicletype.pk }}">{{ vehicletype.seat }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">SEAT</label>
+                                        <input type="text" name="seat" value="{{ vehicletype.seat }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Location</label>
+                                        <input type="text" name="location" value="{{ vehicletype.location }}" class="form-control" required>
+                                    </div>
+                                    <div class="mb-3 text-start">
+                                        <label class="form-label fw-semibold">Price</label>
+                                        <input type="number" name="price" value="{{ vehicletype.price }}" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center py-4 text-muted">등록된 차량 유형이 없습니다. </td>
+                    </tr>
+                    {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<a href="{% url 'invoices:create_guideinvoicetype' %}">+ GuideInvoiceType</a>
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Location</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for guideinvoicetype in guideinvoicetype_list %}
+                <tr>
+                    <td class="fw-semibold">{{ guideinvoicetype.location }}</td>
+                    <td>${{ guideinvoicetype.price }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#guideinvoicetypeModal-{{ guideinvoicetype.pk }}">
+                            Update
+                        </button>
+                    </td>
+                </tr>
+                <div class="modal fade" id="guideinvoicetypeModal-{{ guideinvoicetype.pk }}" tabindex="-1" aria-labelledby="guideinvoicetypeModalLabel-{{ guideinvoicetype.pk }}" aria-hidden="true">
+                    
+                </div>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 
 <h2>Guide</h2>
 

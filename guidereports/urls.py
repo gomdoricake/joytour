@@ -10,6 +10,8 @@ urlpatterns = [
     path('guidereport_confirm/<int:pk>/', main_views.guidereport_confirm, name='guidereport_confirm'),
     path('guidereport_pay/<int:pk>/', main_views.guidereport_pay, name='guidereport_pay'),
     path('guidereport_pdf/<int:pk>/', main_views.guidereport_pdf, name='guidereport_pdf'),
+    path('guidereport_confirm_dashboard/<int:pk>/', main_views.guidereport_confirm_dashboard, name='guidereport_confirm_dashboard'),
+    path('guidereport_pay_dashboard/<int:pk>/', main_views.guidereport_pay_dashboard, name='guidereport_pay_dashboard'),
     path('guidereport_printed/<int:pk>/', main_views.guidereport_printed, name='guidereport_printed'),
 
     path('delete_guidereport/<int:pk>/', main_views.delete_guidereport, name='delete_guidereport'),

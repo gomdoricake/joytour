@@ -87,13 +87,41 @@ def guidereport_confirm(request, pk):
 
 
 @login_required
+def guidereport_confirm_dashboard(request, pk): 
+    if request.method == 'POST': 
+        guide_report = get_object_or_404(GuideReport, id=pk)
+        guide_report.is_confirmed = not guide_report.is_confirmed
+        if guide_report.is_paid: 
+            guide_report.is_paid = False
+        guide_report.save()
+
+        return redirect('{}#guidereport_{}'.format(resolve_url('joyadmin:payable_reports'), guide_report.id))
+
+
+@login_required
 def guidereport_pay(request, pk): 
     if request.method == 'POST': 
         guide_report = get_object_or_404(GuideReport, id=pk)
         guide_report.is_paid = not guide_report.is_paid
+        if guide_report.is_paid: 
+            guide_report.is_confirmed = True
         guide_report.save()
 
     return redirect('guidereports:detail', pk=pk)
+
+from django.shortcuts import resolve_url
+
+@login_required
+def guidereport_pay_dashboard(request, pk): 
+    if request.method == 'POST': 
+        guide_report = get_object_or_404(GuideReport, id=pk)
+        guide_report.is_paid = not guide_report.is_paid
+        if guide_report.is_paid: 
+            guide_report.is_confirmed = True
+        guide_report.save()
+
+        return redirect('{}#guidereport_{}'.format(resolve_url('joyadmin:payable_reports'), guide_report.id))
+
         
 
 @login_required
