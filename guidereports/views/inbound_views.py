@@ -118,6 +118,9 @@ def guidereport_inbound_agency(request):
     return render(request, 'guidereports/inbound/guidereport_inbound_agency.html', {'form': form, 'AGENCY_CHOICES': AGENCY_CHOICES})
 
 
+from joyadmin.models import GuideFeeRate
+
+
 @login_required
 @never_cache
 def guidereport_inbound_events(request): 
@@ -160,7 +163,32 @@ def guidereport_inbound_events(request):
             guide_report.save()
             request.session['guidereport_id'] = guide_report.id
 
-            events = formset.save()
+            events = formset.save(commit=False)
+
+            for event in events: 
+                fee_rate = GuideFeeRate.objects.filter(
+                    grade=request.user.guide_profile.grade,
+                    day_inbound=inbound_data.get('day_inbound'),
+                    event_code_or_hours=event.hours,
+                    seat_type_or_fit_or_group=inbound_data['role'],
+                    is_sponsored=request.user.guide_profile.is_sponsored,
+                ).first()
+
+                print('grade: ' + str(request.user.guide_profile.grade)
+                    + ' day_inbound: ' + str(inbound_data.get('day_inbound')) 
+                    + ' event_code_or_hours: ' + str(event.hours)  
+                    + ' seat_type: ' + str(inbound_data['role']) 
+                    + ' is_sponsored: ' + str(request.user.guide_profile.is_sponsored),
+                    )
+
+                print("fee_rate: " + str(fee_rate))
+
+                if fee_rate: 
+                    event.guide_fee = fee_rate.guidefee
+                else: 
+                    event.guide_fee = 0
+
+                event.save()
 
             for form in formset.forms: 
                 if form.cleaned_data and not form.cleaned_data.get('DELETE'): 
@@ -635,7 +663,8 @@ def guidereport_inbound_summary(request):
 
     for evt in events:
         if hasattr(evt, 'calculate_guide_fee'):
-            computed_fee += safe_decimal(evt.calculate_guide_fee())
+            computed_fee += safe_decimal(evt.guide_fee)
+            # computed_fee += safe_decimal(evt.calculate_guide_fee())
         elif hasattr(evt, 'guide_fee'):
             computed_fee += safe_decimal(evt.guide_fee)
 

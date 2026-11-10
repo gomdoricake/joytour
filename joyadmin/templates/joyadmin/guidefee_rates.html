@@ -1,0 +1,234 @@
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</head>
+
+<style>
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.12); 
+    }
+    .input-group-text {
+        background-color: #f8f9fa;
+        color: #6c757d;
+        border-right: none; 
+    }
+    .input-group .form-control, .input-group .form-select {
+        border-left: none; 
+    }
+    .input-group:focus-within .input-group-text {
+        border-color: #0d6efd; 
+        color: #0d6efd;
+    }
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform:translateY(-4px); 
+        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.08) !important; 
+    }
+    .border-dashed {
+        border-style: dashed !important; 
+    }
+</style>
+
+<div class="container py-4">
+
+    <a href="{% url 'joyadmin:index' %}" class="btn btn-secondary bg-gradient border-0 px-3 py-2 rounded-3 shadow-sm d-inline-flex align-items-center gap-2 text-decoration-none fw-semibold">
+        <i class="bi bi-arrow-left-circle fs-5"></i>
+        <span>Back to Admin Home</span>
+    </a>
+
+    <div class="card shadow-sm border-0 rounded-4 mb-5 overflow-hidden">
+        <div class="card-header bg-white py-3 px-4 border-bottom-0 d-flex align-items-center justify-content-between">
+            <h5 class="card-title fw-bold mb-0 text-dark">
+                <i class="bi bi-pencil-sqaure text-primary me-2"></i>Fee Rate 등록 / 수정
+            </h5>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1.5 small">Management</span>
+        </div>
+    </div>
+
+    <div class="card-body p-4 pt-2">
+        <form method="post" class="post-form">
+            {% csrf_token %}
+
+            <div class="row g-3.5">
+                <div class="col-md-6 mb-2">
+                    <label for="{{ form.grade.id_for_label }}" class="form-label small fw-bold text-secondary">
+                        {{ form.grade.label}}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-award"></i></span>
+                        {{ form.grade }}
+                    </div>
+                    {% if form.grade.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.grade.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 md-2">
+                    <label for="{{ form.day_inbound.id_for_label }}" class="form-label small fw-bold text-secondary">
+                        {{ form.day_inbound.label }}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                        {{ form.day_inbound }}
+                    </div>
+                    {% if form.day_inbound.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.day_inbound.errors }}</div>
+                    {% endif %}
+                </div>
+
+                
+                <div class="col-md-6 mb-2">
+                    <label for="{{ form.event_code_or_hours.id_for_label }}" class="form-label small fw-bold text-secondary">
+                        {{ form.event_code_or_hours.label }}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-clock-history"></i></span>
+                        {{ form.event_code_or_hours }}
+                    </div>
+                    {% if form.event_code_or_hours.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.event_code_or_hours.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label for="{{ form.seat_type_or_fit_or_group.id_for_label }}" class="form-label small fw-bold text-secondary">
+                        {{ form.seat_type_or_fit_or_group.label }}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-bus-front"></i></span>
+                        {{ form.seat_type_or_fit_or_group }}
+                    </div>
+                    {% if form.seat_type.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.seat_type_or_fit_or_group.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <label for="{{ form.guidefee.id_for_label }}" class="form-label small fw-bold text-secondary">
+                        {{ form.guidefee.label }}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text fw-bold text-primary">$</span>
+                        {{ form.guidefee }}
+                    </div>
+                    {% if form.guidefee.errors %}
+                        <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.guidefee.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6 mb-2 d-flex align-items-end">
+                    <div class="p-2 px-3 border rounded-3 bg-light-subtle d-flex align-items-center w-100" style="min-height: 38px;">
+                        <div class="form-check form-switch mb-0 w-100 d-flex align-items-center justify-content-between ps-0">
+                            <label for="{{ form.is_sponsored.id_for_label }}" class="form-check-label small fw-bold text-secondary cursor-pointer me-2">
+                                <i class="bi bi-star me-1 text-warning"></i>{{ form.is_sponsored.label }}
+                            </label>
+                            {{ form.is_sponsored }}
+                        </div>
+                        {% if form.is_sponsored.errors %}
+                            <div class="text-danger small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ form.is_sponsored.errors }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold rounded-3 shadow-sm d-inline-flex align-items-center">
+                        <i class="bi bi-cloud-arrow-up-fill me-2 fs-5"></i>Save Rate
+                    </button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+
+
+    
+    <div class="d-flex align-items-center justify-content-between mb-3.5">
+        <h5 class="fw-bold text-dark mb-0">
+            <i class="bi bi-collection-fill text-primary me-2"></i>Guide Fee Rate List
+        </h5>
+        <span class="text-muted small">Total: <strong class="text-primary">{{ guide_fee_rates|length }}</strong></span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for guide_fee_rate in guide_fee_rates %}
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm rounded-4 hover-lift overflow-hidden">
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="d-flex justify-content-between align-items-start mb-2.5">
+                                <h5 class="card-title fw-bold text-dark mb-0 text-truncate">
+                                    {{ guide_fee_rate.event_code_or_hours }}
+                                </h5>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2.5 py-1 rounded-pill small">
+                                    Grade {{ guide_fee_rate.grade }}
+                                </span>
+                            </div>
+
+                            <div class="d-flex flex-wrap align-itmes-center gap-1.5 mb-3">
+                                {% if guide_fee_rate.is_sponsored %}
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill">
+                                        <i class="bi bi-star-fill me-1"></i>Sponsored
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle rounded-pill">
+                                        Not Sponsored
+                                    </span>
+                                {% endif %}
+
+                                {% if guide_fee_rate.day_inbound %}
+                                    <span class="badge bg-light text-secondary border rounded-pill">
+                                        <i class="bi bi-calendar-check me-1"></i>{{ guide_fee_rate.day_inbound }}
+                                    </span>
+                                {% endif %}
+
+                                {% if guide_fee_rate.seat_type_or_fit_or_group %}
+                                    <span class="badge bg-light text-secondary border rounded-pill">
+                                        <i class="bi bi-bus-front me-1"></i>{{ guide_fee_rate.seat_type_or_fit_or_group }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-top d-flex align-items-baseline justify-content-between mt-2">
+                            <span class="text-muted small fw-medium">Guide Fee</span>
+                            <div class="text-primary fw-bold fs-3">
+                                <span class="fs-5 me-0.5">$</span>{{ guide_fee_rate.guidefee }}
+                            </div>
+                        </div>
+
+                        <a href="{% url 'joyadmin:update_guidefee_rate' guide_fee_rate.id %}">
+                            <button>Update</button>
+                        </a>
+
+                        <form method="POST" action="{% url 'joyadmin:delete_guidefee_rate' guide_fee_rate.id %}" class="d-flex gap-2 w-100">
+                            {% csrf_token %}
+                            <button type="submit">Delete</button>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+
+            {% empty %}
+                <div class="col-12">
+                    <div class="text-center py-5 border border-2 border-dashed rounded-4 bg-white text-muted">
+                        <i class="bi bi-indox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                        <p class="mb-0 fw-medium">등록된 Guide Fee Rate 내역이 없습니다. </p>
+                    </div>
+                </div>
+            {% endfor %}
+    </div>
+
+</div>
+
+
+
+

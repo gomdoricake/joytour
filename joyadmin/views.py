@@ -185,3 +185,54 @@ def search(request):
                 'searched_guides': searched_guides,
                 'kw': kw}
     return render(request, 'joyadmin/search.html', context)
+
+
+from .models import GuideFeeRate
+from .forms import GuideFeeRateForm
+
+
+@login_required
+def guidefee_rates(request):
+    form = GuideFeeRateForm(request.POST)
+    guide_fee_rates = GuideFeeRate.objects.all().order_by('grade', 'day_inbound', 'event_code_or_hours', 'seat_type_or_fit_or_group', 'is_sponsored')
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('joyadmin:guidefee_rates')
+    
+    return render(request, 'joyadmin/guidefee_rates.html', {'form': form, 'guide_fee_rates': guide_fee_rates})
+
+
+from django.shortcuts import get_object_or_404, render
+
+
+@login_required
+def update_guidefee_rate(request, pk):     
+    guidefee_rate = get_object_or_404(GuideFeeRate, pk=pk)
+    guide_fee_rates = GuideFeeRate.objects.all().order_by('grade', 'day_inbound', 'event_code_or_hours', 'seat_type_or_fit_or_group', 'is_sponsored')
+    
+    if request.method=='POST':
+        print('update!!')
+        form = GuideFeeRateForm(request.POST, instance=guidefee_rate)
+        if form.is_valid(): 
+            form.save()
+            return redirect('joyadmin:guidefee_rates')
+    else: 
+        form = GuideFeeRateForm(instance=guidefee_rate)
+    
+    return render(request, 'joyadmin/guidefee_rates.html', {'form': form, 'guide_fee_rates': guide_fee_rates})
+
+
+@login_required
+def delete_guidefee_rate(request, pk): 
+    guidefee_rate = get_object_or_404(GuideFeeRate, pk=pk)
+    
+    if request.method=='POST':
+        print('delete!!')
+        guidefee_rate.delete()
+    
+    guide_fee_rates = GuideFeeRate.objects.all().order_by('grade', 'day_inbound', 'event_code_or_hours', 'seat_type_or_fit_or_group', 'is_sponsored')
+    form = GuideFeeRateForm()
+
+    return render(request, 'joyadmin/guidefee_rates.html', {'form': form, 'guide_fee_rates': guide_fee_rates})
+        

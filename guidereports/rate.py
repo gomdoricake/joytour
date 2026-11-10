@@ -66,6 +66,7 @@ COACH_TYPE = {
     '12 SEAT': '12 SEAT',
     '21 SEAT': '21 SEAT',
     '53 SEAT': '53 SEAT',
+    'GUIDE ONLY': 'GUIDE ONLY'
 }
 
 DAY_EVENTCODE_12SEAT = {
