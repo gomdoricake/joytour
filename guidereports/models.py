@@ -35,6 +35,7 @@ class GuideReport(models.Model):
     def __str__(self): 
         return str(self.guide.name) + ': ' + str(self.group_code)
 
+
 class Event(models.Model): 
     guide_report = models.ForeignKey(GuideReport, on_delete=models.CASCADE, related_name='events')
     eventcode = models.CharField(max_length=100)
@@ -100,9 +101,9 @@ class Event(models.Model):
 
         return calculated_fee
 
-    def save(self, *args, **kwargs): 
-        self.guide_fee = self.calculate_guide_fee()
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs): 
+    #     self.guide_fee = self.calculate_guide_fee()
+    #     super().save(*args, **kwargs)
 
     def __str__(self): 
         return self.eventcode

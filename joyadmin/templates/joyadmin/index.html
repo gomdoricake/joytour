@@ -163,52 +163,7 @@
     <h2 class="xero-title">Admin Dashboard</h2>
   </div>
 
-  {% if request.user.username == 'admin' %}
-  <!-- Welcome Banner -->
-  <div class="xero-welcome-box">
-    <span class="username">{{ request.user.username }}</span>님, 환영합니다!
-    <span class="notice-text">
-      관리자 계정 전용 페이지입니다. 일반 사용자 계정으로 접근 시, 일부 기능이 제한될 수 있습니다.
-    </span>
-  </div>
-
-  <!-- Admin Meta Grid -->
-  <div class="summary-meta-bar">
-    <span class="sec-title">ADMIN INFORMATION</span>
-  </div>
-
-  <div class="xero-info-grid">
-    <div class="xero-info-item">
-      <span class="info-label">이름</span>
-      <span class="info-value">{{ admin.name }}</span>
-    </div>
-    <div class="xero-info-item">
-      <span class="info-label">예금주</span>
-      <span class="info-value">{{ admin.bank_account_name }}</span>
-    </div>
-    <div class="xero-info-item">
-      <span class="info-label">ABN</span>
-      <span class="info-value">{{ admin.abn }}</span>
-    </div>
-    <div class="xero-info-item">
-      <span class="info-label">BSB</span>
-      <span class="info-value">{{ admin.bsb }}</span>
-    </div>
-    <div class="xero-info-item">
-      <span class="info-label">계좌 번호</span>
-      <span class="info-value">{{ admin.account_number }}</span>
-    </div>
-    <div class="xero-info-item">
-      <span class="info-label">연락처</span>
-      <span class="info-value">{{ admin.contact_info }}</span>
-    </div>
-    <div class="xero-info-item full-width">
-      <span class="info-label">주소</span>
-      <span class="info-value">{{ admin.address }}</span>
-    </div>
-  </div>
-  {% endif %}
-
+  
   <!-- Navigation Grid -->
   <div class="summary-meta-bar">
     <span class="sec-title">QUICK NAVIGATION</span>
@@ -220,7 +175,10 @@
     </a>
     <a href="{% url 'guides:index' %}" class="xero-menu-btn">
       Tour Guides
-    </a>   
+    </a>
+    <a href="{% url 'joyadmin:guidefee_rates' %}" class="xero-menu-btn">
+      Guide Fee Rates
+    </a>
   </div>
 
   <!-- Actions Section -->

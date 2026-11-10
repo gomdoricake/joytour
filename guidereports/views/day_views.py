@@ -463,6 +463,8 @@ def safe_decimal(value, default='0.00'):
     except (ValueError, TypeError, decimal.InvalidOperation):
         return Decimal(default)
 
+from joyadmin.models import GuideFeeRate
+
 @login_required
 @never_cache
 def guidereport_day_summary(request): 
@@ -481,10 +483,6 @@ def guidereport_day_summary(request):
     group_code = day_data.get('group_code')
     eventcode = day_data.get('eventcode')
     report_id = request.session.get('guidereport_id', '')
-
-
-
-
 
     fuel_list = json.loads(request.session.get('fuel_temp_list', '[]'))
     s3_fuel_list = json.loads(request.session.get('s3_fuel_temp_list', '[]'))
@@ -524,10 +522,25 @@ def guidereport_day_summary(request):
             report_date=report_date,
         )
 
-    computed_fee = event.calculate_guide_fee()
-    event.guide_fee = computed_fee 
+    # computed_fee = event.calculate_guide_fee()
+
     
-    guide_fee_decimal = safe_decimal(computed_fee)
+    guide_fee = GuideFeeRate.objects.filter(
+        event_code_or_hours=eventcode, 
+        grade=guide.grade, 
+        day_inbound=day_inbound, 
+        is_sponsored=guide.is_sponsored, 
+        seat_type_or_fit_or_group=role
+    ).first()
+        
+    if guide_fee: 
+        event.guide_fee = guide_fee.guidefee 
+        guide_fee_decimal = safe_decimal(guide_fee.guidefee)
+        print( 'guide_fee: ' + str(guide_fee))
+    else: 
+        event.guide_fee = event.calculate_guide_fee()
+        guide_fee_decimal = safe_decimal(computed_fee)
+    
     total_fuel = sum(safe_decimal(f.get('expense')) for f in fuel_list)
     total_guide_exp = sum(safe_decimal(e.get('expense')) for e in exp_list)
     
