@@ -350,6 +350,8 @@ def guidereport_pdf(request, pk):
     
     admin = Guide.objects.get(contact_info='account@joystudytour.com.au')
 
+    print('admin: ' + str(admin))
+
     bill_to = f"""
     <b>Bill To</b><br/>
     <font color="#2d3436" size="11"><b>Joy Study & Tour Pty Ltd</b></font><br/>
