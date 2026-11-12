@@ -24,7 +24,7 @@ Shows the payable amounts for the selected weekly period (e.g. Nov.4 - Nov.10, 2
 * Summary cards at the top: total payable amount due (excluding super), total guide fee, total guide expenses, and total super. 
 * Per-guide breakdown: each guide's number of reports, fee, expenses, super, and total, so staff can see at a glance who is owed what this week. 
 
-![Admin Overview](/joytour/docs/admin_overview.png)
+![Admin Overview](/docs/admin_overview.png)
 
 **Reports Detail List**
 Lists every invoice in the selected period (e.g. 30 invoices). 
@@ -33,7 +33,7 @@ Lists every invoice in the selected period (e.g. 30 invoices).
 * Search by group code or guide name to quickly find a specific report. 
 * Click a row to open the report detail page. 
 
-![Admin Detail List](/joytour/docs/admin_detail_list.png)
+![Admin Detail List](/docs/admin_detail_list.png)
 
 **Guide Report Detail**
 Tha page staff use to review a single report before payment. 
@@ -47,12 +47,12 @@ Tha page staff use to review a single report before payment.
 * Actions: confirm (with undo), mark as pad, download PDF, print, and delete. 
 
 
-![Admin Detail](/joytour/docs/admin_detail.png)
+![Admin Detail](/docs/admin_detail.png)
 
 **PDF Export**
 The report exported as a PDF for printing or record keeping, containing the same invoice information shown on the detail page. 
 
-![Admin PDF](/joytour/docs/admin_pdf.png)
+![Admin PDF](/docs/admin_pdf.png)
 
 **Guide Fee Rates**
 Where office staff manage the guide fee table. 
@@ -60,12 +60,12 @@ Where office staff manage the guide fee table.
 * Rate list (e.g. 161 rates): each rate shows its conditions and fee, with Update and Delete buttons. 
 * Rates are applied automatically when guides submit reports. 
 
-![Admin Rate](/joytour//docs/admin_rate.png)
+![Admin Rate](/docs/admin_rate.png)
 
 **Receipt**
 Receipt images that guides attached to their expenses, stored in AWS S3, so staff can verify each expense during review. 
 
-![Admin Receipt](/joytour/docs/admin_receipt.png)
+![Admin Receipt](/docs/admin_receipt.png)
 
 ### Guide
 
@@ -77,7 +77,7 @@ The guide's personal space.
 * Overview: the guide's total payable amount, guide fee, and expenses. 
 * Report & invoice list: filter by ALL / UNPAID / CONFIRMED / PAID and search by group code or invoice number. 
 
-![Guide Mypage](/joytour/docs/guide_mypage.png)
+![Guide Mypage](/docs/guide_mypage.png)
 
 
 **Report Summary**
@@ -87,11 +87,12 @@ The final check before submitting a report.
 * Grand total of the amount to be paid. 
 * A Submit button sends the report to the office, and a link returns to edit expenses. 
 
-![Guide Summary](/joytour/docs/guide_summary.png)
+![Guide Summary](/docs/guide_summary.png)
 
 
 # Tech Stack
 | Category | Technology | 
+| --- | --- |
 | Framework | Python, Django | 
 | Database | PostgreSQL | 
 | Infrastructure | AWS Lightsail | 
