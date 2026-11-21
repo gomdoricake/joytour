@@ -1,0 +1,379 @@
+<style>
+  /* ==========================================================
+     🏢 [Xero Design System Base Setup]
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #f4f7f9 !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  }
+
+  .mypage-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 24px 16px 80px 16px !important; 
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 네비게이션 */
+  .mypage-nav-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .nav-back-link {
+    color: #55606e;
+    font-size: 13px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.15s ease;
+  }
+  .nav-back-link:hover { color: #007bbf; }
+
+  .nav-badge-title {
+    color: #007bbf;
+    background: #e6f3fa;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-logout {
+    background: #ffffff;
+    border: 1px solid #d8dfe5;
+    color: #55606e;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+  }
+  .btn-logout:hover {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #b0bec5;
+  }
+
+  /* Xero 프로필 히어로 카드 */
+  .profile-hero-card {
+    background: #ffffff;
+    border: 1px solid #d8dfe5;
+    border-left: 4px solid #007bbf;
+    padding: 20px 24px;
+    border-radius: 6px;
+    color: #1e293b;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .profile-hero-card .welcome-text h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: #0f172a;
+    letter-spacing: -0.3px;
+  }
+  
+  .profile-hero-card .welcome-text p {
+    font-size: 13px;
+    margin: 0;
+    color: #64748b;
+    line-height: 1.4;
+  }
+
+  .btn-edit-mypage {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 9px 16px;
+    background: #f8fafc;
+    color: #007bbf;
+    border: 1px solid #007bbf;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+  }
+  .btn-edit-mypage:hover { 
+    background: #007bbf; 
+    color: #ffffff;
+  }
+
+  /* 액션 버튼 (신규 생성) */
+  .action-row {
+    margin-bottom: 28px;
+  }
+  
+  .btn-create-report {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 13px;
+    background: #007bbf;
+    color: #ffffff;
+    border: 1px solid #00669e;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    box-sizing: border-box;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    transition: all 0.15s ease;
+  }
+  .btn-create-report:hover {
+    background: #00669e;
+  }
+
+  /* 섹션 헤더 & 타이틀 */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 28px 0 12px;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #334155;
+    letter-spacing: -0.2px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sponsored-badge {
+    background: #fef3c7;
+    color: #b45309;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  /* Xero 데이터 카드 그리드 */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: #ffffff;
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1px solid #d8dfe5;
+  }
+  
+  .info-item label {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .info-item span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  /* Xero 스타일 탭 (Segmented Navigation) */
+  .filter-tabs {
+    display: flex;
+    border-bottom: 2px solid #d8dfe5;
+    gap: 16px;
+    margin-bottom: 0;
+    padding-left: 4px;
+  }
+
+  .filter-tab {
+    padding: 10px 4px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.15s ease;
+  }
+
+  .filter-tab:hover {
+    color: #0f172a;
+  }
+
+  .filter-tab.active {
+    color: #007bbf;
+    border-bottom-color: #007bbf;
+    font-weight: 700;
+  }
+
+  /* Xero 테이블 컨테이너 */
+  .xero-table-container {
+    border: 1px solid #d8dfe5;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    margin-top: 12px;
+  }
+
+  .xero-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #d8dfe5;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .xero-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .report-item {
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+    transition: background-color 0.15s ease;
+  }
+  
+  .report-item:last-child {
+    border-bottom: none;
+  }
+  
+  .report-item:hover { 
+    background-color: #f1f5f9;
+  }
+  
+  .report-item a.report-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    width: 100%;
+    box-sizing: border-box;
+    color: #334155;
+  }
+
+  .report-info-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .invoice-num {
+    color: #007bbf;
+    font-weight: 700;
+    font-size: 13px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  .group-code {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  /* Xero Flat Status Badges */
+  .status-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  
+  .status-mini-badge.mini-paid {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+
+  .status-mini-badge.mini-confirmed {
+    background-color: #fef9c3;
+    color: #a16207;
+    border: 1px solid #fef08a;
+  }
+
+  .status-mini-badge.mini-waiting {
+    background-color: #ffe4e6;
+    color: #e11d48;
+    border: 1px solid #fecdd3;
+  }
+
+  /* ==========================================================
+     🖥️ [데스크톱 / PC 분기] 451px 이상
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    .mypage-container {
+      max-width: 720px !important;
+      margin: 40px auto !important;
+      padding: 32px !important;
+      background: #ffffff !important; 
+      border-radius: 8px !important;
+      border: 1px solid #d8dfe5 !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .profile-hero-card {
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      padding: 24px !important;
+    }
+
+    .btn-edit-mypage {
+      width: auto !important;
+      padding: 9px 20px;
+    }
+
+    .info-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 12px !important;
+    }
+
+    .span-2 {
+      grid-column: span 2 !important;
+    }
+  }
+</style>

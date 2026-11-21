@@ -1,0 +1,704 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 풀화면 변신)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 풀화면 밀착형으로 전환 */
+  .report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 16px 80px 16px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 이동 링크 */
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* 타이틀 스타일 */
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    letter-spacing: -0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    word-break: keep-all;
+  }
+  .title-badge {
+    font-size: 11px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* 🌟 개별 동적 이벤트 카드 로우 스타일 - 모바일 최적화 */
+  .event-form-row {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    box-sizing: border-box;
+  }
+
+  /* 카드 내부 헤더 (소제목과 삭제 버튼의 정렬을 위해 플렉스 박스로 고도화) */
+  .event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #f1f5f9;
+    gap: 12px;
+  }
+
+  /* 카드 내부 소제목 */
+  .event-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0;
+    letter-spacing: -0.3px;
+    word-break: keep-all;
+  }
+
+  /* 폼 내 개별 문단 간격 */
+  .event-form-row p {
+    margin-bottom: 16px;
+    margin-top: 0;
+  }
+  .event-form-row p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  /* 인풋 라벨 공통 스타일 */
+  .event-form-row label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* 🌟 인풋 요소 고급화 - iOS 자동 줌 방지를 위해 모바일 기본 15px 셋업 */
+  .event-form-row input,
+  .event-form-row select,
+  .event-form-row textarea {
+    width: 100% !important;
+    padding: 13px 14px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    font-size: 15px !important; /* 모바일 웹 페이지 줌 방지 */
+    font-weight: 600;
+    color: #1e293b;
+    box-sizing: border-box !important;
+    background: #fff;
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+  }
+  .event-form-row input:focus,
+  .event-form-row select:focus,
+  .event-form-row textarea:focus {
+    border-color: #4f46e5 !important;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+  .event-form-row input[readonly] {
+    background: #f8fafc !important;
+    color: #64748b !important;
+    border-color: #e2e8f0 !important;
+    cursor: not-allowed;
+  }
+
+  /* 🎯 커스텀 드롭다운 및 datalist 화살표 정돈 */
+  .event-form-row select,
+  .event-form-row input[list] {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px top 50% !important;
+    background-size: 10px auto !important;
+    padding-right: 40px !important;
+    cursor: pointer;
+  }
+  .event-form-row input[list]::-webkit-calendar-picker-indicator {
+    opacity: 0 !important;
+  }
+
+  /* ❌ 삭제 버튼 (모바일 화면 우측 상단에서도 타이틀과 자연스럽게 녹아들도록 설정) */
+  .btn-remove {
+    background: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+  .btn-remove:hover {
+    background: #ffe4e6;
+    color: #e11d48;
+    border-color: #fecdd3;
+  }
+
+  /* ➕ 이벤트 동적 추가 버튼 (연한 그린 스킨) */
+  .btn-add {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .btn-add:hover {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+
+  /* 🚀 다음 단계 제출 버튼 (인디고 그라디언트) */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  .btn-submit:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+  /* 에러 박스 */
+  .error-box {
+    background: #fff1f2;
+    border: 1px solid #ffe4e6;
+    color: #f43f5e;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .receipt-section {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #e2e8f0;
+  }
+
+  .receipt-upload-box {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: center;
+  }
+
+  .receipt-upload-box:hover {
+    background: #f1f5f9;
+    border-color: #6366f1;
+  }
+
+  .receipt-upload-box .icon {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .receipt-upload-box .upload-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+  }
+
+  .receipt-upload-box .upload-subtext {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 2px;
+  }
+
+  /* 실제 input은 숨김 처리 */
+  .receipt-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  /* 파일 등록 완료 상태 */
+  .receipt-upload-box.has-file {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    border-style: solid;
+  }
+
+  .receipt-upload-box.has-file .upload-text {
+    color: #15803d;
+  }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 고급 데스크톱 스킨 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* PC 전용 글래스모피즘 컨테이너 스케일 복원 */
+    .report-container {
+      max-width: 720px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .title { font-size: 24px !important; margin-bottom: 30px !important; }
+    .title-badge { font-size: 12px !important; }
+    .event-form-row { padding: 24px !important; margin-bottom: 24px !important; }
+
+    /* 헤더 및 타이틀 복원 */
+    .event-header { display: block !important; margin-bottom: 0 !important; padding-bottom: 0 !important; border: none !important; }
+    .event-title { font-size: 16px !important; margin: 0 0 20px 0 !important; padding-bottom: 8px !important; border-bottom: 2px solid #f1f5f9 !important; }
+
+    /* 데스크톱 인풋 최적화 서체 축소 */
+    .event-form-row input,
+    .event-form-row select,
+    .event-form-row textarea {
+      padding: 13px 16px !important;
+      font-size: 14px !important;
+    }
+    
+    .event-form-row select,
+    .event-form-row input[list] {
+      background-position: right 16px top 50% !important;
+      background-size: 11px auto !important;
+      padding-right: 44px !important;
+    }
+
+    /* 🖥️ PC 전용: 우측 상단 멜팅 삭제 버튼 위치 복원 */
+    .btn-remove {
+      position: absolute !important;
+      top: 20px !important;
+      right: 24px !important;
+      padding: 6px 14px !important;
+    }
+
+    .btn-submit {
+      margin-top: 24px !important;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
+  }
+</style>
+
+<div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'guidereports:guidereport_inbound_agency' %}" class="back-link">← 이전 단계로 돌아가기</a>
+  </div>
+
+  {% if user.username != 'admin' %}
+    <h2 class="title">
+      <span>Guide Report</span>
+      <span class="title-badge">Inbound</span>
+      <span class="title-badge" style="background:#f1f5f9; color:#475569;">Events Schedule</span>
+    </h2>
+  {% endif %}
+
+  <form method="post" id="real-event-form" class="report-form">
+    {% csrf_token %} 
+    {{ formset.management_form }} 
+    
+    {% if formset.errors %}
+      <div class="error-box">⚠️ 입력 항목 스케줄 형식을 다시 확인해 주세요.</div>
+    {% endif %}
+
+    <div id="event-form-list">
+      {% for form in formset %}
+        <div class="event-form-row report-form" {% if form.DELETE.value %}style="display: none;"{% endif %}>
+          {{ form.id }}
+
+          <div style="display: none;">
+            {{ form.DELETE }}
+          </div>
+
+          <h5 class="event-title">이벤트 #{{ forloop.counter }}</h5>
+          
+          {% for field in form %}
+            {% if field.name != 'id' and field.name != 'guidereport' and field.name != 'DELETE' %}
+              <p>
+                <label>{{ field.label }}</label>
+                {{ field }}
+              </p>
+            {% endif %}
+          {% endfor %}
+          
+          <button type="button" class="remove-form-btn btn-remove">삭제</button>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <button type="button" id="add-form-btn" class="btn-add">➕ 스케줄 이벤트 추가하기</button>
+    </div>
+    
+    <button type="submit" class="btn-submit">다음 단계로 이동하기 (Next)</button>
+  </form>
+</div>
+
+<div id="empty-form-template" style="display: none">
+  <div class="event-form-row report-form"> 
+    <h5 class="event-title">이벤트</h5>
+    
+    {{ formset.empty_form.id }}
+    <div style="display: none;">
+      {{ formset.empty_form.DELETE }}
+    </div>
+    
+    {% for field in formset.empty_form %}
+      {% if field.name != 'id' and field.name != 'guidereport' and field.name != 'DELETE' %}
+        <p>
+          <label>{{ field.label }}</label>
+          {{ field }}
+        </p>
+      {% endif %}
+    {% endfor %}
+    
+    <button type="button" class="remove-form-btn btn-remove">삭제</button>
+  </div>
+</div>
+
+<templatelist>
+  <datalist id="eventcode_datalist">
+    {% for key, value in INBOUND_EVENTCODE %}
+      <option value="{{ key }}">{{ value }}</option>
+    {% endfor %}
+  </datalist>
+</templatelist>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const formContainer = document.getElementById("event-form-list");
+  const addButton = document.getElementById("add-form-btn");
+  const totalFormsInput = document.getElementById("id_{{ formset.prefix }}-TOTAL_FORMS");
+  const prefix = "{{ formset.prefix }}";
+
+  // 날짜 계산 함수
+  function getNextDate(baseDateStr) {
+    if (!baseDateStr) return "";
+    let baseDate = new Date(baseDateStr);
+    baseDate.setDate(baseDate.getDate() + 1);
+    return baseDate.toISOString().split('T')[0];
+  }
+
+  // Hours 제어 기능
+  function checkHoursControl(row) {
+    const eventCodeField = row.querySelector('[name$="-eventcode"]');
+    const hoursField = row.querySelector('[name$="-hours"]');
+    if (!eventCodeField || !hoursField) return;
+
+    if (eventCodeField.tagName === 'INPUT' && !eventCodeField.hasAttribute('list')) {
+      eventCodeField.setAttribute('list', 'eventcode_datalist');
+    }
+
+    const codeValue = eventCodeField.value.toUpperCase().trim();
+
+    if (codeValue === 'AM/AS') {
+      hoursField.value = "AM/AS";
+      hoursField.readOnly = true; 
+      if (hoursField.tagName === 'SELECT') {
+        hoursField.disabled = false;
+        Array.from(hoursField.options).forEach(opt => {
+          opt.disabled = (opt.value.toUpperCase().trim() !== 'AM/AS');
+        });
+      }
+    } else {
+      hoursField.readOnly = false;
+      if (hoursField.tagName === 'SELECT') {
+        Array.from(hoursField.options).forEach(opt => {
+          opt.disabled = (opt.value.toUpperCase().trim() === 'AM/AS');
+        });
+        if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+      } else {
+        if (hoursField.value.toUpperCase().trim() === 'AM/AS') hoursField.value = "";
+      }
+    }
+  }
+
+  // 전체 인덱스 및 번호 재정렬 함수
+  function updateFormIndices() {
+    const rows = formContainer.querySelectorAll(".event-form-row");
+    let visibleIndex = 1;
+
+    rows.forEach((row, currentIndex) => {
+      row.querySelectorAll("input, select, textarea").forEach((el) => {
+        if (el.name) {
+          el.name = el.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
+        }
+        if (el.id) {
+          el.id = el.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
+        }
+      });
+
+      const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+      if (deleteCheckbox && deleteCheckbox.checked) {
+        // 패스
+      } else {
+        row.querySelector(".event-title").innerText = `이벤트 #${visibleIndex}`;
+        visibleIndex++;
+      }
+    });
+
+    totalFormsInput.value = rows.length;
+  }
+
+  // 폼 추가 함수
+  function addNewFormRow() {
+    const template = document.getElementById("empty-form-template").firstElementChild;
+    const newRow = template.cloneNode(true);
+    const currentCount = formContainer.querySelectorAll(".event-form-row").length;
+    
+    newRow.querySelectorAll("input, select, textarea").forEach((el) => {
+      if (el.name) el.name = el.name.replace(/__prefix__/g, currentCount);
+      if (el.id) el.id = el.id.replace(/__prefix__/g, currentCount);
+    });
+    
+    const allRows = formContainer.querySelectorAll(".event-form-row");
+    let lastDate = "";
+    for(let i = allRows.length - 1; i >= 0; i--) {
+      const delChk = allRows[i].querySelector('[name$="-DELETE"]');
+      if(!delChk || !delChk.checked) {
+        lastDate = allRows[i].querySelector('[name$="-report_date"]').value;
+        break;
+      }
+    }
+
+    const nextDateInput = newRow.querySelector('[name$="-report_date"]');
+    if (lastDate && nextDateInput) {
+      nextDateInput.value = getNextDate(lastDate);
+    }
+    
+    formContainer.appendChild(newRow);
+    updateFormIndices();
+    checkHoursControl(newRow);
+  }
+
+  // 통합 이벤트 리스너
+  formContainer.addEventListener("input", function (e) {
+    const target = e.target;
+    const row = target.closest(".event-form-row");
+
+    if (target.matches('[name$="-report_date"]')) {
+      const rows = Array.from(formContainer.querySelectorAll(".event-form-row"));
+      const rowIndex = rows.indexOf(row);
+      let lastDate = target.value;
+      for (let i = rowIndex + 1; i < rows.length; i++) {
+        const nextDateField = rows[i].querySelector('[name$="-report_date"]');
+        const delChk = rows[i].querySelector('[name$="-DELETE"]');
+        if (nextDateField && lastDate && (!delChk || !delChk.checked)) {
+          lastDate = getNextDate(lastDate);
+          nextDateField.value = lastDate;
+        }
+      }
+    }
+
+    if (target.matches('[name$="-eventcode"]')) {
+      checkHoursControl(row);
+    }
+  });
+
+  // 삭제 버튼 로직
+  formContainer.addEventListener("click", function (e) {
+    if (e.target.classList.contains("remove-form-btn")) {
+      const row = e.target.closest(".event-form-row");
+      const idField = row.querySelector('[name$="-id"]');
+      const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+      
+      const visibleRows = Array.from(formContainer.querySelectorAll(".event-form-row")).filter(r => {
+        const chk = r.querySelector('[name$="-DELETE"]');
+        return !chk || !chk.checked;
+      });
+
+      if (visibleRows.length <= 1) {
+        alert("최소 하나의 스케줄 이벤트는 존재해야 합니다.");
+        return;
+      }
+
+      if (idField && idField.value) {
+        if (deleteCheckbox) deleteCheckbox.checked = true;
+        row.style.display = "none";
+        updateFormIndices();
+      } else {
+        row.remove();
+        updateFormIndices();
+      }
+    }
+  });
+
+  // 🎯 [추가] 빈 값이 있으면 다음 페이지로 넘어가지 못하게 막는 검증 로직
+  const formElement = document.getElementById("real-event-form");
+  if (formElement) {
+    formElement.addEventListener("submit", function (e) {
+      const rows = formContainer.querySelectorAll(".event-form-row");
+      let hasEmptyField = false;
+      let firstEmptyInput = null;
+
+      rows.forEach((row) => {
+        // 사용자가 삭제 버튼을 누른(숨겨진) 카드는 유효성 검사 대상에서 제외
+        const deleteCheckbox = row.querySelector('[name$="-DELETE"]');
+        if (deleteCheckbox && deleteCheckbox.checked) return;
+
+        // 카드 안의 모든 input과 select 요소를 루프 돌며 체크
+        const inputs = row.querySelectorAll("input, select");
+        inputs.forEach((input) => {
+          // 장고 기본 히든 필드(id, DELETE, guidereport)는 필수 값 검사에서 제외
+          if (
+            input.type === "hidden" || 
+            input.name.endsWith("-id") || 
+            input.name.endsWith("-DELETE") || 
+            input.name.endsWith("-guidereport")
+          ) {
+            return;
+          }
+
+          // 값이 완전히 비어있거나 공백만 채워져 있는 경우
+          if (!input.value || input.value.trim() === "") {
+            hasEmptyField = true;
+            input.style.borderColor = "#f43f5e"; // 입력 안 된 창을 빨간 테두리로 강조
+            input.style.boxShadow = "0 0 0 4px rgba(244, 63, 94, 0.1)";
+            
+            if (!firstEmptyInput) {
+              firstEmptyInput = input; // 가장 첫 번째 빈 필드로 포커스를 주어 이동시키기 위함
+            }
+
+            // 사용자가 값을 입력하기 시작하면 다시 원래 고급스러운 테두리로 환원
+            input.addEventListener("input", function restoreColor() {
+              if (input.value.trim() !== "") {
+                input.style.borderColor = "#4f46e5";
+                input.style.boxShadow = "0 0 0 4px rgba(79, 70, 229, 0.1)";
+                input.removeEventListener("input", restoreColor);
+              }
+            });
+          }
+        });
+      });
+
+      // 누락된 빈 값이 하나라도 포착되었다면 제출(Submit)을 강제로 드롭
+      if (hasEmptyField) {
+        e.preventDefault(); // 다음 페이지 이동 차단
+        alert("⚠️ 입력하지 않은 스케줄 정보가 있습니다. 모든 빈 칸을 채워주세요.");
+        
+        if (firstEmptyInput) {
+          firstEmptyInput.focus(); // 미입력 위치로 스크롤 및 커서 자동 이동
+        }
+      }
+    });
+  }
+
+  // 초기화 구동 시행
+  formContainer.querySelectorAll(".event-form-row").forEach(row => checkHoursControl(row));
+  addButton.addEventListener("click", addNewFormRow);
+});
+</script>
+{% endblock %}

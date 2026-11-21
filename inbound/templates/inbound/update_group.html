@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/inbound_style.css' %}?v=1.1">
+
+
+<div class="form-container">
+    <div class="form-header">
+        <a href="{% url 'inbound:index' %}" class="btn-text-back">&larr; Back to dashboard</a>
+        <h1 class="form-title">Update Group</h1>
+    </div>
+
+    <form action="{% url 'inbound:update_group' group.pk %}" method="post" class="main-form">
+        {% csrf_token %}
+        
+        <div class="form-fields">
+            {{ form.as_p }}
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'inbound:group_list' %}" class="btn-cancel">Cancel</a>
+            <input type="submit" value="Submit" class="btn-submit">
+        </div>
+    </form>
+</div>
+
+{% endblock %}

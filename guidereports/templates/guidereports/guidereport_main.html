@@ -1,0 +1,379 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 무조건 풀화면)
+     ========================================================== */
+  
+  /* 부모 레이아웃 가두기 해제 및 배경 초기화 */
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 메인 컨테이너 - 모바일에서 여백 없이 밀착 */
+  .report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 20px 80px 20px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 이동 링크 */
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px; /* 모바일 터치 영역 확보 */
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* 타이틀 및 안내 텍스트 - 모바일 줄바꿈 가독성 최적화 */
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 12px 0;
+    letter-spacing: -0.5px;
+    word-break: keep-all;
+  }
+  
+  .notice-text {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 0 25px 0;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+  
+  /* 어드민 배지 */
+  .admin-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    background: #e0e7ff;
+    color: #4f46e5;
+    border: 1px solid #c7d2fe;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* 에러 메시지 상자 */
+  .error-box {
+    background: #fff1f2;
+    border: 1px solid #ffe4e6;
+    color: #f43f5e;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+
+  /* 폼 구조 레이아웃 */
+  .report-form p {
+    margin-bottom: 24px;
+  }
+  
+  .report-form label {
+    display: block;
+    font-size: 11px;
+    color: #64748b;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* 🌟 입력창 공통 스킨 - 모바일 font-size 15px로 지정하여 iOS 강제 줌인 현상 차단 */
+  .report-form input[type="text"],
+  .report-form input[type="number"],
+  .report-form input[type="date"],
+  .report-form select,
+  .report-form textarea {
+    width: 100% !important;
+    padding: 14px 16px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    font-size: 15px !important; /* ⚠️ iOS 브라우저 자동 줌인 버그 해결 두께 */
+    font-weight: 600;
+    color: #1e293b;
+    background-color: #ffffff;
+    box-sizing: border-box !important;
+    transition: all 0.2s ease;
+    -webkit-appearance: none; /* 모바일 브라우저 기본 화살표/스타일 리셋 */
+  }
+
+  .report-form input:focus,
+  .report-form select:focus,
+  .report-form textarea:focus {
+    border-color: #4f46e5 !important;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+
+  /* 드롭다운 커스텀 화살표 설정 */
+  .report-form select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px top 50%;
+    background-size: 11px auto;
+    padding-right: 44px !important;
+    cursor: pointer;
+  }
+
+  /* 하단 제출 버튼 - 모바일 꽉 차게 */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 35px;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  
+  .btn-submit:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비가 451px 이상으로 커지면 PC 폼으로 변신
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    .report-container {
+      max-width: 600px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .nav-block { margin-bottom: 30px !important; }
+    .title { font-size: 24px !important; margin: 0 0 12px 0 !important; }
+    .notice-text { font-size: 14px !important; margin: 0 0 30px 0 !important; }
+    .admin-badge { margin-bottom: 30px !important; }
+
+    .report-form input[type="text"],
+    .report-form input[type="number"],
+    .report-form input[type="date"],
+    .report-form select,
+    .report-form textarea {
+      padding: 14px 16px !important;
+      font-size: 14px !important; /* PC에서는 기존 14px로 유지 */
+    }
+
+    .btn-submit {
+      margin-top: 40px !important;
+      font-size: 15px !important;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
+  }
+</style>
+
+<datalist id="role_datalist">
+  {% if guide_report.day_inbound == 'DAY' %}
+    {% for role in DAY_ROLE %}
+      <option value="{{ role }}"></option>
+    {% endfor %}
+  {% else %}
+    {% for role in INBOUND_ROLE %}
+      <option value="{{ role }}"></option>
+    {% endfor %}
+  {% endif %}
+</datalist>
+
+<div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'mypage:index' %}" class="back-link">← 마이페이지로 돌아가기 </a>
+  </div>
+
+  <h2 class="title">가이드 리포트 작성</h2>
+
+  {% if user.username == 'admin' %}
+    <div class="admin-badge">어드민 권한으로 작성 중</div>
+  {% else %}
+    <p class="notice-text">
+      안녕하세요, <strong>{{ user.username }}</strong>님! 아래의 항목들을 입력하여 정산 리포트 작성을 시작해 주세요.
+    </p>
+  {% endif %}
+
+  <form method="post" class="report-form" id="report-main-form">
+    {% csrf_token %} 
+    
+    {% if form.errors %}
+    <div class="error-box">
+      {% for field in form %} 
+        {% for error in field.errors %}
+          <p style="margin: 0 0 4px 0; color: #f43f5e;">• {{ error }}</p>
+        {% endfor %} 
+      {% endfor %}
+    </div>
+    {% endif %} 
+    
+    {{ form.as_p }}
+
+    <button type="submit" class="btn-submit">다음 단계로 이동하기 (Next)</button>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeField = document.querySelector('[name="day_inbound"]'); 
+    let roleField = document.querySelector('[name="role"]');
+    const datalist = document.getElementById('role_datalist');
+    
+    // 🌟 [🔥 완전 해결] 누락되었던 장고 상수의 JS 배열 매핑 가드를 복원했습니다.
+    const inboundRoles = [{% for role in INBOUND_ROLE %}"{{ role }}",{% endfor %}];
+    const dayRoles = [{% for role in DAY_ROLE %}"{{ role }}",{% endfor %}];
+    
+    if (roleField && datalist) {
+        if (roleField.tagName === 'SELECT') {
+            const inputField = document.createElement('input');
+            inputField.type = 'text';
+            inputField.name = roleField.name;
+            inputField.id = roleField.id;
+            inputField.className = roleField.className;
+            inputField.value = roleField.value;
+            inputField.placeholder = "역할을 선택해 주세요";
+            
+            roleField.parentNode.replaceChild(inputField, roleField);
+            roleField = inputField;
+        }
+
+        roleField.setAttribute('list', 'role_datalist');
+
+        function updateRoleDatalist() {
+            if (!typeField) return;
+            datalist.innerHTML = ''; 
+
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            
+            activeRoles.forEach(val => {
+                const opt = document.createElement('option');
+                opt.value = val;
+                datalist.appendChild(opt);
+            });
+            
+            if (!activeRoles.includes(roleField.value) && roleField.value !== "") {
+                roleField.value = "";
+            }
+        }
+
+        // 글자가 입력되는 순간마다 허용된 값인지 감시하는 실시간 필터
+        function validateLiveInput() {
+            if (!typeField) return;
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            const currentVal = roleField.value.trim();
+
+            if (currentVal === "") return;
+
+            // 타이핑 흐름을 방해하지 않도록 허용 리스트의 앞부분 매칭을 확인
+            const isPartialMatch = activeRoles.some(role => role.startsWith(currentVal));
+
+            if (!isPartialMatch) {
+                // 규정되지 않은 값 조합이 들어오는 즉시 글자를 지워 백엔드 폭파를 방지합니다.
+                roleField.value = ""; 
+            }
+        }
+
+        roleField.addEventListener('input', validateLiveInput);
+        roleField.addEventListener('change', validateLiveInput);
+
+        // 창을 이탈할 때 비완성 글자 완벽 필터
+        roleField.addEventListener('blur', function() {
+            const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+            if (roleField.value !== "" && !activeRoles.includes(roleField.value)) {
+                roleField.value = "";
+            }
+        });
+
+        if (typeField) {
+            typeField.addEventListener('change', updateRoleDatalist);
+            updateRoleDatalist();
+        }
+
+        // 폼 최종 제출(Submit) 가드 디펜스
+        const formElement = roleField.closest('form');
+        if (formElement) {
+            formElement.addEventListener('submit', function(e) {
+                if (!typeField) return;
+                const activeRoles = (typeField.value === 'DAY') ? dayRoles : inboundRoles;
+                if (roleField.value !== "" && !activeRoles.includes(roleField.value)) {
+                    e.preventDefault();
+                    alert("⚠️ 올바르지 않은 역할 선택입니다. 목록에서 다시 골라주세요.");
+                    roleField.value = "";
+                    roleField.focus();
+                }
+            });
+        }
+    }
+});
+</script>
+
+{% endblock %}

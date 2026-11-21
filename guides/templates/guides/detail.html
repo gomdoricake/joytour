@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  html, body, .container {
+    background-color: #ffffff !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  .report-container { 
+    width: 100% !important;
+    max-width: 100% !important; 
+    margin: 0 auto !important; 
+    padding: 40px 16px 60px 16px !important; 
+    font-family: "Pretendard", sans-serif; 
+    background: #ffffff !important; 
+    border-radius: 0 !important; 
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+  
+  .header-nav { margin-bottom: 25px; }
+  .header-nav a { 
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px; 
+    color: #64748b;
+    background: #f1f5f9;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .header-nav a:hover { 
+    background: #e2e8f0;
+    color: #334155;
+  }
+  
+  .title { 
+    font-size: 22px; 
+    font-weight: 800; 
+    color: #1e293b; 
+    margin: 0 0 25px 0; 
+    word-break: keep-all;
+  }
+  
+  .info-grid { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    gap: 16px; 
+    padding: 20px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+  }
+  .info-item { display: flex; flex-direction: column; gap: 6px; }
+  .label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .value { font-size: 15px; color: #1e293b; font-weight: 600; word-break: break-all; }
+  
+  .full-width { grid-column: span 1; }
+
+  .report-section {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 2px dashed #e2e8f0; 
+  }
+
+  .section-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 15px 0;
+  }
+
+  .report-list { 
+    list-style: none; 
+    padding: 0; 
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; 
+  }
+
+  .report-item { 
+    padding: 0; 
+    border-radius: 12px;
+    background: #f8fafc; 
+    border: 1px solid #e2e8f0;
+    box-sizing: border-box;
+  }
+  
+  .report-item a { 
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 16px; 
+    text-decoration: none; 
+    color: #334155; 
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .info-area {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0; 
+  }
+
+  .invoice-num {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1e293b;
+    margin-right: 10px;
+    transition: color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .group-code-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    font-family: monospace; 
+    transition: all 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .status-area {
+    flex-shrink: 0;
+  }
+
+  .status-mini-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 20px; 
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    width: auto !important;
+  }
+
+  .status-mini-badge.mini-waiting {
+    background-color: #FFF1F2;
+    color: #E11D48;
+    border: 1px solid #FFF1F2;
+  }
+  .status-mini-badge.mini-confirmed {
+    background-color: #fef9c3;
+    color: #713f12;
+    border: 1px solid #fef9c3;
+  }
+  .status-mini-badge.mini-paid {
+    background-color: #dcfce7; 
+    color: #14532d;            
+    border: 1px solid #dcfce7;  
+  }
+
+  .report-item:active {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+  }
+
+  .no-data { 
+    color: #94a3b8; 
+    font-size: 14px;
+    background: #f8fafc;
+    border: 1px dashed #e2e8f0;
+    border-radius: 12px;
+    padding: 30px 20px;
+    text-align: center;
+    margin: 0;
+    font-weight: 500;
+  }
+
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+    }
+
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    .report-container { 
+      max-width: 600px !important; 
+      margin: 40px auto !important; 
+      padding: 30px !important; 
+      border-radius: 20px !important; 
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+      min-height: auto !important;
+    }
+
+    .info-grid { 
+      grid-template-columns: 1fr 1fr !important; 
+    }
+    .full-width { 
+      grid-column: span 2 !important; 
+    }
+
+    .report-item a { 
+      padding: 16px 20px !important; 
+      gap: 16px !important;
+    }
+    .invoice-num {
+      font-size: 15px !important;
+      margin-right: 14px !important;
+    }
+    .group-code-badge {
+      padding: 4px 10px !important;
+      font-size: 13px !important;
+    }
+
+    .report-item:hover { 
+      background: #ffffff !important; 
+      border-color: #4f46e5 !important; 
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 15px rgba(79, 70, 229, 0.08) !important;
+    }
+    .report-item:hover .invoice-num {
+      color: #4f46e5 !important;
+    }
+    .report-item:hover .group-code-badge {
+      background: #e0e7ff !important;
+      color: #4f46e5 !important;
+    }
+  }
+</style>
+
+<div class="report-container">
+  <!-- <div class="header-nav">
+    <a href="{% url 'guides:index' %}">← Back to Guide List</a>
+  </div> -->
+
+
+  <h2 class="title">{{ guide.name }}</h2>
+
+  <div class="info-grid">
+    {% if guide.is_sponsored %}
+    <div class="info-item"><span class="label">SPONSORED</span></div>
+    {% endif %}
+    <div class="info-item"><span class="label">Initial Training</span><span class="value">{{ guide.init_training_date|date:"Y-m-d" }}</span></div>
+    <div class="info-item"><span class="label">Initial Super</span><span class="value">{{ guide.init_super_date|date:"Y-m-d" }}</span></div>
+    <div class="info-item"><span class="label">Birth Date</span><span class="value">{{ guide.birth_date|date:"Y-m-d" }}</span></div>
+    <div class="info-item"><span class="label">Grade</span><span class="value">{{ guide.grade }}</span></div>
+    <div class="info-item"><span class="label">ABN</span><span class="value">{{ guide.abn }}</span></div>
+    <div class="info-item"><span class="label">Contact</span><span class="value">{{ guide.contact_info }}</span></div>
+    <div class="info-item full-width"><span class="label">Address</span><span class="value">{{ guide.address }}</span></div>
+    <div class="info-item"><span class="label">Bank Account</span><span class="value">{{ guide.bank_account_name }}</span></div>
+    <div class="info-item"><span class="label">BSB</span><span class="value">{{ guide.bsb }}</span></div>
+    <div class="info-item full-width"><span class="label">Account Number</span><span class="value">{{ guide.account_number }}</span></div>
+  </div>
+
+  <div class="report-section">
+    <h3 class="section-title">Related Reports</h3>
+    
+    {% if guide.guidereports.all %}
+    <ul class="report-list">
+      {% for report in guide.guidereports.all %}
+      <li class="report-item">
+        <a href="{% url 'guidereports:detail' report.id %}">
+          <div class="info-area">
+            <span class="invoice-num">{{ report.invoice_number }}.</span>
+            <span class="group-code-badge">{{ report.group_code }}</span>
+          </div>
+          
+          <div class="status-area">
+            {% if report.is_paid %}
+              <span class="status-mini-badge mini-paid">PAID</span>
+            {% elif report.is_confirmed %}
+              <span class="status-mini-badge mini-confirmed">CONFIRMED</span>
+            {% else %}
+              <span class="status-mini-badge mini-waiting">WAITING</span>
+            {% endif %}
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="no-data">등록된 리포트가 없습니다.</p>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,649 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일 퍼스트 레이아웃
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #f8fafc !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 메인 컨테이너 */
+  .report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 24px 16px 60px 16px !important; 
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 내비게이션 바 */
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* 요약 정보 세션 */
+  .info-summary {
+    background: #f8fafc;
+    padding: 16px;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 24px;
+  }
+  .info-summary h4 {
+    margin: 0 0 12px 0;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 8px;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .info-grid span {
+    font-weight: 700;
+    color: #0f172a;
+    margin-left: 4px;
+  }
+  
+  /* 섹션 타이틀 */
+  .section-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 16px 0;
+    letter-spacing: -0.3px;
+  }
+
+  /* 경비 항목 카드 (Row) */
+  .expense-row {
+    background: #ffffff;
+    padding: 18px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* 폼 그룹 래퍼 */
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .form-group label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+  }
+
+  /* Input/Select 기본 스타일 */
+  input, select {
+    width: 100% !important;
+    padding: 11px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 15px !important; /* iOS 자동 줌 방지 */
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+  input:focus, select:focus {
+    border-color: #6366f1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  }
+
+  select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px top 50% !important;
+    background-size: 10px auto !important;
+    padding-right: 36px !important;
+  }
+
+  /* 🧾 영수증 커스텀 업로드 스타일 */
+  .receipt-section {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px dashed #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .receipt-upload-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .receipt-upload-box:hover {
+    background: #f1f5f9;
+    border-color: #6366f1;
+  }
+
+  .receipt-info-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow: hidden;
+  }
+
+  .receipt-upload-box .icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .receipt-upload-box .upload-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .receipt-upload-box .upload-subtext {
+    font-size: 11px;
+    color: #94a3b8;
+    flex-shrink: 0;
+    margin-left: 8px;
+  }
+
+  /* 투명 파일 input 커버 */
+  .receipt-file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  /* 파일 선택 상태 */
+  .receipt-upload-box.has-file {
+    background: #f0fdf4;
+    border-color: #22c55e;
+    border-style: solid;
+  }
+
+  .receipt-upload-box.has-file .upload-text {
+    color: #15803d;
+  }
+
+  .existing-receipts {
+    font-size: 12px;
+    color: #64748b;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+  
+  .receipt-link {
+    color: #4f46e5;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background-color: #eef2ff;
+  }
+  .receipt-link:hover {
+    text-decoration: underline;
+  }
+
+  /* 에러 박스 */
+  .error-box {
+    background: #fef2f2;
+    border: 1px solid #fecdd3;
+    color: #e11d48;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* 버튼 스타일 */
+  .btn-add {
+    display: block;
+    width: 100%;
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+  }
+  .btn-add:hover {
+    background: #dcfce7;
+    color: #15803d;
+  }
+  
+  .btn-remove {
+    background: #fef2f2;
+    color: #ef4444;
+    border: 1px solid #fecdd3;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s ease;
+    align-self: flex-end;
+  }
+  .btn-remove:hover {
+    background: #fee2e2;
+    color: #dc2626;
+  }
+
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 32px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+  }
+  .btn-submit:hover {
+    opacity: 0.95;
+  }
+
+  /* ==========================================================
+     🖥️ [데스크톱 미디어 쿼리] 768px 이상일 때 가로 반응형 적용
+     ========================================================== */
+  @media screen and (min-width: 768px) {
+    html, body {
+      background-color: #f1f5f9 !important;
+    }
+
+    .report-container {
+      max-width: 900px !important;
+      margin: 40px auto !important;
+      padding: 36px !important;
+      border-radius: 20px !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05) !important;
+      min-height: auto;
+    }
+
+    .info-grid {
+      grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    .expense-row-grid {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr 2.5fr auto;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    .receipt-section {
+      grid-column: 1 / -1; /* 영수증은 가로 전체 차지 */
+    }
+
+    .btn-remove {
+      height: 43px; /* input 높이와 정렬 맞춤 */
+    }
+
+    input, select {
+      font-size: 14px !important;
+    }
+  }
+</style>
+
+<datalist id="guideexp_datalist">
+  {% if guide_report.role == 'GUIDE ONLY' %}
+    {% for exp in GUIDE_EXPENSE_CHOICES %}
+      <option value="{{ exp }}"></option>
+    {% endfor %}
+  {% else %}
+    {% for exp in EXPENSE_CHOICES %}
+      <option value="{{ exp.0 }}"></option>
+    {% endfor %}
+  {% endif %}
+</datalist>
+
+<div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'guidereports:guidereport_day_fuel_exp' %}" class="back-link">← 이전 단계로 돌아가기</a>
+  </div>
+
+  <div class="info-summary">
+    <h4>현재 작성 중인 리포트 요약</h4>
+    <div class="info-grid">
+      <div>차종 <span>{{ formset.instance.role }}</span></div>
+      <div>구분 <span>{{ formset.instance.day_inbound }}</span></div>
+      <div>이벤트 코드 <span style="font-family: monospace;">{{ eventcode }}</span></div>
+      <div>날짜 <span>{{ report_date }}</span></div>
+    </div>
+  </div>
+
+  <h3 class="section-title">Expense 내역 추가</h3>
+
+  <!-- novalidate 속성으로 브라우저 자체 검증 끄기 -->
+  <form method="post" id="real-expense-form" enctype="multipart/form-data" class="report-form" novalidate>
+    {% csrf_token %} 
+    {{ formset.management_form }} 
+
+    <div id="expense-form-list">
+      {% for form in formset %}
+      <div class="expense-form-row expense-row" {% if form.DELETE.value %}style="display: none;"{% endif %}>
+        {{ form.id }}
+        <div style="display: none">{{ form.DELETE }}</div>
+        
+        <div class="expense-row-grid">
+          <div class="form-group">
+            <label>항목</label>
+            {{ form.expense_type }}
+          </div>
+
+          <div class="form-group">
+            <label>금액 ($)</label>
+            {{ form.expense }}
+          </div>
+
+          <div class="form-group">
+            <label>메모</label>
+            {{ form.memo }}
+          </div>
+
+          <button type="button" class="remove-form-btn btn-remove">삭제</button>
+
+          <div class="receipt-section">
+            <div class="form-group">
+              <label>🧾 영수증 첨부</label>
+              <div class="receipt-upload-box {% if form.instance.file_key %}has-file{% endif %}">
+                <div class="receipt-info-content">
+                  <span class="icon">{% if form.instance.file_key %}✅{% else %}📷{% endif %}</span>
+                  <span class="upload-text">
+                    {% if form.instance.file_key %}영수증 첨부 완료{% else %}영수증 이미지 선택 / 촬영{% endif %}
+                  </span>
+                </div>
+                <span class="upload-subtext">JPG, PNG</span>
+
+                <input type="file" 
+                       class="receipt-file-input" 
+                       data-index="{{ forloop.counter0 }}" 
+                       data-prefix="{{ form.prefix }}" 
+                       accept="image/*"
+                       onchange="updateReceiptLabel(this)">
+
+                <input type="hidden" 
+                       name="{{ form.prefix }}-s3_key" 
+                       id="id_{{ form.prefix }}-s3_key" 
+                       value="{{ form.instance.file_key|default:'' }}">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top: 16px;">
+      <button type="button" id="add-form-btn" class="btn-add">➕ 항목 추가하기</button>
+    </div>
+
+    <button type="submit" id="submit-final-btn" name="submit_final" class="btn-submit">
+      SUMMARY 확인하기
+    </button>
+  </form>
+</div>
+
+<div id="empty-form-template" style="display: none">
+  <div class="expense-form-row expense-row">
+    {{ formset.empty_form.id }}
+    <div style="display: none">{{ formset.empty_form.DELETE }}</div>
+    
+    <div class="expense-row-grid">
+      <div class="form-group">
+        <label>항목</label>
+        {{ formset.empty_form.expense_type }}
+      </div>
+
+      <div class="form-group">
+        <label>금액 ($)</label>
+        {{ formset.empty_form.expense }}
+      </div>
+
+      <div class="form-group">
+        <label>메모</label>
+        {{ formset.empty_form.memo }}
+      </div>
+
+      <button type="button" class="remove-form-btn btn-remove">삭제</button>
+
+      <div class="receipt-section">
+        <div class="form-group">
+          <label>🧾 영수증 첨부</label>
+          <div class="receipt-upload-box">
+            <div class="receipt-info-content">
+              <span class="icon">📷</span>
+              <span class="upload-text">영수증 이미지 선택 / 촬영</span>
+            </div>
+            <span class="upload-subtext">JPG, PNG</span>
+
+            <input type="file" 
+                   class="receipt-file-input" 
+                   data-index="__prefix__" 
+                   data-prefix="{{ formset.empty_form.prefix }}" 
+                   accept="image/*"
+                   onchange="updateReceiptLabel(this)">
+
+            <input type="hidden" 
+                   name="{{ formset.empty_form.prefix }}-s3_key" 
+                   id="id_{{ formset.empty_form.prefix }}-s3_key" 
+                   value="">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function updateReceiptLabel(input) {
+  const uploadBox = input.closest('.receipt-upload-box');
+  const icon = uploadBox.querySelector('.icon');
+  const text = uploadBox.querySelector('.upload-text');
+  
+  if (input.files && input.files[0]) {
+    const fileName = input.files[0].name;
+    uploadBox.classList.add('has-file');
+    icon.textContent = '✅';
+    text.textContent = fileName.length > 25 ? fileName.substring(0, 22) + '...' : fileName;
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const formContainer = document.getElementById("expense-form-list");
+    const addButton = document.getElementById("add-form-btn");
+    const mainForm = document.getElementById("real-expense-form");
+    const submitBtn = document.getElementById("submit-final-btn");
+
+    if (!addButton) return;
+
+    // S3 업로드 시도 함수 (오류가 나도 폼 제출을 방해하지 않음)
+    async function uploadToS3() {
+      const fileInputs = formContainer.querySelectorAll(".receipt-file-input"); 
+
+      for (let fileInput of fileInputs) {
+          const row = fileInput.closest('.expense-form-row'); 
+          
+          if (!row || row.style.display === 'none' || row.classList.contains("form-deleted")) {
+              continue;
+          }
+
+          if (!fileInput.files || fileInput.files.length === 0) {
+              continue;
+          }
+
+          const file = fileInput.files[0];
+          const prefix = fileInput.getAttribute("data-prefix");
+
+          try {
+            const s3ApiBaseUrl = "/guidereports/day/guidereport_day_exp_s3_url/";
+            const urlFetch = await fetch(`${s3ApiBaseUrl}?file_name=${encodeURIComponent(file.name)}`);
+            if (!urlFetch.ok) continue;
+            
+            const s3Config = await urlFetch.json();
+            const s3ReadyFile = new File([file], file.name, { type: s3Config.content_type });
+
+            const response = await fetch(s3Config.upload_url, {
+              method: 'PUT', 
+              body: s3ReadyFile, 
+              headers: { 'Content-Type': s3Config.content_type }
+            });
+
+            if (response.ok) {
+              const hiddenInput = document.getElementById(`id_${prefix}-s3_key`);
+              if (hiddenInput) {
+                  hiddenInput.value = s3Config.s3_key;
+              }
+            }
+          } catch (error) {
+            console.warn('S3 업로드 건너뜀:', error); 
+          }
+      }
+    }
+
+    // 1. 항목 추가 기능
+    addButton.addEventListener("click", function (e) {
+      e.preventDefault(); 
+
+      const totalFormsInput = document.querySelector('input[name$="-TOTAL_FORMS"]');
+      if (!totalFormsInput) return;
+
+      const templateContainer = document.getElementById("empty-form-template");
+      if (!templateContainer) return;
+
+      const templateRow = templateContainer.querySelector(".expense-form-row");
+      if (!templateRow) return;
+
+      const currentFormCount = parseInt(totalFormsInput.value, 10);
+      const newRow = templateRow.cloneNode(true);
+      
+      newRow.innerHTML = newRow.innerHTML.replace(/__prefix__/g, currentFormCount);
+
+      newRow.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.type === "checkbox") {
+          input.checked = false;
+        } else if (input.type !== "hidden") {
+          input.value = ""; 
+        }
+      });
+
+      formContainer.appendChild(newRow);
+      totalFormsInput.value = currentFormCount + 1;
+    });
+
+    // 2. 항목 삭제 기능
+    formContainer.addEventListener("click", function (event) {
+      if (event.target.classList.contains("remove-form-btn")) {
+        event.preventDefault();
+        
+        const row = event.target.closest(".expense-form-row");
+        const idInput = row.querySelector('input[name$="-id"]');
+        const deleteCheckbox = row.querySelector('input[name$="-DELETE"]');
+
+        if (idInput && idInput.value) {
+          if (deleteCheckbox) deleteCheckbox.checked = true;
+          row.style.display = "none";
+          row.classList.add("form-deleted");
+          return; 
+        }
+        row.remove();
+      }
+    });
+
+    // 3. 최종 저장 처리 (핵심: 무조건 submit 실행)
+    if (mainForm && submitBtn) {
+      submitBtn.addEventListener("click", async function (e) {
+        e.preventDefault(); // 기본 클릭 차단 후 제어
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = "이동 중...";
+
+        try {
+          // 첨부한 파일이 있으면 S3 업로드 시도 (없으면 0.01초 내 스킵)
+          await uploadToS3();
+        } catch (err) {
+          console.error("S3 비동기 처리 중 오류 무시:", err);
+        } finally {
+          // 🚀 어떤 상황에서든(오류, 빈 값, 파일 유무 상관없이) 무조건 백엔드로 전송
+          mainForm.submit();
+        }
+      });
+    }
+});
+</script>
+{% endblock %}

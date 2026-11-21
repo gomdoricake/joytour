@@ -1,0 +1,16 @@
+venv/
+.venv/
+env/
+
+__pycache__/
+*.pyc
+
+db.sqlite3
+
+.env
+
+.vscode/
+
+LightsailDefaultKey-ap-southeast-2.pem
+
+3.106.149.167

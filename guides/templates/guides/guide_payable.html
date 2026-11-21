@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin_style.css' %}?v=1.1">
+
+<div class="xero-admin-card">
+
+    <div class="xero-nav-bar">
+      <a href="{% url 'joyadmin:payable_reports' %}" class="btn-xero-back">← Admin Home</a>
+    </div>
+
+    <div class="xero-nav-tabs">
+        <a href="{% url 'guides:guide_payable' guide.id %}" class="xero-tab-item {% if request.resolver_match.url_name == 'guide_payable' %}active{% endif %}">Payable Reports</a>
+        <a href="{% url 'guides:guide_unpaid' guide.id %}" class="xero-tab-item {% if request.resolver_match.url_name == 'guide_unpaid' %}active{% endif %}">Unpaid Reports</a>
+        <a href="{% url 'guides:guide_paid' guide.id %}" class="xero-tab-item {% if request.resolver_match.url_name == 'guide_paid' %}active{% endif %}">Paid Reports</a>
+        <a href="{% url 'guides:guide_all' guide.id %}" class="xero-tab-item {% if request.resolver_match.url_name == 'guide_all' %}active{% endif %}">All Reports</a>
+
+    </div>
+
+    <div class="summary-meta-bar">
+      <span class="sec-title">Payable Overview for {{ guide.name }}</span>
+      <span class="date-range">{{ last_wed }} ~ {{ until }}</span>
+    </div>
+
+    <div class="xero-total-payable-card">
+
+    <div class="info-label">
+        <span>TOTAL PAYABLE AMOUNT (Except SUPER)</span>
+        <span>Amount Due</span>
+        </div>
+        <div class="total-amount">
+        ${{ total_payable_fee|floatformat:2 }}
+    </div>
+
+
+      <div class="info-label">
+        <span>TOTAL GUIDE FEE AMOUNT</span>
+        <span>Amount Due</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_guide_fee|floatformat:2 }}
+      </div>
+
+      <div class="info-label">
+        <span>TOTAL EXPENSE AMOUNT</span>
+        <span>Amount Due</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_expense_fee|floatformat:2 }}
+      </div>
+
+      <div class="info-label">
+        <span>TOTAL SUPER ANN AMOUNT</span>
+        <span>Amount Due</span>
+      </div>
+      <div class="total-amount">
+        ${{ total_super_ann_fee|floatformat:2 }}
+      </div>
+    </div>
+
+  <div class="xero-dashboard-summary" style="margin-bottom: 24px; padding: 24px; border-radius: 12px; background: #ffffff; border: 1px solid #e5e8eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+    
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #f2f4f6;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 1.35rem; font-weight: 700; color: #191f28;">{{ guide.name }}</span>
+        <span style="background: #e8f3ff; color: #1b64da; font-weight: 700; font-size: 0.82rem; padding: 4px 10px; border-radius: 20px;">Grade {{ guide.grade }}</span>
+      </div>
+      {% if guide.is_sponsored %}
+        <span class="xero-flat-status confirmed">SPONSORED</span>
+      {% endif %}
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      
+      <div style="background: #f9fafb; padding: 18px 20px; border-radius: 10px; border: 1px solid #eaeef2;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #6b7684; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+          <span> GENERAL DETAILS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #8b95a1; font-weight: 500;">Birth Date</span>
+            <span style="font-size: 0.95rem; color: #333d4b; font-weight: 600;">{{ guide.birth_date|date:"Y-m-d"|default:"-" }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #8b95a1; font-weight: 500;">Initial Training</span>
+            <span style="font-size: 0.95rem; color: #333d4b; font-weight: 600;">{{ guide.init_training_date|date:"Y-m-d"|default:"-" }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #8b95a1; font-weight: 500;">Initial Super</span>
+            <span style="font-size: 0.95rem; color: #333d4b; font-weight: 600;">{{ guide.init_super_date|date:"Y-m-d"|default:"-" }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background: #f9fafb; padding: 18px 20px; border-radius: 10px; border: 1px solid #eaeef2;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #6b7684; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+          <span> CONTACT & ADDRESS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 12px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #8b95a1; font-weight: 500;">Contact</span>
+            <span style="font-size: 0.95rem; color: #333d4b; font-weight: 600;">{{ guide.contact_info|default:"-" }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #8b95a1; font-weight: 500;">ABN</span>
+            <span style="font-size: 0.95rem; color: #333d4b; font-weight: 600; font-family: monospace;">{{ guide.abn|default:"-" }}</span>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 4px; padding-top: 10px; border-top: 1px dashed #e5e8eb;">
+          <span style="font-size: 0.78rem; color: #8b95a1; font-weight: 500;">Address</span>
+          <span style="font-size: 0.95rem; color: #333d4b; font-weight: 600;">{{ guide.address|default:"-" }}</span>
+        </div>
+      </div>
+
+      <div style="background: #f0f7ff; padding: 18px 20px; border-radius: 10px; border: 1px solid #d0e4ff;">
+        <div style="font-size: 0.78rem; font-weight: 700; color: #1b64da; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 14px; display: flex; align-items: center; gap: 6px;">
+          <span> BANKING DETAILS</span>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #5076ab; font-weight: 500;">Account Name</span>
+            <span style="font-size: 0.95rem; color: #191f28; font-weight: 700;">{{ guide.bank_account_name|default:"-" }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #5076ab; font-weight: 500;">BSB</span>
+            <span style="font-size: 0.95rem; color: #191f28; font-weight: 700; font-family: monospace;">{{ guide.bsb|default:"-" }}</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.78rem; color: #5076ab; font-weight: 500;">Account Number</span>
+            <span style="font-size: 0.95rem; color: #191f28; font-weight: 700; font-family: monospace;">{{ guide.account_number|default:"-" }}</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="xero-table-wrapper">
+    <div class="summary-meta-bar" style="padding: 20px 24px 10px 24px; margin: 0;">
+      <span class="sec-title">Payable Reports ( {{ payable_reports|length }} )</span>
+    </div>
+
+    {% if payable_reports %}
+    <div class="xero-table-header">
+      <span>#</span>
+      <span>Invoice Date</span>
+      <span>Group Code</span>
+      <span>Amount Due</span>
+      <span style="text-align: right;">Status</span>
+    </div>
+
+    <ul class="xero-list-body">
+      {% for report in payable_reports %}
+      <li class="xero-row-item">
+        <a href="{% url 'guidereports:detail' report.id %}">
+          <span class="xero-date">
+            <span style="margin-right:10px;">#{{ forloop.counter }}</span>
+          </span>
+
+          <span class="xero-group-code">{{ report.invoice_date }}</span>
+
+          <span class="xero-group-code">{{ report.group_code }}</span>
+
+          <span class="xero-group-code" style="font-weight: bold;">${{ report.final_amount_due }}</span>
+
+
+          <div class="xero-status-wrap">
+            {% if report.is_paid %}
+              <span class="xero-flat-status paid">PAID</span>
+            {% elif report.is_confirmed %}
+              <span class="xero-flat-status confirmed">CONFIRMED</span>
+            {% else %}
+              <span class="xero-flat-status waiting">WAITING</span>
+            {% endif %}
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+      <p class="no-data" style="padding: 24px; text-align: center;">등록된 리포트가 없습니다.</p>
+    {% endif %}
+  </div>
+</div>
+
+<script src="{% static 'js/tab.js' %}"></script>
+{% endblock %}

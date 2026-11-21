@@ -1,0 +1,554 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 풀화면 변신)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 전체화면 밀착형으로 전환 */
+  .report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 16px 80px 16px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 이동 링크 */
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* 타이틀 및 역할 정보 스타일 */
+  .title-area {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 8px 0;
+    letter-spacing: -0.5px;
+    word-break: keep-all;
+  }
+  .role-badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    background: #e2e8f0;
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+
+  /* 요약 섹션 카드 포맷 */
+  .summary-section-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    box-sizing: border-box;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 0;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* 우측 상단 개별 요약 금액 배지 */
+  .section-total-badge {
+    font-size: 13px;
+    font-weight: 800;
+    color: #4f46e5;
+    background: #eef2ff;
+    padding: 4px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* 이벤트 개별 루프 서브카드 */
+  .event-sub-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+  }
+  .event-sub-card:last-child {
+    margin-bottom: 0;
+  }
+
+  /* 📱 [모바일 전용] 요약 데이터 테이블 -> 반응형 리스트 레이아웃 변환 */
+  .summary-table {
+    width: 100%;
+    display: block; /* 모바일에서 table 태그의 기본 속성 리셋 */
+  }
+  .summary-table thead {
+    display: none; /* 모바일에서 좁은 th 행 숨김 */
+  }
+  .summary-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .summary-table tr {
+    display: flex;
+    flex-direction: column; /* 가로 한 줄이 아니라 수직으로 정보 누적 */
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+  }
+  .summary-table tr:last-child {
+    border-bottom: none;
+  }
+  .summary-table td {
+    display: block;
+    padding: 2px 0;
+    border: none;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+    word-break: break-all;
+    text-align: left !important; /* 모바일은 기본 좌측 정렬 */
+  }
+
+  /* 영수증 버튼 스타일 디테일 */
+  .btn-receipt {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    margin-top: 6px;
+  }
+
+  /* 각 열 데이터 성격에 맞는 모바일 폰트 강조 처리 */
+  .summary-table td.col-type-data {
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .summary-table td.col-memo-data {
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .summary-table td.col-amount-data {
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 800;
+    text-align: right !important; /* 금액만 우측 정렬 유지 */
+    margin-top: 4px;
+  }
+
+  .text-muted {
+    color: #94a3b8;
+    font-weight: 500;
+    font-size: 13px;
+  }
+
+  /* 최종 합계 데코레이션 박스 - 모바일 핏 */
+  .grand-total-box {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border: 1px solid #ffffff;
+    padding: 18px 20px;
+    border-radius: 16px;
+    margin-top: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.04);
+    box-sizing: border-box;
+  }
+  .grand-total-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: #14532d;
+  }
+  .grand-total-amount {
+    font-size: 22px;
+    font-weight: 900;
+    color: #16a34a;
+  }
+
+  /* 승인/제출 버튼 */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+    text-align: center;
+  }
+  .btn-submit:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+  .btn-submit:disabled {
+    background: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+
+  
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 PC 스킨 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* 원본 글래스모피즘 박스 스타일 원상 복원 */
+    .report-container {
+      max-width: 720px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .title { font-size: 24px !important; }
+    .summary-section-card { padding: 24px !important; }
+    .section-title { font-size: 16px !important; margin-bottom: 16px !important; padding-bottom: 8px !important; }
+    .section-total-badge { font-size: 14px !important; }
+
+    /* 🖥️ PC 전용: 완벽한 4열 고정 비율 테이블 레이아웃 구조 복원 */
+    .summary-table {
+      display: table !important;
+      border-collapse: collapse !important;
+      table-layout: fixed !important;
+    }
+    .summary-table thead {
+      display: table-header-group !important;
+    }
+    .summary-table tbody {
+      display: table-row-group !important;
+    }
+    .summary-table tr {
+      display: table-row !important;
+      padding: 0 !important;
+    }
+    .summary-table th {
+      display: table-cell !important;
+      color: #64748b !important;
+      font-weight: 700 !important;
+      padding: 10px 8px !important;
+      border-bottom: 1px solid #e2e8f0 !important;
+      font-size: 12px !important;
+    }
+    .summary-table td {
+      display: table-cell !important;
+      padding: 12px 8px !important;
+      border-bottom: 1px solid #f1f5f9 !important;
+      font-size: 14px !important;
+      vertical-align: middle;
+    }
+    
+    /* 컬럼 너비 설정 */
+    .col-type { width: 30% !important; }
+    .col-memo { width: 35% !important; }
+    .col-amount { width: 18% !important; }
+    .col-receipt { width: 17% !important; }
+
+    /* 데이터별 개별 정렬 복원 */
+    .summary-table td.col-amount-data {
+      text-align: right !important;
+      font-size: 14px !important;
+      font-weight: 600 !important;
+      margin-top: 0 !important;
+    }
+    .text-right {
+      text-align: right !important;
+    }
+    .text-center {
+      text-align: center !important;
+    }
+
+    .btn-receipt {
+      margin-top: 0;
+    }
+
+    .grand-total-box { padding: 22px !important; margin-top: 30px !important; }
+    .grand-total-title { font-size: 16px !important; }
+    .grand-total-amount { font-size: 24px !important; }
+
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
+  }
+</style>
+
+<div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'guidereports:guidereport_day_guide_exp' %}" class="back-link">← 경비 수정하러 가기</a>
+  </div>
+  
+  <div class="title-area">
+    {% if alert_message %}
+      <div class="alert alert-warning" role="alert" style="background-color: #fef3c7; color: #92400e; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px;">
+        {{ alert_message }}
+      </div>
+    {% endif %}
+    <h2 class="title">정산 내역 최종 확인 (Summary)</h2>
+    <span class="role-badge">{{ guide_report.day_inbound }} • {{ guide_report.role|default:"GUIDE" }}</span>
+  </div>
+
+  <form method="post" id="summary-final-form">
+    {% csrf_token %}
+
+    <div class="summary-section-card" style="border-left: 4px solid #4f46e5;">
+      <div class="section-title">
+        <span>Event Information</span>
+        <span class="section-total-badge">${{ event.guide_fee|default:"0" }}</span>
+      </div>
+      {% if event %}
+        <div class="event-sub-card">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td style="width: 30%; color: #64748b; font-size: 13px;">EVENT CODE</td>
+                <td><span style="background: #e0e7ff; color: #4338ca; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-family: monospace; font-weight: 700;">{{ event.eventcode }}</span></td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">REPORT DATE</td>
+                <td>{{ event.report_date|default:report_date }}</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">GUIDE FEE</td>
+                <td style="color: #4f46e5; font-weight: 700;">${{ event.guide_fee|default:"0" }}</td>
+              </tr>
+              {% if event.memo %}
+              <tr>
+                <td style="color: #64748b; font-size: 13px;">MEMO</td>
+                <td class="text-muted">{{ event.memo }}</td>
+              </tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-muted" style="text-align: center; padding: 10px 0;">연동된 이벤트 정보가 존재하지 않습니다.</div>
+      {% endif %}
+    </div>
+
+    <div class="summary-section-card">
+      <div class="section-title">
+        <span>BP</span>
+        <span class="section-total-badge">${{ total_fuel|default:"0" }}</span>
+      </div>
+      {% if fuel_expenses %}
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th class="col-type">주유소/항목</th>
+              <th class="col-memo">메모(Memo)</th>
+              <th class="col-amount text-right">금액</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in fuel_expenses %}
+              <tr>
+                <td class="col-type-data">
+                  {% if item.expense_type %}
+                    {{ item.get_expense_type_display|default:item.expense_type }}
+                  {% else %}
+                    주유 내역
+                  {% endif %}
+                </td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|default:"0" }}</td>
+
+                <td class="text-center">
+
+                    <div class="modal fade" id="fuelModal-{{ item.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="fuelModalLabel-{{ item.id|default:forloop.counter }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="fuelModalLabel-{{ item.id|default:forloop.counter }}" style="font-size: 15px; font-weight: 700;">
+                              영수증 파일: {{ item.file_key|default:"이미지 상세보기" }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body text-center p-3">
+                            <img src="{{ item.image_url }}" alt="S3 영수증 이미지" style="max-width: 100%; height: auto; border-radius: 8px;">
+                          </div>
+                          <div class="modal-footer p-2">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                 
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>      
+      {% else %}
+        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 주유비 내역이 없습니다.</div>
+      {% endif %}
+    </div>
+
+    <div class="summary-section-card">
+      <div class="section-title">
+        <span>Guide Expenses</span>
+        <span class="section-total-badge">${{ total_guide|default:"0" }}</span>
+      </div>
+      {% if guide_expenses or overtimes %}
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th class="col-type">지출 항목</th>
+              <th class="col-memo">메모(Memo)</th>
+              <th class="col-amount text-right">금액</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in guide_expenses %}
+              <tr>
+                <td class="col-type-data">{{ item.get_expense_type_display|default:item.expense_type }}</td>
+                <td class="col-memo-data"><span class="text-muted">{{ item.memo|default:"-" }}</span></td>
+                <td class="col-amount-data text-right">${{ item.expense|default:"0" }}</td>
+
+                <td class="text-center">
+                  
+                      <div class="modal fade" id="expModal-{{ item.id|default:forloop.counter }}" tabindex="-1" aria-labelledby="fuelModalLabel-{{ item.id|default:forloop.counter }}" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="fuelModalLabel-{{ item.id|default:forloop.counter }}" style="font-size: 15px; font-weight: 700;">
+                              영수증 파일: {{ item.file_key|default:"이미지 상세보기" }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body text-center p-3">
+                            <img src="{{ item.image_url }}" alt="S3 영수증 이미지" style="max-width: 100%; height: auto; border-radius: 8px;">
+                          </div>
+                          <div class="modal-footer p-2">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">닫기</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="text-muted" style="text-align: center; padding: 10px 0;">등록된 가이드 경비 내역이 없습니다.</div>
+      {% endif %}
+    </div>
+
+    <!-- Grand Total -->
+    <div class="grand-total-box">
+      <div class="grand-total-title">최종 정산 예정 금액 (Grand Total)</div>
+      <div class="grand-total-amount">${{ grand_total|default:"0" }}</div>
+    </div>
+
+    <button type="submit" id="submit-final-btn" class="btn-submit">작성 완료 및 리포트 제출 (Submit)</button>
+  </form>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const mainForm = document.getElementById("summary-final-form");
+    const submitBtn = document.getElementById("submit-final-btn");
+
+    if (mainForm && submitBtn) {
+      mainForm.addEventListener("submit", function () {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "리포트를 서버에 안전하게 등록 중입니다...";
+      });
+    }
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(function(modal) {
+      document.body.appendChild(modal);
+    });
+  });
+</script>
+
+{% endblock %}

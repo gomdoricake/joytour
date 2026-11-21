@@ -1,0 +1,495 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  /* ==========================================================
+     📱 [기본 스타일] 모바일을 기준으로 설계 (450px 이하 풀화면 변신)
+     ========================================================== */
+  
+  html, body, .container {
+    background-color: #ffffff !important;
+    background-image: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 화이트 글래스모피즘 컨테이너 -> 모바일 전체화면 밀착형으로 전환 */
+  .report-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 40px 16px 80px 16px !important; 
+    font-family: sans-serif;
+    background: #ffffff !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    min-height: 100vh;
+  }
+
+  /* 상단 이동 링크 */
+  .nav-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 16px;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* 타이틀 스타일 */
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 25px 0;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #f1f5f9;
+    letter-spacing: -0.5px;
+    word-break: keep-all;
+  }
+  
+  /* 리포트 정보 박스 브랜딩 */
+  .report-info-box {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 25px;
+    box-sizing: border-box;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .report-info-box strong {
+    color: #475569;
+    font-weight: 700;
+    margin-right: 4px;
+  }
+  
+  /* 🌟 [모바일 최적화] 동적 추가 경비 행 카드 포맷 */
+  .expense-form-row {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column; /* 모바일은 무조건 세로로 정렬하여 인풋 찌그러짐 방지 */
+    gap: 16px;
+    padding-right: 20px !important; /* 우측 절대좌표 여백 제거 */
+    box-shadow: 0 4px 6px rgba(15, 23, 42, 0.01);
+    box-sizing: border-box;
+  }
+
+  /* 입력 항목 레이아웃 그룹 */
+  .form-group { 
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* 라벨 스타일 */
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* 🌟 인풋 요소 공통 - iOS 터치 시 자동 확대(줌인) 현상 방지를 위해 15px 할당 */
+  .form-group input, 
+  .form-group select {
+    width: 100% !important;
+    padding: 13px 14px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    font-size: 15px !important; /* iOS 자동 줌 억제 마지노선 */
+    font-weight: 600;
+    color: #1e293b;
+    box-sizing: border-box !important;
+    background: #fff;
+    transition: all 0.2s ease;
+    -webkit-appearance: none;
+  }
+  .form-group input:focus, 
+  .form-group select:focus {
+    border-color: #4f46e5 !important;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+  }
+
+  /* 커스텀 드롭다운 화살표 스타일 정돈 */
+  .form-group select {
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748b%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 14px top 50% !important;
+    background-size: 10px auto !important;
+    padding-right: 36px !important;
+    cursor: pointer;
+  }
+
+  /* 📱 [모바일 전용] 삭제 버튼 하단 와이드 배치로 터치 영역 최적화 */
+  .btn-remove {
+    position: static !important;
+    transform: none !important;
+    width: 100%;
+    background: #fff1f2;
+    color: #f43f5e;
+    border: 1px solid #ffe4e6;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+  }
+  .btn-remove:hover {
+    background: #ffe4e6;
+    color: #e11d48;
+    border-color: #fecdd3;
+  }
+
+  /* ➕ 항목 추가 버튼 (연한 그린 스킨) */
+  .btn-add {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #dcfce7;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .btn-add:hover {
+    background: #dcfce7;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+
+  /* 🚀 다음 단계 제출 버튼 (인디고 그라디언트) */
+  .btn-submit {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 30px;
+    box-sizing: border-box;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.2);
+    font-family: inherit;
+    text-align: center;
+  }
+  .btn-submit:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+  .btn-submit:disabled {
+    background: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+
+  /* ==========================================================
+     🖥️ [반전 미디어 쿼리] 화면 너비 451px 이상일 때 기존 PC 스킨 복원
+     ========================================================== */
+  @media screen and (min-width: 451px) {
+    html, body {
+      background-color: #f8fafc !important;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.06) 0px, transparent 50%) !important;
+    }
+    
+    .container {
+      width: 100% !important;
+      max-width: 1200px !important;
+      margin: 0 auto !important;
+    }
+
+    /* 원본 글래스모피즘 폼 컨테이너 구조 원상 복원 */
+    .report-container {
+      max-width: 720px !important;
+      margin: 60px auto !important;
+      padding: 40px !important;
+      background: rgba(255, 255, 255, 0.85) !important; 
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    .title { font-size: 24px !important; margin-bottom: 25px !important; }
+    .report-info-box { margin-bottom: 35px !important; }
+
+    /* 🖥️ PC 전용: 고급 가로형 플렉스 인라인 멀티 인풋 구조 완전 복원 */
+    .expense-form-row {
+      display: flex !important;
+      flex-direction: row !important;
+      flex-wrap: wrap !important;
+      padding: 24px !important;
+      padding-right: 90px !important; /* 삭제 버튼 공간 확보 */
+      margin-bottom: 20px !important;
+    }
+
+    /* 가로 배열 내 세부 너비 비율 복원 */
+    .form-group { 
+      flex: 1 !important; 
+      min-width: 140px !important; 
+    }
+    .form-group:has(input[name$="-memo"]) {
+      flex: 1.5 !important;
+    }
+    .form-group label {
+      margin-bottom: 8px !important;
+    }
+
+    /* 데스크톱 가독성 스케일 인풋 크기 복원 */
+    .form-group input, 
+    .form-group select {
+      padding: 12px 14px !important;
+      font-size: 14px !important;
+    }
+
+    /* 🖥️ PC 전용: 수직 정중앙 미들 링크 타입 삭제 버튼 복원 */
+    .btn-remove {
+      position: absolute !important;
+      top: 50% !important;
+      transform: translateY(-50%) !important;
+      right: 20px !important;
+      width: auto !important;
+      padding: 10px 14px !important;
+      font-size: 12px !important;
+      margin-top: 0 !important;
+    }
+
+    .btn-submit {
+      margin-top: 35px !important;
+    }
+    .btn-submit:hover {
+      transform: translateY(-2px) !important;
+      box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+    }
+  }
+</style>
+
+<datalist id="restaurant_datalist">
+  {% for key, value in RESTAURANT_CHOICES %}
+    <option value="{{ key }}">{{ value }}</option>
+  {% endfor %}
+</datalist>
+
+<div class="report-container">
+  <div class="nav-block">
+    <a href="{% url 'guidereports:guidereport_inbound_events' %}" class="back-link">← 이전 단계로 돌아가기</a>
+  </div>
+
+  <h2 class="title">Restaurant 경비 내역</h2>
+
+  <form method="post" id="real-expense-form">
+    {% csrf_token %} 
+    {{ formset.management_form }}
+
+    <div id="expense-form-list">
+      {% for form in formset %}
+      <div class="expense-form-row">
+        {{ form.id }}
+        <div style="display: none">{{ form.DELETE }}</div>
+        
+        <div class="form-group"><label>날짜</label>{{ form.report_date }}</div>
+        
+        <div class="form-group">
+          <label>식당명 / 타입</label>
+          {{ form.expense_type }}
+        </div>
+        
+        <div class="form-group"><label>Memo (메모)</label>{{ form.memo }}</div>
+        
+        <button type="button" class="remove-form-btn btn-remove">삭제</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-bottom: 16px;">
+      <button type="button" id="add-form-btn" class="btn-add">➕ Restaurant 항목 추가하기</button>
+    </div>
+
+    <button type="submit" id="submit-final-btn" class="btn-submit">다음 단계로 이동 (Next: Attraction)</button>
+  </form>
+</div>
+
+<div id="empty-form-template" style="display: none">
+  <div class="expense-form-row">
+    {{ formset.empty_form.id }}
+    <div style="display: none">{{ formset.empty_form.DELETE }}</div>
+    <div class="form-group"><label>날짜</label>{{ formset.empty_form.report_date }}</div>
+    <div class="form-group">
+      <label>식당명 / 타입</label>
+      {{ formset.empty_form.expense_type }}
+    </div>
+    <div class="form-group"><label>Memo (메모)</label>{{ formset.empty_form.memo }}</div>
+    <button type="button" class="remove-form-btn btn-remove">삭제</button>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const formContainer = document.getElementById("expense-form-list");
+  const addButton = document.getElementById("add-form-btn");
+  const mainForm = document.getElementById("real-expense-form");
+  const submitBtn = document.getElementById("submit-final-btn");
+  const totalFormsInput = document.getElementById("id_{{ formset.prefix }}-TOTAL_FORMS");
+  const prefix = "{{ formset.prefix }}";
+
+  const eventDates = [
+    {% for event in guide_report.events.all %}
+      "{{ event.report_date|date:'Y-m-d' }}",
+    {% endfor %}
+  ];
+
+  // datalist 바인딩 함수
+  function bindDataList(container) {
+    const expenseInputs = container.querySelectorAll(`input[name*='expense_type']`);
+    expenseInputs.forEach(input => {
+      input.setAttribute("list", "restaurant_datalist");
+    });
+  }
+
+  // 전체 ID 및 Name 인덱스를 완벽하게 재정렬하는 함수
+  function updateFormIndices() {
+    const rows = formContainer.querySelectorAll(".expense-form-row");
+    
+    rows.forEach((row, currentIndex) => {
+      row.querySelectorAll("input, select, textarea").forEach((input) => {
+        if (input.name) {
+          // 원래 있던 인덱스 번호 패턴을 찾아서 현재의 고유 순서(currentIndex)로 교체
+          input.name = input.name.replace(new RegExp(`${prefix}-\\d+-`, 'g'), `${prefix}-${currentIndex}-`);
+        }
+        if (input.id) {
+          input.id = input.id.replace(new RegExp(`id_${prefix}-\\d+-`, 'g'), `id_${prefix}-${currentIndex}-`);
+        }
+      });
+    });
+
+    // 장고가 인식할 전체 폼 개수 갱신
+    if (totalFormsInput) {
+      totalFormsInput.value = rows.length;
+    }
+  }
+
+  // 초기 로드 시 데이터리스트 바인딩
+  bindDataList(formContainer);
+
+  // 추가 버튼 로직
+  addButton.addEventListener("click", function () {
+    const noDataAlert = document.getElementById("no-data-alert");
+    if (noDataAlert) noDataAlert.remove();
+
+    const template = document.getElementById("empty-form-template").firstElementChild;
+    const newRow = template.cloneNode(true);
+    
+    const currentFormCount = formContainer.querySelectorAll(".expense-form-row").length;
+
+    // 빈 폼의 고유 접두사를 현재 인덱스로 치환
+    const prefixRegex = new RegExp(`__prefix__`, "g");
+    const inputs = newRow.querySelectorAll("input, select, textarea");
+
+    inputs.forEach((input) => {
+      if (input.name) input.name = input.name.replace(prefixRegex, currentFormCount);
+      if (input.id) input.id = input.id.replace(prefixRegex, currentFormCount);
+
+      if (input.type !== "hidden") {
+        if (input.tagName === "SELECT") {
+          input.selectedIndex = 0;
+        } else {
+          input.value = "";
+        }
+      }
+    });
+
+    // 날짜 자동 분배 배정
+    const dateIndex = Math.floor(currentFormCount / 2);
+    const targetDateInput = newRow.querySelector(`input[name*='report_date']`);
+    
+    if (targetDateInput && eventDates.length > 0) {
+      const assignedDate = eventDates[dateIndex] || eventDates[eventDates.length - 1];
+      targetDateInput.value = assignedDate;
+    }
+
+    formContainer.appendChild(newRow);
+    bindDataList(newRow);
+
+    // 추가 후 인덱스 마스터 업데이트
+    updateFormIndices();
+  });
+
+  // [🔥 해결 완료] 삭제 클릭 이벤트 핸들러
+  formContainer.addEventListener("click", function (event) {
+    if (event.target.classList.contains("remove-form-btn")) {
+      const row = event.target.closest(".expense-form-row");
+      const idInput = row.querySelector("input[type='hidden'][name$='-id']");
+      
+      if (idInput && idInput.value) {
+        // 이미 DB에 존재하는 데이터라면 지우지 않고 DELETE 체크박스를 체크 후 숨김
+        row.style.display = "none";
+        const deleteCheckbox = row.querySelector("input[type='checkbox'][name$='-DELETE']");
+        if (deleteCheckbox) {
+          deleteCheckbox.checked = true;
+        }
+      } else {
+        // 새로 추가했던 카드라면 돔(DOM) 구조에서 완전히 삭제
+        row.remove();
+        // 삭제 후 남아있는 카드들의 순서와 장고 관리 번호를 싹 재정렬
+        updateFormIndices();
+      }
+    }
+  });
+
+  // 폼 서브밋 디펜스
+  mainForm.addEventListener("submit", function () {
+    submitBtn.disabled = true;
+    submitBtn.innerText = "다음 단계 양식 생성 중 (Attraction)...";
+  });
+});
+</script>
+
+{% endblock %}
